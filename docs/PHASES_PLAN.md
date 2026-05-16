@@ -17,7 +17,7 @@ This document establishes the official development sprints, feature milestone gr
     - Install and configure ESLint + `@angular-eslint` — verify `bun run lint` passes on a clean scaffold.
     - Install and configure Vitest for Angular component testing.
 
-- [ ] **1.2 Supabase Infrastructure Activation**
+- [x] **1.2 Supabase Infrastructure Activation**
     - Spin up local Docker development containers using the Supabase CLI.
     - Execute the baseline DDL migrations defined in `DB_SCHEMA_MATRIX.md` to establish tables: `profiles`, `zones`, `plants`, and `plant_journals`.
     - Apply Row-Level Security (RLS) configurations across all initialized tables.

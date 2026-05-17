@@ -207,6 +207,55 @@ Write one guard per schema defined in `docs/AI_PROMPT_MANIFEST.md`. Keep guards 
 
 ---
 
+## External API Error Handling — Silent Degradation
+
+FloraFlow's core loop (soil checks, journaling, snoozing) must never be blocked by an enrichment API failure. External data is enhancement, not the app's primary purpose.
+
+### Degradation Tiers
+
+| Failure scenario | Server behaviour | User sees |
+|---|---|---|
+| Perenual returns empty or crashes | Hand off silently to AI Scribe — same code path | Nothing, enrichment proceeds |
+| AI Scribe also fails (quota, network) | Return partial record with enriched fields omitted | Plant created; enriched fields show `—` with tooltip "Details unavailable" |
+| Leaf Doctor fails or quota exhausted | Return `{ error: 'diagnosis_unavailable' }` with HTTP 503 | Inline soft message where result would appear; photo is still saved |
+| Open-Meteo fails | Return `{ weather: null }` | Weather widget shows `—`; dashboard loads normally |
+| Resend cron fails | Log error server-side only | User is unaware; no email that cycle |
+
+### Rules
+
+- **Never throw a blocking modal or full-page error** for an enrichment API failure.
+- **Always complete the primary write** (plant creation, journal entry, soil-check log) before attempting any enrichment call. Enrichment is fire-and-forget.
+- **Use HTTP 503** (not 500) when an upstream API is unavailable — it signals a transient external failure, not a bug.
+- **Log all upstream errors** to `console.error` in the Edge Function so they appear in Supabase Edge Function logs for debugging.
+
+### Pattern — Enrichment with Graceful Fallback
+
+```ts
+// Primary write always happens first
+const { data: plant, error } = await supabase
+  .from('plants')
+  .insert({ user_id: user.id, common_name, zone_id })
+  .select()
+  .single();
+
+if (error) throw error; // only throw on our own DB errors
+
+// Enrichment is best-effort — never let it block the response
+try {
+  const enriched = await fetchEnrichment(plant.scientific_name);
+  if (enriched) {
+    await supabase.from('cached_botanical_records').insert(enriched);
+  }
+} catch (enrichErr) {
+  console.error('Enrichment failed — degrading gracefully:', enrichErr);
+  // plant was already saved; just return it without enriched fields
+}
+
+return json(plant);
+```
+
+---
+
 ## Supabase Auth in Edge Functions
 
 ```ts

@@ -101,29 +101,27 @@ private readonly _sub = this.stream$
 ```html
 <!-- @if — replaces *ngIf -->
 @if (plant()) {
-  <article>{{ plant().commonName }}</article>
+<article>{{ plant().commonName }}</article>
 } @else {
-  <p>No plant selected.</p>
+<p>No plant selected.</p>
 }
 
 <!-- @for — replaces *ngFor — track is mandatory -->
 @for (p of plants(); track p.id) {
-  <li>{{ p.commonName }}</li>
+<li>{{ p.commonName }}</li>
 } @empty {
-  <p>No plants yet.</p>
+<p>No plants yet.</p>
 }
 
 <!-- @switch — replaces *ngSwitch -->
-@switch (status()) {
-  @case ('dry')   { <span class="text-warning-500">Water needed</span> }
-  @case ('moist') { <span class="text-primary-500">All good</span>    }
-  @default        { <span>Unknown</span> }
-}
+@switch (status()) { @case ('dry') { <span class="text-warning-500">Water needed</span> } @case
+('moist') { <span class="text-primary-500">All good</span> } @default { <span>Unknown</span> } }
 
 <!-- @let — for aliasing a signal call or narrowing a type, not for computation -->
-@let plant = selectedPlant();   <!-- alias to avoid repeated plant()() calls -->
+@let plant = selectedPlant();
+<!-- alias to avoid repeated plant()() calls -->
 @if (plant) {
-  <h2>{{ plant.commonName }}</h2>
+<h2>{{ plant.commonName }}</h2>
 }
 
 <!-- ❌ Never compute in @let — put derived logic in computed() in the class instead -->
@@ -140,19 +138,22 @@ private readonly _sub = this.stream$
 ```html
 <!-- Lazy-load heavy components -->
 @defer (on viewport) {
-  <app-journal-timeline />
+<app-journal-timeline />
 } @loading (minimum 200ms) {
-  <p class="text-neutral-600 text-sm">Loading…</p>
+<p class="text-neutral-600 text-sm">Loading…</p>
 } @error {
-  <p class="text-danger-500">Failed to load. Try refreshing.</p>
+<p class="text-danger-500">Failed to load. Try refreshing.</p>
 } @placeholder {
-  <div class="h-32 bg-neutral-100 rounded-garden-md animate-pulse"></div>
+<div class="h-32 bg-neutral-100 rounded-garden-md animate-pulse"></div>
 }
 
 <!-- Other triggers -->
-@defer (on idle)        { ... }  <!-- when browser is idle -->
-@defer (on interaction) { ... }  <!-- on first user interaction -->
-@defer (when isAdmin()) { ... }  <!-- conditional -->
+@defer (on idle) { ... }
+<!-- when browser is idle -->
+@defer (on interaction) { ... }
+<!-- on first user interaction -->
+@defer (when isAdmin()) { ... }
+<!-- conditional -->
 ```
 
 ---
@@ -225,8 +226,8 @@ export const FloraCardPT = {
 
 // ✅ satisfies — validates against the PT interface, preserves literal types
 export const FloraCardPT = {
-  root:    { class: 'bg-neutral-100 rounded-garden-md p-5 shadow-sm' },
-  title:   { class: 'text-lg font-semibold text-neutral-900' },
+  root: { class: 'bg-neutral-100 rounded-garden-md p-5 shadow-sm' },
+  title: { class: 'text-lg font-semibold text-neutral-900' },
   content: { class: 'text-sm text-neutral-600' },
 } satisfies CardPassThroughOptions;
 ```
@@ -240,9 +241,9 @@ Apply `satisfies` to every PT object exported from `docs/DESIGN_SYSTEM.md`.
 ```ts
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideExperimentalZonelessChangeDetection(),  // zoneless — no zone.js
+    provideZonelessChangeDetection(), // zoneless — no zone.js
     provideRouter(routes, withComponentInputBinding()),
-    provideHttpClient(withFetch()),                // native fetch, not XHR
+    provideHttpClient(withFetch()), // native fetch, not XHR
   ],
 };
 ```

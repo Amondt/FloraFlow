@@ -81,7 +81,6 @@ All agent definitions live in `.claude/commands/`. Edit them directly to adjust 
         ├── plumber.md       # The Plumber — data role
         └── gatekeeper.md    # The Gatekeeper — QA role
 
-> `skills.json` in the project root is a **documentation artifact only** — it describes the agent roles in human-readable form but is not read by any tool at runtime.
 
 ---
 
@@ -97,13 +96,13 @@ Validate your PostgreSQL schema changes and local Row-Level Security rules by ex
 
 ### 4.2 Run Quality Assurance Engine
 
-Invoke the **Gatekeeper Agent Review Loop** locally using your designated task utility tool:
+Invoke the **Gatekeeper Agent** directly via its slash command:
 
     # General Code Elegance Check
-    bun run code-review
+    /gatekeeper review the current codebase
 
     # Target Security Verification (Audits Supabase Isolation Contexts)
-    bun run code-review --mode=SECURITY
+    /gatekeeper [SECURITY] audit the current RLS policies
 
 ---
 

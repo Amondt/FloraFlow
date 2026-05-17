@@ -77,7 +77,7 @@ Represents individual plant instances located inside specific ecosystem zones.
 
 ### 🤖 2.4 Table: `cached_botanical_records`
 
-The Anti-Hallucination Cache & Enrichment Sink. This table buffers raw external API responses and stores Gemini-enriched data schemas. Subsequent global queries look up data here first before calling outbound APIs.
+The Anti-Hallucination Cache & Enrichment Sink. This table buffers raw external API responses and stores Claude-enriched data schemas. Subsequent global queries look up data here first before calling outbound APIs.
 
     CREATE TABLE public.cached_botanical_records (
         scientific_name TEXT PRIMARY KEY,

@@ -9,6 +9,7 @@ This document establishes the official, immutable system personas, prompt archit
 - **Trigger Context:** Executed when a Perenual/Pl@ntNet API query misses crucial biological metrics or returns empty data fields.
 - **Target Interface:** Supabase Deno Edge Function (`supabase/functions/claude-enrichment`)
 - **Model Class:** Anthropic Claude Haiku (`claude-haiku-4-5-20251001`) — fast, structured JSON output
+- **max_tokens:** `512` — JSON schema output is compact; no prose expected
 
 ### 🤖 1.1 System Prompt Definition
 
@@ -58,6 +59,9 @@ The inference pipeline must strictly mandate a JSON Schema response matching you
 - **Trigger Context:** User uploads or snaps a photo inside the Add Plant form flow when they do not know the species name.
 - **Target Interface:** Angular Add-Plant form component to Supabase Edge Function (`supabase/functions/claude-plant-id`)
 - **Model Class:** Anthropic Claude Sonnet (`claude-sonnet-4-6`) — multimodal image analysis
+- **max_tokens:** `1024` — image analysis produces a richer JSON payload than text-only enrichment
+
+> **Vision call format:** See **section 3.0** for the exact `messages` array shape used to send base64 images to Claude. The same pattern applies here.
 
 ### 🤖 2.1 System Prompt Definition
 
@@ -119,6 +123,7 @@ The inference pipeline must strictly mandate a JSON Schema response matching you
 - **Trigger Context:** User snaps or uploads an image within their care log timeline to analyze structural distress or discoloration.
 - **Target Interface:** Angular Presentational Layer Component to Supabase Edge Function Proxying Claude Multimodal API Endpoint (`supabase/functions/claude-vision`)
 - **Model Class:** Anthropic Claude Sonnet (`claude-sonnet-4-6`) — multimodal image analysis
+- **max_tokens:** `1024` — diagnostic arrays and remediation steps may be verbose
 
 ### 🤖 3.1 System Prompt Definition
 
@@ -127,6 +132,41 @@ The inference pipeline must strictly mandate a JSON Schema response matching you
     CRITICAL GUARDRAILS:
     1. If the uploaded image does not primarily focus on a plant asset, leaf structure, or cultivation soil layer, immediately return an error state indicating a non-botanical image was provided.
     2. Do not include casual pleasantries, greetings, or loose text explanations. You must communicate exclusively using a valid, parseable JSON data structure.
+
+### 📡 3.0 Vision API Call Format
+
+Both the Plant Identifier and the Leaf Doctor send an image to Claude. The image must be base64-encoded and passed as an `image` content block — not as a URL or plain text.
+
+The Edge Function receives the image as a base64 string from the Angular client. Here is the exact `messages` array shape to use with the Anthropic SDK:
+
+```ts
+const msg = await anthropic.messages.create({
+  model:      'claude-sonnet-4-6',
+  max_tokens: 1024,
+  system:     '...system prompt from section 2.1 or 3.1...',
+  messages: [
+    {
+      role: 'user',
+      content: [
+        {
+          type:   'image',
+          source: {
+            type:       'base64',
+            media_type: imageMediaType, // 'image/jpeg' | 'image/png' | 'image/webp'
+            data:        imageBase64,   // raw base64 string, no data-URI prefix
+          },
+        },
+        {
+          type: 'text',
+          text: 'Analyze this image and return a JSON response matching the schema.',
+        },
+      ],
+    },
+  ],
+});
+```
+
+The Angular client must strip the `data:image/jpeg;base64,` prefix before sending `imageBase64` to the Edge Function — only the raw base64 payload is valid here.
 
 ### 📝 3.2 Outbound JSON Schema Structure
 

@@ -22,7 +22,7 @@ CREATE TYPE substrate_factor_type AS ENUM (
 );
 
 CREATE TYPE log_category_type AS ENUM (
-  'Observation', 'Pruning', 'Repotting',
+  'Observation', 'Watering', 'Pruning', 'Repotting',
   'Fertilization', 'PestTreatment'
 );
 
@@ -136,3 +136,71 @@ CREATE POLICY "Gardeners manage their own journal entries"
 ON public.plant_journals FOR ALL
 USING     (auth.uid() = user_id)
 WITH CHECK (auth.uid() = user_id);
+
+CREATE INDEX idx_journals_plant ON public.plant_journals(plant_id);
+CREATE INDEX idx_journals_user  ON public.plant_journals(user_id);
+
+-- ─── UPDATED_AT TRIGGER ───────────────────────────────────
+-- Automatically advances updated_at on every UPDATE — without this the
+-- column stays at its initial DEFAULT value forever.
+
+CREATE OR REPLACE FUNCTION public.update_updated_at()
+RETURNS TRIGGER LANGUAGE plpgsql AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER trg_profiles_updated_at
+  BEFORE UPDATE ON public.profiles
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at();
+
+CREATE TRIGGER trg_zones_updated_at
+  BEFORE UPDATE ON public.zones
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at();
+
+CREATE TRIGGER trg_plants_updated_at
+  BEFORE UPDATE ON public.plants
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at();
+
+-- ─── AUTO-PROFILE ON SIGNUP ───────────────────────────────
+-- zones and plants FK to profiles.id. Without this trigger a new user
+-- has no profiles row, so their first zone/plant insert fails.
+
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, display_name)
+  VALUES (
+    NEW.id,
+    COALESCE(NEW.raw_user_meta_data->>'display_name', NEW.email)
+  );
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- ─── SNOOZE RPC ───────────────────────────────────────────
+-- Called from the client via supabase.rpc('snooze_plant_check', {...}).
+-- auth.uid() resolves from the caller's JWT — never call this from an
+-- Edge Function using service_role, where auth.uid() returns null.
+
+CREATE OR REPLACE FUNCTION public.snooze_plant_check(
+  p_plant_id UUID,
+  p_days     INT
+) RETURNS VOID LANGUAGE plpgsql SECURITY DEFINER AS $$
+BEGIN
+  UPDATE public.plants
+  SET
+    last_checked_at              = NOW(),
+    next_check_due_at            = NOW() + (p_days * INTERVAL '1 day'),
+    current_snooze_interval_days = p_days,
+    updated_at                   = NOW()
+  WHERE id = p_plant_id
+    AND user_id = auth.uid();
+END;
+$$;

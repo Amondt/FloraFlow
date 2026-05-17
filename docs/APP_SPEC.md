@@ -25,6 +25,7 @@ To maintain clean separation of concerns and isolate data fetching models from p
     │   │   ├── services/          # Supabase Client Core, Push Worker Setup
     │   │   └── guards/            # Auth Route Isolation Guards
     │   ├── features/              # Feature modules containing smart components
+    │   │   ├── auth/              # Login component (magic-link / email+password)
     │   │   ├── dashboard/         # Greenhouse Zone Grid UI & Overview
     │   │   ├── scheduler/         # Soil-Check Alert Hub & Snooze Modals
     │   │   ├── journal/           # Multi-modal Care Tracking & Photo Feeds

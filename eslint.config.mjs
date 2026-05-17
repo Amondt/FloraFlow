@@ -26,6 +26,6 @@ export default tsEslint.config(
     rules: { ...angularTemplate.configs.recommended.rules },
   },
   {
-    ignores: ['.angular/**', 'dist/**', 'node_modules/**'],
+    ignores: ['.angular/**', 'dist/**', 'node_modules/**', 'src/types/**'],
   },
 );

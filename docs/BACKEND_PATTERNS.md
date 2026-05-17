@@ -100,13 +100,60 @@ WITH CHECK (auth.uid() = user_id);
 
 ---
 
+## Shared Types for Edge Functions
+
+Deno's module resolver does not bundle files outside the function directory during `supabase functions deploy`. Cross-directory imports like `../../src/types/` fail in production.
+
+**Use the `_shared/` convention instead:**
+
+```bash
+# After running: supabase gen types typescript --local > src/types/database.types.ts
+# Copy the generated file into the shared Edge Function folder:
+cp src/types/database.types.ts supabase/functions/_shared/database.types.ts
+```
+
+Import from `_shared/` in every Edge Function:
+
+```ts
+import type { Database } from '../_shared/database.types.ts';
+```
+
+Re-run the copy step whenever the schema changes. The `_shared/` directory is bundled automatically by the Supabase CLI.
+
+---
+
+## Auto-Profile Creation Trigger
+
+`zones` and `plants` both FK to `profiles.id`. A new user has no `profiles` row until one is created — any first zone or plant insert will fail with a foreign key violation.
+
+Add this migration to run immediately after the `profiles` table DDL:
+
+```sql
+-- Fires on every new auth.users signup and inserts a matching profiles row
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, display_name)
+  VALUES (NEW.id, COALESCE(NEW.raw_user_meta_data->>'display_name', NEW.email));
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+```
+
+This runs server-side automatically — no client code needed.
+
+---
+
 ## Deno Edge Function — Full Structure
 
 ```ts
 import { createClient }   from 'npm:@supabase/supabase-js@2';
 import Anthropic           from 'npm:@anthropic-ai/sdk';
-// Database type lives in src/types/ — import via relative path from supabase/functions/
-import type { Database }  from '../../src/types/database.types.ts';
+import type { Database }  from '../_shared/database.types.ts'; // ← use _shared/, not ../../src/
 
 // CORS headers — required for browser requests
 const cors = {

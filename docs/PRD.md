@@ -89,7 +89,7 @@ Every plant instance records structural care matrices to feed the Smart Snooze d
 - **Functional Description:** A multimodal Claude vision pipeline that identifies an unknown plant from a user-uploaded photograph — distinct from the AI Leaf Doctor (which diagnoses health issues on a *known* plant).
 - **Primary Integration Point:** Exposed as a camera/upload action inside the **Add Plant form**. When a user does not know what plant they own, they snap a photo to receive an instant species identification before completing the form.
 - **Response Structure:** Returns a primary species match (common name, scientific name, confidence score) and up to three ranked alternative candidates if confidence is below a threshold.
-- **Safety Guard:** If the uploaded image does not contain a recognizable plant structure, the pipeline returns an `is_plant_image: false` flag and a user-facing error message — it never crashes or halluminates a species.
+- **Safety Guard:** If the uploaded image does not contain a recognizable plant structure, the pipeline returns an `is_plant_image: false` flag and a user-facing error message — it never crashes or hallucinates a species.
 - **Cache Integration:** On successful identification, the pipeline immediately checks `cached_botanical_records` for the identified species. If absent, it queues an AI Scribe enrichment pass so the new species is indexed for future global queries.
 
 ---

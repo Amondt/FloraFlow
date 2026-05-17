@@ -158,10 +158,11 @@ private readonly _sub = this.stream$
 
 ---
 
-## Async Data Fetching
+## Async Data Fetching (GET — httpResource)
 
 ```ts
 // httpResource (Angular 19+) — source signal drives the URL reactively
+// Use ONLY for GET requests. For mutations, see "Calling Edge Functions" below.
 readonly plantData = httpResource<Plant[]>(
   () => `/api/plants?zone=${this.zoneId()}`
 );
@@ -172,6 +173,43 @@ readonly plantData = httpResource<Plant[]>(
 // plantData.error()     → unknown
 // plantData.reload()    → trigger refetch
 ```
+
+---
+
+## Calling Edge Functions (POST Mutations)
+
+`httpResource` is read-only (GET). For POST/PATCH/DELETE calls to Supabase Edge Functions — such as triggering the AI Scribe, snoozing a plant check, or uploading a diagnosis image — use `HttpClient` directly.
+
+```ts
+import { inject }      from '@angular/core';
+import { HttpClient }  from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { environment } from '../../../environments/environment';
+
+// In a service or component
+private readonly http = inject(HttpClient);
+
+async callEdgeFunction<T>(fnName: string, body: unknown, token: string): Promise<T> {
+  const url = `${environment.supabaseUrl}/functions/v1/${fnName}`;
+  return firstValueFrom(
+    this.http.post<T>(url, body, {
+      headers: {
+        'Authorization': `Bearer ${token}`,  // user's Supabase JWT
+        'Content-Type': 'application/json',
+      },
+    })
+  );
+}
+
+// Usage — call after getting the session token from SupabaseService
+const result = await this.callEdgeFunction<EnrichmentPayload>(
+  'claude-enrichment',
+  { scientificName, commonName },
+  session.access_token
+);
+```
+
+**Why not `httpResource` here?** `httpResource` is designed for reactive GET fetches tied to signal-derived URLs. Mutations are imperative actions, not reactive queries — `HttpClient.post()` is the right fit.
 
 ---
 

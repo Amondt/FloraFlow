@@ -7,7 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "lint": "eslint src/**/*.ts src/**/*.html"
+    "lint": "eslint src/**/*.ts src/**/*.html --no-warn-ignored"
   },
   "private": true,
   "packageManager": "bun@1.3.13",

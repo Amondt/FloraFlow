@@ -2,15 +2,23 @@
 
 @theme {
   /* --- Semantic Palette --- */
-  --color-primary-50: #f0fdf4;
-  --color-primary-500: #10b981;
-  --color-primary-900: #064e3b;
+  --color-primary-50:  #f0fdf4;   /* Light Sage Accents */
+  --color-primary-500: #10b981;   /* Emerald Baseline Leaf Green */
+  --color-primary-900: #064e3b;   /* Deep Forest Branding Header */
 
-  --color-warning-500: #d97706;
-  --color-danger-500: #ef4444;
+  --color-warning-500: #d97706;   /* Terracotta Warning Accent */
+  --color-danger-500:  #ef4444;   /* Active Root Rot Alerts */
 
-  --color-neutral-900: #0f172a;
+  /* Full Neutral Scale — all steps used in PT objects; never omit a step */
+  --color-neutral-50:  #f8fafc;
   --color-neutral-100: #f1f5f9;
+  --color-neutral-200: #e2e8f0;
+  --color-neutral-300: #cbd5e1;
+  --color-neutral-400: #94a3b8;
+  --color-neutral-600: #475569;
+  --color-neutral-700: #334155;
+  --color-neutral-800: #1e293b;
+  --color-neutral-900: #0f172a;
 
   /* --- Typography --- */
   --font-display: "Inter", system-ui, sans-serif;
@@ -20,3 +28,6 @@
   --radius-garden-md: 0.75rem;
   --radius-garden-lg: 1.25rem;
 }
+
+/* Dark mode — add class="dark" to <html> to activate */
+@variant dark (&:where(.dark, .dark *));

@@ -96,7 +96,7 @@ The Anti-Hallucination Cache & Enrichment Sink. This table buffers raw external 
 
 Historical logs, tracking notes, and compressed photo records mapped per plant container.
 
-    CREATE TYPE log_category_type AS ENUM ('Observation', 'Pruning', 'Repotting', 'Fertilization', 'PestTreatment');
+    CREATE TYPE log_category_type AS ENUM ('Observation', 'Watering', 'Pruning', 'Repotting', 'Fertilization', 'PestTreatment');
 
     CREATE TABLE public.plant_journals (
         id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -120,7 +120,33 @@ To keep query computations lightweight and protect database limits from throttli
 
 ---
 
-## 4. Supabase Row-Level Security (RLS) Declarations
+## 4. `updated_at` Auto-Update Trigger
+
+Define this function once and attach it to every table that has an `updated_at` column. Without it, `updated_at` never advances beyond its initial default.
+
+    CREATE OR REPLACE FUNCTION public.update_updated_at()
+    RETURNS TRIGGER LANGUAGE plpgsql AS $$
+    BEGIN
+      NEW.updated_at = NOW();
+      RETURN NEW;
+    END;
+    $$;
+
+    CREATE TRIGGER trg_profiles_updated_at
+      BEFORE UPDATE ON public.profiles
+      FOR EACH ROW EXECUTE FUNCTION public.update_updated_at();
+
+    CREATE TRIGGER trg_zones_updated_at
+      BEFORE UPDATE ON public.zones
+      FOR EACH ROW EXECUTE FUNCTION public.update_updated_at();
+
+    CREATE TRIGGER trg_plants_updated_at
+      BEFORE UPDATE ON public.plants
+      FOR EACH ROW EXECUTE FUNCTION public.update_updated_at();
+
+---
+
+## 5. Supabase Row-Level Security (RLS) Declarations
 
 Enable RLS explicitly on all tables. This mandates that client queries passing through standard Supabase public API endpoints must match strict contextual execution functions.
 
@@ -131,6 +157,14 @@ Enable RLS explicitly on all tables. This mandates that client queries passing t
     ALTER TABLE public.cached_botanical_records ENABLE ROW LEVEL SECURITY;
 
 ### 🔓 Policy Blueprints
+
+#### Profiles Separation Rule
+
+    CREATE POLICY "Gardeners can manage their own profile"
+    ON public.profiles
+    FOR ALL
+    USING (auth.uid() = id)
+    WITH CHECK (auth.uid() = id);
 
 #### Zones Separation Rule
 
@@ -144,6 +178,14 @@ Enable RLS explicitly on all tables. This mandates that client queries passing t
 
     CREATE POLICY "Gardeners can manage their own specific plants"
     ON public.plants
+    FOR ALL
+    USING (auth.uid() = user_id)
+    WITH CHECK (auth.uid() = user_id);
+
+#### Plant Journals Separation Rule
+
+    CREATE POLICY "Gardeners can manage their own journal entries"
+    ON public.plant_journals
     FOR ALL
     USING (auth.uid() = user_id)
     WITH CHECK (auth.uid() = user_id);
@@ -165,11 +207,24 @@ Enable RLS explicitly on all tables. This mandates that client queries passing t
 
 ## 🧠 Strategic Notes for the Smart Snooze Loop
 
-When **The Plumber Agent** writes the database execution script for user interaction events, the **Smart Snooze Logic** operates like this natively in SQL:
+When **The Plumber Agent** writes the database execution script for user interaction events, the **Smart Snooze Logic** must be implemented as a **PostgreSQL stored procedure (RPC)** — not as a raw update inside an Edge Function.
 
-    UPDATE public.plants
-    SET
-        last_checked_at = NOW(),
-        next_check_due_at = NOW() + (current_snooze_interval_days * INTERVAL '1 day'),
-        updated_at = NOW()
-    WHERE id = 'target-plant-uuid' AND user_id = auth.uid();
+**Why RPC, not a direct Edge Function update?**
+Edge Functions use the `service_role` key, which bypasses RLS. Calling `auth.uid()` inside raw SQL run by the service role returns `null` — there is no JWT context. Wrap the logic in a stored procedure instead: the client calls `supabase.rpc('snooze_plant_check', { p_plant_id, p_days })`, which executes under the caller's JWT so `auth.uid()` resolves correctly.
+
+    -- Stored procedure — called from the client via supabase.rpc()
+    CREATE OR REPLACE FUNCTION public.snooze_plant_check(
+      p_plant_id UUID,
+      p_days     INT
+    ) RETURNS VOID LANGUAGE plpgsql SECURITY DEFINER AS $$
+    BEGIN
+      UPDATE public.plants
+      SET
+          last_checked_at           = NOW(),
+          next_check_due_at         = NOW() + (p_days * INTERVAL '1 day'),
+          current_snooze_interval_days = p_days,
+          updated_at                = NOW()
+      WHERE id = p_plant_id
+        AND user_id = auth.uid(); -- resolves from the caller's JWT
+    END;
+    $$;

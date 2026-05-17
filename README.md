@@ -1,59 +1,81 @@
 # FloraFlow
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.11.
+A smart gardening companion — context-aware plant care scheduling, botanical discovery, and AI-powered health diagnostics.
 
-## Development server
+Built as a training project with Angular 21, Supabase, and the Anthropic Claude API.
 
-To start a local development server, run:
+---
 
-```bash
-ng serve
-```
+## Tech Stack
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+| Layer       | Technology                                              |
+|-------------|---------------------------------------------------------|
+| Framework   | Angular 21 — standalone, Signals-first, zoneless        |
+| UI          | PrimeNG v18 (unstyled PassThrough) + Tailwind CSS v4    |
+| Backend     | Supabase — PostgreSQL, Auth, Deno Edge Functions        |
+| AI          | Anthropic Claude (Haiku + Sonnet)                       |
+| Testing     | Vitest                                                  |
+| Package manager | Bun                                                 |
 
-## Code scaffolding
+---
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Prerequisites
 
-```bash
-ng generate component component-name
-```
+- [Bun](https://bun.sh)
+- [Supabase CLI](https://supabase.com/docs/guides/cli)
+- [Docker](https://www.docker.com) (for the local Supabase stack)
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+---
 
-```bash
-ng generate --help
-```
+## Getting Started
 
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+### 1. Install dependencies
 
 ```bash
-ng test
+bun install
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
+### 2. Start the local Supabase stack
 
 ```bash
-ng e2e
+supabase start
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+### 3. Start the dev server
 
-## Additional Resources
+```bash
+bun run start
+```
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Open `http://localhost:4200` in your browser.
+
+---
+
+## Available Scripts
+
+| Command            | Description                              |
+|--------------------|------------------------------------------|
+| `bun run start`    | Start the Angular dev server             |
+| `bun run build`    | Production build to `dist/`             |
+| `bun run lint`     | Run ESLint across all TypeScript files   |
+| `bun run test`     | Run Vitest unit and component tests      |
+| `supabase start`   | Start local Supabase Docker stack        |
+| `supabase stop`    | Stop local Supabase Docker stack         |
+| `supabase db test` | Run RLS and schema integrity tests       |
+
+---
+
+## Project Documentation
+
+All design decisions, patterns, and architecture specs live in `docs/`:
+
+| File                        | Purpose                                      |
+|-----------------------------|----------------------------------------------|
+| `docs/PRD.md`               | Product requirements and feature definitions |
+| `docs/APP_SPEC.md`          | Angular architecture and routing spec        |
+| `docs/DB_SCHEMA_MATRIX.md`  | PostgreSQL schema and RLS policies           |
+| `docs/DESIGN_SYSTEM.md`     | Tailwind tokens and PrimeNG PT config        |
+| `docs/AI_PROMPT_MANIFEST.md`| Claude system prompts and JSON schemas       |
+| `docs/ANGULAR_PATTERNS.md`  | Angular 21 required patterns reference       |
+| `docs/BACKEND_PATTERNS.md`  | Edge Function and migration patterns         |
+| `docs/PHASES_PLAN.md`       | Build roadmap and QA acceptance criteria     |

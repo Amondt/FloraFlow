@@ -28,6 +28,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'library',
+    loadComponent: () =>
+      import('./features/library/library.component').then(
+        (m) => m.LibraryComponent,
+      ),
+  },
+  {
     path: 'vault',
     loadComponent: () =>
       import('./features/vault/vault.component').then((m) => m.VaultComponent),

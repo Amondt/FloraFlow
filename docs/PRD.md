@@ -48,6 +48,13 @@ Every plant instance records structural care matrices to feed the Smart Snooze d
 - **Functional Description:** A visual progress timeline that maps compressed historical photographs per individual plant asset.
 - **Log Categorization rules:** Users can filter logs across specific operational event markers: `Observation`, `Pruning`, `Repotting`, `Fertilization`, and `Pest Treatment`.
 
+### 📚 2.5 Plant Browser & Botanical Wiki
+
+- **Functional Description:** A dedicated `/library` discovery interface allowing users to search and filter the global botanical registry without already knowing a plant's exact name.
+- **Filter Dimensions:** Users can narrow results by watering frequency (frequent, average, minimal), sunlight requirements (full sun, partial shade, full shade), pet toxicity status (safe/toxic), and lifecycle type (annual, perennial, indoor, outdoor).
+- **Detail Panel:** Each search result expands into a species profile card sourced from `cached_botanical_records`, displaying soil pH range, propagation methods, and toxicity flags. If the record is not yet cached, the AI Scribe enrichment pipeline is triggered on demand.
+- **Greenhouse Integration:** A direct "Add to my greenhouse" action inside the detail panel pre-fills the Add Plant form, bridging discovery directly into the user's personal plant inventory.
+
 ---
 
 ## 3. Advanced Agricultural Expansion Modules
@@ -76,6 +83,14 @@ Every plant instance records structural care matrices to feed the Smart Snooze d
 
 - **Functional Description:** A non-disruptive math wizard tool isolated completely from the daily dashboard flow.
 - **Calculation Flow:** The user selects a target genus profile (e.g., Epiphytic Aroid, Desert Succulent, Carnivorous Bog) and inputs total target pot volumes (in Liters or Inches). The utility outputs a localized breakdown of raw volumes required (e.g., 40% Orchid Bark, 30% Perlite, 30% Coco Coir).
+
+### 📷 3.5 AI Plant Identifier (Photo-to-Species Pipeline)
+
+- **Functional Description:** A multimodal Claude vision pipeline that identifies an unknown plant from a user-uploaded photograph — distinct from the AI Leaf Doctor (which diagnoses health issues on a *known* plant).
+- **Primary Integration Point:** Exposed as a camera/upload action inside the **Add Plant form**. When a user does not know what plant they own, they snap a photo to receive an instant species identification before completing the form.
+- **Response Structure:** Returns a primary species match (common name, scientific name, confidence score) and up to three ranked alternative candidates if confidence is below a threshold.
+- **Safety Guard:** If the uploaded image does not contain a recognizable plant structure, the pipeline returns an `is_plant_image: false` flag and a user-facing error message — it never crashes or halluminates a species.
+- **Cache Integration:** On successful identification, the pipeline immediately checks `cached_botanical_records` for the identified species. If absent, it queues an AI Scribe enrichment pass so the new species is indexed for future global queries.
 
 ---
 

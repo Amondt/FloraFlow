@@ -53,13 +53,74 @@ The inference pipeline must strictly mandate a JSON Schema response matching you
 
 ---
 
-## 2. Core AI Leaf Doctor: Multimodal Vision Diagnostics (Phase 3)
+## 2. Core AI Plant Identifier: Photo-to-Species Recognition (Phase 3)
+
+- **Trigger Context:** User uploads or snaps a photo inside the Add Plant form flow when they do not know the species name.
+- **Target Interface:** Angular Add-Plant form component to Supabase Edge Function (`supabase/functions/claude-plant-id`)
+- **Model Class:** Anthropic Claude Sonnet (`claude-sonnet-4-6`) — multimodal image analysis
+
+### 🤖 2.1 System Prompt Definition
+
+    You are the FloraFlow AI Plant Identifier, a specialist botanical taxonomist trained in visual species recognition across vascular plants, succulents, ferns, mosses, and cultivated crops.
+
+    CRITICAL GUARDRAILS:
+    1. If the uploaded image does not clearly show a plant, leaf structure, stem, flower, or root system, set is_plant_image to false and populate error_message. Do not attempt identification.
+    2. Never hallucinate a species. If visual evidence is insufficient for confident identification, lower the confidence_score accordingly and populate alternative_candidates with plausible matches.
+    3. Return exclusively a valid, parseable JSON structure. No prose, no greetings, no markdown.
+
+### 📝 2.2 Outbound JSON Schema Structure
+
+    {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "is_plant_image": { "type": "boolean" },
+        "error_message": {
+          "type": ["string", "null"],
+          "description": "Populated only if is_plant_image is false."
+        },
+        "species_match": {
+          "type": ["object", "null"],
+          "description": "Primary identification result. Null if is_plant_image is false.",
+          "properties": {
+            "common_name": { "type": "string" },
+            "scientific_name": { "type": "string" },
+            "confidence_score": {
+              "type": "number",
+              "minimum": 0.0,
+              "maximum": 1.0,
+              "description": "Model confidence in the primary match. Below 0.6 is considered low confidence."
+            }
+          },
+          "required": ["common_name", "scientific_name", "confidence_score"]
+        },
+        "alternative_candidates": {
+          "type": "array",
+          "maxItems": 3,
+          "description": "Up to three alternative species if the primary match confidence is below 0.85.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "common_name": { "type": "string" },
+              "scientific_name": { "type": "string" },
+              "confidence_score": { "type": "number", "minimum": 0.0, "maximum": 1.0 }
+            },
+            "required": ["common_name", "scientific_name", "confidence_score"]
+          }
+        }
+      },
+      "required": ["is_plant_image", "error_message", "species_match", "alternative_candidates"]
+    }
+
+---
+
+## 3. Core AI Leaf Doctor: Multimodal Vision Diagnostics (Phase 3)
 
 - **Trigger Context:** User snaps or uploads an image within their care log timeline to analyze structural distress or discoloration.
 - **Target Interface:** Angular Presentational Layer Component to Supabase Edge Function Proxying Claude Multimodal API Endpoint (`supabase/functions/claude-vision`)
 - **Model Class:** Anthropic Claude Sonnet (`claude-sonnet-4-6`) — multimodal image analysis
 
-### 🤖 2.1 System Prompt Definition
+### 🤖 3.1 System Prompt Definition
 
     You are the FloraFlow AI Leaf Doctor, an advanced computer vision diagnostic engine specializing in agricultural pathology, plant physiology, and soil sciences.
 
@@ -67,7 +128,7 @@ The inference pipeline must strictly mandate a JSON Schema response matching you
     1. If the uploaded image does not primarily focus on a plant asset, leaf structure, or cultivation soil layer, immediately return an error state indicating a non-botanical image was provided.
     2. Do not include casual pleasantries, greetings, or loose text explanations. You must communicate exclusively using a valid, parseable JSON data structure.
 
-### 📝 2.2 Outbound JSON Schema Structure
+### 📝 3.2 Outbound JSON Schema Structure
 
     {
       "$schema": "http://json-schema.org/draft-07/schema#",

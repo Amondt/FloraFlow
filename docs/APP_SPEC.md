@@ -28,6 +28,7 @@ To maintain clean separation of concerns and isolate data fetching models from p
     │   │   ├── dashboard/         # Greenhouse Zone Grid UI & Overview
     │   │   ├── scheduler/         # Soil-Check Alert Hub & Snooze Modals
     │   │   ├── journal/           # Multi-modal Care Tracking & Photo Feeds
+    │   │   ├── library/           # Plant Browser, Botanical Wiki & AI Plant Identifier
     │   │   └── vault/             # Seed Vault & Germination Milestone Tracking
     │   ├── shared/                # Pure visual presentational components
     │   │   └── components/        # Base Layout Shell, Navs, Accessible Forms
@@ -60,6 +61,11 @@ Client routes are protected by checking user authentication against the internal
       {
         path: 'journal',
         loadComponent: () => import('./features/journal/journal.component').then(m => m.JournalComponent),
+        canActivate: [AuthGuard]
+      },
+      {
+        path: 'library',
+        loadComponent: () => import('./features/library/library.component').then(m => m.LibraryComponent),
         canActivate: [AuthGuard]
       },
       {

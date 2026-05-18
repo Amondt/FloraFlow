@@ -25,6 +25,22 @@
     />
   </header>
 
+  <!-- Overdue plant care banner -->
+  @if (overdueCount() > 0) {
+    <section aria-label="Plant care alerts" class="mb-6">
+      <p-message severity="warn" [pt]="FloraMessagePT">
+        <span aria-live="polite" aria-atomic="true">
+          {{ overdueCount() }} {{ overdueCount() === 1 ? 'plant needs' : 'plants need' }} a soil check.
+        </span>
+        <a
+          routerLink="/scheduler"
+          class="ml-2 font-semibold underline hover:opacity-80 transition-opacity"
+          aria-label="Go to Scheduler to review overdue soil checks"
+        >Go to Scheduler</a>
+      </p-message>
+    </section>
+  }
+
   <!-- Error banner -->
   @if (zoneService.error()) {
     <div

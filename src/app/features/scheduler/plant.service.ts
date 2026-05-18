@@ -29,6 +29,37 @@ export class PlantService {
     this.loading.set(false);
   }
 
+  async confirmCheck(plantId: string): Promise<void> {
+    this.loading.set(true);
+    this.error.set(null);
+
+    const plant = this.duePlants().find(p => p.id === plantId);
+    if (!plant) {
+      this.loading.set(false);
+      return;
+    }
+
+    const now = new Date();
+    const nextDue = new Date(now);
+    nextDue.setDate(nextDue.getDate() + plant.current_snooze_interval_days);
+
+    const { error } = await this.supabase.client
+      .from('plants')
+      .update({
+        last_checked_at: now.toISOString(),
+        next_check_due_at: nextDue.toISOString(),
+      })
+      .eq('id', plantId);
+
+    if (error) {
+      this.error.set(error.message);
+    } else {
+      await this.loadDuePlants();
+    }
+
+    this.loading.set(false);
+  }
+
   async snoozeCheck(plantId: string): Promise<void> {
     this.loading.set(true);
     this.error.set(null);

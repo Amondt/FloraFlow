@@ -1,0 +1,71 @@
+<main class="p-6 max-w-2xl mx-auto" aria-labelledby="scheduler-heading">
+
+  <header class="mb-6">
+    <h1
+      id="scheduler-heading"
+      class="text-2xl font-semibold font-display text-neutral-900 dark:text-white"
+    >
+      Soil-Check Scheduler
+    </h1>
+    <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1 font-display">
+      Plants with overdue soil checks.
+    </p>
+  </header>
+
+  <section
+    aria-label="Plant check alerts"
+    [attr.aria-busy]="plantService.loading()"
+  >
+
+    <!-- Polite live region: announces count to screen readers when loading finishes -->
+    <span class="sr-only" aria-live="polite" aria-atomic="true">
+      @if (!plantService.loading()) {
+        {{ plantService.duePlants().length }} plant checks due
+      }
+    </span>
+
+    @if (plantService.loading()) {
+      <ul class="flex flex-col gap-4" aria-label="Loading plant alerts">
+        @for (_ of loadingPlaceholders; track $index) {
+          <li
+            class="h-32 animate-[flora-skeleton_1.5s_ease-in-out_infinite] bg-neutral-200 dark:bg-neutral-700 rounded-garden-md"
+            aria-hidden="true"
+          ></li>
+        }
+      </ul>
+    } @else if (plantService.error()) {
+      <p-message severity="error" [pt]="FloraMessagePT">
+        {{ plantService.error() }}
+      </p-message>
+    } @else {
+      <ul class="flex flex-col gap-4" aria-label="Overdue plant checks">
+        @for (plant of plantService.duePlants(); track plant.id) {
+          <li>
+            <app-plant-alert-card
+              [plant]="plant"
+              (checkNow)="onCheckNow($event)"
+              (snooze)="onSnoozeFromCard($event)"
+            />
+          </li>
+        } @empty {
+          <li class="py-16 text-center" role="status">
+            <p class="text-neutral-500 dark:text-neutral-400 font-display text-sm">
+              All plants are on schedule — nothing due today.
+            </p>
+          </li>
+        }
+      </ul>
+    }
+
+  </section>
+
+  @if (selectedPlant(); as plant) {
+    <app-soil-check-dialog
+      [plant]="plant"
+      [(visible)]="dialogVisible"
+      (confirmed)="onConfirmed($event)"
+      (snoozed)="onSnoozed($event)"
+    />
+  }
+
+</main>

@@ -150,7 +150,36 @@ import type { ProgressSpinnerPassThroughOptions } from 'primeng/types/progresssp
 
 **`ConfirmDialogPT.root` nesting:** In v21, `ConfirmDialogPassThroughOptions['root']` is a `DialogPassThrough` object (not a `PassThroughOption`), so it must be nested: `root: { root: { class: '...' } }`.
 
-**`ButtonPT` props guard:** PrimeNG v21 calls the PT root function with `undefined` props during SSR/init. Always default: `({ props = {} }: { props?: {...} } = {}) =>`.
+**PrimeNG v21 PT function context — CRITICAL:** In v21 the context object passed to PT functions is `{ instance, parent }`, **not** `{ props, context, state }`. The old `{ props }` pattern silently falls back to an empty object, so all severity/variant branching is ignored and everything renders as the default style. Always use `{ instance }` to read component-level inputs.
+
+| What you need | Correct accessor | Where it applies |
+|---|---|---|
+| Component input (severity, variant, outlined…) | `instance?.severity` | Button, Tag, Message, Toast-message |
+| Per-item state (selected, focused, disabled…) | `({ context }) =>` | Select option, DatePicker day — PrimeNG passes these as explicit extra params |
+| Toast per-message severity | `instance?.message?.severity` | Toast `message` slot — the instance is the sub-component wrapping each message |
+
+```ts
+// ✅ Correct v21 pattern — component-level input
+root: ({ instance }: { instance?: { severity?: string | null; variant?: string } } = {}) => ({
+  class: {
+    'bg-primary-500 text-white': !instance?.severity || instance.severity === 'primary',
+    'bg-danger-500 text-white':   instance?.severity === 'danger',
+    'border border-primary-500':  instance?.variant === 'outlined',
+  },
+}),
+
+// ✅ Correct v21 pattern — per-item context (Select, DatePicker)
+option: ({ context }: { context?: { selected?: boolean } } = {}) => ({
+  class: { 'bg-primary-50': context?.selected },
+}),
+
+// ❌ BROKEN — props is never in the v21 context
+root: ({ props = {} }: { props?: { severity?: string } } = {}) => ({
+  class: { 'bg-danger-500': props.severity === 'danger' }, // never fires
+}),
+```
+
+**PT debugging rule:** Before writing or debugging a PT function, open an **already-working PT file** in `src/app/shared/ui/pt/` and copy its function signature exactly. `badge.pt.ts` is the canonical reference for `{ instance }`. `select.pt.ts` is the canonical reference for `{ context }`.
 
 ---
 
@@ -198,31 +227,31 @@ import type { ButtonPassThroughOptions } from 'primeng/button';
 import { FLORA_FOCUS, FLORA_DISABLED, FLORA_HOVER } from './states.pt';
 
 export const FloraButtonPT = {
-  root: ({ props = {} }: { props?: { severity?: string; outlined?: boolean; text?: boolean; variant?: string; loading?: boolean } } = {}) => ({
+  root: ({ instance }: { instance?: { severity?: string | null; outlined?: boolean; text?: boolean; variant?: string; loading?: boolean } } = {}) => ({
     class: [
       // base shape & typography
       'inline-flex items-center justify-center gap-2',
       'px-4 py-2 text-sm font-semibold font-display rounded-garden-sm',
       FLORA_FOCUS, FLORA_DISABLED, FLORA_HOVER,
-      // filled primary (default)
       {
+        // filled primary (default)
         'bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700':
-          !props.outlined && props.variant !== 'outlined' && !props.text && props.variant !== 'text' &&
-          (!props.severity || props.severity === 'primary'),
+          !instance?.outlined && instance?.variant !== 'outlined' && !instance?.text && instance?.variant !== 'text' &&
+          (!instance?.severity || instance.severity === 'primary'),
         // filled danger
         'bg-danger-500 text-white hover:bg-danger-700':
-          !props.outlined && props.variant !== 'outlined' && !props.text && props.variant !== 'text' &&
-          props.severity === 'danger',
+          !instance?.outlined && instance?.variant !== 'outlined' && !instance?.text && instance?.variant !== 'text' &&
+          instance?.severity === 'danger',
         // filled secondary (neutral)
         'bg-neutral-600 text-white hover:bg-neutral-700':
-          !props.outlined && props.variant !== 'outlined' && !props.text && props.variant !== 'text' &&
-          props.severity === 'secondary',
+          !instance?.outlined && instance?.variant !== 'outlined' && !instance?.text && instance?.variant !== 'text' &&
+          instance?.severity === 'secondary',
         // outlined variant
         'bg-transparent border border-primary-500 text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20':
-          props.outlined || props.variant === 'outlined',
+          instance?.outlined || instance?.variant === 'outlined',
         // ghost / text variant
         'bg-transparent text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 px-2':
-          props.text || props.variant === 'text',
+          instance?.text || instance?.variant === 'text',
       },
     ],
   }),

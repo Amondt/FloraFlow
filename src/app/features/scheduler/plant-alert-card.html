@@ -1,0 +1,59 @@
+<article
+  class="bg-neutral-100 dark:bg-neutral-800 border border-neutral-200/50 dark:border-neutral-700/50 rounded-garden-md p-5 shadow-sm transition-all duration-200 hover:shadow-md"
+  [attr.aria-labelledby]="headingId()"
+>
+
+  <header class="mb-4 flex items-start justify-between gap-3">
+    <h2
+      [id]="headingId()"
+      class="text-lg font-semibold font-display text-neutral-900 dark:text-white"
+    >
+      {{ plant().common_name }}
+    </h2>
+    <p-tag
+      [pt]="FloraTagPT"
+      [value]="overdueLabel()"
+      [severity]="overdueSeverity()"
+    />
+  </header>
+
+  @if (plant().scientific_name) {
+    <p class="text-xs italic text-neutral-500 dark:text-neutral-400 font-display -mt-2 mb-4">
+      {{ plant().scientific_name }}
+    </p>
+  }
+
+  <dl class="flex flex-col gap-2 text-sm font-display mb-4">
+    <div class="flex items-center justify-between">
+      <dt class="text-neutral-500 dark:text-neutral-400">Container</dt>
+      <dd class="text-xs font-medium text-neutral-700 dark:text-neutral-300">
+        {{ plant().container_vector }}
+      </dd>
+    </div>
+    <div class="flex items-center justify-between">
+      <dt class="text-neutral-500 dark:text-neutral-400">Substrate</dt>
+      <dd class="text-xs font-medium text-neutral-700 dark:text-neutral-300">
+        {{ plant().substrate_factor }}
+      </dd>
+    </div>
+  </dl>
+
+  <footer
+    class="pt-4 mt-4 border-t border-neutral-200 dark:border-neutral-700 flex justify-end gap-2"
+  >
+    <p-button
+      label="Snooze"
+      variant="outlined"
+      [pt]="FloraButtonPT"
+      [ariaLabel]="'Snooze soil check for ' + plant().common_name"
+      (onClick)="snooze.emit(plant().id)"
+    />
+    <p-button
+      label="Check Soil"
+      [pt]="FloraButtonPT"
+      [ariaLabel]="'Check soil for ' + plant().common_name"
+      (onClick)="checkNow.emit(plant())"
+    />
+  </footer>
+
+</article>

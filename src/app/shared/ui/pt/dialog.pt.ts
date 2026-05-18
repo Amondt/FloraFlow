@@ -1,4 +1,5 @@
 import type { DialogPassThroughOptions } from 'primeng/dialog';
+import type { ConfirmDialogPassThroughOptions } from 'primeng/confirmdialog';
 
 export const FloraDialogPT = {
   root: {
@@ -20,16 +21,12 @@ export const FloraDialogPT = {
   mask: { class: 'bg-neutral-900/50 backdrop-blur-sm' },
 } satisfies DialogPassThroughOptions;
 
-// p-confirmdialog passes its entire pt object to the inner p-dialog via [pt]="pt",
-// so this object must match DialogPassThroughOptions, not ConfirmDialogPassThroughOptions.
-// The PrimeNG type for ConfirmDialogPassThroughOptions.root (= DialogPassThrough) is a
-// typing mismatch — at runtime root expects a flat { class } PassThroughOption.
-export const FloraConfirmDialogPT: DialogPassThroughOptions & {
-  pcAcceptButton?: { root?: { class: string } };
-  pcRejectButton?: { root?: { class: string } };
-} = {
+// PrimeNG v21 types ConfirmDialogPassThroughOptions.root as DialogPassThrough (a nested
+// object), but the component consumes the flat slot structure at runtime. Cast through
+// unknown so the template type-checker accepts the binding without altering the shape.
+export const FloraConfirmDialogPT = {
   root: {
-    class: 'max-w-sm w-full bg-white dark:bg-neutral-900 rounded-garden-lg shadow-2xl overflow-hidden border border-neutral-100 dark:border-neutral-700',
+    class: 'max-w-sm w-full bg-white dark:bg-neutral-900 rounded-garden-lg shadow-2xl overflow-hidden',
   },
   header: {
     class: 'bg-danger-500 p-4 flex items-center justify-between text-white font-semibold font-display',
@@ -50,4 +47,4 @@ export const FloraConfirmDialogPT: DialogPassThroughOptions & {
     },
   },
   mask: { class: 'bg-neutral-900/50 backdrop-blur-sm' },
-};
+} as unknown as ConfirmDialogPassThroughOptions;

@@ -1,4 +1,4 @@
-import { Component, afterNextRender, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { ButtonModule } from 'primeng/button';
@@ -38,9 +38,7 @@ export class DashboardComponent {
   readonly editingZone   = signal<Zone | null>(null);
 
   constructor() {
-    afterNextRender(() => {
-      void this.zoneService.loadZones();
-    });
+    void this.zoneService.loadZones();
   }
 
   openCreateDialog(): void {

@@ -29,7 +29,7 @@ export const FloraDatePickerPT = {
   table:     { class: 'w-full text-sm' },
   tableHeaderCell: { class: 'text-center text-xs text-neutral-400 pb-1' },
   dayCell:   { class: 'text-center p-0.5' },
-  day:       ({ context }: { context: { selected: boolean; today: boolean; disabled: boolean } }) => ({
+  day: ({ context = { selected: false, today: false, disabled: false } }: { context?: { selected: boolean; today: boolean; disabled: boolean } } = {}) => ({
     class: [
       'w-8 h-8 flex items-center justify-center rounded-full text-sm cursor-pointer transition-colors duration-100',
       {

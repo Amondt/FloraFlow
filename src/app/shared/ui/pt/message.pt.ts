@@ -1,7 +1,7 @@
 import type { MessagePassThroughOptions } from 'primeng/types/message';
 
 export const FloraMessagePT = {
-  root: ({ props }: { props: { severity?: string } }) => ({
+  root: ({ props = {} }: { props?: { severity?: string } } = {}) => ({
     class: [
       'flex items-center gap-3 px-4 py-3 rounded-garden-md text-sm font-display border',
       {

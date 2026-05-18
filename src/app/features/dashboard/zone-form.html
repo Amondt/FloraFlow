@@ -16,7 +16,6 @@
     aria-label="Zone details form"
   >
 
-    <!-- Zone name -->
     <div class="flex flex-col gap-1.5">
       <label
         [for]="nameId"
@@ -49,22 +48,23 @@
       }
     </div>
 
-    <!-- Window orientation -->
     <div class="flex flex-col gap-1.5">
-      <label class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display">
+      <label
+        [for]="orientationId"
+        class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+      >
         Window orientation
       </label>
       <p-select
+        [inputId]="orientationId"
         formControlName="window_orientation"
         [options]="orientationOptions"
         [pt]="FloraSelectPT"
         placeholder="Select orientation"
-        aria-label="Window orientation"
         appendTo="body"
       />
     </div>
 
-    <!-- Humidity baseline -->
     <div class="flex flex-col gap-1.5">
       <label
         [for]="humidityId"
@@ -80,6 +80,8 @@
         [max]="100"
         [showButtons]="true"
         [pt]="FloraInputNumberPT"
+        [attr.aria-describedby]="humidityCtrl.invalid && humidityCtrl.touched ? humidityId + '-error' : null"
+        [attr.aria-invalid]="humidityCtrl.invalid && humidityCtrl.touched"
       />
       @if (humidityCtrl.invalid && humidityCtrl.touched) {
         <small
@@ -92,7 +94,6 @@
       }
     </div>
 
-    <!-- Active ventilation toggle -->
     <label class="flex items-center justify-between gap-4 cursor-pointer">
       <span class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display">
         Active ventilation
@@ -105,7 +106,6 @@
       />
     </label>
 
-    <!-- Grow lights toggle -->
     <label class="flex items-center justify-between gap-4 cursor-pointer">
       <span class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display">
         Supplemental grow lights

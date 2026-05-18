@@ -47,8 +47,9 @@ export class ZoneFormComponent {
 
   readonly dialogTitle = computed(() => this.editZone() ? 'Edit Zone' : 'Add Zone');
 
-  readonly nameId     = `flora-zone-name-${crypto.randomUUID().slice(0, 8)}`;
-  readonly humidityId = `flora-zone-humidity-${crypto.randomUUID().slice(0, 8)}`;
+  protected readonly nameId        = `flora-zone-name-${crypto.randomUUID().slice(0, 8)}`;
+  protected readonly humidityId    = `flora-zone-humidity-${crypto.randomUUID().slice(0, 8)}`;
+  protected readonly orientationId = `flora-zone-orientation-${crypto.randomUUID().slice(0, 8)}`;
 
   readonly form = new FormGroup({
     name: new FormControl('', {

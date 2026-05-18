@@ -2,7 +2,7 @@ import type { TagPassThroughOptions } from 'primeng/tag';
 import type { ChipPassThroughOptions } from 'primeng/chip';
 
 export const FloraTagPT = {
-  root: ({ props }: { props: { severity?: string } }) => ({
+  root: ({ props = {} }: { props?: { severity?: string } } = {}) => ({
     class: [
       'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium font-display',
       {

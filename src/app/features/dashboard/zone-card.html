@@ -22,28 +22,20 @@
 
     <div class="flex items-center justify-between">
       <span class="text-neutral-500 dark:text-neutral-400">Ventilation</span>
-      @if (zone().has_active_ventilation) {
-        <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">
-          Active
-        </span>
-      } @else {
-        <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-400">
-          None
-        </span>
-      }
+      <p-tag
+        [pt]="FloraTagPT"
+        [value]="zone().has_active_ventilation ? 'Active' : 'None'"
+        [severity]="zone().has_active_ventilation ? 'info' : 'secondary'"
+      />
     </div>
 
     <div class="flex items-center justify-between">
       <span class="text-neutral-500 dark:text-neutral-400">Grow lights</span>
-      @if (zone().has_grow_lights) {
-        <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">
-          On
-        </span>
-      } @else {
-        <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-400">
-          Off
-        </span>
-      }
+      <p-tag
+        [pt]="FloraTagPT"
+        [value]="zone().has_grow_lights ? 'On' : 'Off'"
+        [severity]="zone().has_grow_lights ? 'info' : 'secondary'"
+      />
     </div>
 
     <div class="flex items-center justify-between">

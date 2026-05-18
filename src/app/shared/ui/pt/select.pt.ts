@@ -18,7 +18,7 @@ export const FloraSelectPT = {
     root: { class: 'mt-1 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md shadow-xl z-50' },
   },
   list:    { class: 'py-1' },
-  option:  ({ context }: { context: { selected: boolean } }) => ({
+  option:  ({ context = { selected: false } }: { context?: { selected: boolean } } = {}) => ({
     class: [
       'px-3 py-2 text-sm cursor-pointer font-display',
       'text-neutral-700 dark:text-neutral-200',
@@ -48,7 +48,7 @@ export const FloraMultiSelectPT = {
   },
   header:   { class: 'px-3 py-2 border-b border-neutral-200 dark:border-neutral-700 flex items-center gap-2' },
   list:     { class: 'py-1 max-h-60 overflow-auto' },
-  option:   ({ context }: { context: { selected: boolean } }) => ({
+  option:   ({ context = { selected: false } }: { context?: { selected: boolean } } = {}) => ({
     class: [
       'px-3 py-2 text-sm cursor-pointer flex items-center gap-2 font-display',
       FLORA_HOVER,

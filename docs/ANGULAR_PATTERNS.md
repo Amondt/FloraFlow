@@ -4,6 +4,50 @@ Reference for **The Visualizer**. Always verify against context7 before implemen
 
 ---
 
+## File Structure & Naming
+
+Angular 21 drops the `.component.` middle segment **for components only**. Other artifact types keep their suffix.
+
+```
+// ❌ Old convention
+login.component.ts
+login.component.html
+login.component.css
+login.component.spec.ts
+
+// ✅ New convention — components only
+login.ts
+login.html
+login.css
+login.spec.ts
+
+// ✅ Other artifacts — suffix stays
+plant.service.ts
+auth.guard.ts
+highlight.directive.ts
+date-format.pipe.ts
+```
+
+**Template placement — sibling file, not inline**
+
+```ts
+// ❌ Inline template — avoid except for trivially small components
+@Component({
+  template: `<p>Hello</p>`,
+})
+
+// ✅ Sibling file — default for every component
+@Component({
+  templateUrl: './login.html',
+  styleUrl:    './login.css',
+})
+```
+
+The three files for any component share the same base name:
+`login.ts` · `login.html` · `login.css`
+
+---
+
 ## Dependency Injection
 
 ```ts

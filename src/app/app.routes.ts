@@ -5,12 +5,12 @@ export const routes: Routes = [
   {
     path: 'login',
     loadComponent: () =>
-      import('./features/auth/login.component').then((m) => m.LoginComponent),
+      import('./features/auth/login').then((m) => m.LoginComponent),
   },
   {
     path: 'dashboard',
     loadComponent: () =>
-      import('./features/dashboard/dashboard.component').then(
+      import('./features/dashboard/dashboard').then(
         (m) => m.DashboardComponent,
       ),
     canActivate: [authGuard],
@@ -18,7 +18,7 @@ export const routes: Routes = [
   {
     path: 'scheduler',
     loadComponent: () =>
-      import('./features/scheduler/scheduler.component').then(
+      import('./features/scheduler/scheduler').then(
         (m) => m.SchedulerComponent,
       ),
     canActivate: [authGuard],
@@ -26,7 +26,7 @@ export const routes: Routes = [
   {
     path: 'journal',
     loadComponent: () =>
-      import('./features/journal/journal.component').then(
+      import('./features/journal/journal').then(
         (m) => m.JournalComponent,
       ),
     canActivate: [authGuard],
@@ -34,7 +34,7 @@ export const routes: Routes = [
   {
     path: 'library',
     loadComponent: () =>
-      import('./features/library/library.component').then(
+      import('./features/library/library').then(
         (m) => m.LibraryComponent,
       ),
     canActivate: [authGuard],
@@ -42,7 +42,7 @@ export const routes: Routes = [
   {
     path: 'vault',
     loadComponent: () =>
-      import('./features/vault/vault.component').then((m) => m.VaultComponent),
+      import('./features/vault/vault').then((m) => m.VaultComponent),
     canActivate: [authGuard],
   },
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },

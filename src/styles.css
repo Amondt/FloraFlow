@@ -4,30 +4,41 @@
   /* --- Semantic Palette --- */
   --color-primary-50:  #f0fdf4;   /* Light Sage Accents */
   --color-primary-500: #10b981;   /* Emerald Baseline Leaf Green */
+  --color-primary-600: #059669;   /* Hover state for primary buttons */
+  --color-primary-700: #047857;   /* Active/pressed state */
   --color-primary-900: #064e3b;   /* Deep Forest Branding Header */
 
+  --color-success-500: #22c55e;   /* Germination confirmed / healthy plant */
   --color-warning-500: #d97706;   /* Terracotta Warning Accent */
   --color-danger-500:  #ef4444;   /* Active Root Rot Alerts */
+  --color-danger-700:  #b91c1c;   /* Hover state for danger buttons */
 
   /* Full Neutral Scale — all steps used in PT objects; never omit a step */
   --color-neutral-50:  #f8fafc;
-  --color-neutral-100: #f1f5f9;
+  --color-neutral-100: #f1f5f9;   /* Slate Light Dashboard Card Background */
   --color-neutral-200: #e2e8f0;
   --color-neutral-300: #cbd5e1;
   --color-neutral-400: #94a3b8;
+  --color-neutral-500: #64748b;   /* Mid-tone — placeholder text, secondary borders */
   --color-neutral-600: #475569;
   --color-neutral-700: #334155;
   --color-neutral-800: #1e293b;
-  --color-neutral-900: #0f172a;
+  --color-neutral-900: #0f172a;   /* Slate Deep Contrast Text */
 
   /* --- Typography --- */
   --font-display: "Inter", system-ui, sans-serif;
 
-  /* --- Border Radius --- */
+  /* --- Adaptive Border Radius Matrix --- */
   --radius-garden-sm: 0.375rem;
-  --radius-garden-md: 0.75rem;
-  --radius-garden-lg: 1.25rem;
+  --radius-garden-md: 0.75rem;   /* Soft dashboard container edges */
+  --radius-garden-lg: 1.25rem;   /* Main organic grid wrapper panels */
 }
 
 /* Dark mode — add class="dark" to <html> to activate */
 @variant dark (&:where(.dark, .dark *));
+
+/* Loading skeleton shimmer — referenced by FloraSkeletonPT and FLORA_SKELETON constant */
+@keyframes flora-skeleton {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}

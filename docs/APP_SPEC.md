@@ -32,7 +32,28 @@ To maintain clean separation of concerns and isolate data fetching models from p
     │   │   ├── library/           # Plant Browser, Botanical Wiki & AI Plant Identifier
     │   │   └── vault/             # Seed Vault & Germination Milestone Tracking
     │   ├── shared/                # Pure visual presentational components
-    │   │   └── components/        # Base Layout Shell, Navs, Accessible Forms
+    │   │   ├── components/        # Base Layout Shell, Navs, Accessible Forms
+    │   │   └── ui/
+    │   │       └── pt/            # PrimeNG PassThrough objects — see docs/DESIGN_SYSTEM.md §3
+    │   │           ├── index.ts   # Barrel: re-exports all PT objects and state constants
+    │   │           ├── states.pt.ts
+    │   │           ├── button.pt.ts
+    │   │           ├── card.pt.ts
+    │   │           ├── dialog.pt.ts
+    │   │           ├── datepicker.pt.ts
+    │   │           ├── input.pt.ts
+    │   │           ├── select.pt.ts
+    │   │           ├── checkbox.pt.ts
+    │   │           ├── fileupload.pt.ts
+    │   │           ├── toast.pt.ts
+    │   │           ├── message.pt.ts
+    │   │           ├── popover.pt.ts
+    │   │           ├── panel.pt.ts
+    │   │           ├── tabs.pt.ts
+    │   │           ├── badge.pt.ts
+    │   │           ├── skeleton.pt.ts
+    │   │           ├── progress.pt.ts
+    │   │           └── menu.pt.ts
     │   ├── app.config.ts          # Angular Application Configuration & Providers
     │   └── app.routes.ts          # Central client-side route maps
     └── assets/

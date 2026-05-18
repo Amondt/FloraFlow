@@ -29,7 +29,7 @@ This document establishes the official development sprints, feature milestone gr
     - Create the dashboard grid component to display localized environmental cards (`zones`).
     - Implement form models to handle data updates for microclimate properties (e.g., window orientation, active ventilation, supplemental grow lights, and humidity baselines).
 
-- [ ] **1.5 Smart Observation Scheduling Loop**
+- [x] **1.5 Smart Observation Scheduling Loop**
     - Build the state engine using Angular Signals to display outstanding plant check-soil alerts.
     - Implement the confirmation dialog modal asking the user: _"Is the soil dry at the required depth?"_
     - Code the local **Smart Snooze** computation script: if the user flags the soil as wet, automatically push the target plant's `next_check_due_at` timestamp back by a calculated 2, 5, or 7-day interval.

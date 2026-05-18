@@ -16,7 +16,7 @@ export class PlantService {
 
     const { data, error } = await this.supabase.client
       .from('plants')
-      .select('*')
+      .select('id, common_name, scientific_name, next_check_due_at, container_vector, substrate_factor')
       .lte('next_check_due_at', new Date().toISOString())
       .order('next_check_due_at', { ascending: true });
 
@@ -33,23 +33,9 @@ export class PlantService {
     this.loading.set(true);
     this.error.set(null);
 
-    const plant = this.duePlants().find(p => p.id === plantId);
-    if (!plant) {
-      this.loading.set(false);
-      return;
-    }
-
-    const now = new Date();
-    const nextDue = new Date(now);
-    nextDue.setDate(nextDue.getDate() + plant.current_snooze_interval_days);
-
-    const { error } = await this.supabase.client
-      .from('plants')
-      .update({
-        last_checked_at: now.toISOString(),
-        next_check_due_at: nextDue.toISOString(),
-      })
-      .eq('id', plantId);
+    const { error } = await this.supabase.client.rpc('confirm_plant_check', {
+      p_plant_id: plantId,
+    });
 
     if (error) {
       this.error.set(error.message);

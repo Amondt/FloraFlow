@@ -21,15 +21,15 @@ export class SchedulerComponent {
   readonly dialogVisible  = signal(false);
 
   constructor() {
-    void this.plantService.loadDuePlants();
+    if (this.plantService.duePlants().length === 0) {
+      void this.plantService.loadDuePlants();
+    }
 
-    // Clear selectedPlant whenever the dialog closes (any path: confirm, snooze, or X button).
-    // allowSignalWrites is required because effects cannot write to signals by default.
     effect(() => {
       if (!this.dialogVisible()) {
         this.selectedPlant.set(null);
       }
-    }, { allowSignalWrites: true });
+    });
   }
 
   onCheckNow(plant: Plant): void {

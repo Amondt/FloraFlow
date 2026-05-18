@@ -1142,3 +1142,179 @@ readonly inputId = `flora-${crypto.randomUUID().slice(0, 8)}`;
 - Always mark required fields with both the visible asterisk (`aria-hidden="true"`) and the screen-reader text (`class="sr-only"`).
 - Also set `[attr.aria-required]="true"` on the input element.
 - Do not use the native `required` attribute alone — it generates browser-native validation UI that conflicts with our custom error display.
+
+---
+
+## 6. Page & Layout Conventions
+
+### 6.1 Two-Layer Layout Architecture
+
+FloraFlow uses a two-layer layout: a **full-width app shell** (navigation) wrapping a **max-width content column**.
+
+#### Layer 1 — App Shell (full-width, lives in `src/app/shared/components/`)
+
+Navigation elements always span the full viewport — never constrained by a max-width. This includes the top navigation bar, any future sidebar, and the app-level header.
+
+```html
+<!-- app.html — future shell -->
+<app-topnav />               <!-- full-width, no max-w -->
+<router-outlet />            <!-- each feature's <main> renders here -->
+```
+
+The top nav is a persistent chrome element. It sits outside `<main>` and must never have `max-w-*` or `mx-auto` applied to it.
+
+#### Layer 2 — Page Content (`<main>` in each feature)
+
+Only the reading content area gets a max-width constraint. This keeps lines short and comfortable on wide monitors without shrinking navigation chrome.
+
+```html
+<main
+  class="p-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen"
+  aria-labelledby="page-heading"
+>
+  <div class="max-w-4xl mx-auto">
+    <!-- page heading, cards, forms, etc. -->
+  </div>
+</main>
+```
+
+| Class | Applied to | Purpose |
+|---|---|---|
+| `bg-neutral-50 dark:bg-neutral-900 min-h-screen` | `<main>` | Full-viewport background behind the content column |
+| `p-6` | `<main>` | Standard page padding (outside the column, so gutters feel consistent) |
+| `max-w-4xl mx-auto` | inner `<div>` | Constrains readable content to 56 rem, centered |
+
+**Why separate `<main>` from the inner `<div>`?** Future full-bleed elements (a hero banner, a warning strip, a sticky subheader) can escape the `max-w-4xl` constraint by living directly in `<main>` rather than inside the inner `<div>`.
+
+**Why `max-w-4xl` (56 rem)?** Research puts the sweet spot for readable prose at 45–75 characters per line ([Smashing Magazine](https://www.smashingmagazine.com/2014/09/balancing-line-length-font-size-responsive-web-design/)). FloraFlow is data-dense (cards with label/value rows, not long paragraphs), so 56 rem is acceptable — lines in card content stay well under 80 chars even at this width. Avoid going wider than `max-w-5xl` in any future feature.
+
+> **During Phase 1 (pre-shell):** The app shell (`app-topnav`) does not yet exist. Until it is built, each page's `<main>` directly contains both the background and the content column. This is a temporary state — the two-layer split will be completed when `src/app/shared/components/shell/` is built.
+
+Never use `h-screen` — `min-h-screen` is intentional so content taller than the viewport scrolls naturally.
+
+---
+
+### 6.2 Card List Layout
+
+All card lists in FloraFlow are **single-column vertical stacks**. Never use a multi-column CSS grid for card lists.
+
+```html
+<ul class="flex flex-col gap-4" aria-label="…">
+  @for (item of items(); track item.id) {
+    <li>
+      <app-my-card [item]="item" />
+    </li>
+  }
+</ul>
+```
+
+The page shell's `max-w-4xl` controls readable width. Cards always span the full available column.
+
+---
+
+### 6.3 Button Hierarchy in Card Footers
+
+Choose button variant based on the action's prominence within the card's context:
+
+| Action type | Variant | Example |
+|---|---|---|
+| Primary workflow action | filled primary (default) | Check Soil |
+| Secondary / cancel workflow action | `variant="outlined"` | Snooze |
+| Card management — edit | `variant="text"` | Edit |
+| Card management — destructive | `severity="danger" variant="text"` | Delete |
+
+**Why:** workflow actions drive the user's core task loop and deserve visual weight; card management actions (edit, delete) are secondary and should not compete with content.
+
+---
+
+### 6.4 Skeleton Rule
+
+**Skeleton vs spinner decision** ([Nielsen Norman Group](https://www.nngroup.com/articles/skeleton-screens/)):
+
+| Situation | Use |
+|---|---|
+| Async data fetch (cards, lists, detail panels) | `<p-skeleton>` — communicates page shape while loading |
+| Instant action with brief wait (<2s, e.g. form submit) | `<p-progressspinner>` on the button only |
+| Long operation >10s | Progress bar with explicit duration estimate |
+
+Always use `<p-skeleton [pt]="FloraSkeletonPT">` for loading placeholders. Never use a raw `<li>` or `<div>` with hardcoded animation classes.
+
+The `FLORA_SKELETON` constant in `states.pt.ts` is for composing into PT object class strings only — it is never applied directly in templates.
+
+```html
+<!-- ✅ Correct -->
+<ul class="flex flex-col gap-4" aria-label="Loading …">
+  @for (_ of loadingPlaceholders; track $index) {
+    <li aria-hidden="true">
+      <p-skeleton height="8rem" [pt]="FloraSkeletonPT" />
+    </li>
+  }
+</ul>
+
+<!-- ❌ Wrong — hardcodes animation, wrong border-radius, bypasses PT system -->
+<li class="h-32 animate-[flora-skeleton_1.5s_ease-in-out_infinite] bg-neutral-200 rounded-garden-md"></li>
+```
+
+---
+
+### 6.5 Error Message Rule
+
+Always use `<p-message severity="error" [pt]="FloraMessagePT">` for inline error banners. Never use a raw `<div>` with hardcoded error colors.
+
+```html
+<!-- ✅ Correct -->
+@if (someService.error()) {
+  <section aria-label="Error" class="mb-6">
+    <p-message severity="error" [pt]="FloraMessagePT">{{ someService.error() }}</p-message>
+  </section>
+}
+
+<!-- ❌ Wrong — bypasses PT system, duplicates design tokens -->
+<div role="alert" class="bg-red-50 border border-danger-500 text-red-900 …">…</div>
+```
+
+Error messages must be **specific and actionable** — never "Something went wrong." Tell the user what failed and what they can do: "Failed to load zones — check your connection and refresh."
+
+---
+
+### 6.6 Empty States
+
+Every list or data view must handle the empty case. An empty state requires three elements ([Nielsen Norman Group](https://www.nngroup.com/articles/empty-state-interface-design/)):
+
+1. **Why it's empty** — one short sentence explaining the state
+2. **What to do** — a primary CTA button that directly creates the first item (label starts with a verb)
+3. **No decoration required** — illustrations are optional; clarity is mandatory
+
+```html
+<!-- ✅ Correct empty state -->
+<div class="flex flex-col items-center justify-center py-20 text-center" role="status">
+  <p class="text-neutral-500 dark:text-neutral-400 font-display text-base">
+    No zones yet. Add your first greenhouse zone to get started.
+  </p>
+  <p-button
+    label="Add your first zone"
+    variant="outlined"
+    [pt]="FloraButtonPT"
+    class="mt-4"
+    ariaLabel="Add your first greenhouse zone"
+    (onClick)="openCreateDialog()"
+  />
+</div>
+```
+
+Never show a blank page or just a "No results" label without a path forward.
+
+---
+
+## 7. UX References
+
+Authoritative sources consulted when establishing FloraFlow's layout and UX conventions. Read before introducing new patterns.
+
+| Topic | Source |
+|---|---|
+| Line length & readability | [Smashing Magazine — Balancing Line Length and Font Size](https://www.smashingmagazine.com/2014/09/balancing-line-length-font-size-responsive-web-design/) |
+| Skeleton screens vs spinners | [Nielsen Norman Group — Skeleton Screens 101](https://www.nngroup.com/articles/skeleton-screens/) |
+| Progress indicators general | [Nielsen Norman Group — Progress Indicators](https://www.nngroup.com/articles/progress-indicators/) |
+| Empty state design | [Nielsen Norman Group — Designing Empty States](https://www.nngroup.com/articles/empty-state-interface-design/) |
+| WCAG 2.1 accessibility standard | [W3C WCAG 2.1](https://www.w3.org/TR/WCAG21/) |
+| Responsive web design basics | [web.dev — Responsive Web Design Basics](https://web.dev/responsive-web-design-basics/) |

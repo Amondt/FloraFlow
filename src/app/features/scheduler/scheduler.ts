@@ -1,20 +1,22 @@
 import { Component, effect, inject, signal } from '@angular/core';
 import { Message } from 'primeng/message';
+import { SkeletonModule } from 'primeng/skeleton';
 import { PlantAlertCardComponent } from './plant-alert-card';
 import { SoilCheckDialogComponent } from './soil-check-dialog';
 import { PlantService } from './plant.service';
 import { Plant } from './plant.model';
-import { FloraMessagePT } from '../../shared/ui/pt/index';
+import { FloraMessagePT, FloraSkeletonPT } from '../../shared/ui/pt/index';
 
 @Component({
   selector: 'app-scheduler',
   standalone: true,
-  imports: [Message, PlantAlertCardComponent, SoilCheckDialogComponent],
+  imports: [Message, SkeletonModule, PlantAlertCardComponent, SoilCheckDialogComponent],
   templateUrl: './scheduler.html',
 })
 export class SchedulerComponent {
   protected readonly plantService    = inject(PlantService);
   protected readonly FloraMessagePT  = FloraMessagePT;
+  protected readonly FloraSkeletonPT = FloraSkeletonPT;
   protected readonly loadingPlaceholders = [1, 2, 3];
 
   readonly selectedPlant = signal<Plant | null>(null);

@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -12,6 +13,7 @@ export const routes: Routes = [
       import('./features/dashboard/dashboard.component').then(
         (m) => m.DashboardComponent,
       ),
+    canActivate: [authGuard],
   },
   {
     path: 'scheduler',
@@ -19,6 +21,7 @@ export const routes: Routes = [
       import('./features/scheduler/scheduler.component').then(
         (m) => m.SchedulerComponent,
       ),
+    canActivate: [authGuard],
   },
   {
     path: 'journal',
@@ -26,6 +29,7 @@ export const routes: Routes = [
       import('./features/journal/journal.component').then(
         (m) => m.JournalComponent,
       ),
+    canActivate: [authGuard],
   },
   {
     path: 'library',
@@ -33,11 +37,13 @@ export const routes: Routes = [
       import('./features/library/library.component').then(
         (m) => m.LibraryComponent,
       ),
+    canActivate: [authGuard],
   },
   {
     path: 'vault',
     loadComponent: () =>
       import('./features/vault/vault.component').then((m) => m.VaultComponent),
+    canActivate: [authGuard],
   },
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: '**', redirectTo: 'dashboard' },

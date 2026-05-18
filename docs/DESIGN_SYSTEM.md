@@ -6,10 +6,14 @@ This document is the **single source of truth** for all visual and accessibility
 
 ## 1. Tailwind CSS v4 Global Configuration
 
-FloraFlow uses Tailwind CSS v4's CSS-first theme configuration. All tokens live in `src/styles.css` under `@theme`. Every class used in PT objects (`bg-primary-500`, `rounded-garden-md`, etc.) derives from these tokens — never from arbitrary values.
+FloraFlow uses Tailwind CSS v4's CSS-first theme configuration driven by the **Tailwind CLI** (not PostCSS). All tokens live in `src/styles.input.css` under `@theme` and are compiled into `src/styles.css`, which Angular serves.
+
+> **CSS workflow:** `src/styles.input.css` is the Tailwind source file — edit it to add tokens or variants. Run `bun run tw:watch` in a second terminal alongside `ng serve`. The CLI watches all `.ts` and `.html` files and regenerates `src/styles.css` whenever a new utility class is used. **Never edit `src/styles.css` directly** — it is overwritten on every CLI run.
+>
+> **Why CLI, not PostCSS?** Angular's Application Builder only re-runs PostCSS when CSS files change, not when TypeScript or HTML source files change. The Tailwind CLI fills this gap with its own file watcher. `@tailwindcss/postcss` is kept as a no-op dependency; it does not drive style generation.
 
 ```css
-/* src/styles.css — full token reference */
+/* src/styles.input.css — Tailwind source; edit this file */
 @import "tailwindcss";
 
 @theme {
@@ -91,7 +95,66 @@ root: {
 
 ## 3. PrimeNG PassThrough (PT) Component Library
 
-### 3.1 File Organization
+### 3.1 PrimeNG v21 PT Slot Name Rules
+
+**`providePrimeNG` — `unstyled: true` is required:** PrimeNG must be configured with `unstyled: true` in `app.config.ts`. Without it, PrimeNG injects its own theme CSS which overrides Tailwind utility classes and makes buttons appear transparent.
+
+```ts
+// src/app/app.config.ts
+providePrimeNG({ ripple: false, unstyled: true })
+```
+
+**Critical:** PrimeNG v21 renamed many internal sub-component slots. Sub-components now use a `pc*` prefix (PrimeComponent convention). The old flat names cause TypeScript errors with `satisfies`.
+
+| Old name (< v21) | New name (v21+) | Applies to |
+|---|---|---|
+| `chooseButton` | `pcChooseButton` | FileUpload |
+| `uploadButton` | `pcUploadButton` | FileUpload |
+| `cancelButton` | `pcCancelButton` | FileUpload |
+| `closeButton` | `pcCloseButton` | Dialog, Toast |
+| `acceptButton` | `pcAcceptButton` | ConfirmDialog |
+| `rejectButton` | `pcRejectButton` | ConfirmDialog |
+| `previousButton` | `pcPrevButton` | DatePicker |
+| `nextButton` | `pcNextButton` | DatePicker |
+| `toggler` | `pcToggleButton` | Panel |
+| `input` (nested) | `pcInputText` (nested) | InputNumber, DatePicker |
+| `item` | `option` | Select, MultiSelect |
+| `overlay` (flat) | `pcOverlay: { root: {...} }` | Select, MultiSelect |
+| `filterContainer` | *(removed — omit entirely)* | MultiSelect |
+| `itemCheckbox` / `token` / `removeTokenIcon` | *(removed — omit entirely)* | MultiSelect |
+
+**Import paths changed in v21:** All type imports come from `primeng/types/{component}`, not `primeng/{component}`:
+
+```ts
+// CORRECT v21 imports
+import type { ButtonPassThroughOptions }        from 'primeng/button';           // exception: button still direct
+import type { InputTextPassThroughOptions }     from 'primeng/types/inputtext';
+import type { InputNumberPassThroughOptions }   from 'primeng/types/inputnumber';
+import type { TextareaPassThroughOptions }      from 'primeng/types/textarea';
+import type { SelectPassThroughOptions }        from 'primeng/types/select';
+import type { MultiSelectPassThroughOptions }   from 'primeng/types/multiselect';
+import type { CheckboxPassThroughOptions }      from 'primeng/types/checkbox';
+import type { RadioButtonPassThroughOptions }   from 'primeng/types/radiobutton';
+import type { ToggleSwitchPassThroughOptions }  from 'primeng/types/toggleswitch';
+import type { DatePickerPassThroughOptions }    from 'primeng/types/datepicker';
+import type { DialogPassThroughOptions }        from 'primeng/dialog';           // exception: dialog still direct
+import type { ConfirmDialogPassThroughOptions } from 'primeng/confirmdialog';    // exception: confirmdialog still direct
+import type { FileUploadPassThroughOptions }    from 'primeng/fileupload';       // exception: fileupload still direct
+import type { MessagePassThroughOptions }       from 'primeng/types/message';
+import type { TabsPassThroughOptions }          from 'primeng/types/tabs';
+import type { SkeletonPassThroughOptions }      from 'primeng/types/skeleton';
+import type { ProgressSpinnerPassThroughOptions } from 'primeng/types/progressspinner';
+```
+
+**`AccordionPT` and `TabsPT` in v21:** These types only expose `root` (and `motion` for Accordion). Do not add `nav`, `tab`, `header`, `content`, `panels`, `panel`, `headerTitle` — they will fail `satisfies`.
+
+**`ConfirmDialogPT.root` nesting:** In v21, `ConfirmDialogPassThroughOptions['root']` is a `DialogPassThrough` object (not a `PassThroughOption`), so it must be nested: `root: { root: { class: '...' } }`.
+
+**`ButtonPT` props guard:** PrimeNG v21 calls the PT root function with `undefined` props during SSR/init. Always default: `({ props = {} }: { props?: {...} } = {}) =>`.
+
+---
+
+### 3.2 File Organization
 
 All PT objects live in `src/app/shared/ui/pt/`. Each file exports its objects and `index.ts` re-exports everything.
 
@@ -132,10 +195,10 @@ Every PT object uses `satisfies` for compile-time type safety. Every interactive
 
 ```ts
 import type { ButtonPassThroughOptions } from 'primeng/button';
-import { FLORA_FOCUS, FLORA_DISABLED, FLORA_HOVER } from './states.pt.ts';
+import { FLORA_FOCUS, FLORA_DISABLED, FLORA_HOVER } from './states.pt';
 
 export const FloraButtonPT = {
-  root: ({ props }: { props: { severity?: string; outlined?: boolean; text?: boolean; variant?: string; loading?: boolean } }) => ({
+  root: ({ props = {} }: { props?: { severity?: string; outlined?: boolean; text?: boolean; variant?: string; loading?: boolean } } = {}) => ({
     class: [
       // base shape & typography
       'inline-flex items-center justify-center gap-2',
@@ -186,8 +249,8 @@ export const FloraButtonPT = {
 Used for all single-line text inputs (species search, zone name, notes title, etc.).
 
 ```ts
-import type { InputTextPassThroughOptions } from 'primeng/inputtext';
-import { FLORA_FOCUS, FLORA_DISABLED } from './states.pt.ts';
+import type { InputTextPassThroughOptions } from 'primeng/types/inputtext';
+import { FLORA_FOCUS, FLORA_DISABLED } from './states.pt';
 
 export const FloraInputTextPT = {
   root: {
@@ -212,12 +275,12 @@ export const FloraInputTextPT = {
 Used for: humidity percentage, pot volume, quantities.
 
 ```ts
-import type { InputNumberPassThroughOptions } from 'primeng/inputnumber';
-import { FLORA_FOCUS, FLORA_DISABLED } from './states.pt.ts';
+import type { InputNumberPassThroughOptions } from 'primeng/types/inputnumber';
+import { FLORA_FOCUS, FLORA_DISABLED } from './states.pt';
 
 export const FloraInputNumberPT = {
   root: { class: 'w-full flex rounded-garden-sm overflow-hidden border border-neutral-300 dark:border-neutral-600' },
-  input: {
+  pcInputText: {
     root: {
       class: [
         'flex-1 px-3 py-2 text-sm font-display',
@@ -227,16 +290,8 @@ export const FloraInputNumberPT = {
       ].join(' '),
     },
   },
-  incrementButton: {
-    root: {
-      class: 'px-2 bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-600 transition-colors duration-150 border-l border-neutral-300 dark:border-neutral-600',
-    },
-  },
-  decrementButton: {
-    root: {
-      class: 'px-2 bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-600 transition-colors duration-150 border-l border-neutral-300 dark:border-neutral-600',
-    },
-  },
+  incrementButton: { class: 'px-2 bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-600 transition-colors duration-150 border-l border-neutral-300 dark:border-neutral-600' },
+  decrementButton: { class: 'px-2 bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-600 transition-colors duration-150 border-l border-neutral-300 dark:border-neutral-600' },
 } satisfies InputNumberPassThroughOptions;
 ```
 
@@ -247,8 +302,8 @@ export const FloraInputNumberPT = {
 Used for: journal notes, enrichment descriptions, optional location notes.
 
 ```ts
-import type { TextareaPassThroughOptions } from 'primeng/textarea';
-import { FLORA_FOCUS, FLORA_DISABLED } from './states.pt.ts';
+import type { TextareaPassThroughOptions } from 'primeng/types/textarea';
+import { FLORA_FOCUS, FLORA_DISABLED } from './states.pt';
 
 export const FloraTextareaPT = {
   root: {
@@ -271,8 +326,8 @@ export const FloraTextareaPT = {
 Used for: window orientation, container type, substrate factor, zone selector, lifecycle type, watering frequency, sunlight requirements.
 
 ```ts
-import type { SelectPassThroughOptions } from 'primeng/select';
-import { FLORA_FOCUS, FLORA_DISABLED, FLORA_HOVER } from './states.pt.ts';
+import type { SelectPassThroughOptions } from 'primeng/types/select';
+import { FLORA_FOCUS, FLORA_DISABLED, FLORA_HOVER } from './states.pt';
 
 export const FloraSelectPT = {
   root: {
@@ -284,13 +339,13 @@ export const FloraSelectPT = {
       FLORA_FOCUS, FLORA_DISABLED, FLORA_HOVER,
     ].join(' '),
   },
-  label:   { class: 'flex-1 truncate' },
+  label:    { class: 'flex-1 truncate' },
   dropdown: { class: 'text-neutral-400 text-xs ml-auto' },
-  overlay: {
-    class: 'mt-1 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md shadow-xl z-50',
+  pcOverlay: {
+    root: { class: 'mt-1 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md shadow-xl z-50' },
   },
-  list:    { class: 'py-1 max-h-60 overflow-auto' },
-  item:    ({ context }: { context: { selected: boolean } }) => ({
+  list:   { class: 'py-1 max-h-60 overflow-auto' },
+  option: ({ context }: { context: { selected: boolean } }) => ({
     class: [
       'px-3 py-2 text-sm cursor-pointer font-display',
       'text-neutral-700 dark:text-neutral-200',

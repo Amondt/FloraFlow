@@ -14,6 +14,6 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, withComponentInputBinding()),
     provideHttpClient(withFetch()),
     provideAnimationsAsync(),
-    providePrimeNG({ ripple: false }),
+    providePrimeNG({ ripple: false, unstyled: true }),
   ],
 };

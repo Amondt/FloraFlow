@@ -21,7 +21,7 @@ This document establishes the official development sprints, feature milestone gr
     - Execute the baseline DDL migrations defined in `DB_SCHEMA_MATRIX.md` to establish tables: `profiles`, `zones`, `plants`, and `plant_journals`.
     - Apply Row-Level Security (RLS) configurations across all initialized tables.
 
-- [ ] **1.3 Authentication Shell & Routing Implementation**
+- [x] **1.3 Authentication Shell & Routing Implementation**
     - Code the accessible semantic HTML `login.component` wrapped using PrimeNG PT components.
     - Bind the client routes with an asynchronous `AuthGuard` that checks active Supabase sessions.
 

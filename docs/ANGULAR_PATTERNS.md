@@ -293,11 +293,15 @@ Apply `satisfies` to every PT object exported from `docs/DESIGN_SYSTEM.md`.
 ## App Config (`app.config.ts`)
 
 ```ts
+import { providePrimeNG } from 'primeng/config';
+
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideZonelessChangeDetection(), // zoneless — no zone.js
+    provideZonelessChangeDetection(),          // zoneless — no zone.js
     provideRouter(routes, withComponentInputBinding()),
-    provideHttpClient(withFetch()), // native fetch, not XHR
+    provideHttpClient(withFetch()),             // native fetch, not XHR
+    provideAnimationsAsync(),
+    providePrimeNG({ ripple: false, unstyled: true }), // unstyled REQUIRED — without it PrimeNG's default theme overrides Tailwind classes
   ],
 };
 ```

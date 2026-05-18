@@ -4,10 +4,38 @@ Reference for **The Plumber**. Always verify against context7 before implementin
 
 ---
 
+## PowerShell + Supabase CLI Note
+
+PowerShell 5.1 marks any stderr output from native executables as an error, even when the exit code is 0. Supabase CLI writes progress messages to stderr. Always append `2>$null` to silence false errors:
+
+```powershell
+bun run supabase db reset 2>$null
+bun run supabase db query "SELECT ..." 2>$null
+bun run supabase status 2>$null
+```
+
+Use `$LASTEXITCODE` — not PowerShell error output — to check whether a command actually failed.
+
+---
+
 ## Supabase Type Generation (run once per schema change)
 
 ```bash
 supabase gen types typescript --local > src/types/database.types.ts
+```
+
+If the command errors with a connection message, add the local DB URL explicitly:
+
+```bash
+supabase gen types typescript --local \
+  --db-url "$(supabase status | grep 'DB URL' | awk '{print $NF}')" \
+  > src/types/database.types.ts
+```
+
+After generating, copy the file into the shared Edge Function folder so Deno can import it:
+
+```bash
+cp src/types/database.types.ts supabase/functions/_shared/database.types.ts
 ```
 
 Never write `any` for Supabase responses. Always import and use `Database`.
@@ -61,10 +89,9 @@ const { error } = await supabase
   .eq('id', plantId)
   .eq('user_id', userId); // always scope updates to the user
 
-// RPC (stored procedure)
+// RPC (stored procedure) — snooze interval is derived server-side from container × substrate
 const { data, error } = await supabase.rpc('snooze_plant_check', {
   p_plant_id: plantId,
-  p_days: 5,
 });
 ```
 
@@ -231,6 +258,7 @@ interface EnrichmentPayload {
   ideal_min_ph:        number;
   ideal_max_ph:        number;
   is_toxic_to_pets:    boolean;
+  toxicity_notes:      string | null;
   propagation_methods: string[];
   is_ai_enriched:      true;
 }
@@ -239,12 +267,13 @@ function isValidEnrichmentPayload(v: unknown): v is EnrichmentPayload {
   if (typeof v !== 'object' || v === null) return false;
   const p = v as Record<string, unknown>;
   return (
-    typeof p.scientific_name  === 'string'  &&
-    typeof p.common_name      === 'string'  &&
-    typeof p.ideal_min_ph     === 'number'  &&
-    typeof p.ideal_max_ph     === 'number'  &&
-    typeof p.is_toxic_to_pets === 'boolean' &&
-    Array.isArray(p.propagation_methods)    &&
+    typeof p.scientific_name  === 'string'                        &&
+    typeof p.common_name      === 'string'                        &&
+    typeof p.ideal_min_ph     === 'number'                        &&
+    typeof p.ideal_max_ph     === 'number'                        &&
+    typeof p.is_toxic_to_pets === 'boolean'                       &&
+    (p.toxicity_notes === null || typeof p.toxicity_notes === 'string') &&
+    Array.isArray(p.propagation_methods)                          &&
     p.is_ai_enriched === true
   );
 }
@@ -317,3 +346,42 @@ if (error || !user) return json({ error: 'Unauthorized' }, 401);
 
 // Now safe to use user.id in queries
 ```
+
+---
+
+## Perenual API Field Mapping
+
+When the Edge Function receives a response from `/api/v2/species/details/[id]`, apply these mappings before writing to `cached_botanical_records`:
+
+| Perenual field | Our column | Notes |
+|---|---|---|
+| `id` | `perenual_id` | Integer — store as-is |
+| `scientific_name` | `scientific_name` | **Array of strings** — take `[0]` |
+| `common_name` | `common_name` | String — store as-is |
+| `poisonous_to_pets` | `is_toxic_to_pets` | Boolean — maps directly |
+| `propagation` | `propagation_methods` | Array of strings — **values may not match our enum**; pass to AI Scribe for normalisation |
+| `watering` | `watering` | String — store as-is |
+| `sunlight` | `sunlight` | Array of strings — store as-is |
+| `cycle` | `cycle` | String — store as-is |
+| `type` | `plant_type` | String — rename: `type` is a SQL reserved word |
+
+Fields **not** in Perenual (require AI Scribe enrichment): `ideal_min_ph`, `ideal_max_ph`, `toxicity_notes`.
+
+**PlantNet returns identification data only** (`score`, `scientific_name`, `common_names`, `family`, `genus`). It never returns care metrics. Use PlantNet output solely to resolve a species name, then query Perenual with that name.
+
+---
+
+## Required Environment Variables
+
+Create a `.env.local` file in the project root (never commit it). All secrets stay server-side — only the two `PUBLIC_` variables are safe to expose to the Angular client bundle.
+
+| Variable | Where to find it | Used in |
+|---|---|---|
+| `SUPABASE_URL` | Supabase project Settings → API | Edge Functions (auto-injected by CLI) |
+| `SUPABASE_ANON_KEY` | Supabase project Settings → API | Angular client (`environment.ts`) — safe to expose |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase project Settings → API | Edge Functions only — **never in client** |
+| `ANTHROPIC_API_KEY` | console.anthropic.com → API Keys | Edge Functions only — **never in client** |
+| `PERENUAL_API_KEY` | perenual.com → Account → API Key | Edge Functions only — **never in client** |
+| `RESEND_API_KEY` | resend.com → API Keys | Edge Functions only — **never in client** |
+
+For local Supabase development, `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are auto-injected into Edge Functions by the CLI — you do not need to set them in `.env.local` for local dev. They are required in the Supabase dashboard Secrets panel for production deployments.

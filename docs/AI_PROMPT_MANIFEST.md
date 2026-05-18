@@ -4,9 +4,32 @@ This document establishes the official, immutable system personas, prompt archit
 
 ---
 
+## 0. Shared Error Response Schema
+
+All three AI pipelines (Scribe, Plant Identifier, Leaf Doctor) return this shape when an error occurs. Edge Functions must return HTTP 400 for client errors (bad image, missing fields) and HTTP 503 for upstream API failures.
+
+```ts
+interface AIErrorResponse {
+  error:      string;       // human-readable message
+  error_code: 'INVALID_IMAGE' | 'VALIDATION_FAILED' | 'API_ERROR' | 'TIMEOUT';
+}
+```
+
+## 0.1 Shared Confidence Score Thresholds
+
+Used consistently across Plant Identifier and Leaf Doctor schemas:
+
+| Range | Meaning | UI behaviour |
+|---|---|---|
+| `< 0.50` | Uncertain — insufficient visual evidence | Show warning; prompt user to try a clearer photo |
+| `0.50 – 0.75` | Probable — reasonable match | Show result with a "Low confidence" badge |
+| `> 0.75` | Confident — strong visual evidence | Show result normally |
+
+---
+
 ## 1. Core AI Scribe: Taxonomy Data Enrichment (Phase 2/3)
 
-- **Trigger Context:** Executed when a Perenual/Pl@ntNet API query misses crucial biological metrics or returns empty data fields.
+- **Trigger Context:** Executed when the Perenual species details response is missing fields (pH range, toxicity notes, propagation methods). Also triggered when PlantNet identifies a species not found in Perenual. **Important:** PlantNet is an identification source only — it returns taxonomy (score, scientific name, family) but never care metrics. The Scribe always enriches from Perenual first; it fills remaining gaps when Perenual also returns nulls.
 - **Target Interface:** Supabase Deno Edge Function (`supabase/functions/claude-enrichment`)
 - **Model Class:** Anthropic Claude Haiku (`claude-haiku-4-5-20251001`) — fast, structured JSON output
 - **max_tokens:** `512` — JSON schema output is compact; no prose expected
@@ -40,6 +63,10 @@ The inference pipeline must strictly mandate a JSON Schema response matching you
           "default": 7.0
         },
         "is_toxic_to_pets": { "type": "boolean" },
+        "toxicity_notes": {
+          "type": ["string", "null"],
+          "description": "Populated only when is_toxic_to_pets is true. Brief clinical note, e.g. 'Causes kidney failure in cats. Seek vet immediately.' Null for non-toxic species."
+        },
         "propagation_methods": {
           "type": "array",
           "items": {
@@ -49,7 +76,7 @@ The inference pipeline must strictly mandate a JSON Schema response matching you
         },
         "is_ai_enriched": { "type": "boolean", "const": true }
       },
-      "required": ["scientific_name", "common_name", "ideal_min_ph", "ideal_max_ph", "is_toxic_to_pets", "propagation_methods", "is_ai_enriched"]
+      "required": ["scientific_name", "common_name", "ideal_min_ph", "ideal_max_ph", "is_toxic_to_pets", "toxicity_notes", "propagation_methods", "is_ai_enriched"]
     }
 
 ---
@@ -189,7 +216,8 @@ The Angular client must strip the `data:image/jpeg;base64,` prefix before sendin
             "confidence_score": {
               "type": "number",
               "minimum": 0.0,
-              "maximum": 1.0
+              "maximum": 1.0,
+              "description": "See shared confidence thresholds in section 0.1."
             },
             "immediate_remedial_actions": {
               "type": "array",

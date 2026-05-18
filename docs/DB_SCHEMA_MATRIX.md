@@ -86,11 +86,20 @@ The Anti-Hallucination Cache & Enrichment Sink. This table buffers raw external 
         ideal_min_ph NUMERIC(3,1) DEFAULT 6.0,
         ideal_max_ph NUMERIC(3,1) DEFAULT 7.0,
         is_toxic_to_pets BOOLEAN DEFAULT TRUE,
+        toxicity_notes TEXT,
+        watering TEXT,
+        sunlight TEXT[],
+        cycle TEXT,
+        plant_type TEXT,
         propagation_methods TEXT[],
         is_ai_enriched BOOLEAN DEFAULT FALSE NOT NULL,
         raw_api_payload JSONB,
         cached_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
     );
+
+    -- watering, sunlight, cycle, plant_type sourced from Perenual species/details endpoint.
+    -- plant_type avoids the SQL reserved word 'type'.
+    -- All nullable: AI Scribe enrichment handles missing values.
 
 ### 📸 2.5 Table: `plant_journals`
 
@@ -105,7 +114,9 @@ Historical logs, tracking notes, and compressed photo records mapped per plant c
         category log_category_type DEFAULT 'Observation'::log_category_type NOT NULL,
         notes TEXT,
         image_storage_path TEXT,
-        logged_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+        logged_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
     );
 
 ---
@@ -116,6 +127,8 @@ To keep query computations lightweight and protect database limits from throttli
 
     CREATE INDEX idx_zones_user ON public.zones(user_id);
     CREATE INDEX idx_plants_scheduling ON public.plants(user_id, next_check_due_at ASC);
+    CREATE INDEX idx_plants_zone ON public.plants(zone_id);
+    CREATE INDEX idx_journals_plant_date ON public.plant_journals(plant_id, logged_at DESC);
     CREATE INDEX idx_botanical_cache_id ON public.cached_botanical_records(perenual_id);
 
 ---
@@ -142,6 +155,10 @@ Define this function once and attach it to every table that has an `updated_at` 
 
     CREATE TRIGGER trg_plants_updated_at
       BEFORE UPDATE ON public.plants
+      FOR EACH ROW EXECUTE FUNCTION public.update_updated_at();
+
+    CREATE TRIGGER trg_plant_journals_updated_at
+      BEFORE UPDATE ON public.plant_journals
       FOR EACH ROW EXECUTE FUNCTION public.update_updated_at();
 
 ---
@@ -197,6 +214,9 @@ Enable RLS explicitly on all tables. This mandates that client queries passing t
     FOR SELECT
     USING (auth.role() = 'authenticated');
 
+    -- ⚠️  Client writes are intentionally blocked here.
+    -- Edge Functions use the service_role key, which bypasses RLS at the Postgres level.
+    -- The AI Scribe inserts/updates this table server-side only — never from the browser.
     CREATE POLICY "Only internal edge operations can populate botanical indices"
     ON public.cached_botanical_records
     FOR ALL
@@ -210,21 +230,155 @@ Enable RLS explicitly on all tables. This mandates that client queries passing t
 When **The Plumber Agent** writes the database execution script for user interaction events, the **Smart Snooze Logic** must be implemented as a **PostgreSQL stored procedure (RPC)** — not as a raw update inside an Edge Function.
 
 **Why RPC, not a direct Edge Function update?**
-Edge Functions use the `service_role` key, which bypasses RLS. Calling `auth.uid()` inside raw SQL run by the service role returns `null` — there is no JWT context. Wrap the logic in a stored procedure instead: the client calls `supabase.rpc('snooze_plant_check', { p_plant_id, p_days })`, which executes under the caller's JWT so `auth.uid()` resolves correctly.
+Edge Functions use the `service_role` key, which bypasses RLS. Calling `auth.uid()` inside raw SQL run by the service role returns `null` — there is no JWT context. Wrap the logic in a stored procedure instead: the client calls `supabase.rpc('snooze_plant_check', { p_plant_id })`, which executes under the caller's JWT so `auth.uid()` resolves correctly.
 
-    -- Stored procedure — called from the client via supabase.rpc()
+### 2.6 Table: `snooze_interval_rules`
+
+A seed-only lookup table. Rows are inserted at migration time and never modified by users. The procedure reads from it to derive snooze days from a plant's container × substrate combination.
+
+    CREATE TABLE public.snooze_interval_rules (
+        container_vector container_vector_type NOT NULL,
+        substrate_factor substrate_factor_type NOT NULL,
+        snooze_days      INT                   NOT NULL CHECK (snooze_days BETWEEN 1 AND 14),
+        PRIMARY KEY (container_vector, substrate_factor)
+    );
+
+    -- Direct client access blocked. The snooze_plant_check RPC is SECURITY DEFINER
+    -- and bypasses RLS, so no SELECT policy is needed — the function still works.
+    ALTER TABLE public.snooze_interval_rules ENABLE ROW LEVEL SECURITY;
+
+    -- Seed data — full 6 × 5 matrix
+    INSERT INTO public.snooze_interval_rules (container_vector, substrate_factor, snooze_days) VALUES
+        ('Terracotta',    'High-Drainage Aroid', 2),
+        ('Terracotta',    'Standard Potting',    3),
+        ('Terracotta',    'Heavy Peat',          5),
+        ('Terracotta',    'Desert Succulent',    2),
+        ('Terracotta',    'Sphagnum Moss Mix',   4),
+        ('Plastic',       'High-Drainage Aroid', 3),
+        ('Plastic',       'Standard Potting',    5),
+        ('Plastic',       'Heavy Peat',          7),
+        ('Plastic',       'Desert Succulent',    3),
+        ('Plastic',       'Sphagnum Moss Mix',   6),
+        ('Ceramic',       'High-Drainage Aroid', 2),
+        ('Ceramic',       'Standard Potting',    4),
+        ('Ceramic',       'Heavy Peat',          6),
+        ('Ceramic',       'Desert Succulent',    2),
+        ('Ceramic',       'Sphagnum Moss Mix',   5),
+        ('Fabric',        'High-Drainage Aroid', 2),
+        ('Fabric',        'Standard Potting',    3),
+        ('Fabric',        'Heavy Peat',          5),
+        ('Fabric',        'Desert Succulent',    2),
+        ('Fabric',        'Sphagnum Moss Mix',   4),
+        ('Self-Watering', 'High-Drainage Aroid', 7),
+        ('Self-Watering', 'Standard Potting',    7),
+        ('Self-Watering', 'Heavy Peat',          7),
+        ('Self-Watering', 'Desert Succulent',    7),
+        ('Self-Watering', 'Sphagnum Moss Mix',   7),
+        ('Ground',        'High-Drainage Aroid', 5),
+        ('Ground',        'Standard Potting',    5),
+        ('Ground',        'Heavy Peat',          7),
+        ('Ground',        'Desert Succulent',    5),
+        ('Ground',        'Sphagnum Moss Mix',   7);
+
+### Stored Procedure
+
+The procedure no longer accepts `p_days` from the caller — it derives the value internally from the plant's own `container_vector` and `substrate_factor`, then falls back to 3 days if the combination has no rule.
+
+    -- Called from the client via supabase.rpc('snooze_plant_check', { p_plant_id })
     CREATE OR REPLACE FUNCTION public.snooze_plant_check(
-      p_plant_id UUID,
-      p_days     INT
+      p_plant_id UUID
     ) RETURNS VOID LANGUAGE plpgsql SECURITY DEFINER AS $$
+    DECLARE
+      v_days INT;
     BEGIN
+      -- Derive snooze interval from the plant's own container × substrate combination
+      SELECT r.snooze_days INTO v_days
+      FROM   public.plants p
+      JOIN   public.snooze_interval_rules r
+               ON  r.container_vector = p.container_vector
+               AND r.substrate_factor = p.substrate_factor
+      WHERE  p.id      = p_plant_id
+        AND  p.user_id = auth.uid(); -- resolves from the caller's JWT
+
+      v_days := COALESCE(v_days, 3); -- fallback: 3 days if no rule matched
+
       UPDATE public.plants
       SET
-          last_checked_at           = NOW(),
-          next_check_due_at         = NOW() + (p_days * INTERVAL '1 day'),
-          current_snooze_interval_days = p_days,
-          updated_at                = NOW()
-      WHERE id = p_plant_id
-        AND user_id = auth.uid(); -- resolves from the caller's JWT
+          last_checked_at              = NOW(),
+          next_check_due_at            = NOW() + (v_days * INTERVAL '1 day'),
+          current_snooze_interval_days = v_days,
+          updated_at                   = NOW()
+      WHERE id      = p_plant_id
+        AND user_id = auth.uid();
     END;
     $$;
+
+---
+
+## 7. Phase 3 Schema Stubs (not yet migrated)
+
+The following tables are required for Phase 3 features. They are documented here for completeness but **must not be included in Phase 1 or Phase 2 migrations**. Uncomment and migrate when the relevant phase begins.
+
+    /*
+    ── Phase 3.3 ── Seed Vault & Germination Tracker ──────────────────────────────
+
+    CREATE TYPE seed_stage_type AS ENUM (
+        'Stored', 'Sown Indoors', 'Germinated', 'Potted Up', 'Hardened Off', 'Transplanted Outside'
+    );
+
+    CREATE TABLE public.seed_batches (
+        id              UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+        user_id         UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+        common_name     TEXT NOT NULL,
+        scientific_name TEXT,
+        brand           TEXT,
+        packet_year     INT,
+        current_stage   seed_stage_type DEFAULT 'Stored'::seed_stage_type NOT NULL,
+        sown_at         TIMESTAMP WITH TIME ZONE,
+        germinated_at   TIMESTAMP WITH TIME ZONE,
+        notes           TEXT,
+        created_at      TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+        updated_at      TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+    );
+
+    ALTER TABLE public.seed_batches ENABLE ROW LEVEL SECURITY;
+    CREATE POLICY "Gardeners manage their own seed batches"
+        ON public.seed_batches FOR ALL
+        USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+
+    ── Phase 3.5 ── Companion Planting Matrix ──────────────────────────────────────
+
+    CREATE TYPE companion_relationship_type AS ENUM ('Beneficial', 'Allelopathic', 'Neutral');
+
+    CREATE TABLE public.companion_planting_rules (
+        plant_a_common_name TEXT NOT NULL,
+        plant_b_common_name TEXT NOT NULL,
+        relationship        companion_relationship_type NOT NULL,
+        notes               TEXT,
+        PRIMARY KEY (plant_a_common_name, plant_b_common_name)
+    );
+
+    ALTER TABLE public.companion_planting_rules ENABLE ROW LEVEL SECURITY;
+    CREATE POLICY "Any authenticated user can read companion rules"
+        ON public.companion_planting_rules FOR SELECT
+        USING (auth.role() = 'authenticated');
+
+
+    ── Phase 3.4 ── Frost Date & Planting Window Cache ────────────────────────────
+
+    CREATE TABLE public.frost_date_cache (
+        id              UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+        latitude        NUMERIC(8,5) NOT NULL,
+        longitude       NUMERIC(8,5) NOT NULL,
+        last_spring_frost DATE,
+        first_fall_frost  DATE,
+        hardiness_zone    TEXT,
+        fetched_at      TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+    );
+
+    ALTER TABLE public.frost_date_cache ENABLE ROW LEVEL SECURITY;
+    CREATE POLICY "Any authenticated user can read frost cache"
+        ON public.frost_date_cache FOR SELECT
+        USING (auth.role() = 'authenticated');
+    */

@@ -174,6 +174,22 @@ readonly plantData = httpResource<Plant[]>(
 // plantData.reload()    → trigger refetch
 ```
 
+Template pattern for all three states:
+
+```html
+@if (plantData.isLoading()) {
+  <div class="animate-pulse h-32 bg-neutral-100 rounded-garden-md"></div>
+} @else if (plantData.error()) {
+  <p-message severity="error" text="Failed to load plants. Please try again." />
+} @else {
+  @for (p of plantData.value(); track p.id) {
+    <app-plant-card [plant]="p" />
+  } @empty {
+    <p class="text-neutral-500 text-sm">No plants found.</p>
+  }
+}
+```
+
 ---
 
 ## Calling Edge Functions (POST Mutations)

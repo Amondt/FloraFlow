@@ -28,11 +28,14 @@ export const FloraInputNumberPT = {
       ].join(' '),
     },
   },
+  buttonGroup: {
+    class: 'flex flex-col border-l border-neutral-300 dark:border-neutral-600',
+  },
   incrementButton: {
-    class: 'px-2 bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-600 transition-colors duration-150 border-l border-neutral-300 dark:border-neutral-600',
+    class: 'flex flex-1 items-center justify-center px-2 bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-600 transition-colors duration-150',
   },
   decrementButton: {
-    class: 'px-2 bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-600 transition-colors duration-150 border-l border-neutral-300 dark:border-neutral-600',
+    class: 'flex flex-1 items-center justify-center px-2 bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-600 transition-colors duration-150 border-t border-neutral-300 dark:border-neutral-600',
   },
 } satisfies InputNumberPassThroughOptions;
 

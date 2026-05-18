@@ -33,20 +33,20 @@ export const FloraRadioButtonPT = {
 } satisfies RadioButtonPassThroughOptions;
 
 export const FloraToggleSwitchPT = {
-  root: ({ props }: { props: { modelValue?: boolean } }) => ({
+  root: {
     class: [
       'relative inline-flex w-10 h-6 rounded-full cursor-pointer transition-colors duration-200',
       FLORA_FOCUS,
-      {
-        'bg-primary-500': props.modelValue,
-        'bg-neutral-300 dark:bg-neutral-600': !props.modelValue,
-      },
-    ],
-  }),
-  slider: ({ props }: { props: { modelValue?: boolean } }) => ({
+      'bg-neutral-300 dark:bg-neutral-600',
+    ].join(' '),
+  },
+  input: {
+    class: 'absolute inset-0 w-full h-full opacity-0 appearance-none cursor-pointer m-0',
+  },
+  slider: {
     class: [
       'absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200',
-      { 'translate-x-4': props.modelValue, 'translate-x-0': !props.modelValue },
-    ],
-  }),
+      'translate-x-0',
+    ].join(' '),
+  },
 } satisfies ToggleSwitchPassThroughOptions;

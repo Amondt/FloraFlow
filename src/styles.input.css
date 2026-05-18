@@ -38,3 +38,42 @@
   0%, 100% { opacity: 1; }
   50%       { opacity: 0.4; }
 }
+
+/* ToggleSwitch active state
+   PrimeNG v21 sets data-p-checked but doesn't re-evaluate PT functions on state change.
+   :has(input:checked) is the reliable cross-browser hook for the checked state. */
+p-toggleswitch:has(input:focus-visible) {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+}
+
+p-toggleswitch:has(input:checked) {
+  background-color: var(--color-primary-500);
+}
+
+p-toggleswitch:has(input:checked) [data-pc-section="slider"] {
+  translate: 1rem 0;
+}
+
+/* Select listcontainer has an inline max-height:200px set by PrimeNG — override with !important
+   and clip overflow so the list's own overflow-auto scrollbar is the only scroll mechanism. */
+[data-pc-section="listcontainer"] {
+  max-height: 15rem !important;
+  overflow: auto !important;
+}
+
+/* Select / MultiSelect keyboard focus indicator
+   PrimeNG v21 sets data-p-focused="true" on the arrow-key-focused option but
+   doesn't re-evaluate PT functions on focus change, so we target it here. */
+[data-pc-section="option"][data-p-focused="true"] {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: -2px;
+}
+
+[data-pc-section="option"][data-p-focused="true"]:not([data-p-selected="true"]) {
+  background-color: var(--color-neutral-100);
+}
+
+:where(.dark, .dark *) [data-pc-section="option"][data-p-focused="true"]:not([data-p-selected="true"]) {
+  background-color: var(--color-neutral-700);
+}

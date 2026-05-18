@@ -1,0 +1,99 @@
+<main
+  class="p-6 min-h-screen bg-neutral-50 dark:bg-neutral-900"
+  aria-labelledby="dashboard-heading"
+>
+
+  <!-- Page header -->
+  <header class="flex items-center justify-between mb-8">
+    <section>
+      <h1
+        id="dashboard-heading"
+        class="text-2xl font-semibold font-display text-neutral-900 dark:text-white"
+      >
+        Virtual Greenhouse
+      </h1>
+      <p class="text-sm text-neutral-500 dark:text-neutral-400 font-display mt-1">
+        Manage your microclimate zones
+      </p>
+    </section>
+    <p-button
+      label="Add Zone"
+      icon="pi pi-plus"
+      [pt]="FloraButtonPT"
+      ariaLabel="Add a new greenhouse zone"
+      (onClick)="openCreateDialog()"
+    />
+  </header>
+
+  <!-- Error banner -->
+  @if (zoneService.error()) {
+    <div
+      role="alert"
+      class="mb-6 px-4 py-3 rounded-garden-sm bg-red-50 border border-danger-500 text-red-900 text-sm font-display"
+    >
+      {{ zoneService.error() }}
+    </div>
+  }
+
+  <!-- Zone grid -->
+  <section aria-label="Greenhouse zones" [attr.aria-busy]="zoneService.loading()">
+
+    @if (zoneService.loading()) {
+
+      <ul
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+        aria-label="Loading zones"
+      >
+        @for (n of [1, 2, 3]; track n) {
+          <li>
+            <p-skeleton height="11rem" [pt]="FloraSkeletonPT" />
+          </li>
+        }
+      </ul>
+
+    } @else if (zoneService.zones().length === 0) {
+
+      <div class="flex flex-col items-center justify-center py-20 text-center" role="status">
+        <p class="text-neutral-500 dark:text-neutral-400 font-display text-base">
+          No zones yet. Add your first greenhouse zone to get started.
+        </p>
+        <p-button
+          label="Add your first zone"
+          variant="outlined"
+          [pt]="FloraButtonPT"
+          class="mt-4"
+          ariaLabel="Add your first greenhouse zone"
+          (onClick)="openCreateDialog()"
+        />
+      </div>
+
+    } @else {
+
+      <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        @for (zone of zoneService.zones(); track zone.id) {
+          <li>
+            <app-zone-card
+              [zone]="zone"
+              (edit)="openEditDialog($event)"
+              (remove)="onDeleteRequest($event)"
+            />
+          </li>
+        }
+      </ul>
+
+    }
+
+  </section>
+
+  <!-- Zone form dialog (create + edit) -->
+  <app-zone-form
+    [visible]="dialogVisible()"
+    (visibleChange)="dialogVisible.set($event)"
+    [editZone]="editingZone()"
+    (saved)="onSaved($event)"
+  />
+
+  <!-- Delete confirmation dialog -->
+  <p-confirmdialog [pt]="FloraConfirmDialogPT" />
+
+</main>

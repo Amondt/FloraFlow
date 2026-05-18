@@ -1,0 +1,76 @@
+<article
+  class="bg-neutral-100 dark:bg-neutral-800 border border-neutral-200/50 dark:border-neutral-700/50 rounded-garden-md p-5 shadow-sm transition-all duration-200 hover:shadow-md"
+  [attr.aria-labelledby]="headingId()"
+>
+
+  <header class="mb-4">
+    <h2
+      [id]="headingId()"
+      class="text-lg font-semibold font-display text-neutral-900 dark:text-white"
+    >
+      {{ zone().name }}
+    </h2>
+    <p class="text-xs text-neutral-500 dark:text-neutral-400 font-display mt-1">
+      {{ zone().window_orientation }} orientation
+    </p>
+  </header>
+
+  <section
+    class="flex flex-col gap-2 text-sm font-display"
+    aria-label="Microclimate details"
+  >
+
+    <div class="flex items-center justify-between">
+      <span class="text-neutral-500 dark:text-neutral-400">Ventilation</span>
+      @if (zone().has_active_ventilation) {
+        <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">
+          Active
+        </span>
+      } @else {
+        <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-400">
+          None
+        </span>
+      }
+    </div>
+
+    <div class="flex items-center justify-between">
+      <span class="text-neutral-500 dark:text-neutral-400">Grow lights</span>
+      @if (zone().has_grow_lights) {
+        <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">
+          On
+        </span>
+      } @else {
+        <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-400">
+          Off
+        </span>
+      }
+    </div>
+
+    <div class="flex items-center justify-between">
+      <span class="text-neutral-500 dark:text-neutral-400">Humidity baseline</span>
+      <span class="text-xs font-medium text-neutral-700 dark:text-neutral-300">
+        {{ zone().humidity_baseline }}%
+      </span>
+    </div>
+
+  </section>
+
+  <footer class="pt-4 mt-4 border-t border-neutral-200 dark:border-neutral-700 flex justify-end gap-2">
+    <p-button
+      label="Edit"
+      variant="text"
+      [pt]="FloraButtonPT"
+      [ariaLabel]="'Edit ' + zone().name + ' zone'"
+      (onClick)="edit.emit(zone())"
+    />
+    <p-button
+      label="Delete"
+      severity="danger"
+      variant="text"
+      [pt]="FloraButtonPT"
+      [ariaLabel]="'Delete ' + zone().name + ' zone'"
+      (onClick)="remove.emit(zone().id)"
+    />
+  </footer>
+
+</article>

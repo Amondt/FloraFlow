@@ -25,7 +25,7 @@ This document establishes the official development sprints, feature milestone gr
     - Code the accessible semantic HTML `login.component` wrapped using PrimeNG PT components.
     - Bind the client routes with an asynchronous `AuthGuard` that checks active Supabase sessions.
 
-- [ ] **1.4 Virtual Greenhouse Dashboard (Local CRUD)**
+- [x] **1.4 Virtual Greenhouse Dashboard (Local CRUD)**
     - Create the dashboard grid component to display localized environmental cards (`zones`).
     - Implement form models to handle data updates for microclimate properties (e.g., window orientation, active ventilation, supplemental grow lights, and humidity baselines).
 

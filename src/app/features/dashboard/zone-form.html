@@ -1,0 +1,139 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="visible.set($event)"
+  [header]="dialogTitle()"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [pt]="FloraDialogPT"
+>
+
+  <form
+    [formGroup]="form"
+    (ngSubmit)="onSubmit()"
+    novalidate
+    class="flex flex-col gap-5"
+    aria-label="Zone details form"
+  >
+
+    <!-- Zone name -->
+    <div class="flex flex-col gap-1.5">
+      <label
+        [for]="nameId"
+        class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+      >
+        Zone name
+        <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
+        <span class="sr-only">(required)</span>
+      </label>
+      <input
+        pInputText
+        [id]="nameId"
+        formControlName="name"
+        [pt]="FloraInputTextPT"
+        [class]="nameCtrl.invalid && nameCtrl.touched ? FLORA_ERROR : ''"
+        [attr.aria-describedby]="nameCtrl.invalid && nameCtrl.touched ? nameId + '-error' : null"
+        [attr.aria-invalid]="nameCtrl.invalid && nameCtrl.touched"
+        aria-required="true"
+        placeholder="e.g. Living Room, South Balcony"
+        autocomplete="off"
+      />
+      @if (nameCtrl.invalid && nameCtrl.touched) {
+        <small
+          [id]="nameId + '-error'"
+          class="text-danger-500 text-xs font-display"
+          role="alert"
+        >
+          Zone name is required.
+        </small>
+      }
+    </div>
+
+    <!-- Window orientation -->
+    <div class="flex flex-col gap-1.5">
+      <label class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display">
+        Window orientation
+      </label>
+      <p-select
+        formControlName="window_orientation"
+        [options]="orientationOptions"
+        [pt]="FloraSelectPT"
+        placeholder="Select orientation"
+        aria-label="Window orientation"
+        appendTo="body"
+      />
+    </div>
+
+    <!-- Humidity baseline -->
+    <div class="flex flex-col gap-1.5">
+      <label
+        [for]="humidityId"
+        class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+      >
+        Humidity baseline
+        <span class="text-neutral-400 font-normal text-xs ml-1">(0 – 100 %)</span>
+      </label>
+      <p-inputnumber
+        [inputId]="humidityId"
+        formControlName="humidity_baseline"
+        [min]="0"
+        [max]="100"
+        [showButtons]="true"
+        [pt]="FloraInputNumberPT"
+      />
+      @if (humidityCtrl.invalid && humidityCtrl.touched) {
+        <small
+          [id]="humidityId + '-error'"
+          class="text-danger-500 text-xs font-display"
+          role="alert"
+        >
+          Humidity must be between 0 and 100.
+        </small>
+      }
+    </div>
+
+    <!-- Active ventilation toggle -->
+    <label class="flex items-center justify-between gap-4 cursor-pointer">
+      <span class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display">
+        Active ventilation
+      </span>
+      <p-toggleswitch
+        formControlName="has_active_ventilation"
+        name="has_active_ventilation"
+        [pt]="FloraToggleSwitchPT"
+        ariaLabel="Toggle active ventilation"
+      />
+    </label>
+
+    <!-- Grow lights toggle -->
+    <label class="flex items-center justify-between gap-4 cursor-pointer">
+      <span class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display">
+        Supplemental grow lights
+      </span>
+      <p-toggleswitch
+        formControlName="has_grow_lights"
+        name="has_grow_lights"
+        [pt]="FloraToggleSwitchPT"
+        ariaLabel="Toggle grow lights"
+      />
+    </label>
+
+  </form>
+
+  <ng-template #footer>
+    <p-button
+      label="Cancel"
+      variant="text"
+      [pt]="FloraButtonPT"
+      ariaLabel="Cancel and close dialog"
+      (onClick)="onCancel()"
+    />
+    <p-button
+      label="Save zone"
+      [pt]="FloraButtonPT"
+      ariaLabel="Save zone details"
+      (onClick)="onSubmit()"
+    />
+  </ng-template>
+
+</p-dialog>

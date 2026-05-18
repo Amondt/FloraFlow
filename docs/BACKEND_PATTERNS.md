@@ -95,6 +95,21 @@ const { data, error } = await supabase.rpc('snooze_plant_check', {
 });
 ```
 
+### QueryData — infer row types from a query shape
+
+`QueryData<>` lets TypeScript infer the exact shape a `.select()` call returns — including joined tables — without executing the query. Useful when you need the type in multiple places.
+
+```ts
+import type { QueryData } from '@supabase/supabase-js';
+
+const plantsWithZoneQuery = supabase
+  .from('plants')
+  .select('id, common_name, zone_id, zones(name)');
+
+// Inferred type matches exactly what the query will return at runtime
+type PlantWithZone = QueryData<typeof plantsWithZoneQuery>;
+```
+
 ---
 
 ## RLS Migration Pattern
@@ -180,6 +195,8 @@ This runs server-side automatically — no client code needed.
 ```ts
 import { createClient }   from 'npm:@supabase/supabase-js@2';
 import Anthropic           from 'npm:@anthropic-ai/sdk';
+import { zodOutputFormat } from 'npm:@anthropic-ai/sdk/helpers/zod';
+import { z }               from 'npm:zod/v4';
 import type { Database }  from '../_shared/database.types.ts'; // ← use _shared/, not ../../src/
 
 // CORS headers — required for browser requests
@@ -193,6 +210,18 @@ const json = (data: unknown, status = 200) =>
     status,
     headers: { ...cors, 'Content-Type': 'application/json' },
   });
+
+// Zod schema — single source of truth for shape + runtime validation
+const EnrichmentSchema = z.object({
+  scientific_name:     z.string(),
+  common_name:         z.string(),
+  ideal_min_ph:        z.number(),
+  ideal_max_ph:        z.number(),
+  is_toxic_to_pets:    z.boolean(),
+  toxicity_notes:      z.string().nullable(),
+  propagation_methods: z.array(z.string()),
+  is_ai_enriched:      z.literal(true),
+});
 
 Deno.serve(async (req: Request) => {
   // 1. Preflight — must come first
@@ -217,23 +246,19 @@ Deno.serve(async (req: Request) => {
 
     if (cached) return json(cached);
 
-    // 5. Call Claude
-    const msg = await anthropic.messages.create({
+    // 5. Call Claude — messages.parse() validates the response against EnrichmentSchema
+    const msg = await anthropic.messages.parse({
       model:      'claude-haiku-4-5-20251001',
       max_tokens: 512,
       system:     '...paste system prompt from docs/AI_PROMPT_MANIFEST.md...',
       messages:   [{ role: 'user', content: `${scientificName} / ${commonName}` }],
+      output_config: { format: zodOutputFormat(EnrichmentSchema) },
     });
 
-    const raw    = msg.content[0].type === 'text' ? msg.content[0].text : '';
-    const parsed = JSON.parse(raw);
+    const parsed = msg.parsed_output;
+    if (!parsed) return json({ error: 'AI returned invalid shape' }, 502);
 
-    // Validate shape with a type guard before any DB write — never trust raw AI output
-    if (!isValidEnrichmentPayload(parsed)) {
-      return json({ error: 'AI returned invalid shape' }, 502);
-    }
-
-    // 6. Persist to cache
+    // 6. Persist to cache — parsed is fully typed, no manual guard needed
     await supabase.from('cached_botanical_records').insert(parsed);
 
     return json(parsed);
@@ -246,9 +271,52 @@ Deno.serve(async (req: Request) => {
 
 ---
 
-## Claude JSON Validation — Type Guards
+## Claude Structured Output — Recommended
 
-Never write AI output directly to the DB. Always validate first with a type guard:
+Use `messages.parse()` with a Zod schema. The SDK validates Claude's JSON response against the schema and hands you a fully typed `parsed_output` — no manual parsing or type guards needed.
+
+```ts
+import Anthropic           from 'npm:@anthropic-ai/sdk';
+import { zodOutputFormat } from 'npm:@anthropic-ai/sdk/helpers/zod';
+import { z }               from 'npm:zod/v4'; // note: zod/v4, not zod
+
+const EnrichmentSchema = z.object({
+  scientific_name:     z.string(),
+  common_name:         z.string(),
+  ideal_min_ph:        z.number(),
+  ideal_max_ph:        z.number(),
+  is_toxic_to_pets:    z.boolean(),
+  toxicity_notes:      z.string().nullable(),
+  propagation_methods: z.array(z.string()),
+  is_ai_enriched:      z.literal(true),
+});
+
+const msg = await anthropic.messages.parse({
+  model:      'claude-haiku-4-5-20251001',
+  max_tokens: 512,
+  system:     '...system prompt from docs/AI_PROMPT_MANIFEST.md...',
+  messages:   [{ role: 'user', content: `${scientificName} / ${commonName}` }],
+  output_config: { format: zodOutputFormat(EnrichmentSchema) },
+});
+
+// parsed_output is undefined if Claude couldn't satisfy the schema
+const parsed = msg.parsed_output;
+if (!parsed) return json({ error: 'AI returned invalid shape' }, 502);
+
+// parsed is now fully typed — same shape as EnrichmentSchema
+await supabase.from('cached_botanical_records').insert(parsed);
+```
+
+**Why `messages.parse()` over manual extraction:**
+- Schema is declared once in Zod — no separate interface + runtime guard
+- Compile-time type safety on the result, not just runtime duck-typing
+- The SDK handles `JSON.parse` and throws a typed error if the schema doesn't match
+
+---
+
+## Claude JSON Validation — Manual Type Guards (Fallback)
+
+Use this pattern only when `messages.parse()` is not available (e.g., environments without Zod, or when using `messages.create()` for non-JSON responses).
 
 ```ts
 // Define the expected shape (mirrors your JSON schema in AI_PROMPT_MANIFEST.md)
@@ -277,6 +345,13 @@ function isValidEnrichmentPayload(v: unknown): v is EnrichmentPayload {
     p.is_ai_enriched === true
   );
 }
+
+// Usage with messages.create()
+const msg = await anthropic.messages.create({ model: '...', max_tokens: 512, messages: [...] });
+const raw    = msg.content[0].type === 'text' ? msg.content[0].text : '';
+const parsed = JSON.parse(raw);
+
+if (!isValidEnrichmentPayload(parsed)) return json({ error: 'AI returned invalid shape' }, 502);
 ```
 
 Write one guard per schema defined in `docs/AI_PROMPT_MANIFEST.md`. Keep guards next to their Edge Function.

@@ -1,0 +1,46 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="visible.set($event)"
+  [header]="dialogHeader()"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [pt]="FloraDialogPT"
+>
+
+  <p class="font-display">
+    Is the soil dry at the required depth?
+  </p>
+
+  <dl class="mt-4 flex flex-col gap-2 text-sm font-display">
+    <div class="flex items-center justify-between">
+      <dt class="text-neutral-500 dark:text-neutral-400">Container</dt>
+      <dd class="font-medium text-neutral-700 dark:text-neutral-300">
+        {{ plant().container_vector }}
+      </dd>
+    </div>
+    <div class="flex items-center justify-between">
+      <dt class="text-neutral-500 dark:text-neutral-400">Substrate</dt>
+      <dd class="font-medium text-neutral-700 dark:text-neutral-300">
+        {{ plant().substrate_factor }}
+      </dd>
+    </div>
+  </dl>
+
+  <ng-template #footer>
+    <p-button
+      label="Not yet — snooze"
+      variant="outlined"
+      [pt]="FloraButtonPT"
+      [ariaLabel]="'Soil not dry yet, snooze check for ' + plant().common_name"
+      (onClick)="onSnooze()"
+    />
+    <p-button
+      label="Yes, soil is dry"
+      [pt]="FloraButtonPT"
+      [ariaLabel]="'Confirm soil is dry for ' + plant().common_name"
+      (onClick)="onConfirm()"
+    />
+  </ng-template>
+
+</p-dialog>

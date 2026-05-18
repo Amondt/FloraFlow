@@ -9,9 +9,9 @@ Reference for **The Plumber**. Always verify against context7 before implementin
 PowerShell 5.1 marks any stderr output from native executables as an error, even when the exit code is 0. Supabase CLI writes progress messages to stderr. Always append `2>$null` to silence false errors:
 
 ```powershell
-bun run supabase db reset 2>$null
-bun run supabase db query "SELECT ..." 2>$null
-bun run supabase status 2>$null
+bunx supabase db reset 2>$null
+bunx supabase db query "SELECT ..." 2>$null
+bunx supabase status 2>$null
 ```
 
 Use `$LASTEXITCODE` — not PowerShell error output — to check whether a command actually failed.
@@ -20,22 +20,14 @@ Use `$LASTEXITCODE` — not PowerShell error output — to check whether a comma
 
 ## Supabase Type Generation (run once per schema change)
 
-```bash
-supabase gen types typescript --local > src/types/database.types.ts
-```
-
-If the command errors with a connection message, add the local DB URL explicitly:
-
-```bash
-supabase gen types typescript --local \
-  --db-url "$(supabase status | grep 'DB URL' | awk '{print $NF}')" \
-  > src/types/database.types.ts
+```powershell
+bunx supabase gen types typescript --local 2>$null > src/types/database.types.ts
 ```
 
 After generating, copy the file into the shared Edge Function folder so Deno can import it:
 
-```bash
-cp src/types/database.types.ts supabase/functions/_shared/database.types.ts
+```powershell
+Copy-Item src/types/database.types.ts supabase/functions/_shared/database.types.ts
 ```
 
 Never write `any` for Supabase responses. Always import and use `Database`.
@@ -148,10 +140,10 @@ Deno's module resolver does not bundle files outside the function directory duri
 
 **Use the `_shared/` convention instead:**
 
-```bash
-# After running: supabase gen types typescript --local > src/types/database.types.ts
+```powershell
+# After running: bunx supabase gen types typescript --local 2>$null > src/types/database.types.ts
 # Copy the generated file into the shared Edge Function folder:
-cp src/types/database.types.ts supabase/functions/_shared/database.types.ts
+Copy-Item src/types/database.types.ts supabase/functions/_shared/database.types.ts
 ```
 
 Import from `_shared/` in every Edge Function:

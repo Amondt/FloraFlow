@@ -68,36 +68,38 @@ Client routes are protected by checking user authentication against the internal
     export const routes: Routes = [
       {
         path: 'login',
-        loadComponent: () => import('./features/auth/login.component').then(m => m.LoginComponent)
+        loadComponent: () => import('./features/auth/login').then(m => m.Login)
       },
       {
         path: 'dashboard',
-        loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent),
-        canActivate: [AuthGuard]
+        loadComponent: () => import('./features/dashboard/dashboard').then(m => m.Dashboard),
+        canActivate: [authGuard]
       },
       {
         path: 'scheduler',
-        loadComponent: () => import('./features/scheduler/scheduler.component').then(m => m.SchedulerComponent),
-        canActivate: [AuthGuard]
+        loadComponent: () => import('./features/scheduler/scheduler').then(m => m.Scheduler),
+        canActivate: [authGuard]
       },
       {
         path: 'journal',
-        loadComponent: () => import('./features/journal/journal.component').then(m => m.JournalComponent),
-        canActivate: [AuthGuard]
+        loadComponent: () => import('./features/journal/journal').then(m => m.Journal),
+        canActivate: [authGuard]
       },
       {
         path: 'library',
-        loadComponent: () => import('./features/library/library.component').then(m => m.LibraryComponent),
-        canActivate: [AuthGuard]
+        loadComponent: () => import('./features/library/library').then(m => m.Library),
+        canActivate: [authGuard]
       },
       {
         path: 'vault',
-        loadComponent: () => import('./features/vault/vault.component').then(m => m.VaultComponent),
-        canActivate: [AuthGuard]
+        loadComponent: () => import('./features/vault/vault').then(m => m.Vault),
+        canActivate: [authGuard]
       },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: '**', redirectTo: 'dashboard' }
     ];
+
+> **Naming convention:** Component files use no `.component` suffix (e.g., `scheduler.ts` not `scheduler.component.ts`). The route guard is the functional `authGuard` (lowercase), not a class-based `AuthGuard`.
 
 ---
 

@@ -1,0 +1,164 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="visible.set($event)"
+  [header]="dialogTitle()"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [pt]="FloraDialogPT"
+>
+
+  <form
+    [formGroup]="form"
+    (ngSubmit)="onSubmit()"
+    novalidate
+    class="flex flex-col gap-5"
+    aria-label="Plant details form"
+  >
+
+    <div class="flex flex-col gap-1.5">
+      <label
+        [for]="commonNameId"
+        class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+      >
+        Plant name
+        <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
+        <span class="sr-only">(required)</span>
+      </label>
+      <input
+        pInputText
+        [id]="commonNameId"
+        formControlName="common_name"
+        [pt]="FloraInputTextPT"
+        [class]="nameCtrl.invalid && nameCtrl.touched ? FLORA_ERROR : ''"
+        [attr.aria-describedby]="nameCtrl.invalid && nameCtrl.touched ? commonNameId + '-error' : null"
+        [attr.aria-invalid]="nameCtrl.invalid && nameCtrl.touched"
+        aria-required="true"
+        placeholder="e.g. Monstera Deliciosa"
+        autocomplete="off"
+      />
+      @if (nameCtrl.invalid && nameCtrl.touched) {
+        <small
+          [id]="commonNameId + '-error'"
+          class="text-danger-500 text-xs font-display"
+          role="alert"
+        >
+          Plant name is required.
+        </small>
+      }
+    </div>
+
+    <div class="flex flex-col gap-1.5">
+      <label
+        [for]="scientificId"
+        class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+      >
+        Scientific name
+        <span class="text-neutral-400 font-normal text-xs ml-1">(optional)</span>
+      </label>
+      <input
+        pInputText
+        [id]="scientificId"
+        formControlName="scientific_name"
+        [pt]="FloraInputTextPT"
+        placeholder="e.g. Monstera deliciosa"
+        autocomplete="off"
+      />
+    </div>
+
+    <div class="flex flex-col gap-1.5">
+      <label
+        [for]="zoneSelectId"
+        class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+      >
+        Zone
+        <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
+        <span class="sr-only">(required)</span>
+      </label>
+      <p-select
+        [inputId]="zoneSelectId"
+        formControlName="zone_id"
+        [options]="zoneOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [pt]="FloraSelectPT"
+        [attr.aria-describedby]="zoneCtrl.invalid && zoneCtrl.touched ? zoneSelectId + '-error' : null"
+        [attr.aria-invalid]="zoneCtrl.invalid && zoneCtrl.touched"
+        aria-required="true"
+        placeholder="Select a zone"
+        appendTo="body"
+      />
+      @if (zoneCtrl.invalid && zoneCtrl.touched) {
+        <small
+          [id]="zoneSelectId + '-error'"
+          class="text-danger-500 text-xs font-display"
+          role="alert"
+        >
+          Please select a zone.
+        </small>
+      }
+    </div>
+
+    <div class="flex flex-col gap-1.5">
+      <label
+        [for]="containerId"
+        class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+      >
+        Container type
+      </label>
+      <p-select
+        [inputId]="containerId"
+        formControlName="container_vector"
+        [options]="CONTAINER_VECTOR_OPTIONS"
+        [pt]="FloraSelectPT"
+        appendTo="body"
+      />
+    </div>
+
+    <div class="flex flex-col gap-1.5">
+      <label
+        [for]="substrateId"
+        class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+      >
+        Substrate
+      </label>
+      <p-select
+        [inputId]="substrateId"
+        formControlName="substrate_factor"
+        [options]="SUBSTRATE_FACTOR_OPTIONS"
+        [pt]="FloraSelectPT"
+        appendTo="body"
+      />
+    </div>
+
+  </form>
+
+  <ng-template #footer>
+    @let currentPlant = plant();
+    @if (currentPlant) {
+      <p-button
+        label="Delete plant"
+        severity="danger"
+        variant="text"
+        [pt]="FloraButtonPT"
+        [ariaLabel]="'Delete ' + currentPlant.common_name"
+        class="mr-auto"
+        (onClick)="onDelete()"
+      />
+    }
+    <p-button
+      label="Cancel"
+      variant="text"
+      [pt]="FloraButtonPT"
+      ariaLabel="Cancel and close dialog"
+      (onClick)="onCancel()"
+    />
+    <p-button
+      label="Save plant"
+      [pt]="FloraButtonPT"
+      ariaLabel="Save plant details"
+      (onClick)="onSubmit()"
+    />
+  </ng-template>
+
+</p-dialog>

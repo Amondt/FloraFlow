@@ -2,6 +2,15 @@
 
 This document is the **single source of truth** for all visual and accessibility decisions in FloraFlow. **The Visualizer (Frontend Agent)** must read this file before producing any template or style. Overriding styles using inline CSS or undocumented Tailwind classes is strictly prohibited.
 
+**Quick navigation** (Grep for the section marker to jump directly):
+
+| Section | Marker | Contents |
+| --- | --- | --- |
+| §1 | `## 1.` | Tailwind CSS v4 `@theme` tokens — colors, radii, fonts |
+| §2 | `## 2.` | State constants (`FLORA_FOCUS`, `FLORA_ERROR`, etc.) |
+| §3 | `## 3.` | PrimeNG PT object catalog — one entry per component |
+| §4 | `## 4.` | WCAG / ARIA accessibility rules |
+
 ---
 
 ## 1. Tailwind CSS v4 Global Configuration

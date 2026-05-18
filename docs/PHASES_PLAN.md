@@ -34,6 +34,13 @@ This document establishes the official development sprints, feature milestone gr
     - Implement the confirmation dialog modal asking the user: _"Is the soil dry at the required depth?"_
     - Code the local **Smart Snooze** computation script: if the user flags the soil as wet, automatically push the target plant's `next_check_due_at` timestamp back by a calculated 2, 5, or 7-day interval.
 
+- [ ] **1.5.1 Plant CRUD (Add / Edit / Delete)**
+    - Build a plant form dialog in `src/app/features/scheduler/` allowing users to add plants to a zone.
+    - Form fields: `common_name` (required), `scientific_name` (optional), `zone_id` (select from user's zones), `container_vector` (enum select), `substrate_factor` (enum select).
+    - Wire delete confirmation via PrimeNG ConfirmDialog.
+    - Extend `PlantService` with `createPlant()`, `updatePlant()`, `deletePlant()` methods.
+    - This is a prerequisite for Phase 2.6 ("Add to my greenhouse" shortcut).
+
 - [ ] **1.6 Offline Isolation Support (PWA Canvas Sync)**
     - Integrate `@angular/pwa` service worker assets to allow the app to cache core layout elements locally.
     - Bind browser connection monitoring tools to intercept data adjustments when offline, pushing pending logs into IndexedDB caches until connection is restored.
@@ -58,6 +65,13 @@ This document establishes the official development sprints, feature milestone gr
 - [ ] **2.1 Global Botanical Caching Infrastructure**
     - Deploy table `cached_botanical_records` to act as the primary query target.
     - Build an outbound query check routine: the app must always search local cache rows first. If the record doesn't exist, it routes the lookup request to a secure Supabase Edge Function to avoid leaking keys.
+
+- [ ] **2.1.1 Botanical Name Autocomplete in Add Plant Form**
+    - Replace the free-text `common_name` and `scientific_name` inputs in `PlantFormDialogComponent` with PrimeNG `p-autocomplete` fields.
+    - As the user types ≥ 2 characters, query `cached_botanical_records` (common_name and scientific_name columns) via the Supabase client — never via an external API call.
+    - On selection from the suggestion list, auto-populate both name fields and store the matched `perenual_id` on the form so downstream enrichment pipelines (Phase 2.2, 3.1) can resolve the species without an extra lookup.
+    - Free-text entry must still be allowed as a fallback when no cache match exists (the user may be adding a species not yet indexed).
+    - **Prerequisite:** Task 2.1 must be complete — the `cached_botanical_records` table and its Edge Function population pipeline must exist before this autocomplete has a data source to query.
 
 - [ ] **2.2 Perenual Taxonomy Integration (AI Scribe Fallback)**
     - Code the serverless Deno Edge Function wrapper to process queries against the Perenual API endpoint.

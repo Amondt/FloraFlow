@@ -37,8 +37,8 @@ bun install
 
 ### 2. Start the local Supabase stack
 
-```bash
-supabase start
+```powershell
+bunx supabase start 2>$null
 ```
 
 ### 3. Start the dev server
@@ -69,9 +69,9 @@ Open `http://localhost:4200` in your browser.
 | `bun run build`      | Production build to `dist/`                                        |
 | `bun run lint`       | Run ESLint across all TypeScript and HTML files                     |
 | `bun run test`       | Run Vitest unit and component tests                                 |
-| `supabase start`     | Start local Supabase Docker stack                                   |
-| `supabase stop`      | Stop local Supabase Docker stack                                    |
-| `supabase db test`   | Run RLS and schema integrity tests                                  |
+| `bunx supabase start 2>$null`    | Start local Supabase Docker stack                |
+| `bunx supabase stop 2>$null`     | Stop local Supabase Docker stack                 |
+| `bunx supabase db test 2>$null`  | Run RLS and schema integrity tests               |
 
 ---
 

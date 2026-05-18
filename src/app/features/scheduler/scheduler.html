@@ -1,16 +1,24 @@
 <main class="p-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen" aria-labelledby="scheduler-heading">
 <div class="max-w-4xl mx-auto">
 
-  <header class="mb-6">
-    <h1
-      id="scheduler-heading"
-      class="text-2xl font-semibold font-display text-neutral-900 dark:text-white"
-    >
-      Soil-Check Scheduler
-    </h1>
-    <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1 font-display">
-      Plants with overdue soil checks.
-    </p>
+  <header class="mb-6 flex items-start justify-between gap-4">
+    <div>
+      <h1
+        id="scheduler-heading"
+        class="text-2xl font-semibold font-display text-neutral-900 dark:text-white"
+      >
+        Soil-Check Scheduler
+      </h1>
+      <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1 font-display">
+        Plants with overdue soil checks.
+      </p>
+    </div>
+    <p-button
+      label="Add plant"
+      [pt]="FloraButtonPT"
+      ariaLabel="Add a new plant to your greenhouse"
+      (onClick)="openAddPlant()"
+    />
   </header>
 
   <section
@@ -45,6 +53,7 @@
               [plant]="plant"
               (checkNow)="onCheckNow($event)"
               (snooze)="onSnoozeFromCard($event)"
+              (edit)="openEditPlant($event)"
             />
           </li>
         } @empty {
@@ -67,6 +76,13 @@
       (snoozed)="onSnoozed($event)"
     />
   }
+
+  <app-plant-form-dialog
+    [plant]="plantFormTarget()"
+    [(visible)]="plantFormVisible"
+    (saved)="onPlantSaved($event)"
+    (deleteRequested)="onDeleteRequested($event)"
+  />
 
 </div>
 </main>

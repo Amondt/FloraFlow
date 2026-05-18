@@ -14,6 +14,7 @@ export class PlantAlertCardComponent {
   readonly plant    = input.required<Plant>();
   readonly checkNow = output<Plant>();
   readonly snooze   = output<string>();
+  readonly edit     = output<Plant>();
 
   protected readonly FloraButtonPT = FloraButtonPT;
   protected readonly FloraTagPT    = FloraTagPT;

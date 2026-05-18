@@ -45,3 +45,11 @@ export interface Plant {
   created_at: string;
   updated_at: string;
 }
+
+export interface PlantFormData {
+  common_name: string;
+  scientific_name: string | null;
+  zone_id: string;
+  container_vector: ContainerVector;
+  substrate_factor: SubstrateFactor;
+}

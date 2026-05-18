@@ -51,6 +51,7 @@ Thumbs.db
 # Claude Code (personal config — never commit)
 .claude/
 CLAUDE.md
+.playwright-mcp/
 
 # Supabase local state
 supabase/.temp/

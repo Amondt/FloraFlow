@@ -2,7 +2,7 @@ import { Injectable, inject, signal, effect } from '@angular/core';
 import { SupabaseService } from '../../core/services/supabase.service';
 import { NetworkStatusService } from '../../core/services/network-status.service';
 import { OfflineQueueService } from '../../core/services/offline-queue.service';
-import { Plant, PlantFormData } from './plant.model';
+import { Plant, PlantFormData, ContainerVector, SubstrateFactor } from './plant.model';
 
 @Injectable({ providedIn: 'root' })
 export class PlantService {
@@ -24,6 +24,10 @@ export class PlantService {
   }
 
   async loadPlants(): Promise<void> {
+    if (!this.networkStatus.isOnline() && this.plants().length > 0) {
+      return;
+    }
+
     this.loading.set(true);
     this.error.set(null);
 
@@ -141,11 +145,28 @@ export class PlantService {
             p_plant_id: item.plant_id,
           });
           rpcError = error;
-        } else {
+        } else if (item.action === 'snooze') {
           const { error } = await this.supabase.client.rpc('snooze_plant_check', {
             p_plant_id: item.plant_id,
           });
           rpcError = error;
+        } else if (item.action === 'create') {
+          const { data: { user } } = await this.supabase.client.auth.getUser();
+          if (!user) {
+            rpcError = { message: 'Not authenticated' };
+          } else {
+            const { error } = await this.supabase.client
+              .from('plants')
+              .insert({
+                common_name: item.common_name!,
+                scientific_name: item.scientific_name ?? null,
+                zone_id: item.zone_id!,
+                container_vector: item.container_vector as ContainerVector,
+                substrate_factor: item.substrate_factor as SubstrateFactor,
+                user_id: user.id,
+              });
+            rpcError = error;
+          }
         }
 
         if (rpcError) {
@@ -164,7 +185,39 @@ export class PlantService {
 
   async createPlant(data: PlantFormData): Promise<void> {
     if (!this.networkStatus.isOnline()) {
-      this.error.set('Cannot add plants while offline.');
+      const tempId = `offline-${crypto.randomUUID()}`;
+      const now = new Date().toISOString();
+      const nextDue = new Date();
+      nextDue.setDate(nextDue.getDate() + 3);
+
+      const optimisticPlant: Plant = {
+        id: tempId,
+        user_id: '',
+        zone_id: data.zone_id,
+        common_name: data.common_name,
+        scientific_name: data.scientific_name,
+        perenual_id: null,
+        container_vector: data.container_vector,
+        substrate_factor: data.substrate_factor,
+        last_checked_at: null,
+        next_check_due_at: nextDue.toISOString(),
+        current_snooze_interval_days: 3,
+        created_at: now,
+        updated_at: now,
+      };
+
+      this.plants.update(all => [...all, optimisticPlant]);
+      await this.offlineQueue.enqueue({
+        id: crypto.randomUUID(),
+        action: 'create',
+        plant_id: tempId,
+        queued_at: now,
+        common_name: data.common_name,
+        scientific_name: data.scientific_name,
+        zone_id: data.zone_id,
+        container_vector: data.container_vector,
+        substrate_factor: data.substrate_factor,
+      });
       return;
     }
 

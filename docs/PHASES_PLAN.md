@@ -47,7 +47,7 @@
     - Update `app.ts` to render `<app-shell>` instead of bare `<router-outlet>`.
     - Login route stays outside the shell (no nav on login page).
 
-- [ ] **1.6 Offline Isolation Support (PWA Canvas Sync)**
+- [x] **1.6 Offline Isolation Support (PWA Canvas Sync)**
     - `@angular/pwa` service worker for core layout caching.
     - Offline soil-check interactions write to IndexedDB; reconciliation loop syncs on reconnect.
 

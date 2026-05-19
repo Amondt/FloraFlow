@@ -1,2 +1,15 @@
 <app-nav />
+@if (!networkStatus.isOnline()) {
+  <div role="status" aria-live="polite"
+    class="flex items-center justify-center gap-2 bg-neutral-100 border-b border-neutral-200 text-neutral-700 text-sm font-display py-2 px-4">
+    <i class="pi pi-wifi text-warning-500" aria-hidden="true"></i>
+    <span>{{ offlineMessage() }}</span>
+  </div>
+} @else if (isSyncing()) {
+  <div role="status" aria-live="polite"
+    class="flex items-center justify-center gap-2 bg-neutral-100 border-b border-neutral-200 text-neutral-700 text-sm font-display py-2 px-4">
+    <i class="pi pi-refresh text-primary-500 animate-spin" aria-hidden="true"></i>
+    <span>Syncing {{ offlineQueue.pendingCount() }} pending {{ offlineQueue.pendingCount() === 1 ? 'action' : 'actions' }}…</span>
+  </div>
+}
 <router-outlet />

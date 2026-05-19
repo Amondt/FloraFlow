@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { createClient, SupabaseClient, AuthError, Session, User } from '@supabase/supabase-js';
 import { environment } from '../../../environments/environment';
 
@@ -8,6 +8,21 @@ export class SupabaseService {
     environment.supabaseUrl,
     environment.supabaseKey,
   );
+
+  private readonly _session = signal<Session | null | undefined>(undefined);
+  readonly session = this._session.asReadonly();
+
+  readonly sessionReady: Promise<void>;
+
+  constructor() {
+    let onFirst!: () => void;
+    this.sessionReady = new Promise(resolve => { onFirst = resolve; });
+
+    this.client.auth.onAuthStateChange((_event, session) => {
+      this._session.set(session);
+      onFirst();
+    });
+  }
 
   async getSession(): Promise<Session | null> {
     const { data } = await this.client.auth.getSession();

@@ -3,10 +3,21 @@ import { openDB, type DBSchema, type IDBPDatabase } from 'idb';
 
 export interface QueuedAction {
   id: string;
-  action: 'confirm' | 'snooze';
+  action: 'confirm' | 'snooze' | 'create' | 'create-zone' | 'update-zone' | 'delete-zone';
   plant_id: string;
   snooze_days?: number;
   queued_at: string;
+  common_name?: string;
+  scientific_name?: string | null;
+  zone_id?: string;
+  container_vector?: string;
+  substrate_factor?: string;
+  zone_name?: string;
+  zone_icon?: string;
+  zone_window_orientation?: string;
+  zone_has_active_ventilation?: boolean;
+  zone_has_grow_lights?: boolean;
+  zone_humidity_baseline?: number;
 }
 
 interface FloraFlowDB extends DBSchema {

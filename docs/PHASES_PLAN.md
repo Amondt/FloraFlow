@@ -40,7 +40,7 @@
     - `PlantService`: `createPlant()`, `updatePlant()`, `deletePlant()`.
     - `createPlant()` uses `.select().single()` on insert to return the server row.
 
-- [ ] **1.5.2 App Shell & Navigation**
+- [x] **1.5.2 App Shell & Navigation**
     - `src/app/shared/components/shell/shell.ts` — layout component wrapping `<router-outlet>` + nav bar.
     - `src/app/shared/components/nav/nav.ts` — nav links via `routerLink` + `routerLinkActive` for all five routes: Dashboard, Scheduler, Journal, Library, Vault.
     - Style nav links using `FloraMenuPT` and Tailwind tokens.

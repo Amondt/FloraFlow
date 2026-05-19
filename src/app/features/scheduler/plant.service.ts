@@ -1,10 +1,14 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { SupabaseService } from '../../core/services/supabase.service';
+import { NetworkStatusService } from '../../core/services/network-status.service';
+import { OfflineQueueService } from '../../core/services/offline-queue.service';
 import { Plant, PlantFormData } from './plant.model';
 
 @Injectable({ providedIn: 'root' })
 export class PlantService {
-  private readonly supabase = inject(SupabaseService);
+  private readonly supabase       = inject(SupabaseService);
+  private readonly networkStatus  = inject(NetworkStatusService);
+  private readonly offlineQueue   = inject(OfflineQueueService);
 
   readonly plants  = signal<Plant[]>([]);
   readonly loading = signal(false);
@@ -31,6 +35,25 @@ export class PlantService {
   async confirmCheck(plantId: string): Promise<void> {
     this.error.set(null);
 
+    if (!this.networkStatus.isOnline()) {
+      const now = new Date().toISOString();
+      this.plants.update(all =>
+        all.map(p => {
+          if (p.id !== plantId) return p;
+          const nextDue = new Date();
+          nextDue.setDate(nextDue.getDate() + p.current_snooze_interval_days);
+          return { ...p, last_checked_at: now, next_check_due_at: nextDue.toISOString() };
+        })
+      );
+      await this.offlineQueue.enqueue({
+        id: crypto.randomUUID(),
+        action: 'confirm',
+        plant_id: plantId,
+        queued_at: now,
+      });
+      return;
+    }
+
     const { error } = await this.supabase.client.rpc('confirm_plant_check', {
       p_plant_id: plantId,
     });
@@ -44,6 +67,28 @@ export class PlantService {
 
   async snoozeCheck(plantId: string): Promise<void> {
     this.error.set(null);
+
+    if (!this.networkStatus.isOnline()) {
+      const plant = this.plants().find(p => p.id === plantId);
+      const snoozeDays = plant?.current_snooze_interval_days ?? 3;
+      const now = new Date().toISOString();
+      const nextDue = new Date();
+      nextDue.setDate(nextDue.getDate() + snoozeDays);
+      this.plants.update(all =>
+        all.map(p => {
+          if (p.id !== plantId) return p;
+          return { ...p, last_checked_at: now, next_check_due_at: nextDue.toISOString() };
+        })
+      );
+      await this.offlineQueue.enqueue({
+        id: crypto.randomUUID(),
+        action: 'snooze',
+        plant_id: plantId,
+        snooze_days: snoozeDays,
+        queued_at: now,
+      });
+      return;
+    }
 
     const { error } = await this.supabase.client.rpc('snooze_plant_check', {
       p_plant_id: plantId,
@@ -71,6 +116,11 @@ export class PlantService {
   }
 
   async createPlant(data: PlantFormData): Promise<void> {
+    if (!this.networkStatus.isOnline()) {
+      this.error.set('Cannot add plants while offline.');
+      return;
+    }
+
     this.loading.set(true);
     this.error.set(null);
 

@@ -4,20 +4,6 @@ Reference for **The Plumber**. Always verify against context7 before implementin
 
 ---
 
-## PowerShell + Supabase CLI Note
-
-PowerShell 5.1 marks any stderr output from native executables as an error, even when the exit code is 0. Supabase CLI writes progress messages to stderr. Always append `2>$null` to silence false errors:
-
-```powershell
-bunx supabase db reset 2>$null
-bunx supabase db query "SELECT ..." 2>$null
-bunx supabase status 2>$null
-```
-
-Use `$LASTEXITCODE` — not PowerShell error output — to check whether a command actually failed.
-
----
-
 ## Supabase Type Generation (run once per schema change)
 
 ```powershell
@@ -260,93 +246,6 @@ Deno.serve(async (req: Request) => {
   }
 });
 ```
-
----
-
-## Claude Structured Output — Recommended
-
-Use `messages.parse()` with a Zod schema. The SDK validates Claude's JSON response against the schema and hands you a fully typed `parsed_output` — no manual parsing or type guards needed.
-
-```ts
-import Anthropic           from 'npm:@anthropic-ai/sdk';
-import { zodOutputFormat } from 'npm:@anthropic-ai/sdk/helpers/zod';
-import { z }               from 'npm:zod/v4'; // note: zod/v4, not zod
-
-const EnrichmentSchema = z.object({
-  scientific_name:     z.string(),
-  common_name:         z.string(),
-  ideal_min_ph:        z.number(),
-  ideal_max_ph:        z.number(),
-  is_toxic_to_pets:    z.boolean(),
-  toxicity_notes:      z.string().nullable(),
-  propagation_methods: z.array(z.string()),
-  is_ai_enriched:      z.literal(true),
-});
-
-const msg = await anthropic.messages.parse({
-  model:      'claude-haiku-4-5-20251001',
-  max_tokens: 512,
-  system:     '...system prompt from docs/AI_PROMPT_MANIFEST.md...',
-  messages:   [{ role: 'user', content: `${scientificName} / ${commonName}` }],
-  output_config: { format: zodOutputFormat(EnrichmentSchema) },
-});
-
-// parsed_output is undefined if Claude couldn't satisfy the schema
-const parsed = msg.parsed_output;
-if (!parsed) return json({ error: 'AI returned invalid shape' }, 502);
-
-// parsed is now fully typed — same shape as EnrichmentSchema
-await supabase.from('cached_botanical_records').insert(parsed);
-```
-
-**Why `messages.parse()` over manual extraction:**
-- Schema is declared once in Zod — no separate interface + runtime guard
-- Compile-time type safety on the result, not just runtime duck-typing
-- The SDK handles `JSON.parse` and throws a typed error if the schema doesn't match
-
----
-
-## Claude JSON Validation — Manual Type Guards (Fallback)
-
-Use this pattern only when `messages.parse()` is not available (e.g., environments without Zod, or when using `messages.create()` for non-JSON responses).
-
-```ts
-// Define the expected shape (mirrors your JSON schema in AI_PROMPT_MANIFEST.md)
-interface EnrichmentPayload {
-  scientific_name:     string;
-  common_name:         string;
-  ideal_min_ph:        number;
-  ideal_max_ph:        number;
-  is_toxic_to_pets:    boolean;
-  toxicity_notes:      string | null;
-  propagation_methods: string[];
-  is_ai_enriched:      true;
-}
-
-function isValidEnrichmentPayload(v: unknown): v is EnrichmentPayload {
-  if (typeof v !== 'object' || v === null) return false;
-  const p = v as Record<string, unknown>;
-  return (
-    typeof p.scientific_name  === 'string'                        &&
-    typeof p.common_name      === 'string'                        &&
-    typeof p.ideal_min_ph     === 'number'                        &&
-    typeof p.ideal_max_ph     === 'number'                        &&
-    typeof p.is_toxic_to_pets === 'boolean'                       &&
-    (p.toxicity_notes === null || typeof p.toxicity_notes === 'string') &&
-    Array.isArray(p.propagation_methods)                          &&
-    p.is_ai_enriched === true
-  );
-}
-
-// Usage with messages.create()
-const msg = await anthropic.messages.create({ model: '...', max_tokens: 512, messages: [...] });
-const raw    = msg.content[0].type === 'text' ? msg.content[0].text : '';
-const parsed = JSON.parse(raw);
-
-if (!isValidEnrichmentPayload(parsed)) return json({ error: 'AI returned invalid shape' }, 502);
-```
-
-Write one guard per schema defined in `docs/AI_PROMPT_MANIFEST.md`. Keep guards next to their Edge Function.
 
 ---
 

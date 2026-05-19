@@ -63,65 +63,21 @@ To maintain clean separation of concerns and isolate data fetching models from p
 
 ## 3. Client Routing & Route Security
 
-Client routes are protected by checking user authentication against the internal active Supabase session.
+See `src/app/app.routes.ts` for the full route map. All routes except `login` use `canActivate: [authGuard]`.
 
-    export const routes: Routes = [
-      {
-        path: 'login',
-        loadComponent: () => import('./features/auth/login').then(m => m.Login)
-      },
-      {
-        path: 'dashboard',
-        loadComponent: () => import('./features/dashboard/dashboard').then(m => m.Dashboard),
-        canActivate: [authGuard]
-      },
-      {
-        path: 'scheduler',
-        loadComponent: () => import('./features/scheduler/scheduler').then(m => m.Scheduler),
-        canActivate: [authGuard]
-      },
-      {
-        path: 'journal',
-        loadComponent: () => import('./features/journal/journal').then(m => m.Journal),
-        canActivate: [authGuard]
-      },
-      {
-        path: 'library',
-        loadComponent: () => import('./features/library/library').then(m => m.Library),
-        canActivate: [authGuard]
-      },
-      {
-        path: 'vault',
-        loadComponent: () => import('./features/vault/vault').then(m => m.Vault),
-        canActivate: [authGuard]
-      },
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { path: '**', redirectTo: 'dashboard' }
-    ];
-
-> **Naming convention:** Component files use no `.component` suffix (e.g., `scheduler.ts` not `scheduler.component.ts`). The route guard is the functional `authGuard` (lowercase), not a class-based `AuthGuard`.
+**Naming rules:** No `.component` suffix (`scheduler.ts` not `scheduler.component.ts`). Guard is functional `authGuard` (lowercase). Routes: `login`, `dashboard`, `scheduler`, `journal`, `library`, `vault`. Default redirects to `dashboard`.
 
 ---
 
-## 4. Frontend Resilience Primitives & Engineering Details
+## 4. Frontend Resilience Primitives (Phase 1.6+)
 
-The frontend application code must be built with three specific client-side optimizations to respect our free-tier bounds and support real-world garden environments:
+Three required optimizations for free-tier bounds and real-world garden environments:
 
-### 📶 4.1 Progressive Web App (PWA) Offline Sinks
+### 📶 4.1 PWA Offline Sinks (Phase 1.6)
+`@angular/pwa` service worker caches core layout. Offline soil-check interactions write to IndexedDB; a reconciliation loop syncs back to Supabase once the connection is restored.
 
-- **Context:** Gardening tasks frequently happen in yards, greenhouses, or balconies where Wi-Fi connections drop out completely.
-- **Implementation:** The application must utilize Angular's `@angular/pwa` service worker engine from day one.
-- **State Capture:** When offline, user interactions (such as soil checks or snooze ticks) must write seamlessly into a browser IndexedDB layer managed by an internal synchronization service.
-- **Reconciliation Loop:** The service worker must listen for online connection state transitions. Once connection is restored, a robust reconciliation loop pushes cached logs back to the remote database using an optimistic synchronization layout.
+### 🖼️ 4.2 Pre-Upload Image Compression (Phase 1.7)
+Journal upload component intercepts files before the Supabase SDK upload. Offscreen HTML5 Canvas pipeline compresses to **< 300KB** to protect the 1 GB free storage limit.
 
-### 🖼️ 4.2 Local Pre-Upload Image Compression
-
-- **Context:** High-resolution modern smartphone camera photos quickly bloat storage arrays. Uploading raw files will completely burn through our 1GB free Supabase storage bucket within weeks.
-- **Implementation:** The journal upload component must intercept files _before_ they are sent via the Supabase SDK.
-- **Execution:** Photos are loaded into an offscreen HTML5 Canvas utility layer. The script performs client-side downscaling and compression, squeezing files below an absolute max threshold of **300KB** before triggering the upload payload stream.
-
-### 🔄 4.3 Outbound API Rate Limiting & Caching Protocol
-
-- **Context:** Free tiers of public botanical indices (such as Perenual or Pl@ntNet) place strict monthly throttle limits on API keys.
-- **Implementation:** The Angular data integration layers are prohibited from directly connecting client apps to third-party endpoints during searches.
-- **Execution Pipe:** All botanical calls target our unified backend proxy cache first (`cached_botanical_records`). If the query misses the database cache, a secure serverless Deno Edge Function handles the external lookup, sanitizes the response, indexes it globally, and safely returns the light record payload back down to the frontend UI.
+### 🔄 4.3 Outbound API Cache Protocol (Phase 2.1)
+Angular client never calls third-party botanical APIs directly. All lookups hit `cached_botanical_records` first; on a cache miss, a Deno Edge Function handles the external call and stores the result before returning it to the client.

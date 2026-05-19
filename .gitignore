@@ -52,7 +52,8 @@ Thumbs.db
 # Claude Code (personal config — never commit)
 CLAUDE.md
 .claude/settings.local.json
-/.screenshots
+/screenshots
+/temp_plans
 
 # Supabase local state
 supabase/.temp/

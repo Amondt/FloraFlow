@@ -1,11 +1,12 @@
 # Phase 1.7 — Pre-Upload Client Image Compression
 
 ## Context
+
 Task 1.7 delivers the offscreen HTML5 Canvas compression pipeline that intercepts every image before it reaches Supabase Storage, keeping uploads under the 1 GB free-tier ceiling. The journal component is currently a placeholder; this task adds the minimal journal entry creation form needed to exercise the compressor end-to-end. No entry list or timeline — that is future scope.
 
 ---
 
-- [ ] **Block A — Supabase Storage bucket** | Agent: `/plumber`
+- [x] **Block A — Supabase Storage bucket** | Agent: `/plumber`
   - SQL migration: insert into `storage.buckets` (`plant-journal-images`, `public: false`)
   - RLS INSERT policy: `auth.uid()::text = (storage.foldername(name))[1]`
   - RLS SELECT policy: same condition
@@ -13,7 +14,7 @@ Task 1.7 delivers the offscreen HTML5 Canvas compression pipeline that intercept
 
 ---
 
-- [ ] **Block B — ImageCompressorService** | Agent: `/visualizer`
+- [x] **Block B — ImageCompressorService** | Agent: `/visualizer`
 
   **File:** `src/app/core/services/image-compressor.service.ts`
   - Single public method: `compress(file: File, maxBytes = 300_000): Promise<Blob>`
@@ -26,7 +27,7 @@ Task 1.7 delivers the offscreen HTML5 Canvas compression pipeline that intercept
 
 ---
 
-- [ ] **Block C — JournalService** | Agent: `/plumber`
+- [x] **Block C — JournalService** | Agent: `/plumber`
 
   **File:** `src/app/features/journal/journal.service.ts`
   - `uploadImage(userId: string, plantId: string, blob: Blob): Promise<string>`
@@ -88,6 +89,7 @@ App running at: http://localhost:4200/journal
 ## Completion gate (PLANS_GUIDE.md rules)
 
 A block may be checked only when:
+
 1. `bun run lint` passes with zero errors
 2. User has confirmed the relevant verification step
 3. Changes are committed to git

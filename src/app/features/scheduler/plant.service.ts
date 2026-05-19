@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal, effect } from '@angular/core';
 import { SupabaseService } from '../../core/services/supabase.service';
 import { NetworkStatusService } from '../../core/services/network-status.service';
 import { OfflineQueueService } from '../../core/services/offline-queue.service';
@@ -10,9 +10,18 @@ export class PlantService {
   private readonly networkStatus  = inject(NetworkStatusService);
   private readonly offlineQueue   = inject(OfflineQueueService);
 
-  readonly plants  = signal<Plant[]>([]);
-  readonly loading = signal(false);
-  readonly error   = signal<string | null>(null);
+  readonly plants    = signal<Plant[]>([]);
+  readonly loading   = signal(false);
+  readonly error     = signal<string | null>(null);
+  readonly isSyncing = signal(false);
+
+  constructor() {
+    effect(() => {
+      if (this.networkStatus.isOnline()) {
+        void this._drainQueue();
+      }
+    });
+  }
 
   async loadPlants(): Promise<void> {
     this.loading.set(true);
@@ -113,6 +122,44 @@ export class PlantService {
     } else if (data) {
       this.plants.update(all => all.map(p => (p.id === plantId ? (data as Plant) : p)));
     }
+  }
+
+  private async _drainQueue(): Promise<void> {
+    if (this.isSyncing()) return;
+
+    const items = await this.offlineQueue.getAll();
+    if (items.length === 0) return;
+
+    this.isSyncing.set(true);
+
+    for (const item of items) {
+      try {
+        let rpcError: { message: string } | null = null;
+
+        if (item.action === 'confirm') {
+          const { error } = await this.supabase.client.rpc('confirm_plant_check', {
+            p_plant_id: item.plant_id,
+          });
+          rpcError = error;
+        } else {
+          const { error } = await this.supabase.client.rpc('snooze_plant_check', {
+            p_plant_id: item.plant_id,
+          });
+          rpcError = error;
+        }
+
+        if (rpcError) {
+          console.error('[FloraFlow] queue replay failed:', rpcError.message, item);
+        } else {
+          await this.offlineQueue.remove(item.id);
+        }
+      } catch (e) {
+        console.error('[FloraFlow] queue replay threw:', e, item);
+      }
+    }
+
+    this.isSyncing.set(false);
+    await this.loadPlants();
   }
 
   async createPlant(data: PlantFormData): Promise<void> {

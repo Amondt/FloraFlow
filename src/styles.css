@@ -247,9 +247,6 @@
   .pointer-events-none {
     pointer-events: none;
   }
-  .invisible {
-    visibility: hidden;
-  }
   .visible {
     visibility: visible;
   }
@@ -426,9 +423,6 @@
   .h-14 {
     height: calc(var(--spacing) * 14);
   }
-  .h-20 {
-    height: calc(var(--spacing) * 20);
-  }
   .h-24 {
     height: calc(var(--spacing) * 24);
   }
@@ -471,14 +465,8 @@
   .w-14 {
     width: calc(var(--spacing) * 14);
   }
-  .w-20 {
-    width: calc(var(--spacing) * 20);
-  }
   .w-24 {
     width: calc(var(--spacing) * 24);
-  }
-  .w-56 {
-    width: calc(var(--spacing) * 56);
   }
   .w-72 {
     width: calc(var(--spacing) * 72);
@@ -1042,9 +1030,6 @@
   .italic {
     font-style: italic;
   }
-  .underline {
-    text-decoration-line: underline;
-  }
   .antialiased {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -1110,11 +1095,6 @@
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
   }
-  .transition-opacity {
-    transition-property: opacity;
-    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
-    transition-duration: var(--tw-duration, var(--default-transition-duration));
-  }
   .transition-shadow {
     transition-property: box-shadow;
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
@@ -1153,6 +1133,64 @@
   .peer-checked\:bg-primary-500 {
     &:is(:where(.peer):checked ~ *) {
       background-color: var(--color-primary-500);
+    }
+  }
+  .file\:mr-3 {
+    &::file-selector-button {
+      margin-right: calc(var(--spacing) * 3);
+    }
+  }
+  .file\:rounded-garden-sm {
+    &::file-selector-button {
+      border-radius: var(--radius-garden-sm);
+    }
+  }
+  .file\:border {
+    &::file-selector-button {
+      border-style: var(--tw-border-style);
+      border-width: 1px;
+    }
+  }
+  .file\:border-neutral-300 {
+    &::file-selector-button {
+      border-color: var(--color-neutral-300);
+    }
+  }
+  .file\:bg-neutral-50 {
+    &::file-selector-button {
+      background-color: var(--color-neutral-50);
+    }
+  }
+  .file\:px-3 {
+    &::file-selector-button {
+      padding-inline: calc(var(--spacing) * 3);
+    }
+  }
+  .file\:py-1\.5 {
+    &::file-selector-button {
+      padding-block: calc(var(--spacing) * 1.5);
+    }
+  }
+  .file\:font-display {
+    &::file-selector-button {
+      font-family: var(--font-display);
+    }
+  }
+  .file\:text-xs {
+    &::file-selector-button {
+      font-size: var(--text-xs);
+      line-height: var(--tw-leading, var(--text-xs--line-height));
+    }
+  }
+  .file\:font-medium {
+    &::file-selector-button {
+      --tw-font-weight: var(--font-weight-medium);
+      font-weight: var(--font-weight-medium);
+    }
+  }
+  .file\:text-neutral-600 {
+    &::file-selector-button {
+      color: var(--color-neutral-600);
     }
   }
   .placeholder\:text-neutral-400 {
@@ -1290,6 +1328,15 @@
       }
     }
   }
+  .hover\:file\:bg-neutral-100 {
+    &:hover {
+      @media (hover: hover) {
+        &::file-selector-button {
+          background-color: var(--color-neutral-100);
+        }
+      }
+    }
+  }
   .focus-visible\:ring-1 {
     &:focus-visible {
       --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
@@ -1346,11 +1393,6 @@
   .md\:grid-cols-2 {
     @media (width >= 48rem) {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  .xl\:grid-cols-3 {
-    @media (width >= 80rem) {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
   .\32 xl\:grid-cols-3 {
@@ -1529,16 +1571,6 @@
   .dark\:fill-neutral-600 {
     &:where(.dark, .dark *) {
       fill: var(--color-neutral-600);
-    }
-  }
-  .dark\:stroke-neutral-400 {
-    &:where(.dark, .dark *) {
-      stroke: var(--color-neutral-400);
-    }
-  }
-  .dark\:stroke-neutral-500 {
-    &:where(.dark, .dark *) {
-      stroke: var(--color-neutral-500);
     }
   }
   .dark\:stroke-neutral-600 {

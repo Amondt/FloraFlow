@@ -57,7 +57,7 @@ Task 1.7 delivers the offscreen HTML5 Canvas compression pipeline that intercept
 
 ---
 
-- [ ] **Block E — ImageCompressor tests** | Agent: `/gatekeeper`
+- [x] **Block E — ImageCompressor tests** | Agent: `/gatekeeper`
 
   **File:** `src/app/core/services/image-compressor.service.spec.ts`
   - Mock `HTMLCanvasElement.prototype.toBlob` to control output blob size

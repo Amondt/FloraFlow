@@ -1,6 +1,6 @@
 import type { SelectPassThroughOptions } from 'primeng/select';
 import type { MultiSelectPassThroughOptions } from 'primeng/multiselect';
-import { FLORA_FOCUS, FLORA_DISABLED, FLORA_HOVER } from './states.pt';
+import { FLORA_DISABLED, FLORA_HOVER } from './states.pt';
 
 export const FloraSelectPT = {
   root: {
@@ -9,10 +9,11 @@ export const FloraSelectPT = {
       'bg-white dark:bg-neutral-800',
       'text-neutral-900 dark:text-neutral-100',
       'border border-neutral-300 dark:border-neutral-600 rounded-garden-sm',
-      FLORA_FOCUS, FLORA_DISABLED, FLORA_HOVER,
+      'outline-none',
+      FLORA_DISABLED, FLORA_HOVER,
     ].join(' '),
   },
-  label:   { class: 'flex-1 truncate' },
+  label:   { class: 'flex-1 truncate outline-none' },
   dropdown: { class: 'text-neutral-400 text-xs ml-auto' },
   pcOverlay: {
     root: { class: 'mt-1 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md shadow-xl z-50' },
@@ -38,10 +39,11 @@ export const FloraMultiSelectPT = {
       'w-full flex items-center gap-2 px-3 py-2 text-sm font-display cursor-pointer',
       'bg-white dark:bg-neutral-800',
       'border border-neutral-300 dark:border-neutral-600 rounded-garden-sm',
-      FLORA_FOCUS, FLORA_DISABLED,
+      'outline-none',
+      FLORA_DISABLED,
     ].join(' '),
   },
-  label:    { class: 'flex-1 text-neutral-900 dark:text-neutral-100 truncate' },
+  label:    { class: 'flex-1 text-neutral-900 dark:text-neutral-100 truncate outline-none' },
   dropdown: { class: 'text-neutral-400 text-xs ml-auto' },
   overlay: {
     class: 'mt-1 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md shadow-xl z-50',

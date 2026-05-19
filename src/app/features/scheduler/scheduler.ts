@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
 import { Message } from 'primeng/message';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ButtonModule } from 'primeng/button';
@@ -38,28 +38,59 @@ export class SchedulerComponent {
   protected readonly plantService = inject(PlantService);
   private readonly confirmService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
-  protected readonly FloraButtonPT = FloraButtonPT;
+  private  readonly destroyRef    = inject(DestroyRef);
+  protected readonly FloraButtonPT        = FloraButtonPT;
   protected readonly FloraConfirmDialogPT = FloraConfirmDialogPT;
-  protected readonly FloraMessagePT = FloraMessagePT;
-  protected readonly FloraSkeletonPT = FloraSkeletonPT;
-  protected readonly FloraToastPT = FloraToastPT;
-  protected readonly loadingPlaceholders = [1, 2, 3];
+  protected readonly FloraMessagePT       = FloraMessagePT;
+  protected readonly FloraSkeletonPT      = FloraSkeletonPT;
+  protected readonly FloraToastPT         = FloraToastPT;
+  protected readonly loadingPlaceholders  = [1, 2, 3];
 
-  readonly selectedPlant = signal<Plant | null>(null);
-  readonly dialogVisible = signal(false);
+  readonly selectedPlant    = signal<Plant | null>(null);
+  readonly dialogVisible    = signal(false);
   readonly plantFormVisible = signal(false);
-  readonly plantFormTarget = signal<Plant | null>(null);
-  readonly plantToDelete = signal<Plant | null>(null);
+  readonly plantFormTarget  = signal<Plant | null>(null);
+  readonly plantToDelete    = signal<Plant | null>(null);
+
+  readonly pendingDeleteIds = signal<Set<string>>(new Set());
+  readonly plantsGrouped = computed(() => {
+    const now = new Date();
+    const startOfToday    = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfTomorrow = new Date(startOfToday.getFullYear(), startOfToday.getMonth(), startOfToday.getDate() + 1);
+    const startOfDay8     = new Date(startOfToday.getFullYear(), startOfToday.getMonth(), startOfToday.getDate() + 8);
+
+    const active = this.plantService.plants().filter(p => !this.pendingDeleteIds().has(p.id));
+
+    return {
+      overdue:  active.filter(p => new Date(p.next_check_due_at) < startOfToday),
+      today:    active.filter(p => {
+        const due = new Date(p.next_check_due_at);
+        return due >= startOfToday && due < startOfTomorrow;
+      }),
+      soon:     active.filter(p => {
+        const due = new Date(p.next_check_due_at);
+        return due >= startOfTomorrow && due < startOfDay8;
+      }),
+      upcoming: active.filter(p => new Date(p.next_check_due_at) >= startOfDay8),
+    };
+  });
+
+  private readonly _deleteTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
   constructor() {
-    if (this.plantService.duePlants().length === 0) {
-      void this.plantService.loadDuePlants();
+    if (this.plantService.plants().length === 0) {
+      void this.plantService.loadPlants();
     }
 
     effect(() => {
       if (!this.dialogVisible()) {
         this.selectedPlant.set(null);
       }
+    });
+
+    this.destroyRef.onDestroy(() => {
+      this._deleteTimers.forEach(clearTimeout);
+      this._deleteTimers.clear();
     });
   }
 
@@ -114,31 +145,56 @@ export class SchedulerComponent {
     this.plantToDelete.set(plant);
     this.plantFormVisible.set(false);
     this.confirmService.confirm({
-      message: `Delete "${plant.common_name}"? This cannot be undone.`,
+      message: `Remove "${plant.common_name}"? You can undo this.`,
       header: 'Delete plant',
       acceptLabel: 'Delete',
       rejectLabel: 'Cancel',
-      accept: async () => {
-        await this.plantService.deletePlant(plant.id);
+      accept: () => {
+        this.pendingDeleteIds.update(ids => new Set([...ids, plant.id]));
         this.plantToDelete.set(null);
-        if (this.plantService.error()) {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Delete failed',
-            detail: this.plantService.error()!,
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Plant deleted',
+          detail: `"${plant.common_name}" removed. Tap Undo to cancel.`,
+          life: 5000,
+          data: { canUndo: true, id: plant.id },
+        });
+        const timer = setTimeout(async () => {
+          this._deleteTimers.delete(plant.id);
+          this.pendingDeleteIds.update(ids => {
+            const next = new Set(ids);
+            next.delete(plant.id);
+            return next;
           });
-        } else {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Plant deleted',
-            detail: `"${plant.common_name}" removed from your greenhouse.`,
-          });
-        }
+          await this.plantService.deletePlant(plant.id);
+          if (this.plantService.error()) {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Delete failed',
+              detail: this.plantService.error()!,
+            });
+          }
+        }, 5000);
+        this._deleteTimers.set(plant.id, timer);
       },
       reject: () => {
         this.plantToDelete.set(null);
       },
     });
+  }
+
+  undoDelete(id: string): void {
+    const timer = this._deleteTimers.get(id);
+    if (timer !== undefined) {
+      clearTimeout(timer);
+      this._deleteTimers.delete(id);
+    }
+    this.pendingDeleteIds.update(ids => {
+      const next = new Set(ids);
+      next.delete(id);
+      return next;
+    });
+    this.messageService.clear();
   }
 
   async onPlantSaved(data: PlantFormData): Promise<void> {

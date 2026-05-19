@@ -62,6 +62,16 @@ p-toggleswitch:has(input:checked) [data-pc-section="slider"] {
   overflow: auto !important;
 }
 
+/* Select / MultiSelect component-level keyboard focus indicator
+   The focusable input lives in the label PT slot; :has() surfaces the ring on
+   the host element so it wraps the full select boundary — mirrors p-toggleswitch pattern. */
+p-select:has([data-pc-section="label"]:focus-visible),
+p-multiselect:has([data-pc-section="label"]:focus-visible) {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+  border-radius: var(--radius-garden-sm);
+}
+
 /* Select / MultiSelect keyboard focus indicator
    PrimeNG v21 sets data-p-focused="true" on the arrow-key-focused option but
    doesn't re-evaluate PT functions on focus change, so we target it here. */

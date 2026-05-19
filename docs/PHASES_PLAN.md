@@ -30,15 +30,17 @@ This document establishes the official development sprints, feature milestone gr
     - Implement form models to handle data updates for microclimate properties (e.g., window orientation, active ventilation, supplemental grow lights, and humidity baselines).
 
 - [x] **1.5 Smart Observation Scheduling Loop**
-    - Build the state engine using Angular Signals to display outstanding plant check-soil alerts.
+    - Build the state engine using Angular Signals to display all plants grouped into four urgency sections: **Overdue**, **Due today**, **Due this week** (next 7 days), and **Upcoming** (beyond 7 days).
+    - `PlantService.loadPlants()` fetches all user plants (no time filter); urgency grouping is derived client-side via `plantsGrouped` computed in `SchedulerComponent`.
     - Implement the confirmation dialog modal asking the user: _"Is the soil dry at the required depth?"_
-    - Code the local **Smart Snooze** computation script: if the user flags the soil as wet, automatically push the target plant's `next_check_due_at` timestamp back by a calculated 2, 5, or 7-day interval.
+    - Code the local **Smart Snooze** computation script: if the user flags the soil as wet, automatically push the target plant's `next_check_due_at` timestamp back by a calculated 2, 5, or 7-day interval derived from `snooze_interval_rules`.
 
 - [x] **1.5.1 Plant CRUD (Add / Edit / Delete)**
     - Build a plant form dialog in `src/app/features/scheduler/` allowing users to add plants to a zone.
     - Form fields: `common_name` (required), `scientific_name` (optional), `zone_id` (select from user's zones), `container_vector` (enum select), `substrate_factor` (enum select).
-    - Wire delete confirmation via PrimeNG ConfirmDialog.
+    - Wire delete confirmation via PrimeNG ConfirmDialog with 5-second undo toast.
     - Extend `PlantService` with `createPlant()`, `updatePlant()`, `deletePlant()` methods.
+    - `createPlant()` uses `.select().single()` on insert to return the server row directly — avoids clock-skew issues with the urgency filter.
     - This is a prerequisite for Phase 2.6 ("Add to my greenhouse" shortcut).
 
 - [ ] **1.6 Offline Isolation Support (PWA Canvas Sync)**

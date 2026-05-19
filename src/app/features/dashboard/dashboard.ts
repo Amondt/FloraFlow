@@ -1,15 +1,17 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
 import { SkeletonModule } from 'primeng/skeleton';
+import { ToastModule } from 'primeng/toast';
 import {
   FloraButtonPT,
   FloraMessagePT,
   FloraSkeletonPT,
   FloraConfirmDialogPT,
+  FloraToastPT,
 } from '../../shared/ui/pt/index';
 import { PlantService } from '../scheduler/plant.service';
 import { ZoneService } from './zone.service';
@@ -26,30 +28,46 @@ import { Zone, ZoneFormData } from './zone.model';
     MessageModule,
     SkeletonModule,
     ConfirmDialog,
+    ToastModule,
     ZoneCardComponent,
     ZoneFormComponent,
   ],
-  providers: [ConfirmationService],
+  providers: [ConfirmationService, MessageService],
   templateUrl: './dashboard.html',
 })
 export class DashboardComponent {
   protected readonly zoneService          = inject(ZoneService);
   protected readonly plantService         = inject(PlantService);
   private  readonly confirmationService   = inject(ConfirmationService);
+  private  readonly messageService        = inject(MessageService);
+  private  readonly destroyRef            = inject(DestroyRef);
 
   protected readonly FloraButtonPT        = FloraButtonPT;
   protected readonly FloraMessagePT       = FloraMessagePT;
   protected readonly FloraSkeletonPT      = FloraSkeletonPT;
   protected readonly FloraConfirmDialogPT = FloraConfirmDialogPT;
+  protected readonly FloraToastPT         = FloraToastPT;
 
-  protected readonly overdueCount = computed(() => this.plantService.duePlants().length);
+  protected readonly overdueCount = computed(() => {
+    const now = new Date();
+    return this.plantService.plants().filter(p => new Date(p.next_check_due_at) <= now).length;
+  });
 
-  readonly dialogVisible = signal(false);
-  readonly editingZone   = signal<Zone | null>(null);
+  readonly dialogVisible       = signal(false);
+  readonly editingZone         = signal<Zone | null>(null);
+  readonly pendingDeleteZoneIds = signal<Set<string>>(new Set());
+  readonly displayedZones       = computed(() =>
+    this.zoneService.zones().filter(z => !this.pendingDeleteZoneIds().has(z.id))
+  );
+  private readonly _deleteTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
   constructor() {
     void this.zoneService.loadZones();
-    void this.plantService.loadDuePlants();
+    void this.plantService.loadPlants();
+    this.destroyRef.onDestroy(() => {
+      this._deleteTimers.forEach(clearTimeout);
+      this._deleteTimers.clear();
+    });
   }
 
   openCreateDialog(): void {
@@ -62,12 +80,22 @@ export class DashboardComponent {
     this.dialogVisible.set(true);
   }
 
-  onSaved(formData: ZoneFormData): void {
+  async onSaved(formData: ZoneFormData): Promise<void> {
     const target = this.editingZone();
     if (target) {
-      void this.zoneService.updateZone(target.id, formData);
+      await this.zoneService.updateZone(target.id, formData);
+      if (this.zoneService.error()) {
+        this.messageService.add({ severity: 'error', summary: 'Update failed', detail: this.zoneService.error()! });
+      } else {
+        this.messageService.add({ severity: 'success', summary: 'Zone updated', detail: `"${formData.name}" has been saved.` });
+      }
     } else {
-      void this.zoneService.createZone(formData);
+      await this.zoneService.createZone(formData);
+      if (this.zoneService.error()) {
+        this.messageService.add({ severity: 'error', summary: 'Add failed', detail: this.zoneService.error()! });
+      } else {
+        this.messageService.add({ severity: 'success', summary: 'Zone added', detail: `"${formData.name}" added to your greenhouse.` });
+      }
     }
   }
 
@@ -75,11 +103,47 @@ export class DashboardComponent {
     const zone = this.zoneService.zones().find(z => z.id === zoneId);
     if (!zone) return;
     this.confirmationService.confirm({
-      message: `Delete "${zone.name}"? All plants in this zone will also be removed.`,
+      message: `Remove "${zone.name}"? All its plants will also be removed. You can undo this.`,
       header: 'Delete Zone',
       acceptLabel: 'Delete',
       rejectLabel: 'Cancel',
-      accept: () => void this.zoneService.deleteZone(zoneId),
+      accept: () => {
+        this.pendingDeleteZoneIds.update(ids => new Set([...ids, zoneId]));
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Zone deleted',
+          detail: `"${zone.name}" and all its plants removed. Tap Undo to cancel.`,
+          life: 5000,
+          data: { canUndo: true, id: zoneId },
+        });
+        const timer = setTimeout(async () => {
+          this._deleteTimers.delete(zoneId);
+          this.pendingDeleteZoneIds.update(ids => {
+            const next = new Set(ids);
+            next.delete(zoneId);
+            return next;
+          });
+          await this.zoneService.deleteZone(zoneId);
+          if (this.zoneService.error()) {
+            this.messageService.add({ severity: 'error', summary: 'Delete failed', detail: this.zoneService.error()! });
+          }
+        }, 5000);
+        this._deleteTimers.set(zoneId, timer);
+      },
     });
+  }
+
+  undoDelete(id: string): void {
+    const timer = this._deleteTimers.get(id);
+    if (timer !== undefined) {
+      clearTimeout(timer);
+      this._deleteTimers.delete(id);
+    }
+    this.pendingDeleteZoneIds.update(ids => {
+      const next = new Set(ids);
+      next.delete(id);
+      return next;
+    });
+    this.messageService.clear();
   }
 }

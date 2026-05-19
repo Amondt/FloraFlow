@@ -10,7 +10,7 @@
         Soil-Check Scheduler
       </h1>
       <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1 font-display">
-        Plants with overdue soil checks.
+        Your plants, grouped by when they need attention.
       </p>
     </div>
     <p-button
@@ -21,49 +21,158 @@
     />
   </header>
 
-  <section
-    aria-label="Plant check alerts"
-    [attr.aria-busy]="plantService.loading()"
-  >
+  <section aria-label="Plant check schedule" [attr.aria-busy]="plantService.loading()">
 
-    <!-- Polite live region: announces count to screen readers when loading finishes -->
     <span class="sr-only" aria-live="polite" aria-atomic="true">
       @if (!plantService.loading()) {
-        {{ plantService.duePlants().length }} plant checks due
+        @let g = plantsGrouped();
+        {{ g.overdue.length + g.today.length }} plants need attention
       }
     </span>
 
     @if (plantService.loading()) {
-      <ul class="flex flex-col gap-4" aria-label="Loading plant alerts">
+      <ul class="flex flex-col gap-4" aria-label="Loading plants">
         @for (_ of loadingPlaceholders; track $index) {
           <li aria-hidden="true">
             <p-skeleton height="8rem" [pt]="FloraSkeletonPT" />
           </li>
         }
       </ul>
+
     } @else if (plantService.error()) {
       <p-message severity="error" [pt]="FloraMessagePT">
         {{ plantService.error() }}
       </p-message>
+
+    } @else if (plantService.plants().length === 0) {
+      <div class="flex flex-col items-center justify-center py-20 text-center" role="status">
+        <p class="text-neutral-500 dark:text-neutral-400 font-display text-base">
+          No plants yet. Add your first plant to start tracking soil checks.
+        </p>
+        <p-button
+          label="Add your first plant"
+          variant="outlined"
+          [pt]="FloraButtonPT"
+          class="mt-4"
+          ariaLabel="Add your first plant to the scheduler"
+          (onClick)="openAddPlant()"
+        />
+      </div>
+
     } @else {
-      <ul class="flex flex-col gap-4" aria-label="Overdue plant checks">
-        @for (plant of plantService.duePlants(); track plant.id) {
-          <li>
-            <app-plant-alert-card
-              [plant]="plant"
-              (checkNow)="onCheckNow($event)"
-              (snooze)="onSnoozeFromCard($event)"
-              (edit)="openEditPlant($event)"
-            />
-          </li>
-        } @empty {
-          <li class="py-16 text-center" role="status">
-            <p class="text-neutral-500 dark:text-neutral-400 font-display text-sm">
-              All plants are on schedule — nothing due today.
-            </p>
-          </li>
-        }
-      </ul>
+      @let g = plantsGrouped();
+
+      @if (g.overdue.length > 0) {
+        <section aria-label="Overdue plant checks" class="mb-8">
+          <header class="flex items-center gap-2 mb-3">
+            <h2 class="text-xs font-semibold uppercase tracking-wide font-display text-danger-500 dark:text-danger-500">
+              Overdue
+            </h2>
+            <span
+              class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium font-display bg-red-100 text-danger-700 dark:bg-red-900/30 dark:text-danger-500"
+              aria-label="{{ g.overdue.length }} overdue"
+            >{{ g.overdue.length }}</span>
+          </header>
+          <ul class="flex flex-col gap-4" aria-label="Overdue plant checks list">
+            @for (plant of g.overdue; track plant.id) {
+              <li>
+                <app-plant-alert-card
+                  [plant]="plant"
+                  (checkNow)="onCheckNow($event)"
+                  (snooze)="onSnoozeFromCard($event)"
+                  (edit)="openEditPlant($event)"
+                />
+              </li>
+            }
+          </ul>
+        </section>
+      }
+
+      @if (g.today.length > 0) {
+        <section aria-label="Plants due today" class="mb-8">
+          <header class="flex items-center gap-2 mb-3">
+            <h2 class="text-xs font-semibold uppercase tracking-wide font-display text-warning-500 dark:text-warning-500">
+              Due today
+            </h2>
+            <span
+              class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium font-display bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+              aria-label="{{ g.today.length }} due today"
+            >{{ g.today.length }}</span>
+          </header>
+          <ul class="flex flex-col gap-4" aria-label="Plants due today list">
+            @for (plant of g.today; track plant.id) {
+              <li>
+                <app-plant-alert-card
+                  [plant]="plant"
+                  (checkNow)="onCheckNow($event)"
+                  (snooze)="onSnoozeFromCard($event)"
+                  (edit)="openEditPlant($event)"
+                />
+              </li>
+            }
+          </ul>
+        </section>
+      }
+
+      @if (g.soon.length > 0) {
+        <section aria-label="Plants due this week" class="mb-8">
+          <header class="flex items-center gap-2 mb-3">
+            <h2 class="text-xs font-semibold uppercase tracking-wide font-display text-neutral-600 dark:text-neutral-400">
+              Due this week
+            </h2>
+            <span
+              class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium font-display bg-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300"
+              aria-label="{{ g.soon.length }} due this week"
+            >{{ g.soon.length }}</span>
+          </header>
+          <ul class="flex flex-col gap-4" aria-label="Plants due this week list">
+            @for (plant of g.soon; track plant.id) {
+              <li>
+                <app-plant-alert-card
+                  [plant]="plant"
+                  (checkNow)="onCheckNow($event)"
+                  (snooze)="onSnoozeFromCard($event)"
+                  (edit)="openEditPlant($event)"
+                />
+              </li>
+            }
+          </ul>
+        </section>
+      }
+
+      @if (g.upcoming.length > 0) {
+        <section aria-label="Upcoming plant checks" class="mb-8">
+          <header class="flex items-center gap-2 mb-3">
+            <h2 class="text-xs font-semibold uppercase tracking-wide font-display text-neutral-400 dark:text-neutral-500">
+              Upcoming
+            </h2>
+            <span
+              class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium font-display bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400"
+              aria-label="{{ g.upcoming.length }} upcoming"
+            >{{ g.upcoming.length }}</span>
+          </header>
+          <ul class="flex flex-col gap-4" aria-label="Upcoming plant checks list">
+            @for (plant of g.upcoming; track plant.id) {
+              <li>
+                <app-plant-alert-card
+                  [plant]="plant"
+                  (checkNow)="onCheckNow($event)"
+                  (snooze)="onSnoozeFromCard($event)"
+                  (edit)="openEditPlant($event)"
+                />
+              </li>
+            }
+          </ul>
+        </section>
+      }
+
+      @if (g.overdue.length === 0 && g.today.length === 0 && g.soon.length === 0 && g.upcoming.length === 0) {
+        <div class="py-16 text-center" role="status">
+          <p class="text-neutral-500 dark:text-neutral-400 font-display text-sm">
+            All plants are on schedule — nothing due right now.
+          </p>
+        </div>
+      }
     }
 
   </section>
@@ -89,4 +198,23 @@
 </div>
 </main>
 
-<p-toast [pt]="FloraToastPT" />
+<p-toast position="bottom-right" [pt]="FloraToastPT">
+  <ng-template let-msg #message>
+    <div class="flex flex-col gap-0.5 flex-1">
+      <span class="font-semibold text-sm">{{ msg.summary }}</span>
+      @if (msg.detail) {
+        <span class="text-xs text-neutral-500 dark:text-neutral-400">{{ msg.detail }}</span>
+      }
+    </div>
+    @if (msg.data?.canUndo) {
+      <button
+        type="button"
+        class="text-xs font-semibold text-primary-600 flex-shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-0.5 hover:opacity-80 transition-colors"
+        (click)="undoDelete(msg.data.id)"
+        aria-label="Undo delete"
+      >
+        Undo
+      </button>
+    }
+  </ng-template>
+</p-toast>

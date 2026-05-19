@@ -1,4 +1,4 @@
-import { Component, effect, inject, input, model, output, computed, untracked } from '@angular/core';
+import { Component, effect, inject, input, model, output, computed } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
@@ -73,12 +73,12 @@ export class PlantFormDialogComponent {
 
     effect(() => {
       const isVisible = this.visible();
+      const p = this.plant();
       const justOpened = isVisible && !this._prevVisible;
       this._prevVisible = isVisible;
 
       if (!justOpened) return;
 
-      const p = untracked(() => this.plant());
       if (p) {
         this.form.patchValue({
           common_name:      p.common_name,
@@ -99,6 +99,11 @@ export class PlantFormDialogComponent {
     });
   }
 
+  onVisibleChange(v: boolean): void {
+    if (!v) this.blurActive();
+    this.visible.set(v);
+  }
+
   onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -114,7 +119,7 @@ export class PlantFormDialogComponent {
     };
 
     this.saved.emit(data);
-    this.visible.set(false);
+    this.close();
   }
 
   onDelete(): void {
@@ -125,6 +130,17 @@ export class PlantFormDialogComponent {
   }
 
   onCancel(): void {
+    this.close();
+  }
+
+  private close(): void {
+    this.blurActive();
     this.visible.set(false);
+  }
+
+  private blurActive(): void {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
   }
 }

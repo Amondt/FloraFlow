@@ -1,8 +1,8 @@
 import { Component, computed, input, output } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
-import { FloraButtonPT, FloraTagPT } from '../../shared/ui/pt/index';
-import { Zone } from './zone.model';
+import { FloraButtonPT, FloraTagPT } from '../../../shared/ui/pt/index';
+import { Zone } from '../zone.model';
 
 @Component({
   selector: 'app-zone-card',

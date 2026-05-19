@@ -46,6 +46,40 @@ date-format.pipe.ts
 The three files for any component share the same base name:
 `login.ts` · `login.html` · `login.css`
 
+**Sub-component folder rule**
+
+Each sub-component lives in its own named subfolder inside its feature directory. The feature's page component and shared artifacts (models, services) stay at the feature root.
+
+```
+// ❌ Flat — breaks down once a feature has 3+ components
+scheduler/
+├─ scheduler.ts
+├─ scheduler.html
+├─ plant-alert-card.ts
+├─ plant-alert-card.html
+└─ plant-form-dialog.ts
+
+// ✅ Per-component folders — Angular style guide recommendation
+scheduler/
+├─ scheduler.ts          ← page component at feature root
+├─ scheduler.html
+├─ plant.model.ts        ← shared within feature, stays at root
+├─ plant.service.ts
+├─ plant-alert-card/
+│  ├─ plant-alert-card.ts
+│  └─ plant-alert-card.html
+└─ plant-form-dialog/
+   ├─ plant-form-dialog.ts
+   └─ plant-form-dialog.html
+```
+
+Import paths update accordingly:
+
+```ts
+// ✅ Correct import from page component to sub-component
+import { PlantAlertCardComponent } from './plant-alert-card/plant-alert-card';
+```
+
 ---
 
 ## Dependency Injection

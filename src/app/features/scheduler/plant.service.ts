@@ -29,7 +29,6 @@ export class PlantService {
   }
 
   async confirmCheck(plantId: string): Promise<void> {
-    this.loading.set(true);
     this.error.set(null);
 
     const { error } = await this.supabase.client.rpc('confirm_plant_check', {
@@ -39,14 +38,11 @@ export class PlantService {
     if (error) {
       this.error.set(error.message);
     } else {
-      await this.loadPlants();
+      await this._refreshPlant(plantId);
     }
-
-    this.loading.set(false);
   }
 
   async snoozeCheck(plantId: string): Promise<void> {
-    this.loading.set(true);
     this.error.set(null);
 
     const { error } = await this.supabase.client.rpc('snooze_plant_check', {
@@ -56,10 +52,22 @@ export class PlantService {
     if (error) {
       this.error.set(error.message);
     } else {
-      await this.loadPlants();
+      await this._refreshPlant(plantId);
     }
+  }
 
-    this.loading.set(false);
+  private async _refreshPlant(plantId: string): Promise<void> {
+    const { data, error } = await this.supabase.client
+      .from('plants')
+      .select('id, common_name, scientific_name, zone_id, next_check_due_at, container_vector, substrate_factor')
+      .eq('id', plantId)
+      .single();
+
+    if (error) {
+      await this.loadPlants();
+    } else if (data) {
+      this.plants.update(all => all.map(p => (p.id === plantId ? (data as Plant) : p)));
+    }
   }
 
   async createPlant(data: PlantFormData): Promise<void> {
@@ -90,7 +98,6 @@ export class PlantService {
   }
 
   async updatePlant(id: string, data: PlantFormData): Promise<void> {
-    this.loading.set(true);
     this.error.set(null);
 
     const { error } = await this.supabase.client
@@ -101,10 +108,8 @@ export class PlantService {
     if (error) {
       this.error.set(error.message);
     } else {
-      await this.loadPlants();
+      await this._refreshPlant(id);
     }
-
-    this.loading.set(false);
   }
 
   async deletePlant(id: string): Promise<void> {

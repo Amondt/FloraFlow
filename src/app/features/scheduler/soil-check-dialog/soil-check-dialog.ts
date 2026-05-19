@@ -1,8 +1,8 @@
 import { Component, computed, input, model, output } from '@angular/core';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
-import { FloraDialogPT, FloraButtonPT } from '../../shared/ui/pt/index';
-import { Plant } from './plant.model';
+import { FloraDialogPT, FloraButtonPT } from '../../../shared/ui/pt/index';
+import { Plant } from '../plant.model';
 
 @Component({
   selector: 'app-soil-check-dialog',

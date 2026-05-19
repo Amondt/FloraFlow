@@ -10,8 +10,8 @@ import {
   FloraSelectPT,
   FloraButtonPT,
   FLORA_ERROR,
-} from '../../shared/ui/pt/index';
-import { ZoneService } from '../dashboard/zone.service';
+} from '../../../shared/ui/pt/index';
+import { ZoneService } from '../../dashboard/zone.service';
 import {
   Plant,
   PlantFormData,
@@ -19,7 +19,7 @@ import {
   SubstrateFactor,
   CONTAINER_VECTOR_OPTIONS,
   SUBSTRATE_FACTOR_OPTIONS,
-} from './plant.model';
+} from '../plant.model';
 
 @Component({
   selector: 'app-plant-form-dialog',

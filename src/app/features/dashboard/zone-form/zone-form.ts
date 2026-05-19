@@ -14,8 +14,8 @@ import {
   FloraToggleSwitchPT,
   FloraButtonPT,
   FLORA_ERROR,
-} from '../../shared/ui/pt/index';
-import { Zone, ZoneFormData, WindowOrientation, WINDOW_ORIENTATION_OPTIONS } from './zone.model';
+} from '../../../shared/ui/pt/index';
+import { Zone, ZoneFormData, WindowOrientation, WINDOW_ORIENTATION_OPTIONS } from '../zone.model';
 
 @Component({
   selector: 'app-zone-form',

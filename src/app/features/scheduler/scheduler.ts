@@ -5,9 +5,9 @@ import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { PlantAlertCardComponent } from './plant-alert-card';
-import { SoilCheckDialogComponent } from './soil-check-dialog';
-import { PlantFormDialogComponent } from './plant-form-dialog';
+import { PlantAlertCardComponent } from './plant-alert-card/plant-alert-card';
+import { SoilCheckDialogComponent } from './soil-check-dialog/soil-check-dialog';
+import { PlantFormDialogComponent } from './plant-form-dialog/plant-form-dialog';
 import { PlantService } from './plant.service';
 import { Plant, PlantFormData } from './plant.model';
 import {
@@ -57,7 +57,7 @@ export class SchedulerComponent {
     const now = new Date();
     const startOfToday    = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const startOfTomorrow = new Date(startOfToday.getFullYear(), startOfToday.getMonth(), startOfToday.getDate() + 1);
-    const startOfDay8     = new Date(startOfToday.getFullYear(), startOfToday.getMonth(), startOfToday.getDate() + 8);
+    const startOfDay7     = new Date(startOfToday.getFullYear(), startOfToday.getMonth(), startOfToday.getDate() + 7);
 
     const active = this.plantService.plants().filter(p => !this.pendingDeleteIds().has(p.id));
 
@@ -69,9 +69,9 @@ export class SchedulerComponent {
       }),
       soon:     active.filter(p => {
         const due = new Date(p.next_check_due_at);
-        return due >= startOfTomorrow && due < startOfDay8;
+        return due >= startOfTomorrow && due < startOfDay7;
       }),
-      upcoming: active.filter(p => new Date(p.next_check_due_at) >= startOfDay8),
+      upcoming: active.filter(p => new Date(p.next_check_due_at) >= startOfDay7),
     };
   });
 
@@ -99,10 +99,6 @@ export class SchedulerComponent {
     this.dialogVisible.set(true);
   }
 
-  onSnoozeFromCard(plantId: string): void {
-    void this.plantService.snoozeCheck(plantId);
-  }
-
   async onConfirmed(plant: Plant): Promise<void> {
     await this.plantService.confirmCheck(plant.id);
     if (this.plantService.error()) {
@@ -127,6 +123,12 @@ export class SchedulerComponent {
         severity: 'error',
         summary: 'Snooze failed',
         detail: this.plantService.error()!,
+      });
+    } else {
+      this.messageService.add({
+        severity: 'info',
+        summary: 'Check snoozed',
+        detail: 'Next check rescheduled based on container and substrate.',
       });
     }
   }

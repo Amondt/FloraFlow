@@ -50,13 +50,6 @@
       (onClick)="edit.emit(plant())"
     />
     <p-button
-      label="Snooze"
-      variant="outlined"
-      [pt]="FloraButtonPT"
-      [ariaLabel]="'Snooze soil check for ' + plant().common_name"
-      (onClick)="snooze.emit(plant().id)"
-    />
-    <p-button
       label="Check Soil"
       [pt]="FloraButtonPT"
       [ariaLabel]="'Check soil for ' + plant().common_name"

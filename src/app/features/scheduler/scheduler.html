@@ -64,14 +64,19 @@
 
       @if (g.overdue.length > 0) {
         <section aria-label="Overdue plant checks" class="mb-8">
-          <header class="flex items-center gap-2 mb-3">
-            <h2 class="text-xs font-semibold uppercase tracking-wide font-display text-danger-500 dark:text-danger-500">
-              Overdue
-            </h2>
-            <span
-              class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium font-display bg-red-100 text-danger-700 dark:bg-red-900/30 dark:text-danger-500"
-              aria-label="{{ g.overdue.length }} overdue"
-            >{{ g.overdue.length }}</span>
+          <header class="mb-3">
+            <div class="flex items-center gap-2">
+              <h2 class="text-xs font-semibold uppercase tracking-wide font-display text-danger-500 dark:text-danger-500">
+                Overdue
+              </h2>
+              <span
+                class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium font-display bg-red-100 text-danger-700 dark:bg-red-900/30 dark:text-danger-500"
+                aria-label="{{ g.overdue.length }} overdue"
+              >{{ g.overdue.length }}</span>
+            </div>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400 font-display mt-0.5">
+              Soil may be at risk — open each card, check the depth, and water if dry.
+            </p>
           </header>
           <ul class="flex flex-col gap-4" aria-label="Overdue plant checks list">
             @for (plant of g.overdue; track plant.id) {
@@ -79,7 +84,6 @@
                 <app-plant-alert-card
                   [plant]="plant"
                   (checkNow)="onCheckNow($event)"
-                  (snooze)="onSnoozeFromCard($event)"
                   (edit)="openEditPlant($event)"
                 />
               </li>
@@ -90,14 +94,19 @@
 
       @if (g.today.length > 0) {
         <section aria-label="Plants due today" class="mb-8">
-          <header class="flex items-center gap-2 mb-3">
-            <h2 class="text-xs font-semibold uppercase tracking-wide font-display text-warning-500 dark:text-warning-500">
-              Due today
-            </h2>
-            <span
-              class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium font-display bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
-              aria-label="{{ g.today.length }} due today"
-            >{{ g.today.length }}</span>
+          <header class="mb-3">
+            <div class="flex items-center gap-2">
+              <h2 class="text-xs font-semibold uppercase tracking-wide font-display text-warning-500 dark:text-warning-500">
+                Due today
+              </h2>
+              <span
+                class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium font-display bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+                aria-label="{{ g.today.length }} due today"
+              >{{ g.today.length }}</span>
+            </div>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400 font-display mt-0.5">
+              Check the soil depth today — water if dry, or snooze if it still feels moist.
+            </p>
           </header>
           <ul class="flex flex-col gap-4" aria-label="Plants due today list">
             @for (plant of g.today; track plant.id) {
@@ -105,7 +114,6 @@
                 <app-plant-alert-card
                   [plant]="plant"
                   (checkNow)="onCheckNow($event)"
-                  (snooze)="onSnoozeFromCard($event)"
                   (edit)="openEditPlant($event)"
                 />
               </li>
@@ -116,14 +124,19 @@
 
       @if (g.soon.length > 0) {
         <section aria-label="Plants due this week" class="mb-8">
-          <header class="flex items-center gap-2 mb-3">
-            <h2 class="text-xs font-semibold uppercase tracking-wide font-display text-neutral-600 dark:text-neutral-400">
-              Due this week
-            </h2>
-            <span
-              class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium font-display bg-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300"
-              aria-label="{{ g.soon.length }} due this week"
-            >{{ g.soon.length }}</span>
+          <header class="mb-3">
+            <div class="flex items-center gap-2">
+              <h2 class="text-xs font-semibold uppercase tracking-wide font-display text-neutral-600 dark:text-neutral-400">
+                Due this week
+              </h2>
+              <span
+                class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium font-display bg-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300"
+                aria-label="{{ g.soon.length }} due this week"
+              >{{ g.soon.length }}</span>
+            </div>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400 font-display mt-0.5">
+              Coming up soon — no action needed yet, but keep an eye on them.
+            </p>
           </header>
           <ul class="flex flex-col gap-4" aria-label="Plants due this week list">
             @for (plant of g.soon; track plant.id) {
@@ -131,7 +144,6 @@
                 <app-plant-alert-card
                   [plant]="plant"
                   (checkNow)="onCheckNow($event)"
-                  (snooze)="onSnoozeFromCard($event)"
                   (edit)="openEditPlant($event)"
                 />
               </li>
@@ -142,14 +154,19 @@
 
       @if (g.upcoming.length > 0) {
         <section aria-label="Upcoming plant checks" class="mb-8">
-          <header class="flex items-center gap-2 mb-3">
-            <h2 class="text-xs font-semibold uppercase tracking-wide font-display text-neutral-400 dark:text-neutral-500">
-              Upcoming
-            </h2>
-            <span
-              class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium font-display bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400"
-              aria-label="{{ g.upcoming.length }} upcoming"
-            >{{ g.upcoming.length }}</span>
+          <header class="mb-3">
+            <div class="flex items-center gap-2">
+              <h2 class="text-xs font-semibold uppercase tracking-wide font-display text-neutral-400 dark:text-neutral-500">
+                Upcoming
+              </h2>
+              <span
+                class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium font-display bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400"
+                aria-label="{{ g.upcoming.length }} upcoming"
+              >{{ g.upcoming.length }}</span>
+            </div>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400 font-display mt-0.5">
+              Well ahead of schedule — soil should still be moist.
+            </p>
           </header>
           <ul class="flex flex-col gap-4" aria-label="Upcoming plant checks list">
             @for (plant of g.upcoming; track plant.id) {
@@ -157,7 +174,6 @@
                 <app-plant-alert-card
                   [plant]="plant"
                   (checkNow)="onCheckNow($event)"
-                  (snooze)="onSnoozeFromCard($event)"
                   (edit)="openEditPlant($event)"
                 />
               </li>

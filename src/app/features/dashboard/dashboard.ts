@@ -15,8 +15,8 @@ import {
 } from '../../shared/ui/pt/index';
 import { PlantService } from '../scheduler/plant.service';
 import { ZoneService } from './zone.service';
-import { ZoneCardComponent } from './zone-card';
-import { ZoneFormComponent } from './zone-form';
+import { ZoneCardComponent } from './zone-card/zone-card';
+import { ZoneFormComponent } from './zone-form/zone-form';
 import { Zone, ZoneFormData } from './zone.model';
 
 @Component({

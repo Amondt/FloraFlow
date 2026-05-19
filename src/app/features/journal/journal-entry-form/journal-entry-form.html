@@ -1,0 +1,175 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="onVisibleChange($event)"
+  header="Log Care Event"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [dismissableMask]="true"
+  [pt]="FloraDialogPT"
+  aria-labelledby="journal-dialog-title"
+>
+
+  <form
+    [formGroup]="form"
+    (ngSubmit)="onSubmit()"
+    novalidate
+    class="flex flex-col gap-5"
+    aria-label="Log care event form"
+  >
+
+    <!-- Plant -->
+    <div class="flex flex-col gap-1.5">
+      <label
+        [for]="plantId"
+        class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+      >
+        Plant
+        <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
+        <span class="sr-only">(required)</span>
+      </label>
+      <p-select
+        [inputId]="plantId"
+        formControlName="plant_id"
+        [options]="plantOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [pt]="FloraSelectPT"
+        [class]="plantCtrl.invalid && plantCtrl.touched ? FLORA_ERROR : ''"
+        [attr.aria-describedby]="plantCtrl.invalid && plantCtrl.touched ? plantId + '-error' : null"
+        [attr.aria-invalid]="plantCtrl.invalid && plantCtrl.touched"
+        aria-required="true"
+        placeholder="Select a plant"
+        appendTo="body"
+      />
+      @if (plantCtrl.invalid && plantCtrl.touched) {
+        <small
+          [id]="plantId + '-error'"
+          class="text-danger-500 text-xs font-display"
+          role="alert"
+        >
+          Please select a plant.
+        </small>
+      }
+    </div>
+
+    <!-- Category -->
+    <div class="flex flex-col gap-1.5">
+      <label
+        [for]="catId"
+        class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+      >
+        Category
+        <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
+        <span class="sr-only">(required)</span>
+      </label>
+      <p-select
+        [inputId]="catId"
+        formControlName="category"
+        [options]="categoryOptions"
+        optionLabel="label"
+        optionValue="value"
+        [pt]="FloraSelectPT"
+        [class]="categoryCtrl.invalid && categoryCtrl.touched ? FLORA_ERROR : ''"
+        [attr.aria-describedby]="categoryCtrl.invalid && categoryCtrl.touched ? catId + '-error' : null"
+        [attr.aria-invalid]="categoryCtrl.invalid && categoryCtrl.touched"
+        aria-required="true"
+        placeholder="Select a category"
+        appendTo="body"
+      />
+      @if (categoryCtrl.invalid && categoryCtrl.touched) {
+        <small
+          [id]="catId + '-error'"
+          class="text-danger-500 text-xs font-display"
+          role="alert"
+        >
+          Please select a category.
+        </small>
+      }
+    </div>
+
+    <!-- Notes -->
+    <div class="flex flex-col gap-1.5">
+      <label
+        [for]="notesId"
+        class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+      >
+        Notes
+        <span class="text-neutral-400 font-normal text-xs ml-1">(optional)</span>
+      </label>
+      <textarea
+        pTextarea
+        [id]="notesId"
+        formControlName="notes"
+        [pt]="FloraTextareaPT"
+        [attr.aria-describedby]="notesCtrl.invalid && notesCtrl.touched ? notesId + '-error' : null"
+        [attr.aria-invalid]="notesCtrl.invalid && notesCtrl.touched || null"
+        placeholder="Describe what you observed or did…"
+        rows="3"
+      ></textarea>
+      @if (notesCtrl.invalid && notesCtrl.touched) {
+        <small
+          [id]="notesId + '-error'"
+          class="text-danger-500 text-xs font-display"
+          role="alert"
+        >
+          Notes must be 1000 characters or fewer.
+        </small>
+      }
+    </div>
+
+    <!-- Photo -->
+    <div class="flex flex-col gap-1.5">
+      <label
+        [for]="photoId"
+        class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+      >
+        Photo
+        <span class="text-neutral-400 font-normal text-xs ml-1">(optional)</span>
+      </label>
+      <input
+        type="file"
+        [id]="photoId"
+        accept="image/*"
+        (change)="onFileChange($event)"
+        class="w-full text-sm font-display text-neutral-700 dark:text-neutral-200
+               file:mr-3 file:py-1.5 file:px-3
+               file:rounded-garden-sm file:border file:border-neutral-300
+               file:text-xs file:font-medium file:font-display
+               file:bg-neutral-50 file:text-neutral-600
+               hover:file:bg-neutral-100
+               cursor-pointer"
+        aria-label="Upload a photo of the plant"
+      />
+      @if (compressedLabel()) {
+        <p
+          class="inline-flex items-center gap-1.5 text-xs font-medium font-display text-primary-600"
+          role="status"
+          aria-live="polite"
+        >
+          <i class="pi pi-check-circle" aria-hidden="true"></i>
+          Compressed: {{ compressedLabel() }}
+        </p>
+      }
+    </div>
+
+  </form>
+
+  <ng-template #footer>
+    <p-button
+      label="Cancel"
+      variant="text"
+      [pt]="FloraButtonPT"
+      ariaLabel="Cancel and close dialog"
+      (onClick)="onCancel()"
+    />
+    <p-button
+      label="Log entry"
+      [pt]="FloraButtonPT"
+      ariaLabel="Save this care event"
+      [loading]="submitting()"
+      (onClick)="onSubmit()"
+    />
+  </ng-template>
+
+</p-dialog>

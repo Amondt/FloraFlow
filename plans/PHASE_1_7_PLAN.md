@@ -39,7 +39,7 @@ Task 1.7 delivers the offscreen HTML5 Canvas compression pipeline that intercept
 
 ---
 
-- [ ] **Block D — Journal entry form + updated shell** | Agent: `/visualizer`
+- [x] **Block D — Journal entry form + updated shell** | Agent: `/visualizer`
 
   **New file:** `src/app/features/journal/journal-entry-form.ts`
   - Standalone dialog component opened via PrimeNG `DynamicDialogRef` (matches `PlantFormComponent` pattern)

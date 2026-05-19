@@ -1,22 +1,36 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { ButtonModule } from 'primeng/button';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+import { FloraButtonPT, FloraToastPT } from '../../shared/ui/pt/index';
+import { PlantService } from '../scheduler/plant.service';
+import { JournalEntryFormComponent } from './journal-entry-form/journal-entry-form';
 
 @Component({
   selector: 'app-journal',
   standalone: true,
-  template: `
-    <main class="p-6" aria-labelledby="journal-heading">
-      <section>
-        <h1
-          id="journal-heading"
-          class="text-2xl font-semibold font-display text-neutral-900 mb-2"
-        >
-          Care Journal
-        </h1>
-        <p class="text-sm text-neutral-600">
-          Photo timeline and botanical care log — coming in Phase 1.4 / 1.7.
-        </p>
-      </section>
-    </main>
-  `,
+  imports: [ButtonModule, ToastModule, JournalEntryFormComponent],
+  providers: [MessageService],
+  templateUrl: './journal.html',
 })
-export class JournalComponent {}
+export class JournalComponent {
+  private readonly plantService = inject(PlantService);
+  private readonly messageService = inject(MessageService);
+
+  protected readonly FloraButtonPT = FloraButtonPT;
+  protected readonly FloraToastPT  = FloraToastPT;
+
+  readonly dialogVisible = signal(false);
+  readonly hasPlants     = computed(() => this.plantService.plants().length > 0);
+  readonly loading       = computed(() => this.plantService.loading());
+
+  constructor() {
+    if (this.plantService.plants().length === 0) {
+      void this.plantService.loadPlants();
+    }
+  }
+
+  openDialog(): void {
+    this.dialogVisible.set(true);
+  }
+}

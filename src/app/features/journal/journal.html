@@ -1,0 +1,59 @@
+<main
+  class="p-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen"
+  aria-labelledby="journal-heading"
+>
+  <div class="max-w-5xl mx-auto">
+
+    <header class="flex items-center justify-between mb-6">
+      <h1
+        id="journal-heading"
+        class="text-xs font-semibold uppercase tracking-widest font-display text-neutral-500"
+      >
+        Care Journal
+      </h1>
+      @if (hasPlants()) {
+        <p-button
+          label="Log Care Event"
+          [pt]="FloraButtonPT"
+          ariaLabel="Log a new care event for one of your plants"
+          (onClick)="openDialog()"
+        />
+      }
+    </header>
+
+    <section aria-label="Journal entries">
+      @if (loading()) {
+        <p class="text-sm text-neutral-500 font-display" role="status" aria-live="polite">
+          Loading…
+        </p>
+      } @else if (!hasPlants()) {
+        <div
+          class="flex flex-col items-center justify-center py-20 text-center"
+          role="status"
+        >
+          <p class="text-neutral-500 dark:text-neutral-400 font-display text-base">
+            You have no plants yet. Add one in the Scheduler first.
+          </p>
+          <a
+            href="/scheduler"
+            class="mt-4 inline-flex items-center gap-1.5 text-sm font-medium font-display
+                   text-primary-600 hover:text-primary-700 transition-colors duration-150"
+            aria-label="Go to the Scheduler to add your first plant"
+          >
+            <i class="pi pi-arrow-right text-xs" aria-hidden="true"></i>
+            Go to Scheduler
+          </a>
+        </div>
+      } @else {
+        <p class="text-sm text-neutral-500 font-display">
+          No entries yet — click "Log Care Event" to record your first.
+        </p>
+      }
+    </section>
+
+  </div>
+</main>
+
+<p-toast [pt]="FloraToastPT" position="bottom-right" />
+
+<app-journal-entry-form [(visible)]="dialogVisible" />

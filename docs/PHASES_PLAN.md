@@ -34,7 +34,7 @@ This document establishes the official development sprints, feature milestone gr
     - Implement the confirmation dialog modal asking the user: _"Is the soil dry at the required depth?"_
     - Code the local **Smart Snooze** computation script: if the user flags the soil as wet, automatically push the target plant's `next_check_due_at` timestamp back by a calculated 2, 5, or 7-day interval.
 
-- [ ] **1.5.1 Plant CRUD (Add / Edit / Delete)**
+- [x] **1.5.1 Plant CRUD (Add / Edit / Delete)**
     - Build a plant form dialog in `src/app/features/scheduler/` allowing users to add plants to a zone.
     - Form fields: `common_name` (required), `scientific_name` (optional), `zone_id` (select from user's zones), `container_vector` (enum select), `substrate_factor` (enum select).
     - Wire delete confirmation via PrimeNG ConfirmDialog.

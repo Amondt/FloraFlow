@@ -293,13 +293,13 @@ Every form field must follow this exact structure — no exceptions.
 
 <!-- Layer 2: each feature's <main> -->
 <main class="p-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen" aria-labelledby="page-heading">
-  <div class="max-w-4xl mx-auto">
+  <div class="max-w-5xl mx-auto">
     <!-- page content -->
   </div>
 </main>
 ```
 
-`max-w-4xl` (56 rem) constrains readable content. Never exceed `max-w-5xl`. Use `min-h-screen` not `h-screen`. Nav is outside `<main>` and never has `max-w-*`.
+`max-w-5xl` (64 rem) constrains readable content. Never exceed `max-w-5xl`. Use `min-h-screen` not `h-screen`. Nav is outside `<main>` and never has `max-w-*`.
 
 > **Phase 1 (pre-shell):** `app-topnav` does not yet exist. Each page's `<main>` renders directly in `<router-outlet>`.
 
@@ -314,7 +314,7 @@ Every form field must follow this exact structure — no exceptions.
 
 **Feature overview grids** (dashboard zones) — responsive grid:
 ```html
-<ul class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4" aria-label="…">
+<ul class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4" aria-label="…">
   @for (item of items(); track item.id) { <li><app-my-card [item]="item" /></li> }
 </ul>
 ```

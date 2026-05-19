@@ -1,55 +1,191 @@
 <main class="p-6 min-h-screen bg-neutral-50 dark:bg-neutral-900" aria-labelledby="dashboard-heading">
-<div class="max-w-4xl mx-auto">
+<div class="max-w-5xl mx-auto">
 
-  <!-- Page header -->
-  <header class="flex items-center justify-between mb-6">
-    <h1
-      id="dashboard-heading"
-      class="text-xs font-semibold uppercase tracking-widest font-display text-neutral-500 dark:text-neutral-400"
-    >
-      Your zones
-    </h1>
-    <button
-      type="button"
-      class="inline-flex items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-1"
-      aria-label="Add a new greenhouse zone"
-      (click)="openCreateDialog()"
-    >
-      <i class="pi pi-plus text-xs" aria-hidden="true"></i>
-      New zone
-    </button>
+  <!-- ── Page header ─────────────────────────────────────────────── -->
+  <header class="mb-8">
+    <p class="text-xs font-semibold uppercase tracking-widest font-display text-neutral-400 dark:text-neutral-500 mb-2">
+      {{ todayLabel() }}
+    </p>
+    <div class="flex items-start justify-between gap-4">
+
+      <div>
+        <h1
+          id="dashboard-heading"
+          class="text-3xl font-semibold font-display text-neutral-900 dark:text-white"
+        >
+          {{ greeting() }}
+        </h1>
+        <p class="text-sm font-display text-neutral-500 dark:text-neutral-400 mt-1" aria-live="polite" aria-atomic="true">
+          @if (zoneService.loading() || plantService.loading()) {
+            Loading your greenhouse&hellip;
+          } @else {
+            {{ totalPlantCount() }} {{ totalPlantCount() === 1 ? 'plant' : 'plants' }}
+            across
+            {{ totalZoneCount() }} {{ totalZoneCount() === 1 ? 'zone' : 'zones' }}
+          }
+        </p>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="flex items-center gap-2 flex-shrink-0 pt-1">
+
+        <!-- Identify a plant — placeholder, Phase 3.7 -->
+        <div class="relative">
+          <button
+            type="button"
+            disabled
+            aria-disabled="true"
+            aria-label="Identify a plant — coming in a future update"
+            class="inline-flex items-center gap-1.5 text-sm font-medium font-display px-3 py-1.5 rounded-garden-sm border border-neutral-200 dark:border-neutral-700 text-neutral-400 dark:text-neutral-500 cursor-not-allowed"
+          >
+            <i class="pi pi-camera text-xs" aria-hidden="true"></i>
+            Identify a plant
+          </button>
+          <span
+            class="absolute top-full left-0 right-0 mt-0.5 text-center text-xs font-display text-neutral-400 dark:text-neutral-500 pointer-events-none"
+            aria-hidden="true"
+          >Coming soon</span>
+        </div>
+
+        <!-- Add plant (primary) -->
+        <button
+          type="button"
+          class="inline-flex items-center gap-1.5 text-sm font-semibold font-display px-3 py-1.5 rounded-garden-sm bg-primary-500 text-white hover:bg-primary-600 transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+          aria-label="Add a new plant to your greenhouse"
+          (click)="openAddPlantDialog()"
+        >
+          <i class="pi pi-plus text-xs" aria-hidden="true"></i>
+          Add plant
+        </button>
+
+      </div>
+    </div>
   </header>
 
-  <!-- Overdue plant care banner -->
-  @if (overdueCount() > 0) {
-    <section aria-label="Plant care alerts" class="mb-6">
-      <p-message severity="warn" [pt]="FloraMessagePT">
-        <span aria-live="polite" aria-atomic="true">
-          {{ overdueCount() }} {{ overdueCount() === 1 ? 'plant needs' : 'plants need' }} a soil check.
-        </span>
-        <a
-          routerLink="/scheduler"
-          class="ml-2 font-semibold underline hover:opacity-80 transition-opacity"
-          aria-label="Go to Scheduler to review overdue soil checks"
-        >Go to Scheduler</a>
+  <!-- ── Error banners ─────────────────────────────────────────────── -->
+  @if (zoneService.error()) {
+    <section aria-label="Zone load error" class="mb-6">
+      <p-message severity="error" [pt]="FloraMessagePT">
+        Failed to load zones — {{ zoneService.error() }}
       </p-message>
     </section>
   }
 
-  <!-- Error banner -->
-  @if (zoneService.error()) {
-    <section aria-label="Zone load error" class="mb-6">
-      <p-message severity="error" [pt]="FloraMessagePT">{{ zoneService.error() }}</p-message>
+  <!-- ── Today's check tasks ──────────────────────────────────────── -->
+  @if (plantService.loading() || attentionChips().length > 0) {
+    <section aria-labelledby="attention-heading" class="mb-8">
+
+      <header class="flex items-center justify-between mb-3">
+        <h2
+          id="attention-heading"
+          class="text-xs font-semibold uppercase tracking-widest font-display text-neutral-500 dark:text-neutral-400"
+        >
+          Today's check tasks
+        </h2>
+        @if (!plantService.loading() && attentionChips().length > 0) {
+          <p class="text-xs font-display text-neutral-500 dark:text-neutral-400" aria-live="polite" aria-atomic="true">
+            @if (attentionOverdueCount() > 0) {
+              <strong class="text-warning-500 font-semibold">{{ attentionOverdueCount() }} overdue</strong>
+              @if (attentionChips().length - attentionOverdueCount() > 0) {
+                &nbsp;· {{ attentionChips().length - attentionOverdueCount() }} due soon
+              }
+            } @else {
+              {{ attentionChips().length }} due soon
+            }
+          </p>
+        }
+      </header>
+
+      @if (plantService.loading()) {
+
+        <!-- Skeleton chips while plants load -->
+        <ul class="flex gap-3 overflow-x-auto -mx-6 px-6 pb-2" aria-label="Loading check tasks">
+          @for (n of [1, 2, 3]; track n) {
+            <li class="flex-shrink-0" aria-hidden="true">
+              <p-skeleton height="5rem" width="14rem" [pt]="FloraSkeletonPT" />
+            </li>
+          }
+        </ul>
+
+      } @else {
+
+        <!-- Chip strip -->
+        <ul
+          class="flex gap-3 overflow-x-auto -mx-6 px-6 pb-2"
+          aria-label="Plants needing attention"
+        >
+          @for (chip of attentionChips(); track chip.plant.id) {
+            <li class="flex-shrink-0">
+              <a
+                routerLink="/scheduler"
+                class="flex items-center gap-3 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md px-4 py-3 hover:border-primary-300 dark:hover:border-primary-700 transition-colors w-72 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+                [attr.aria-label]="chipAriaLabel(chip)"
+              >
+                <!-- Leaf thumbnail -->
+                <div [class]="chipThumbClass(chip.isOverdue)">
+                  <i [class]="chipIconClass(chip.isOverdue)" aria-hidden="true"></i>
+                </div>
+
+                <!-- Plant name + zone + status -->
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-semibold font-display text-neutral-900 dark:text-white truncate">
+                    {{ chip.plant.common_name }}
+                  </p>
+                  <p class="text-xs font-display truncate mt-0.5">
+                    <span class="text-neutral-400 dark:text-neutral-500">
+                      {{ zoneMap().get(chip.plant.zone_id)?.name }}
+                    </span>
+                    <span class="mx-1 text-neutral-300 dark:text-neutral-600" aria-hidden="true">·</span>
+                    <span [class]="chipStatusClass(chip.isOverdue)">{{ chip.label }}</span>
+                  </p>
+                </div>
+
+                <!-- Chevron -->
+                <i class="pi pi-chevron-right text-xs text-neutral-300 dark:text-neutral-600 flex-shrink-0" aria-hidden="true"></i>
+              </a>
+            </li>
+          }
+        </ul>
+
+        <!-- View all link -->
+        <a
+          routerLink="/scheduler"
+          class="mt-3 inline-flex items-center gap-1 text-xs font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
+          aria-label="View all plants in the Scheduler"
+        >
+          View all in Scheduler
+          <i class="pi pi-arrow-right text-xs" aria-hidden="true"></i>
+        </a>
+
+      }
     </section>
   }
 
-  <!-- Zone grid -->
-  <section aria-label="Greenhouse zones" [attr.aria-busy]="zoneService.loading()">
+  <!-- ── Greenhouse zones ──────────────────────────────────────────── -->
+  <section aria-labelledby="zones-heading" [attr.aria-busy]="zoneService.loading()">
+
+    <header class="flex items-center justify-between mb-4">
+      <h2
+        id="zones-heading"
+        class="text-xs font-semibold uppercase tracking-widest font-display text-neutral-500 dark:text-neutral-400"
+      >
+        Your zones
+      </h2>
+      <button
+        type="button"
+        class="inline-flex items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-1"
+        aria-label="Add a new greenhouse zone"
+        (click)="openCreateZoneDialog()"
+      >
+        <i class="pi pi-plus text-xs" aria-hidden="true"></i>
+        New zone
+      </button>
+    </header>
 
     @if (zoneService.loading()) {
 
       <ul
-        class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
+        class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4"
         aria-label="Loading zones"
       >
         @for (n of [1, 2, 3]; track n) {
@@ -71,13 +207,13 @@
           [pt]="FloraButtonPT"
           class="mt-4"
           ariaLabel="Add your first greenhouse zone"
-          (onClick)="openCreateDialog()"
+          (onClick)="openCreateZoneDialog()"
         />
       </div>
 
     } @else {
 
-      <ul class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      <ul class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4" aria-label="Greenhouse zones">
         @for (zone of displayedZones(); track zone.id) {
           @let stats = zoneStats().get(zone.id);
           <li>
@@ -85,6 +221,7 @@
               [zone]="zone"
               [plantCount]="stats?.count ?? 0"
               [overdueCount]="stats?.overdueCount ?? 0"
+              [dueTodayCount]="stats?.dueTodayCount ?? 0"
               [plantNames]="stats?.names ?? []"
               (edit)="openEditDialog($event)"
               (remove)="onDeleteRequest($event)"
@@ -97,12 +234,20 @@
 
   </section>
 
-  <!-- Zone form dialog (create + edit) -->
+  <!-- ── Plant form dialog (Add Plant from Dashboard) ─────────────── -->
+  <app-plant-form-dialog
+    [visible]="plantFormVisible()"
+    (visibleChange)="plantFormVisible.set($event)"
+    [plant]="null"
+    (saved)="onPlantSaved($event)"
+  />
+
+  <!-- ── Zone form dialog (create + edit) ─────────────────────────── -->
   <app-zone-form
-    [visible]="dialogVisible()"
-    (visibleChange)="dialogVisible.set($event)"
+    [visible]="zoneDialogVisible()"
+    (visibleChange)="zoneDialogVisible.set($event)"
     [editZone]="editingZone()"
-    (saved)="onSaved($event)"
+    (saved)="onZoneSaved($event)"
   />
 
   <!-- Delete confirmation dialog -->

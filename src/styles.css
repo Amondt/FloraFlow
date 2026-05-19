@@ -244,6 +244,12 @@
   }
 }
 @layer utilities {
+  .pointer-events-none {
+    pointer-events: none;
+  }
+  .invisible {
+    visibility: hidden;
+  }
   .visible {
     visibility: visible;
   }
@@ -269,6 +275,15 @@
   }
   .top-1 {
     top: calc(var(--spacing) * 1);
+  }
+  .top-full {
+    top: 100%;
+  }
+  .right-0 {
+    right: calc(var(--spacing) * 0);
+  }
+  .left-0 {
+    left: calc(var(--spacing) * 0);
   }
   .left-1 {
     left: calc(var(--spacing) * 1);
@@ -300,6 +315,12 @@
   .m-0 {
     margin: calc(var(--spacing) * 0);
   }
+  .-mx-6 {
+    margin-inline: calc(var(--spacing) * -6);
+  }
+  .mx-1 {
+    margin-inline: calc(var(--spacing) * 1);
+  }
   .mx-auto {
     margin-inline: auto;
   }
@@ -311,6 +332,9 @@
   }
   .mt-1 {
     margin-top: calc(var(--spacing) * 1);
+  }
+  .mt-3 {
+    margin-top: calc(var(--spacing) * 3);
   }
   .mt-4 {
     margin-top: calc(var(--spacing) * 4);
@@ -378,6 +402,9 @@
   .table {
     display: table;
   }
+  .h-1 {
+    height: calc(var(--spacing) * 1);
+  }
   .h-1\.5 {
     height: calc(var(--spacing) * 1.5);
   }
@@ -401,6 +428,9 @@
   }
   .h-20 {
     height: calc(var(--spacing) * 20);
+  }
+  .h-24 {
+    height: calc(var(--spacing) * 24);
   }
   .h-32 {
     height: calc(var(--spacing) * 32);
@@ -443,6 +473,15 @@
   }
   .w-20 {
     width: calc(var(--spacing) * 20);
+  }
+  .w-24 {
+    width: calc(var(--spacing) * 24);
+  }
+  .w-56 {
+    width: calc(var(--spacing) * 56);
+  }
+  .w-72 {
+    width: calc(var(--spacing) * 72);
   }
   .w-full {
     width: 100%;
@@ -523,6 +562,9 @@
   .flex-wrap {
     flex-wrap: wrap;
   }
+  .items-baseline {
+    align-items: baseline;
+  }
   .items-center {
     align-items: center;
   }
@@ -578,6 +620,9 @@
   }
   .overflow-hidden {
     overflow: hidden;
+  }
+  .overflow-x-auto {
+    overflow-x: auto;
   }
   .rounded {
     border-radius: 0.25rem;
@@ -798,6 +843,9 @@
   .py-1 {
     padding-block: calc(var(--spacing) * 1);
   }
+  .py-1\.5 {
+    padding-block: calc(var(--spacing) * 1.5);
+  }
   .py-2 {
     padding-block: calc(var(--spacing) * 2);
   }
@@ -816,6 +864,9 @@
   .py-20 {
     padding-block: calc(var(--spacing) * 20);
   }
+  .pt-1 {
+    padding-top: calc(var(--spacing) * 1);
+  }
   .pt-3 {
     padding-top: calc(var(--spacing) * 3);
   }
@@ -828,6 +879,9 @@
   .pb-1 {
     padding-bottom: calc(var(--spacing) * 1);
   }
+  .pb-2 {
+    padding-bottom: calc(var(--spacing) * 2);
+  }
   .pb-3 {
     padding-bottom: calc(var(--spacing) * 3);
   }
@@ -836,6 +890,9 @@
   }
   .text-left {
     text-align: left;
+  }
+  .text-right {
+    text-align: right;
   }
   .font-display {
     font-family: var(--font-display);
@@ -1296,6 +1353,11 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
+  .\32 xl\:grid-cols-3 {
+    @media (width >= 96rem) {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
   .dark\:border-amber-800\/40 {
     &:where(.dark, .dark *) {
       border-color: color-mix(in srgb, oklch(47.3% 0.137 46.201) 40%, transparent);
@@ -1454,9 +1516,19 @@
       }
     }
   }
+  .dark\:fill-neutral-400 {
+    &:where(.dark, .dark *) {
+      fill: var(--color-neutral-400);
+    }
+  }
   .dark\:fill-neutral-500 {
     &:where(.dark, .dark *) {
       fill: var(--color-neutral-500);
+    }
+  }
+  .dark\:fill-neutral-600 {
+    &:where(.dark, .dark *) {
+      fill: var(--color-neutral-600);
     }
   }
   .dark\:stroke-neutral-400 {
@@ -1464,9 +1536,19 @@
       stroke: var(--color-neutral-400);
     }
   }
+  .dark\:stroke-neutral-500 {
+    &:where(.dark, .dark *) {
+      stroke: var(--color-neutral-500);
+    }
+  }
   .dark\:stroke-neutral-600 {
     &:where(.dark, .dark *) {
       stroke: var(--color-neutral-600);
+    }
+  }
+  .dark\:stroke-neutral-700 {
+    &:where(.dark, .dark *) {
+      stroke: var(--color-neutral-700);
     }
   }
   .dark\:text-amber-300 {
@@ -1564,6 +1646,15 @@
       &:hover {
         @media (hover: hover) {
           border-color: var(--color-neutral-600);
+        }
+      }
+    }
+  }
+  .dark\:hover\:border-primary-700 {
+    &:where(.dark, .dark *) {
+      &:hover {
+        @media (hover: hover) {
+          border-color: var(--color-primary-700);
         }
       }
     }

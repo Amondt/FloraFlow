@@ -14,10 +14,18 @@ import {
   FloraToastPT,
 } from '../../shared/ui/pt/index';
 import { PlantService } from '../scheduler/plant.service';
+import { Plant, PlantFormData } from '../scheduler/plant.model';
+import { PlantFormDialogComponent } from '../scheduler/plant-form-dialog/plant-form-dialog';
 import { ZoneService } from './zone.service';
 import { ZoneCardComponent } from './zone-card/zone-card';
 import { ZoneFormComponent } from './zone-form/zone-form';
 import { Zone, ZoneFormData } from './zone.model';
+
+interface AttentionChip {
+  plant: Plant;
+  label: string;
+  isOverdue: boolean;
+}
 
 @Component({
   selector: 'app-dashboard',
@@ -31,16 +39,17 @@ import { Zone, ZoneFormData } from './zone.model';
     ToastModule,
     ZoneCardComponent,
     ZoneFormComponent,
+    PlantFormDialogComponent,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './dashboard.html',
 })
 export class DashboardComponent {
-  protected readonly zoneService          = inject(ZoneService);
-  protected readonly plantService         = inject(PlantService);
-  private  readonly confirmationService   = inject(ConfirmationService);
-  private  readonly messageService        = inject(MessageService);
-  private  readonly destroyRef            = inject(DestroyRef);
+  protected readonly zoneService         = inject(ZoneService);
+  protected readonly plantService        = inject(PlantService);
+  private  readonly confirmationService  = inject(ConfirmationService);
+  private  readonly messageService       = inject(MessageService);
+  private  readonly destroyRef           = inject(DestroyRef);
 
   protected readonly FloraButtonPT        = FloraButtonPT;
   protected readonly FloraMessagePT       = FloraMessagePT;
@@ -48,31 +57,86 @@ export class DashboardComponent {
   protected readonly FloraConfirmDialogPT = FloraConfirmDialogPT;
   protected readonly FloraToastPT         = FloraToastPT;
 
-  protected readonly overdueCount = computed(() => {
-    const now = new Date();
-    return this.plantService.plants().filter(p => new Date(p.next_check_due_at) <= now).length;
+  // ── Greeting ──────────────────────────────────────────────────
+  protected readonly todayLabel = computed(() =>
+    new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
+  );
+
+  protected readonly greeting = computed(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
   });
 
+  // ── Global stats ──────────────────────────────────────────────
+  protected readonly totalPlantCount = computed(() => this.plantService.plants().length);
+  protected readonly totalZoneCount  = computed(() => this.zoneService.zones().length);
+
+  // ── Zone name lookup for chip rows ────────────────────────────
+  protected readonly zoneMap = computed(() =>
+    new Map(this.zoneService.zones().map(z => [z.id, z]))
+  );
+
+  // ── Attention chips: overdue + due today + due in ≤1 day ─────
+  protected readonly attentionChips = computed((): AttentionChip[] => {
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+    const startOfTomorrow = new Date(startOfToday);
+    startOfTomorrow.setDate(startOfTomorrow.getDate() + 1);
+    const endOfTomorrow = new Date(startOfTomorrow);
+    endOfTomorrow.setDate(endOfTomorrow.getDate() + 1);
+
+    return this.plantService.plants()
+      .filter(p => new Date(p.next_check_due_at) < endOfTomorrow)
+      .sort((a, b) => new Date(a.next_check_due_at).getTime() - new Date(b.next_check_due_at).getTime())
+      .slice(0, 6)
+      .map(p => {
+        const due       = new Date(p.next_check_due_at);
+        const isOverdue = due < startOfToday;
+        const label     = isOverdue
+          ? `overdue ${Math.ceil((startOfToday.getTime() - due.getTime()) / 86_400_000)}d`
+          : due < startOfTomorrow ? 'due today' : 'due in 1d';
+        return { plant: p, label, isOverdue };
+      });
+  });
+
+  protected readonly attentionOverdueCount = computed(() =>
+    this.attentionChips().filter(c => c.isOverdue).length
+  );
+
+  // ── Zone stats for zone-card inputs ──────────────────────────
   readonly zoneStats = computed(() => {
     const plants = this.plantService.plants();
-    const now    = new Date();
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+    const startOfTomorrow = new Date(startOfToday);
+    startOfTomorrow.setDate(startOfTomorrow.getDate() + 1);
     return new Map(
       this.zoneService.zones().map(z => {
-        const zonePlants   = plants.filter(p => p.zone_id === z.id);
-        const overdueCount = zonePlants.filter(p => new Date(p.next_check_due_at) < now).length;
-        const names        = zonePlants.map(p => p.common_name);
-        return [z.id, { count: zonePlants.length, overdueCount, names }];
+        const zonePlants    = plants.filter(p => p.zone_id === z.id);
+        const overdueCount  = zonePlants.filter(p => new Date(p.next_check_due_at) < startOfToday).length;
+        const dueTodayCount = zonePlants.filter(p => {
+          const d = new Date(p.next_check_due_at);
+          return d >= startOfToday && d < startOfTomorrow;
+        }).length;
+        const names = zonePlants.map(p => p.common_name);
+        return [z.id, { count: zonePlants.length, overdueCount, dueTodayCount, names }];
       })
     );
   });
 
-  readonly dialogVisible       = signal(false);
-  readonly editingZone         = signal<Zone | null>(null);
+  // ── Zone dialog ───────────────────────────────────────────────
+  readonly zoneDialogVisible    = signal(false);
+  readonly editingZone          = signal<Zone | null>(null);
   readonly pendingDeleteZoneIds = signal<Set<string>>(new Set());
   readonly displayedZones       = computed(() =>
     this.zoneService.zones().filter(z => !this.pendingDeleteZoneIds().has(z.id))
   );
   private readonly _deleteTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+  // ── Plant Add dialog (Dashboard entry point) ──────────────────
+  readonly plantFormVisible = signal(false);
 
   constructor() {
     void this.zoneService.loadZones();
@@ -83,17 +147,49 @@ export class DashboardComponent {
     });
   }
 
-  openCreateDialog(): void {
+  // ── Chip class helpers (return full class strings for Tailwind scanning) ──
+  protected chipThumbClass(isOverdue: boolean): string {
+    const base = 'flex-shrink-0 w-10 h-10 rounded-garden-sm flex items-center justify-center';
+    return isOverdue
+      ? `${base} bg-yellow-50 dark:bg-yellow-900/20`
+      : `${base} bg-primary-50 dark:bg-primary-900/20`;
+  }
+
+  protected chipIconClass(isOverdue: boolean): string {
+    return isOverdue
+      ? 'pi pi-leaf text-base text-warning-500'
+      : 'pi pi-leaf text-base text-primary-500';
+  }
+
+  protected chipStatusClass(isOverdue: boolean): string {
+    return isOverdue ? 'text-warning-500' : 'text-neutral-500 dark:text-neutral-400';
+  }
+
+  protected chipAriaLabel(chip: AttentionChip): string {
+    const zone = this.zoneMap().get(chip.plant.zone_id)?.name ?? 'unknown zone';
+    return `${chip.plant.common_name} in ${zone} — ${chip.label}`;
+  }
+
+  // ── Plant Add dialog (Dashboard entry point) ─────────────────
+  openAddPlantDialog(): void {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    this.plantFormVisible.set(true);
+  }
+
+  // ── Zone actions ──────────────────────────────────────────────
+  openCreateZoneDialog(): void {
     this.editingZone.set(null);
-    this.dialogVisible.set(true);
+    this.zoneDialogVisible.set(true);
   }
 
   openEditDialog(zone: Zone): void {
     this.editingZone.set(zone);
-    this.dialogVisible.set(true);
+    this.zoneDialogVisible.set(true);
   }
 
-  async onSaved(formData: ZoneFormData): Promise<void> {
+  async onZoneSaved(formData: ZoneFormData): Promise<void> {
     const target = this.editingZone();
     if (target) {
       await this.zoneService.updateZone(target.id, formData);
@@ -158,5 +254,15 @@ export class DashboardComponent {
       return next;
     });
     this.messageService.clear();
+  }
+
+  // ── Plant actions ─────────────────────────────────────────────
+  async onPlantSaved(formData: PlantFormData): Promise<void> {
+    await this.plantService.createPlant(formData);
+    if (this.plantService.error()) {
+      this.messageService.add({ severity: 'error', summary: 'Add plant failed', detail: this.plantService.error()! });
+    } else {
+      this.messageService.add({ severity: 'success', summary: 'Plant added', detail: `"${formData.common_name}" added to your greenhouse.` });
+    }
   }
 }

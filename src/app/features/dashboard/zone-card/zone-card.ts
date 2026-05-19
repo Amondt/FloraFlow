@@ -13,12 +13,13 @@ const COMPASS_ANGLES: Record<string, number> = {
   templateUrl: './zone-card.html',
 })
 export class ZoneCardComponent {
-  readonly zone         = input.required<Zone>();
-  readonly plantCount   = input(0);
-  readonly overdueCount = input(0);
-  readonly plantNames   = input<string[]>([]);
-  readonly edit         = output<Zone>();
-  readonly remove       = output<string>();
+  readonly zone          = input.required<Zone>();
+  readonly plantCount    = input(0);
+  readonly overdueCount  = input(0);
+  readonly dueTodayCount = input(0);
+  readonly plantNames    = input<string[]>([]);
+  readonly edit          = output<Zone>();
+  readonly remove        = output<string>();
 
   readonly headingId = computed(() => `zone-heading-${this.zone().id}`);
 
@@ -26,16 +27,38 @@ export class ZoneCardComponent {
     COMPASS_ANGLES[this.zone().window_orientation] ?? 0
   );
 
-  readonly compassTransform = computed(() =>
-    `rotate(${this.compassAngle()}deg)`
+  readonly hasOrientation = computed(() =>
+    this.zone().window_orientation !== 'None'
   );
 
-  readonly statusLabel = computed(() => {
-    const n = this.overdueCount();
-    return n > 0 ? `${n} overdue` : 'All clear';
+  readonly lightLabel = computed(() => {
+    const o = this.zone().window_orientation;
+    return o === 'None' ? 'No window' : o;
   });
 
-  readonly isOverdue = computed(() => this.overdueCount() > 0);
+  protected readonly compassTicks = [45, 90, 135, 180, 225, 270, 315].map(deg => {
+    const rad = (deg * Math.PI) / 180;
+    const sin = Math.sin(rad);
+    const cos = Math.cos(rad);
+    return {
+      x1: parseFloat((40 + 27 * sin).toFixed(1)),
+      y1: parseFloat((40 - 27 * cos).toFixed(1)),
+      x2: parseFloat((40 + 31 * sin).toFixed(1)),
+      y2: parseFloat((40 - 31 * cos).toFixed(1)),
+    };
+  });
+
+  readonly statusLabel = computed(() => {
+    const overdue  = this.overdueCount();
+    const dueToday = this.dueTodayCount();
+    if (overdue  > 0) return `${overdue} overdue`;
+    if (dueToday > 0) return `${dueToday} due today`;
+    return 'All clear';
+  });
+
+  readonly hasAttention = computed(() =>
+    this.overdueCount() > 0 || this.dueTodayCount() > 0
+  );
 
   readonly plantSummary = computed(() => {
     const names = this.plantNames();

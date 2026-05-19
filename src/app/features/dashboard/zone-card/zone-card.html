@@ -3,79 +3,81 @@
   [attr.aria-labelledby]="headingId()"
 >
 
-  <header class="p-4 pb-0 flex items-start justify-between gap-2">
-    <div class="flex-1 min-w-0">
-      <h2
-        [id]="headingId()"
-        class="text-base font-semibold font-display text-neutral-900 dark:text-white truncate"
-      >
-        {{ zone().name }}
-      </h2>
-      <p class="text-xs uppercase tracking-wide font-display mt-0.5 text-neutral-400 dark:text-neutral-500">
-        {{ zone().window_orientation }} window
-      </p>
-    </div>
+  <!-- ── Header: name + status badge ─────────────────────────────── -->
+  <header class="px-4 pt-4 pb-0 flex items-start justify-between gap-2">
+    <h2
+      [id]="headingId()"
+      class="flex-1 min-w-0 text-base font-semibold font-display text-neutral-900 dark:text-white truncate"
+    >
+      {{ zone().name }}
+    </h2>
     <span
       class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium font-display flex-shrink-0"
-      [class]="isOverdue()
+      [class]="hasAttention()
         ? 'bg-yellow-100 text-warning-500 dark:bg-yellow-900/30 dark:text-yellow-400'
         : 'bg-green-100 text-success-500 dark:bg-green-900/30 dark:text-green-400'"
     >
       <i
         class="text-xs"
-        [class]="isOverdue() ? 'pi pi-exclamation-triangle' : 'pi pi-check'"
+        [class]="hasAttention() ? 'pi pi-exclamation-triangle' : 'pi pi-check'"
         aria-hidden="true"
       ></i>
       {{ statusLabel() }}
     </span>
   </header>
 
-  <div class="p-4 flex items-start gap-4">
+  <!-- ── Body: compass + info ──────────────────────────────────────── -->
+  <div class="p-4 flex items-center gap-4">
 
+    <!-- Compass (unchanged) -->
     <div class="flex-shrink-0" aria-hidden="true">
-      <div class="relative w-20 h-20">
+      <div class="relative w-24 h-24">
         <svg viewBox="0 0 80 80" class="w-full h-full" aria-hidden="true">
-          <circle cx="40" cy="40" r="36" fill="none" stroke="#e2e8f0" stroke-width="1.5" class="dark:stroke-neutral-600" />
-          <circle cx="40" cy="40" r="2" fill="#cbd5e1" class="dark:fill-neutral-500" />
-          <line
-            x1="40" y1="40"
-            x2="40" y2="10"
-            stroke="#94a3b8"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            [attr.transform]="'rotate(' + compassAngle() + ', 40, 40)'"
-            class="dark:stroke-neutral-400"
-          />
-          <circle
-            cx="40" cy="12"
-            r="4"
-            fill="#10b981"
-            [attr.transform]="'rotate(' + compassAngle() + ', 40, 40)'"
-          />
-          <text x="40" y="7" text-anchor="middle" class="text-neutral-400" font-size="7" fill="#94a3b8" font-family="sans-serif">N</text>
-          <text x="73" y="43" text-anchor="middle" font-size="7" fill="#94a3b8" font-family="sans-serif">E</text>
-          <text x="40" y="78" text-anchor="middle" font-size="7" fill="#94a3b8" font-family="sans-serif">S</text>
-          <text x="7" y="43" text-anchor="middle" font-size="7" fill="#94a3b8" font-family="sans-serif">W</text>
+          <!-- Outer dashed ring -->
+          <circle cx="40" cy="40" r="35" fill="none" stroke="#cbd5e1" stroke-width="1.25" stroke-dasharray="2 4" class="dark:stroke-neutral-600" />
+          <!-- Inner ring — ticks + N sit in the band between the two rings -->
+          <circle cx="40" cy="40" r="23" fill="none" stroke="#e2e8f0" stroke-width="0.75" class="dark:stroke-neutral-700" />
+          <!-- 7 tick marks (0° skipped — N text takes its place) -->
+          @for (tick of compassTicks; track $index) {
+            <line
+              [attr.x1]="tick.x1" [attr.y1]="tick.y1"
+              [attr.x2]="tick.x2" [attr.y2]="tick.y2"
+              stroke="#cbd5e1" stroke-width="1" stroke-linecap="round"
+              class="dark:stroke-neutral-600"
+            />
+          }
+          <!-- N label — replaces the north tick, bolder -->
+          <text x="40" y="13" text-anchor="middle" font-size="8" font-weight="600" fill="#94a3b8" font-family="sans-serif" class="dark:fill-neutral-400">N</text>
+          <!-- Center dot -->
+          <circle cx="40" cy="40" r="3" fill="#e2e8f0" class="dark:fill-neutral-600" />
+          <!-- Static gray needle — always points North, never rotates -->
+          <polygon points="40,20 41.5,37 40,40 38.5,37" fill="#cbd5e1" class="dark:fill-neutral-500" />
+          <!-- Rotating green orientation indicator — circle only, no arm -->
+          @if (hasOrientation()) {
+            <g [attr.transform]="'rotate(' + compassAngle() + ', 40, 40)'">
+              <circle cx="40" cy="17" r="6" fill="#6ee7b7" stroke="#047857" stroke-width="2" />
+            </g>
+          }
         </svg>
       </div>
     </div>
 
-    <div class="flex-1 min-w-0 flex flex-col gap-3">
+    <!-- Info column -->
+    <div class="flex-1 min-w-0 flex flex-col gap-2.5">
 
-      <div>
-        <p class="text-xs uppercase tracking-wide font-display text-neutral-400 dark:text-neutral-500 mb-1">Light</p>
-        <p class="text-sm font-semibold font-display text-neutral-800 dark:text-neutral-100">
-          {{ zone().window_orientation }}
+      <!-- Light -->
+      <div class="flex items-baseline justify-between gap-2">
+        <p class="text-xs uppercase tracking-widest font-display text-neutral-400 dark:text-neutral-500 flex-shrink-0">Light</p>
+        <p class="text-sm font-semibold font-display text-neutral-800 dark:text-neutral-100 truncate text-right">
+          {{ lightLabel() }}
         </p>
       </div>
 
-      <div>
-        <div class="flex items-center justify-between mb-1">
-          <p class="text-xs uppercase tracking-wide font-display text-neutral-400 dark:text-neutral-500">Humidity</p>
-          <p class="text-xs font-semibold font-display text-neutral-700 dark:text-neutral-200">{{ zone().humidity_baseline }}%</p>
-        </div>
+      <!-- Humidity — inline: label | bar | % -->
+      <div class="flex items-center gap-2">
+        <p class="text-xs uppercase tracking-widest font-display text-neutral-400 dark:text-neutral-500 flex-shrink-0">Humidity</p>
         <div
-          class="h-1.5 bg-neutral-200 dark:bg-neutral-600 rounded-full overflow-hidden"
+          class="flex-1 h-1 bg-neutral-200 dark:bg-neutral-600 rounded-full overflow-hidden"
           role="meter"
           [attr.aria-label]="'Humidity baseline ' + zone().humidity_baseline + '%'"
           [attr.aria-valuenow]="zone().humidity_baseline"
@@ -87,9 +89,13 @@
             [style.width.%]="zone().humidity_baseline"
           ></div>
         </div>
+        <p class="text-xs font-semibold font-display text-neutral-600 dark:text-neutral-300 flex-shrink-0 w-8 text-right">
+          {{ zone().humidity_baseline }}%
+        </p>
       </div>
 
-      <div class="flex items-center gap-2" aria-label="Active systems">
+      <!-- System badges -->
+      <div class="flex items-center gap-2 flex-wrap" aria-label="Active systems">
         <span
           class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium font-display border transition-colors"
           [class]="zone().has_grow_lights
@@ -115,6 +121,7 @@
     </div>
   </div>
 
+  <!-- ── Footer: plant count + Edit / Delete ──────────────────────── -->
   <footer class="px-4 pb-3 border-t border-neutral-100 dark:border-neutral-700 pt-3 flex items-center justify-between">
     <div class="flex-1 min-w-0">
       <p class="text-xs text-neutral-500 dark:text-neutral-400 font-display truncate">
@@ -127,7 +134,7 @@
     <div class="flex items-center gap-1 flex-shrink-0 ml-2">
       <button
         type="button"
-        class="text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+        class="text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
         [attr.aria-label]="'Edit ' + zone().name + ' zone'"
         (click)="edit.emit(zone())"
       >
@@ -135,7 +142,7 @@
       </button>
       <button
         type="button"
-        class="text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-danger-500 dark:hover:text-danger-400 transition-colors px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-danger-500"
+        class="text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-danger-500 dark:hover:text-danger-400 transition-colors cursor-pointer px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-danger-500"
         [attr.aria-label]="'Delete ' + zone().name + ' zone'"
         (click)="remove.emit(zone().id)"
       >

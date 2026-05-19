@@ -16,7 +16,7 @@ export class PlantService {
 
     const { data, error } = await this.supabase.client
       .from('plants')
-      .select('id, common_name, scientific_name, zone_id, next_check_due_at, container_vector, substrate_factor')
+      .select('id, common_name, scientific_name, zone_id, next_check_due_at, last_checked_at, current_snooze_interval_days, container_vector, substrate_factor')
       .order('next_check_due_at', { ascending: true });
 
     if (error) {
@@ -59,7 +59,7 @@ export class PlantService {
   private async _refreshPlant(plantId: string): Promise<void> {
     const { data, error } = await this.supabase.client
       .from('plants')
-      .select('id, common_name, scientific_name, zone_id, next_check_due_at, container_vector, substrate_factor')
+      .select('id, common_name, scientific_name, zone_id, next_check_due_at, last_checked_at, current_snooze_interval_days, container_vector, substrate_factor')
       .eq('id', plantId)
       .single();
 

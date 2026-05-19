@@ -1,60 +1,58 @@
 <article
-  class="bg-neutral-100 dark:bg-neutral-800 border border-neutral-200/50 dark:border-neutral-700/50 rounded-garden-md p-5 shadow-sm transition-all duration-200 hover:shadow-md"
+  class="flex items-stretch rounded-garden-md border overflow-hidden transition-colors duration-150 hover:border-primary-500 dark:hover:border-primary-400"
+  [ngClass]="articleNgClass()"
   [attr.aria-labelledby]="headingId()"
 >
-
-  <header class="mb-4 flex items-start justify-between gap-3">
-    <h2
-      [id]="headingId()"
-      class="text-lg font-semibold font-display text-neutral-900 dark:text-white"
-    >
-      {{ plant().common_name }}
-    </h2>
-    <p-tag
-      [pt]="FloraTagPT"
-      [value]="overdueLabel()"
-      [severity]="overdueSeverity()"
-    />
-  </header>
-
-  @if (plant().scientific_name) {
-    <p class="text-xs italic text-neutral-500 dark:text-neutral-400 font-display -mt-2 mb-4">
-      {{ plant().scientific_name }}
-    </p>
-  }
-
-  <dl class="flex flex-col gap-2 text-sm font-display mb-4">
-    <div class="flex items-center justify-between">
-      <dt class="text-neutral-500 dark:text-neutral-400">Container</dt>
-      <dd class="text-xs font-medium text-neutral-700 dark:text-neutral-300">
-        {{ plant().container_vector }}
-      </dd>
-    </div>
-    <div class="flex items-center justify-between">
-      <dt class="text-neutral-500 dark:text-neutral-400">Substrate</dt>
-      <dd class="text-xs font-medium text-neutral-700 dark:text-neutral-300">
-        {{ plant().substrate_factor }}
-      </dd>
-    </div>
-  </dl>
-
-  <footer
-    class="pt-4 mt-4 border-t border-neutral-200 dark:border-neutral-700 flex items-center gap-2"
+  <button
+    type="button"
+    class="flex items-center gap-3 flex-1 min-w-0 px-4 py-3 text-left cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500"
+    [attr.aria-label]="'Check soil for ' + plant().common_name"
+    (click)="checkNow.emit(plant())"
   >
-    <p-button
-      label="Edit"
-      variant="text"
-      [pt]="FloraButtonPT"
-      [ariaLabel]="'Edit ' + plant().common_name"
-      class="mr-auto"
-      (onClick)="edit.emit(plant())"
-    />
-    <p-button
-      label="Check Soil"
-      [pt]="FloraButtonPT"
-      [ariaLabel]="'Check soil for ' + plant().common_name"
-      (onClick)="checkNow.emit(plant())"
-    />
-  </footer>
+    <div
+      class="w-10 h-10 rounded-garden-sm flex items-center justify-center flex-shrink-0 bg-primary-100 dark:bg-primary-900/30"
+      aria-hidden="true"
+    >
+      <i class="pi pi-leaf text-primary-600 dark:text-primary-400 text-sm"></i>
+    </div>
 
+    <div class="flex-1 min-w-0">
+      <p
+        [id]="headingId()"
+        class="text-sm font-semibold font-display text-neutral-900 dark:text-white leading-snug"
+      >
+        {{ plant().common_name }}
+        @if (plant().scientific_name) {
+          <span class="font-normal italic text-neutral-400 dark:text-neutral-500">
+            · {{ plant().scientific_name }}</span
+          >
+        }
+      </p>
+      <p class="text-xs text-neutral-400 dark:text-neutral-500 font-display mt-0.5 truncate">
+        @if (zoneName()) {
+          {{ zoneName() }} ·
+        }
+        {{ plant().container_vector }} · {{ plant().substrate_factor }}
+      </p>
+    </div>
+
+    <span [class]="badgeColor()">
+      <span
+        class="w-1.5 h-1.5 rounded-full flex-shrink-0"
+        [class]="dotColor()"
+        aria-hidden="true"
+      ></span>
+      {{ overdueLabel() }}
+    </span>
+  </button>
+
+  <button
+    type="button"
+    class="px-3 py-3 flex items-center border-l cursor-pointer text-neutral-400 dark:text-neutral-500 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500"
+    [ngClass]="editBorderNgClass()"
+    [attr.aria-label]="'Edit ' + plant().common_name"
+    (click)="edit.emit(plant())"
+  >
+    <i class="pi pi-pencil text-sm" aria-hidden="true"></i>
+  </button>
 </article>

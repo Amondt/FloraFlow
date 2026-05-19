@@ -1,24 +1,41 @@
 <main class="p-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen" aria-labelledby="scheduler-heading">
 <div class="max-w-4xl mx-auto">
 
-  <header class="mb-6 flex items-start justify-between gap-4">
-    <div>
-      <h1
-        id="scheduler-heading"
-        class="text-2xl font-semibold font-display text-neutral-900 dark:text-white"
-      >
-        Soil-Check Scheduler
-      </h1>
-      <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1 font-display">
-        Your plants, grouped by when they need attention.
-      </p>
+  <header class="mb-8">
+    <p class="text-xs font-semibold uppercase tracking-widest text-primary-600 dark:text-primary-400 font-display mb-1">
+      Anti-Root-Rot Engine
+    </p>
+    <div class="flex items-end justify-between gap-4">
+      <div>
+        <h1
+          id="scheduler-heading"
+          class="text-3xl font-semibold font-display text-neutral-900 dark:text-white"
+        >
+          Check scheduler
+        </h1>
+        @if (!plantService.loading() && plantService.plants().length > 0) {
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1 font-display">
+            @let a = attentionCount();
+            @let s = soonCount();
+            @if (a > 0 && s > 0) {
+              {{ a }} need attention now · {{ s }} due in the next 3 days
+            } @else if (a > 0) {
+              {{ a }} need{{ a === 1 ? 's' : '' }} attention now
+            } @else if (s > 0) {
+              {{ s }} due in the next 3 days
+            } @else {
+              All plants are on schedule
+            }
+          </p>
+        }
+      </div>
+      <p-button
+        label="Add plant"
+        [pt]="FloraButtonPT"
+        ariaLabel="Add a new plant to your greenhouse"
+        (onClick)="openAddPlant()"
+      />
     </div>
-    <p-button
-      label="Add plant"
-      [pt]="FloraButtonPT"
-      ariaLabel="Add a new plant to your greenhouse"
-      (onClick)="openAddPlant()"
-    />
   </header>
 
   <section aria-label="Plant check schedule" [attr.aria-busy]="plantService.loading()">
@@ -64,9 +81,9 @@
 
       @if (g.overdue.length > 0) {
         <section aria-label="Overdue plant checks" class="mb-8">
-          <header class="mb-3">
+          <header class="mb-3 flex items-center justify-between gap-4">
             <div class="flex items-center gap-2">
-              <h2 class="text-xs font-semibold uppercase tracking-wide font-display text-danger-500 dark:text-danger-500">
+              <h2 class="text-xs font-semibold uppercase tracking-widest font-display text-danger-500">
                 Overdue
               </h2>
               <span
@@ -74,8 +91,8 @@
                 aria-label="{{ g.overdue.length }} overdue"
               >{{ g.overdue.length }}</span>
             </div>
-            <p class="text-xs text-neutral-500 dark:text-neutral-400 font-display mt-0.5">
-              Soil may be at risk — open each card, check the depth, and water if dry.
+            <p class="text-xs text-neutral-400 dark:text-neutral-500 font-display italic">
+              Address first to avoid stress signals
             </p>
           </header>
           <ul class="flex flex-col gap-4" aria-label="Overdue plant checks list">
@@ -83,6 +100,7 @@
               <li>
                 <app-plant-alert-card
                   [plant]="plant"
+                  [zoneName]="zoneMap().get(plant.zone_id)?.name ?? null"
                   (checkNow)="onCheckNow($event)"
                   (edit)="openEditPlant($event)"
                 />
@@ -94,9 +112,9 @@
 
       @if (g.today.length > 0) {
         <section aria-label="Plants due today" class="mb-8">
-          <header class="mb-3">
+          <header class="mb-3 flex items-center justify-between gap-4">
             <div class="flex items-center gap-2">
-              <h2 class="text-xs font-semibold uppercase tracking-wide font-display text-warning-500 dark:text-warning-500">
+              <h2 class="text-xs font-semibold uppercase tracking-widest font-display text-warning-500">
                 Due today
               </h2>
               <span
@@ -104,8 +122,8 @@
                 aria-label="{{ g.today.length }} due today"
               >{{ g.today.length }}</span>
             </div>
-            <p class="text-xs text-neutral-500 dark:text-neutral-400 font-display mt-0.5">
-              Check the soil depth today — water if dry, or snooze if it still feels moist.
+            <p class="text-xs text-neutral-400 dark:text-neutral-500 font-display italic">
+              Best moment for an observation
             </p>
           </header>
           <ul class="flex flex-col gap-4" aria-label="Plants due today list">
@@ -113,6 +131,7 @@
               <li>
                 <app-plant-alert-card
                   [plant]="plant"
+                  [zoneName]="zoneMap().get(plant.zone_id)?.name ?? null"
                   (checkNow)="onCheckNow($event)"
                   (edit)="openEditPlant($event)"
                 />
@@ -124,18 +143,18 @@
 
       @if (g.soon.length > 0) {
         <section aria-label="Plants due this week" class="mb-8">
-          <header class="mb-3">
+          <header class="mb-3 flex items-center justify-between gap-4">
             <div class="flex items-center gap-2">
-              <h2 class="text-xs font-semibold uppercase tracking-wide font-display text-neutral-600 dark:text-neutral-400">
-                Due this week
+              <h2 class="text-xs font-semibold uppercase tracking-widest font-display text-neutral-600 dark:text-neutral-400">
+                Due in the next 3 days
               </h2>
               <span
                 class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium font-display bg-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300"
                 aria-label="{{ g.soon.length }} due this week"
               >{{ g.soon.length }}</span>
             </div>
-            <p class="text-xs text-neutral-500 dark:text-neutral-400 font-display mt-0.5">
-              Coming up soon — no action needed yet, but keep an eye on them.
+            <p class="text-xs text-neutral-400 dark:text-neutral-500 font-display italic">
+              Monitor but no action needed yet
             </p>
           </header>
           <ul class="flex flex-col gap-4" aria-label="Plants due this week list">
@@ -143,6 +162,7 @@
               <li>
                 <app-plant-alert-card
                   [plant]="plant"
+                  [zoneName]="zoneMap().get(plant.zone_id)?.name ?? null"
                   (checkNow)="onCheckNow($event)"
                   (edit)="openEditPlant($event)"
                 />
@@ -154,9 +174,9 @@
 
       @if (g.upcoming.length > 0) {
         <section aria-label="Upcoming plant checks" class="mb-8">
-          <header class="mb-3">
+          <header class="mb-3 flex items-center justify-between gap-4">
             <div class="flex items-center gap-2">
-              <h2 class="text-xs font-semibold uppercase tracking-wide font-display text-neutral-400 dark:text-neutral-500">
+              <h2 class="text-xs font-semibold uppercase tracking-widest font-display text-neutral-400 dark:text-neutral-500">
                 Upcoming
               </h2>
               <span
@@ -164,8 +184,8 @@
                 aria-label="{{ g.upcoming.length }} upcoming"
               >{{ g.upcoming.length }}</span>
             </div>
-            <p class="text-xs text-neutral-500 dark:text-neutral-400 font-display mt-0.5">
-              Well ahead of schedule — soil should still be moist.
+            <p class="text-xs text-neutral-400 dark:text-neutral-500 font-display italic">
+              Soil still moist — well ahead of schedule
             </p>
           </header>
           <ul class="flex flex-col gap-4" aria-label="Upcoming plant checks list">
@@ -173,6 +193,7 @@
               <li>
                 <app-plant-alert-card
                   [plant]="plant"
+                  [zoneName]="zoneMap().get(plant.zone_id)?.name ?? null"
                   (checkNow)="onCheckNow($event)"
                   (edit)="openEditPlant($event)"
                 />
@@ -196,6 +217,7 @@
   @if (selectedPlant(); as plant) {
     <app-soil-check-dialog
       [plant]="plant"
+      [zoneName]="zoneMap().get(plant.zone_id)?.name ?? null"
       [(visible)]="dialogVisible"
       (confirmed)="onConfirmed($event)"
       (snoozed)="onSnoozed($event)"

@@ -1,7 +1,7 @@
 <p-dialog
   [visible]="visible()"
   (visibleChange)="onVisibleChange($event)"
-  [header]="dialogHeader()"
+  header="Soil check"
   [modal]="true"
   [draggable]="false"
   [resizable]="false"
@@ -9,45 +9,168 @@
   [pt]="FloraDialogPT"
 >
 
-  <p class="font-display">
-    Is the soil dry at the required depth?
-  </p>
-  <p class="text-xs text-neutral-500 dark:text-neutral-400 font-display mt-1" role="note">
-    Push your finger 2–3 cm (about 1 inch) into the soil. If you feel any moisture, it is not yet dry.
-  </p>
+  <!-- Plant hero — always visible across all steps -->
+  <div class="flex items-start gap-3 mb-5">
+    <div
+      class="flora-plant-thumb w-14 h-14 rounded-garden-sm flex-shrink-0 flex items-center justify-center"
+      aria-hidden="true"
+    >
+      <i class="pi pi-leaf text-primary-700 dark:text-primary-400 text-lg"></i>
+    </div>
+    <div class="flex-1 min-w-0">
+      <h2 class="text-base font-semibold font-display text-neutral-900 dark:text-white leading-snug">
+        {{ plant().common_name }}
+      </h2>
+      @if (plant().scientific_name) {
+        <p class="text-xs italic text-neutral-400 dark:text-neutral-500 font-display">{{ plant().scientific_name }}</p>
+      }
+      <p class="text-xs text-neutral-400 dark:text-neutral-500 font-display mt-0.5">
+        @if (zoneName()) {
+          {{ zoneName() }} ·
+        }{{ lastCheckedLabel() }}
+      </p>
+    </div>
+  </div>
 
-  <dl class="mt-4 flex flex-col gap-2 text-sm font-display">
-    <div class="flex items-center justify-between">
-      <dt class="text-neutral-500 dark:text-neutral-400">Container</dt>
-      <dd class="font-medium text-neutral-700 dark:text-neutral-300">
-        {{ plant().container_vector }}
-      </dd>
+  <!-- ── Step: ask ────────────────────────────────── -->
+  @if (step() === 'ask') {
+
+    <div class="flex items-start gap-2.5 p-3 bg-neutral-50 dark:bg-neutral-900/60 border border-dashed border-neutral-300 dark:border-neutral-600 rounded-garden-sm mb-4">
+      <i class="pi pi-info-circle text-primary-600 dark:text-primary-400 text-sm mt-0.5 flex-shrink-0" aria-hidden="true"></i>
+      <p class="text-sm font-display text-neutral-700 dark:text-neutral-200 leading-relaxed">
+        Insert your finger <strong>{{ checkDepth() }}</strong> into the substrate.<br>
+        Is the soil dry at this depth?
+      </p>
     </div>
-    <div class="flex items-center justify-between">
-      <dt class="text-neutral-500 dark:text-neutral-400">Substrate</dt>
-      <dd class="font-medium text-neutral-700 dark:text-neutral-300">
-        {{ plant().substrate_factor }}
-      </dd>
+
+    <div class="grid grid-cols-2 gap-3" role="group" [attr.aria-label]="'Soil check answer for ' + plant().common_name">
+
+      <button
+        type="button"
+        class="text-left flex flex-col gap-1 p-3.5 rounded-garden-md border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 hover:border-primary-500 dark:hover:border-primary-400 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+        [attr.aria-label]="'Soil is dry — log watering for ' + plant().common_name"
+        (click)="onDry()"
+      >
+        <span class="text-xs font-bold uppercase tracking-wide text-primary-600 dark:text-primary-400 font-display">Yes</span>
+        <span class="text-sm font-semibold font-display text-neutral-900 dark:text-white">Dry — water now</span>
+        <span class="text-xs text-neutral-500 dark:text-neutral-400 font-display">Logs a watering event</span>
+      </button>
+
+      <button
+        type="button"
+        class="text-left flex flex-col gap-1 p-3.5 rounded-garden-md border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 hover:border-warning-500 dark:hover:border-yellow-500 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+        [attr.aria-label]="'Soil is still moist — snooze check for ' + plant().common_name"
+        (click)="onMoist()"
+      >
+        <span class="text-xs font-bold uppercase tracking-wide text-warning-500 dark:text-yellow-400 font-display">Not yet</span>
+        <span class="text-sm font-semibold font-display text-neutral-900 dark:text-white">Still moist</span>
+        <span class="text-xs text-neutral-500 dark:text-neutral-400 font-display">Smart-snooze the check</span>
+      </button>
+
     </div>
-  </dl>
-  <p class="text-xs text-neutral-500 dark:text-neutral-400 font-display mt-3 pt-3 border-t border-neutral-100 dark:border-neutral-700" role="note">
-    The snooze duration is automatically calculated from this plant's container and substrate — no need to adjust anything.
-  </p>
+  }
+
+  <!-- ── Step: dry ────────────────────────────────── -->
+  @if (step() === 'dry') {
+
+    <div class="flex items-start gap-2.5 p-3 bg-primary-50 dark:bg-primary-900/20 border border-primary-500/30 dark:border-primary-800/50 rounded-garden-sm mb-4">
+      <i class="pi pi-check text-primary-600 dark:text-primary-400 text-sm mt-0.5 flex-shrink-0" aria-hidden="true"></i>
+      <p class="text-sm font-display text-neutral-700 dark:text-neutral-200 leading-relaxed">
+        Logging a <strong>watering</strong> on {{ todayLabel() }}. Next check in <strong>{{ plant().current_snooze_interval_days }} days</strong> based on {{ plant().common_name }}'s baseline.
+      </p>
+    </div>
+
+    <div class="flex flex-col gap-1.5">
+      <label
+        for="check-note"
+        class="text-xs font-semibold uppercase tracking-wide font-display text-neutral-500 dark:text-neutral-400"
+      >
+        Notes <span class="normal-case tracking-normal font-normal text-neutral-400">(optional)</span>
+      </label>
+      <textarea
+        id="check-note"
+        class="w-full px-3 py-2 text-sm font-display resize-y min-h-20 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 border border-neutral-300 dark:border-neutral-600 rounded-garden-sm placeholder:text-neutral-400 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 transition-colors"
+        [value]="note()"
+        (input)="note.set($any($event.target).value)"
+        placeholder="e.g. Watered until drainage; fertilized at half strength."
+        [attr.aria-label]="'Optional watering notes for ' + plant().common_name"
+      ></textarea>
+    </div>
+  }
+
+  <!-- ── Step: moist ──────────────────────────────── -->
+  @if (step() === 'moist') {
+
+    <div class="p-3 bg-neutral-50 dark:bg-neutral-900/60 border-l-4 border-l-warning-500 rounded-garden-sm mb-4 text-xs font-display text-neutral-600 dark:text-neutral-300 leading-relaxed">
+      <p class="font-semibold text-neutral-800 dark:text-neutral-100 mb-0.5">Smart snooze for {{ plant().common_name }}</p>
+      <p>
+        <span class="text-neutral-500">Container:</span> {{ plant().container_vector }} ·
+        <span class="text-neutral-500">Substrate:</span> {{ plant().substrate_factor }}<br>
+        Based on these factors, we recommend checking again in
+        <strong class="text-neutral-800 dark:text-neutral-100">{{ recommendedDays() }} days</strong>.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-3 gap-2" role="radiogroup" [attr.aria-label]="'Snooze duration for ' + plant().common_name">
+      @for (d of snoozePresets; track d) {
+        <button
+          type="button"
+          class="flex flex-col items-center gap-0.5 py-2.5 rounded-garden-sm border transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+          [class]="snoozeDays() === d
+            ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30 dark:border-primary-400'
+            : 'border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-600'"
+          role="radio"
+          [attr.aria-checked]="snoozeDays() === d"
+          [attr.aria-label]="d + ' days' + (d === recommendedDays() ? ' (recommended)' : '')"
+          (click)="snoozeDays.set(d)"
+        >
+          <span class="text-lg font-bold font-display text-neutral-900 dark:text-white">{{ d }}</span>
+          <span class="text-xs uppercase tracking-wide font-display text-neutral-400 dark:text-neutral-500">
+            @if (d === recommendedDays()) { Recommended } @else { days }
+          </span>
+        </button>
+      }
+    </div>
+  }
 
   <ng-template #footer>
-    <p-button
-      label="Not yet — snooze"
-      variant="outlined"
-      [pt]="FloraButtonPT"
-      [ariaLabel]="'Soil not dry yet, snooze check for ' + plant().common_name"
-      (onClick)="onSnooze()"
-    />
-    <p-button
-      label="Yes, soil is dry"
-      [pt]="FloraButtonPT"
-      [ariaLabel]="'Confirm soil is dry for ' + plant().common_name"
-      (onClick)="onConfirm()"
-    />
+    @if (step() === 'ask') {
+      <p-button
+        label="Cancel"
+        variant="text"
+        [pt]="FloraButtonPT"
+        [attr.aria-label]="'Cancel soil check for ' + plant().common_name"
+        (onClick)="onCancel()"
+      />
+    } @else if (step() === 'dry') {
+      <p-button
+        label="Back"
+        variant="text"
+        [pt]="FloraButtonPT"
+        ariaLabel="Back to soil check question"
+        (onClick)="onBack()"
+      />
+      <p-button
+        label="Log watering"
+        [pt]="FloraButtonPT"
+        [ariaLabel]="'Log watering for ' + plant().common_name"
+        (onClick)="onConfirm()"
+      />
+    } @else {
+      <p-button
+        label="Back"
+        variant="text"
+        [pt]="FloraButtonPT"
+        ariaLabel="Back to soil check question"
+        (onClick)="onBack()"
+      />
+      <p-button
+        [label]="snoozeLabelText()"
+        [pt]="FloraButtonPT"
+        [ariaLabel]="'Snooze soil check for ' + snoozeDays() + ' days for ' + plant().common_name"
+        (onClick)="onSnooze()"
+      />
+    }
   </ng-template>
 
 </p-dialog>

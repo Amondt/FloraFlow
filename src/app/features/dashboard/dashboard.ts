@@ -53,6 +53,19 @@ export class DashboardComponent {
     return this.plantService.plants().filter(p => new Date(p.next_check_due_at) <= now).length;
   });
 
+  readonly zoneStats = computed(() => {
+    const plants = this.plantService.plants();
+    const now    = new Date();
+    return new Map(
+      this.zoneService.zones().map(z => {
+        const zonePlants   = plants.filter(p => p.zone_id === z.id);
+        const overdueCount = zonePlants.filter(p => new Date(p.next_check_due_at) < now).length;
+        const names        = zonePlants.map(p => p.common_name);
+        return [z.id, { count: zonePlants.length, overdueCount, names }];
+      })
+    );
+  });
+
   readonly dialogVisible       = signal(false);
   readonly editingZone         = signal<Zone | null>(null);
   readonly pendingDeleteZoneIds = signal<Set<string>>(new Set());

@@ -3,6 +3,8 @@
 @theme {
   /* --- Semantic Palette --- */
   --color-primary-50:  #f0fdf4;
+  --color-primary-100: #dcfce7;
+  --color-primary-200: #bbf7d0;
   --color-primary-500: #10b981;
   --color-primary-600: #059669;
   --color-primary-700: #047857;
@@ -86,4 +88,26 @@ p-multiselect:has([data-pc-section="label"]:focus-visible) {
 
 :where(.dark, .dark *) [data-pc-section="option"][data-p-focused="true"]:not([data-p-selected="true"]) {
   background-color: var(--color-neutral-700);
+}
+
+/* Plant thumbnail placeholder — diagonal stripe pattern used in scheduler rows and soil-check dialog */
+.flora-plant-thumb {
+  background:
+    repeating-linear-gradient(
+      135deg,
+      var(--color-primary-100) 0px,
+      var(--color-primary-100) 10px,
+      var(--color-primary-200) 10px,
+      var(--color-primary-200) 20px
+    );
+}
+:where(.dark, .dark *) .flora-plant-thumb {
+  background:
+    repeating-linear-gradient(
+      135deg,
+      #1f2f25 0px,
+      #1f2f25 10px,
+      #1a2a20 10px,
+      #1a2a20 20px
+    );
 }

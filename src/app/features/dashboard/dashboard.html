@@ -2,25 +2,22 @@
 <div class="max-w-4xl mx-auto">
 
   <!-- Page header -->
-  <header class="flex items-center justify-between mb-8">
-    <hgroup>
-      <h1
-        id="dashboard-heading"
-        class="text-2xl font-semibold font-display text-neutral-900 dark:text-white"
-      >
-        Virtual Greenhouse
-      </h1>
-      <p class="text-sm text-neutral-500 dark:text-neutral-400 font-display mt-1">
-        Manage your microclimate zones
-      </p>
-    </hgroup>
-    <p-button
-      label="Add Zone"
-      icon="pi pi-plus"
-      [pt]="FloraButtonPT"
-      ariaLabel="Add a new greenhouse zone"
-      (onClick)="openCreateDialog()"
-    />
+  <header class="flex items-center justify-between mb-6">
+    <h1
+      id="dashboard-heading"
+      class="text-xs font-semibold uppercase tracking-widest font-display text-neutral-500 dark:text-neutral-400"
+    >
+      Your zones
+    </h1>
+    <button
+      type="button"
+      class="inline-flex items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-1"
+      aria-label="Add a new greenhouse zone"
+      (click)="openCreateDialog()"
+    >
+      <i class="pi pi-plus text-xs" aria-hidden="true"></i>
+      New zone
+    </button>
   </header>
 
   <!-- Overdue plant care banner -->
@@ -52,12 +49,12 @@
     @if (zoneService.loading()) {
 
       <ul
-        class="flex flex-col gap-4"
+        class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
         aria-label="Loading zones"
       >
         @for (n of [1, 2, 3]; track n) {
-          <li>
-            <p-skeleton height="11rem" [pt]="FloraSkeletonPT" />
+          <li aria-hidden="true">
+            <p-skeleton height="18rem" [pt]="FloraSkeletonPT" />
           </li>
         }
       </ul>
@@ -80,11 +77,15 @@
 
     } @else {
 
-      <ul class="flex flex-col gap-4">
+      <ul class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         @for (zone of displayedZones(); track zone.id) {
+          @let stats = zoneStats().get(zone.id);
           <li>
             <app-zone-card
               [zone]="zone"
+              [plantCount]="stats?.count ?? 0"
+              [overdueCount]="stats?.overdueCount ?? 0"
+              [plantNames]="stats?.names ?? []"
               (edit)="openEditDialog($event)"
               (remove)="onDeleteRequest($event)"
             />

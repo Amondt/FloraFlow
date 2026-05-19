@@ -10,6 +10,7 @@ import { SoilCheckDialogComponent } from './soil-check-dialog/soil-check-dialog'
 import { PlantFormDialogComponent } from './plant-form-dialog/plant-form-dialog';
 import { PlantService } from './plant.service';
 import { Plant, PlantFormData } from './plant.model';
+import { ZoneService } from '../dashboard/zone.service';
 import {
   FloraButtonPT,
   FloraConfirmDialogPT,
@@ -36,6 +37,7 @@ import {
 })
 export class SchedulerComponent {
   protected readonly plantService = inject(PlantService);
+  protected readonly zoneService  = inject(ZoneService);
   private readonly confirmService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
   private  readonly destroyRef    = inject(DestroyRef);
@@ -45,6 +47,17 @@ export class SchedulerComponent {
   protected readonly FloraSkeletonPT      = FloraSkeletonPT;
   protected readonly FloraToastPT         = FloraToastPT;
   protected readonly loadingPlaceholders  = [1, 2, 3];
+
+  readonly zoneMap = computed(() =>
+    new Map(this.zoneService.zones().map(z => [z.id, z]))
+  );
+
+  readonly attentionCount = computed(() => {
+    const g = this.plantsGrouped();
+    return g.overdue.length + g.today.length;
+  });
+
+  readonly soonCount = computed(() => this.plantsGrouped().soon.length);
 
   readonly selectedPlant    = signal<Plant | null>(null);
   readonly dialogVisible    = signal(false);
@@ -80,6 +93,9 @@ export class SchedulerComponent {
   constructor() {
     if (this.plantService.plants().length === 0) {
       void this.plantService.loadPlants();
+    }
+    if (this.zoneService.zones().length === 0) {
+      void this.zoneService.loadZones();
     }
 
     effect(() => {

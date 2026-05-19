@@ -8,43 +8,42 @@ export const routes: Routes = [
       import('./features/auth/login').then((m) => m.LoginComponent),
   },
   {
-    path: 'dashboard',
+    path: '',
     loadComponent: () =>
-      import('./features/dashboard/dashboard').then(
-        (m) => m.DashboardComponent,
-      ),
+      import('./shared/components/shell/shell').then((m) => m.ShellComponent),
     canActivate: [authGuard],
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./features/dashboard/dashboard').then(
+            (m) => m.DashboardComponent,
+          ),
+      },
+      {
+        path: 'scheduler',
+        loadComponent: () =>
+          import('./features/scheduler/scheduler').then(
+            (m) => m.SchedulerComponent,
+          ),
+      },
+      {
+        path: 'journal',
+        loadComponent: () =>
+          import('./features/journal/journal').then((m) => m.JournalComponent),
+      },
+      {
+        path: 'library',
+        loadComponent: () =>
+          import('./features/library/library').then((m) => m.LibraryComponent),
+      },
+      {
+        path: 'vault',
+        loadComponent: () =>
+          import('./features/vault/vault').then((m) => m.VaultComponent),
+      },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+    ],
   },
-  {
-    path: 'scheduler',
-    loadComponent: () =>
-      import('./features/scheduler/scheduler').then(
-        (m) => m.SchedulerComponent,
-      ),
-    canActivate: [authGuard],
-  },
-  {
-    path: 'journal',
-    loadComponent: () =>
-      import('./features/journal/journal').then(
-        (m) => m.JournalComponent,
-      ),
-    canActivate: [authGuard],
-  },
-  {
-    path: 'library',
-    loadComponent: () =>
-      import('./features/library/library').then(
-        (m) => m.LibraryComponent,
-      ),
-    canActivate: [authGuard],
-  },
-  {
-    path: 'vault',
-    loadComponent: () =>
-      import('./features/vault/vault').then((m) => m.VaultComponent),
-    canActivate: [authGuard],
-  },
-  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: '**', redirectTo: 'dashboard' },
 ];

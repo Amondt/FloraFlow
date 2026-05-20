@@ -1,4 +1,5 @@
 export * from './states.pt';
+export * from './autocomplete.pt';
 export * from './button.pt';
 export * from './input.pt';
 export * from './select.pt';

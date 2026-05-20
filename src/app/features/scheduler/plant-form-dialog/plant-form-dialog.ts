@@ -1,17 +1,21 @@
-import { Component, effect, inject, input, model, output, computed } from '@angular/core';
+import { Component, effect, inject, input, model, output, computed, signal } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
+import { AutoCompleteModule, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
 import {
   FloraDialogPT,
   FloraInputTextPT,
+  FloraAutoCompletePT,
   FloraSelectPT,
   FloraButtonPT,
   FLORA_ERROR,
 } from '../../../shared/ui/pt/index';
 import { ZoneService } from '../../dashboard/zone.service';
+import { BotanicalSearchService, BotanicalSuggestion } from '../../../core/services/botanical-search.service';
 import {
   Plant,
   PlantFormData,
@@ -24,22 +28,24 @@ import {
 @Component({
   selector: 'app-plant-form-dialog',
   standalone: true,
-  imports: [ReactiveFormsModule, DialogModule, InputTextModule, SelectModule, ButtonModule],
+  imports: [ReactiveFormsModule, FormsModule, DialogModule, InputTextModule, AutoCompleteModule, SelectModule, ButtonModule],
   templateUrl: './plant-form-dialog.html',
 })
 export class PlantFormDialogComponent {
-  private readonly zoneService = inject(ZoneService);
+  private readonly zoneService     = inject(ZoneService);
+  private readonly botanicalSearch = inject(BotanicalSearchService);
 
   readonly plant   = input<Plant | null>(null);
   readonly visible = model<boolean>(false);
   readonly saved            = output<PlantFormData>();
   readonly deleteRequested  = output<Plant>();
 
-  protected readonly FloraDialogPT    = FloraDialogPT;
-  protected readonly FloraInputTextPT = FloraInputTextPT;
-  protected readonly FloraSelectPT    = FloraSelectPT;
-  protected readonly FloraButtonPT    = FloraButtonPT;
-  protected readonly FLORA_ERROR      = FLORA_ERROR;
+  protected readonly FloraDialogPT       = FloraDialogPT;
+  protected readonly FloraInputTextPT    = FloraInputTextPT;
+  protected readonly FloraAutoCompletePT = FloraAutoCompletePT;
+  protected readonly FloraSelectPT       = FloraSelectPT;
+  protected readonly FloraButtonPT       = FloraButtonPT;
+  protected readonly FLORA_ERROR         = FLORA_ERROR;
 
   protected readonly CONTAINER_VECTOR_OPTIONS = CONTAINER_VECTOR_OPTIONS;
   protected readonly SUBSTRATE_FACTOR_OPTIONS = SUBSTRATE_FACTOR_OPTIONS;
@@ -49,6 +55,10 @@ export class PlantFormDialogComponent {
   protected readonly zoneSelectId = `flora-plant-zone-${crypto.randomUUID().slice(0, 8)}`;
   protected readonly containerId  = `flora-plant-ct-${crypto.randomUUID().slice(0, 8)}`;
   protected readonly substrateId  = `flora-plant-sf-${crypto.randomUUID().slice(0, 8)}`;
+
+  protected suggestions        = signal<BotanicalSuggestion[]>([]);
+  protected selectedPerenualId = signal<number | null>(null);
+  protected commonNameQuery    = '';
 
   readonly form = new FormGroup({
     common_name:      new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -80,6 +90,8 @@ export class PlantFormDialogComponent {
       if (!justOpened) return;
 
       if (p) {
+        this.commonNameQuery = p.common_name;
+        this.selectedPerenualId.set(p.perenual_id);
         this.form.patchValue({
           common_name:      p.common_name,
           scientific_name:  p.scientific_name,
@@ -88,10 +100,12 @@ export class PlantFormDialogComponent {
           substrate_factor: p.substrate_factor,
         });
       } else {
+        this.commonNameQuery = '';
+        this.selectedPerenualId.set(null);
         this.form.reset({
           common_name:      '',
           scientific_name:  null,
-          zone_id:          '',
+          zone_id:          this.zoneService.zones()[0]?.id ?? '',
           container_vector: 'Plastic',
           substrate_factor: 'Standard Potting',
         });
@@ -104,6 +118,23 @@ export class PlantFormDialogComponent {
     this.visible.set(v);
   }
 
+  async onQuerySearch(event: AutoCompleteCompleteEvent): Promise<void> {
+    this.suggestions.set(await this.botanicalSearch.search(event.query));
+  }
+
+  onCommonNameChange(value: string | BotanicalSuggestion | null): void {
+    if (!value || typeof value === 'string') {
+      this.commonNameQuery = value ?? '';
+      this.form.controls.common_name.setValue(value ?? '');
+      this.selectedPerenualId.set(null);
+    } else {
+      this.commonNameQuery = value.common_name;
+      this.form.controls.common_name.setValue(value.common_name);
+      this.form.controls.scientific_name.setValue(value.scientific_name);
+      this.selectedPerenualId.set(value.perenual_id);
+    }
+  }
+
   onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -113,6 +144,7 @@ export class PlantFormDialogComponent {
     const data: PlantFormData = {
       common_name:      this.form.controls.common_name.value,
       scientific_name:  this.form.controls.scientific_name.value || null,
+      perenual_id:      this.selectedPerenualId(),
       zone_id:          this.form.controls.zone_id.value,
       container_vector: this.form.controls.container_vector.value,
       substrate_factor: this.form.controls.substrate_factor.value,

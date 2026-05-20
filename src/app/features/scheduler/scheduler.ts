@@ -1,4 +1,5 @@
-import { Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, effect, inject, input, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { Message } from 'primeng/message';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ButtonModule } from 'primeng/button';
@@ -23,6 +24,7 @@ import {
   selector: 'app-scheduler',
   standalone: true,
   imports: [
+    RouterLink,
     Message,
     SkeletonModule,
     ButtonModule,
@@ -52,12 +54,16 @@ export class SchedulerComponent {
     new Map(this.zoneService.zones().map(z => [z.id, z]))
   );
 
+  protected readonly hasZones = computed(() => this.zoneService.zones().length > 0);
+
   readonly attentionCount = computed(() => {
     const g = this.plantsGrouped();
     return g.overdue.length + g.today.length;
   });
 
   readonly soonCount = computed(() => this.plantsGrouped().soon.length);
+
+  readonly plant            = input<string | undefined>(undefined);
 
   readonly selectedPlant    = signal<Plant | null>(null);
   readonly dialogVisible    = signal(false);
@@ -89,6 +95,7 @@ export class SchedulerComponent {
   });
 
   private readonly _deleteTimers = new Map<string, ReturnType<typeof setTimeout>>();
+  private _autoOpenedPlantId: string | null = null;
 
   constructor() {
     if (this.plantService.plants().length === 0) {
@@ -104,8 +111,23 @@ export class SchedulerComponent {
       }
     });
 
+    effect(() => {
+      const id = this.plant();
+      if (!id) return;
+      if (this.plantService.loading()) return;
+      const plants = this.plantService.plants();
+      if (this._autoOpenedPlantId === id) return;
+      const plant = plants.find(p => p.id === id);
+      if (!plant) return;
+      this._autoOpenedPlantId = id;
+      this.onCheckNow(plant);
+    });
+
     this.destroyRef.onDestroy(() => {
-      this._deleteTimers.forEach(clearTimeout);
+      this._deleteTimers.forEach((timer, id) => {
+        clearTimeout(timer);
+        void this.plantService.deletePlant(id);
+      });
       this._deleteTimers.clear();
     });
   }

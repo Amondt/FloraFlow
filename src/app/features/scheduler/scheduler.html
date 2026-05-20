@@ -29,12 +29,22 @@
           </p>
         }
       </div>
-      <p-button
-        label="Add plant"
-        [pt]="FloraButtonPT"
-        ariaLabel="Add a new plant to your greenhouse"
-        (onClick)="openAddPlant()"
-      />
+      <div class="relative">
+        <p-button
+          label="Add plant"
+          [pt]="FloraButtonPT"
+          ariaLabel="Add a new plant to your greenhouse"
+          [disabled]="!hasZones()"
+          [attr.aria-disabled]="!hasZones() ? true : null"
+          (onClick)="openAddPlant()"
+        />
+        @if (!hasZones()) {
+          <span
+            class="absolute top-full left-0 right-0 mt-0.5 text-center text-xs font-display text-neutral-400 dark:text-neutral-500 pointer-events-none whitespace-nowrap"
+            aria-hidden="true"
+          >Add a zone first</span>
+        }
+      </div>
     </div>
   </header>
 
@@ -63,17 +73,31 @@
 
     } @else if (plantService.plants().length === 0) {
       <div class="flex flex-col items-center justify-center py-20 text-center" role="status">
-        <p class="text-neutral-500 dark:text-neutral-400 font-display text-base">
-          No plants yet. Add your first plant to start tracking soil checks.
-        </p>
-        <p-button
-          label="Add your first plant"
-          variant="outlined"
-          [pt]="FloraButtonPT"
-          class="mt-4"
-          ariaLabel="Add your first plant to the scheduler"
-          (onClick)="openAddPlant()"
-        />
+        @if (!hasZones()) {
+          <p class="text-neutral-500 dark:text-neutral-400 font-display text-base">
+            No zones set up yet. Add a greenhouse zone on the Dashboard before tracking plants.
+          </p>
+          <a
+            routerLink="/dashboard"
+            class="mt-4 inline-flex items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
+            aria-label="Go to Dashboard to add your first zone"
+          >
+            Go to Dashboard
+            <i class="pi pi-arrow-right text-xs" aria-hidden="true"></i>
+          </a>
+        } @else {
+          <p class="text-neutral-500 dark:text-neutral-400 font-display text-base">
+            No plants yet. Add your first plant to start tracking soil checks.
+          </p>
+          <p-button
+            label="Add your first plant"
+            variant="outlined"
+            [pt]="FloraButtonPT"
+            class="mt-4"
+            ariaLabel="Add your first plant to the scheduler"
+            (onClick)="openAddPlant()"
+          />
+        }
       </div>
 
     } @else {
@@ -87,7 +111,7 @@
                 Overdue
               </h2>
               <span
-                class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium font-display bg-red-100 text-danger-700 dark:bg-red-900/30 dark:text-danger-500"
+                class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium font-display bg-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300"
                 aria-label="{{ g.overdue.length }} overdue"
               >{{ g.overdue.length }}</span>
             </div>
@@ -118,7 +142,7 @@
                 Due today
               </h2>
               <span
-                class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium font-display bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+                class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium font-display bg-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300"
                 aria-label="{{ g.today.length }} due today"
               >{{ g.today.length }}</span>
             </div>

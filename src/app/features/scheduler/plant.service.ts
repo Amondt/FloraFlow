@@ -160,6 +160,7 @@ export class PlantService {
               .insert({
                 common_name: item.common_name!,
                 scientific_name: item.scientific_name ?? null,
+                perenual_id: item.perenual_id ?? null,
                 zone_id: item.zone_id!,
                 container_vector: item.container_vector as ContainerVector,
                 substrate_factor: item.substrate_factor as SubstrateFactor,
@@ -214,6 +215,7 @@ export class PlantService {
         queued_at: now,
         common_name: data.common_name,
         scientific_name: data.scientific_name,
+        perenual_id: data.perenual_id,
         zone_id: data.zone_id,
         container_vector: data.container_vector,
         substrate_factor: data.substrate_factor,

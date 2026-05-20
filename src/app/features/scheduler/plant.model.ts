@@ -49,6 +49,7 @@ export interface Plant {
 export interface PlantFormData {
   common_name: string;
   scientific_name: string | null;
+  perenual_id: number | null;
   zone_id: string;
   container_vector: ContainerVector;
   substrate_factor: SubstrateFactor;

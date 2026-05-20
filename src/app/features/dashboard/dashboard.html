@@ -48,15 +48,27 @@
         </div>
 
         <!-- Add plant (primary) -->
-        <button
-          type="button"
-          class="inline-flex items-center gap-1.5 text-sm font-semibold font-display px-3 py-1.5 rounded-garden-sm bg-primary-500 text-white hover:bg-primary-600 transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
-          aria-label="Add a new plant to your greenhouse"
-          (click)="openAddPlantDialog()"
-        >
-          <i class="pi pi-plus text-xs" aria-hidden="true"></i>
-          Add plant
-        </button>
+        <div class="relative">
+          <button
+            type="button"
+            [disabled]="totalZoneCount() === 0"
+            [attr.aria-disabled]="totalZoneCount() === 0 ? true : null"
+            [class]="totalZoneCount() === 0
+              ? 'inline-flex items-center gap-1.5 text-sm font-semibold font-display px-3 py-1.5 rounded-garden-sm bg-primary-500 text-white opacity-50 cursor-not-allowed outline-none'
+              : 'inline-flex items-center gap-1.5 text-sm font-semibold font-display px-3 py-1.5 rounded-garden-sm bg-primary-500 text-white hover:bg-primary-600 transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2'"
+            [attr.aria-label]="totalZoneCount() === 0 ? 'Add plant — add a zone first' : 'Add a new plant to your greenhouse'"
+            (click)="openAddPlantDialog()"
+          >
+            <i class="pi pi-plus text-xs" aria-hidden="true"></i>
+            Add plant
+          </button>
+          @if (totalZoneCount() === 0) {
+            <span
+              class="absolute top-full left-0 right-0 mt-0.5 text-center text-xs font-display text-neutral-400 dark:text-neutral-500 pointer-events-none whitespace-nowrap"
+              aria-hidden="true"
+            >Add a zone first</span>
+          }
+        </div>
 
       </div>
     </div>
@@ -117,7 +129,8 @@
           @for (chip of attentionChips(); track chip.plant.id) {
             <li class="flex-shrink-0">
               <a
-                routerLink="/scheduler"
+                [routerLink]="['/scheduler']"
+                [queryParams]="{ plant: chip.plant.id }"
                 class="flex items-center gap-3 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md px-4 py-3 hover:border-primary-300 dark:hover:border-primary-700 transition-colors w-72 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
                 [attr.aria-label]="chipAriaLabel(chip)"
               >

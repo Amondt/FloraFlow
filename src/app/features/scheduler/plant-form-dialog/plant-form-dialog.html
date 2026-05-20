@@ -13,7 +13,7 @@
     [formGroup]="form"
     (ngSubmit)="onSubmit()"
     novalidate
-    class="flex flex-col gap-5"
+    class="flex flex-col gap-4"
     aria-label="Plant details form"
   >
 
@@ -26,17 +26,25 @@
         <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
         <span class="sr-only">(required)</span>
       </label>
-      <input
-        pInputText
-        [id]="commonNameId"
-        formControlName="common_name"
-        [pt]="FloraInputTextPT"
+      <p-autocomplete
+        [inputId]="commonNameId"
+        [ngModel]="commonNameQuery"
+        (ngModelChange)="onCommonNameChange($event)"
+        [ngModelOptions]="{ standalone: true }"
+        [suggestions]="suggestions()"
+        optionLabel="common_name"
+        [delay]="300"
+        [minLength]="2"
+        [pt]="FloraAutoCompletePT"
         [class]="nameCtrl.invalid && nameCtrl.touched ? FLORA_ERROR : ''"
-        [attr.aria-describedby]="nameCtrl.invalid && nameCtrl.touched ? commonNameId + '-error' : null"
         [attr.aria-invalid]="nameCtrl.invalid && nameCtrl.touched"
+        [attr.aria-describedby]="nameCtrl.invalid && nameCtrl.touched ? commonNameId + '-error' : null"
         aria-required="true"
         placeholder="e.g. Monstera Deliciosa"
         autocomplete="off"
+        styleClass="w-full"
+        appendTo="body"
+        (completeMethod)="onQuerySearch($event)"
       />
       @if (nameCtrl.invalid && nameCtrl.touched) {
         <small
@@ -55,7 +63,7 @@
         class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
       >
         Scientific name
-        <span class="text-neutral-400 font-normal text-xs ml-1">(optional)</span>
+        <span class="text-neutral-400 font-normal text-xs ml-1">(optional — auto-filled on suggestion select)</span>
       </label>
       <input
         pInputText

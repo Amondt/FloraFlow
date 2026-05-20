@@ -30,14 +30,19 @@
         }
       </div>
       <div class="relative">
-        <p-button
-          label="Add plant"
-          [pt]="FloraButtonPT"
-          ariaLabel="Add a new plant to your greenhouse"
+        <button
+          type="button"
           [disabled]="!hasZones()"
           [attr.aria-disabled]="!hasZones() ? true : null"
-          (onClick)="openAddPlant()"
-        />
+          [class]="!hasZones()
+            ? 'inline-flex items-center gap-1.5 text-sm font-semibold font-display px-3 py-1.5 rounded-garden-sm bg-primary-500 text-white opacity-50 cursor-not-allowed outline-none'
+            : 'inline-flex items-center gap-1.5 text-sm font-semibold font-display px-3 py-1.5 rounded-garden-sm bg-primary-500 text-white hover:bg-primary-600 transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2'"
+          [attr.aria-label]="!hasZones() ? 'Add plant — add a zone first' : 'Add a new plant to your greenhouse'"
+          (click)="openAddPlant()"
+        >
+          <i class="pi pi-plus text-xs" aria-hidden="true"></i>
+          Add plant
+        </button>
         @if (!hasZones()) {
           <span
             class="absolute top-full left-0 right-0 mt-0.5 text-center text-xs font-display text-neutral-400 dark:text-neutral-500 pointer-events-none whitespace-nowrap"

@@ -1,0 +1,100 @@
+import { createClient } from 'npm:@supabase/supabase-js@2';
+import type { Database } from '../_shared/database.types.ts';
+
+const cors = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+const json = (data: unknown, status = 200) =>
+  new Response(JSON.stringify(data), {
+    status,
+    headers: { ...cors, 'Content-Type': 'application/json' },
+  });
+
+type BotanicalResult = {
+  scientific_name: string;
+  common_name: string;
+  perenual_id: number | null;
+};
+
+Deno.serve(async (req: Request) => {
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
+
+  try {
+    // Reject unauthenticated callers before doing any work
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) return json({ error: 'Unauthorized' }, 401);
+
+    const supabase = createClient<Database>(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+    );
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser(
+      authHeader.replace('Bearer ', ''),
+    );
+    if (authError || !user) return json({ error: 'Unauthorized' }, 401);
+
+    // Require at least 2 characters — avoids full-table scans and useless API calls
+    const q = new URL(req.url).searchParams.get('q')?.trim() ?? '';
+    if (q.length < 2) return json({ error: 'Query must be at least 2 characters' }, 400);
+
+    // Cache check — search both common and scientific name, case-insensitive
+    const { data: cached } = await supabase
+      .from('cached_botanical_records')
+      .select('scientific_name, common_name, perenual_id')
+      .or(`common_name.ilike.%${q}%,scientific_name.ilike.%${q}%`)
+      .limit(8);
+
+    // 5+ hits means the cache is warm enough — skip the Perenual round-trip entirely
+    if ((cached?.length ?? 0) >= 5) return json(cached);
+
+    // Cache miss — fetch from Perenual; degrade silently if it fails
+    const fresh: BotanicalResult[] = [];
+
+    try {
+      const apiKey = Deno.env.get('PERENUAL_API_KEY') ?? '';
+      const resp = await fetch(
+        `https://perenual.com/api/v2/species-list?key=${apiKey}&q=${encodeURIComponent(q)}`,
+      );
+      if (!resp.ok) throw new Error(`Perenual responded ${resp.status}`);
+
+      const body = await resp.json() as { data?: Record<string, unknown>[] };
+
+      for (const plant of body.data ?? []) {
+        // Perenual returns scientific_name as an array — take the first entry
+        const names = plant['scientific_name'] as string[] | undefined;
+        const scientificName = names?.[0];
+        if (!scientificName) continue;
+
+        const commonName = (plant['common_name'] as string | null) ?? scientificName;
+        const perenualId = plant['id'] as number;
+
+        // Persist only the basic search fields + raw payload now.
+        // Enriched care fields (pH, toxicity notes, etc.) are added by the AI Scribe in Phase 3.
+        await supabase
+          .from('cached_botanical_records')
+          .upsert(
+            { scientific_name: scientificName, common_name: commonName, perenual_id: perenualId, raw_api_payload: plant },
+            { onConflict: 'scientific_name' },
+          );
+
+        fresh.push({ scientific_name: scientificName, common_name: commonName, perenual_id: perenualId });
+      }
+    } catch (err) {
+      console.error('Perenual fetch failed — returning cached results only:', err);
+    }
+
+    // Merge cached hits with newly fetched results; deduplicate by scientific_name
+    const seen = new Set((cached ?? []).map((r) => r.scientific_name));
+    const merged = [
+      ...(cached ?? []),
+      ...fresh.filter((r) => !seen.has(r.scientific_name)),
+    ];
+
+    return json(merged);
+  } catch (err) {
+    return json({ error: (err as Error).message }, 500);
+  }
+});

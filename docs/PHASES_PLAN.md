@@ -68,7 +68,7 @@
 
 ### 📋 Phase 2 Tasks
 
-- [ ] **2.1** `cached_botanical_records` table + Edge Function cache-first lookup
+- [x] **2.1** `cached_botanical_records` table + Edge Function cache-first lookup
 - [ ] **2.2** Botanical name autocomplete in Add Plant form (requires 2.1)
 - [ ] **2.3** Perenual Taxonomy Integration + AI Scribe fallback
 - [ ] **2.4** Open-Meteo meteorological proxy

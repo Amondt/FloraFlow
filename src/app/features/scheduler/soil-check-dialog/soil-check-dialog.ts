@@ -2,7 +2,15 @@ import { Component, computed, input, model, output, signal } from '@angular/core
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { FloraDialogPT, FloraButtonPT } from '../../../shared/ui/pt/index';
-import { Plant } from '../plant.model';
+import { Plant, SubstrateFactor } from '../plant.model';
+
+const SUBSTRATE_DEPTH_RULES: Record<SubstrateFactor, { depth: string; description: string }> = {
+  'High-Drainage Aroid': { depth: '3 cm', description: 'This mix drains quickly — water when the top 3 cm are dry.' },
+  'Standard Potting':    { depth: '3 cm', description: 'Water when the top 3 cm of soil are dry.' },
+  'Heavy Peat':          { depth: '3 cm', description: 'Peat retains moisture well — water when the top 3 cm are dry.' },
+  'Sphagnum Moss Mix':   { depth: '2 cm', description: 'Sphagnum likes to stay mostly moist — check shallower than usual.' },
+  'Desert Succulent':    { depth: '5 cm', description: 'Succulents need soil to fully dry out between waterings.' },
+};
 
 type CheckStep = 'ask' | 'dry' | 'moist';
 
@@ -28,7 +36,11 @@ export class SoilCheckDialogComponent {
   readonly snoozePresets = [2, 5, 7] as const;
 
   readonly checkDepth = computed(() =>
-    this.plant().substrate_factor === 'Desert Succulent' ? '8 cm' : '5 cm'
+    SUBSTRATE_DEPTH_RULES[this.plant().substrate_factor].depth
+  );
+
+  readonly checkDepthDescription = computed(() =>
+    SUBSTRATE_DEPTH_RULES[this.plant().substrate_factor].description
   );
 
   readonly lastCheckedLabel = computed(() => {

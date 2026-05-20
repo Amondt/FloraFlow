@@ -1,6 +1,6 @@
 # Plans Guide
 
-Phase plan files live in `plans/` and are ephemeral — they track active work and may be archived or deleted when a phase is complete.
+Phase plan files live in `docs/plans/` and are ephemeral — they track active work and may be archived or deleted when a phase is complete.
 
 ## Checkbox convention
 
@@ -32,7 +32,7 @@ The agent that completes a block checks its box before reporting done.
 Include the plan file as an `@` reference when invoking an agent:
 
 ```
-/visualizer @plans/PHASE_1_7_PLAN.md  Continue Block B
+/visualizer @docs/plans/PHASE_1_7_PLAN.md  Continue Block B
 ```
 
-The agent receives the full file and reads this guide (triggered by the `plans/` path in the Source-of-Truth table).
+The agent receives the full file and reads this guide (triggered by the `docs/plans/` path in the Source-of-Truth table).

@@ -38,7 +38,12 @@ Used consistently across Plant Identifier and Leaf Doctor schemas:
 
     You are the FloraFlow AI Scribe, an elite botanical taxonomist and agricultural data scientist. Your absolute directive is to provide highly precise, empirically grounded plant care metrics. You never hallucinate, invent unverified horticultural parameters, or generate prose.
 
-    When provided with a target species common name and scientific name, you must calculate and extract specific care parameters based exclusively on known botanical benchmarks for that genus. If a specific metric is completely undocumented or highly speculative, you must return a null field value or use the fallback standard defined in the schema.
+    When provided with a target species common name and scientific name, you must extract specific care parameters based exclusively on known botanical benchmarks for that genus and species. If a specific metric is completely undocumented or highly speculative, you must return a null field value — never substitute a plausible-sounding number.
+
+    CRITICAL ACCURACY RULES:
+    1. check_depth_description must reflect the species' actual watering requirements — not a generic formula. Aroids typically: "Allow top 2–3 cm to dry". Succulents typically: "Let soil dry completely between waterings". Ferns: "Keep consistently moist, check at the surface." Use null if the species is unknown to you.
+    2. ideal_humidity_min and ideal_humidity_max must be species-specific, not category averages. A Pothos and a Calathea are both tropicals but have different humidity tolerances. Use null if the species-specific range is undocumented.
+    3. Never invent numbers. A null is always more accurate than a fabricated value.
 
 ### 📝 1.2 Outbound JSON Schema Structure
 
@@ -74,9 +79,30 @@ The inference pipeline must strictly mandate a JSON Schema response matching you
             "enum": ["Stem Cuttings", "Leaf Cuttings", "Division", "Seeds", "Air Layering", "Offset Separation"]
           }
         },
+        "check_depth_description": {
+          "type": ["string", "null"],
+          "description": "Species-specific soil moisture check guidance. Must reference actual species watering requirements — never invent values. Examples: 'Allow the top 3–4 cm of soil to dry before watering', 'Let soil dry completely between waterings'. Null if insufficient data."
+        },
+        "ideal_humidity_min": {
+          "type": ["integer", "null"],
+          "minimum": 10,
+          "maximum": 100,
+          "description": "Lower bound of the species' preferred relative humidity range (%). Must be species-specific, not a category average. Null if undocumented."
+        },
+        "ideal_humidity_max": {
+          "type": ["integer", "null"],
+          "minimum": 10,
+          "maximum": 100,
+          "description": "Upper bound of the species' preferred relative humidity range (%). Must be species-specific. Null if undocumented."
+        },
+        "care_difficulty": {
+          "type": ["string", "null"],
+          "enum": ["Beginner", "Intermediate", "Advanced", null],
+          "description": "Difficulty classification based on known species temperament. Beginner: forgiving, tolerates neglect. Intermediate: some specific needs. Advanced: exacting requirements. Null if unclear."
+        },
         "is_ai_enriched": { "type": "boolean", "const": true }
       },
-      "required": ["scientific_name", "common_name", "ideal_min_ph", "ideal_max_ph", "is_toxic_to_pets", "toxicity_notes", "propagation_methods", "is_ai_enriched"]
+      "required": ["scientific_name", "common_name", "ideal_min_ph", "ideal_max_ph", "is_toxic_to_pets", "toxicity_notes", "propagation_methods", "check_depth_description", "ideal_humidity_min", "ideal_humidity_max", "care_difficulty", "is_ai_enriched"]
     }
 
 ---

@@ -92,6 +92,11 @@ The Anti-Hallucination Cache & Enrichment Sink. This table buffers raw external 
         cycle TEXT,
         plant_type TEXT,
         propagation_methods TEXT[],
+        -- Phase 3.1 AI Scribe extended fields (added by migration at Phase 3.1):
+        check_depth_description TEXT,        -- e.g. "Allow top 3–4 cm to dry before watering"
+        ideal_humidity_min INT,              -- species-specific RH % lower bound
+        ideal_humidity_max INT,              -- species-specific RH % upper bound
+        care_difficulty TEXT,               -- 'Beginner' | 'Intermediate' | 'Advanced'
         is_ai_enriched BOOLEAN DEFAULT FALSE NOT NULL,
         raw_api_payload JSONB,
         cached_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
@@ -99,6 +104,7 @@ The Anti-Hallucination Cache & Enrichment Sink. This table buffers raw external 
 
     -- watering, sunlight, cycle, plant_type sourced from Perenual species/details endpoint.
     -- plant_type avoids the SQL reserved word 'type'.
+    -- check_depth_description / ideal_humidity_min/max / care_difficulty filled by AI Scribe (Phase 3.1).
     -- All nullable: AI Scribe enrichment handles missing values.
 
 ### 📸 2.5 Table: `plant_journals`
@@ -248,6 +254,11 @@ A seed-only lookup table. Rows are inserted at migration time and never modified
     ALTER TABLE public.snooze_interval_rules ENABLE ROW LEVEL SECURITY;
 
     -- Seed data — full 6 × 5 matrix
+    -- ⚠️ Heuristic note: snooze_days values are informed estimates, not empirical measurements.
+    -- The relative ordering (Terracotta < Plastic < Self-Watering; High-Drainage < Standard < Heavy Peat)
+    -- is directionally validated by published horticultural research (Colorado State University Extension,
+    -- Nebraska Extension, Perlite Institute 2018). The absolute integer values are approximations.
+    -- The UI surfaces them as recommendations, never as prescriptions.
     INSERT INTO public.snooze_interval_rules (container_vector, substrate_factor, snooze_days) VALUES
         ('Terracotta',    'High-Drainage Aroid', 2),
         ('Terracotta',    'Standard Potting',    3),
@@ -320,7 +331,43 @@ The procedure no longer accepts `p_days` from the caller — it derives the valu
 The following tables are required for Phase 3 features. They are documented here for completeness but **must not be included in Phase 1 or Phase 2 migrations**. Uncomment and migrate when the relevant phase begins.
 
     /*
-    ── Phase 3.3 ── Seed Vault & Germination Tracker ──────────────────────────────
+    ── Phase 3.1 ── AI Scribe Extended Columns (cached_botanical_records) ─────────
+
+    ALTER TABLE public.cached_botanical_records
+        ADD COLUMN IF NOT EXISTS check_depth_description TEXT,
+        ADD COLUMN IF NOT EXISTS ideal_humidity_min INT,
+        ADD COLUMN IF NOT EXISTS ideal_humidity_max INT,
+        ADD COLUMN IF NOT EXISTS care_difficulty TEXT
+            CHECK (care_difficulty IN ('Beginner', 'Intermediate', 'Advanced'));
+
+
+    ── Phase 3.2 ── Plant Growth Stage ───────────────────────────────────────────
+
+    CREATE TYPE growth_stage_type AS ENUM ('Seedling', 'Juvenile', 'Mature', 'Dormant');
+
+    ALTER TABLE public.plants
+        ADD COLUMN growth_stage growth_stage_type DEFAULT 'Mature'::growth_stage_type NOT NULL;
+
+    -- snooze_plant_check RPC is updated at this phase to apply a growth-stage multiplier:
+    --   Seedling × 0.5 (check more often — shallow roots, faster drying, overwatering risk)
+    --   Juvenile × 1.0 (baseline)
+    --   Mature   × 1.0 (baseline)
+    --   Dormant  × 2.0 (check half as often — plant is resting)
+    -- Multipliers are grounded in general horticultural practice.
+    -- 'Seed' is intentionally excluded — seeds belong in seed_batches (Phase 3.5).
+
+
+    ── Phase 3.8 ── Pot Size Field (plants) ──────────────────────────────────────
+
+    ALTER TABLE public.plants
+        ADD COLUMN pot_diameter_cm INT;
+
+    -- Nullable. Used to pre-fill the Substrate Composition Mix Wizard.
+    -- No care logic is derived from this value — substrate/depth calculations
+    -- use botanical data (AI Scribe), not pot geometry.
+
+
+    ── Phase 3.5 ── Seed Vault & Germination Tracker ──────────────────────────────
 
     CREATE TYPE seed_stage_type AS ENUM (
         'Stored', 'Sown Indoors', 'Germinated', 'Potted Up', 'Hardened Off', 'Transplanted Outside'
@@ -347,7 +394,7 @@ The following tables are required for Phase 3 features. They are documented here
         USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
 
-    ── Phase 3.5 ── Companion Planting Matrix ──────────────────────────────────────
+    ── Phase 3.7 ── Companion Planting Matrix ──────────────────────────────────────
 
     CREATE TYPE companion_relationship_type AS ENUM ('Beneficial', 'Allelopathic', 'Neutral');
 
@@ -365,7 +412,7 @@ The following tables are required for Phase 3 features. They are documented here
         USING (auth.role() = 'authenticated');
 
 
-    ── Phase 3.4 ── Frost Date & Planting Window Cache ────────────────────────────
+    ── Phase 3.6 ── Frost Date & Planting Window Cache ────────────────────────────
 
     CREATE TABLE public.frost_date_cache (
         id              UUID DEFAULT gen_random_uuid() PRIMARY KEY,

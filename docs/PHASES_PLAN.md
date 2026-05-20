@@ -51,7 +51,7 @@
     - `@angular/pwa` service worker for core layout caching.
     - Offline soil-check interactions write to IndexedDB; reconciliation loop syncs on reconnect.
 
-- [ ] **1.7 Pre-Upload Client Image Compression**
+- [x] **1.7 Pre-Upload Client Image Compression**
     - Offscreen HTML5 Canvas pipeline in journal upload component.
     - All uploads resized below **300KB** before hitting the network.
 
@@ -69,12 +69,12 @@
 ### 📋 Phase 2 Tasks
 
 - [ ] **2.1** `cached_botanical_records` table + Edge Function cache-first lookup
-- [ ] **2.1.1** Botanical name autocomplete in Add Plant form (requires 2.1)
-- [ ] **2.2** Perenual Taxonomy Integration + AI Scribe fallback
-- [ ] **2.3** Open-Meteo meteorological proxy
-- [ ] **2.4** Monday Morning Email Digest (Resend + cron Edge Function)
-- [ ] **2.5** Web Push Notification Architecture (PWA service worker)
-- [ ] **2.6** Plant Browser & Botanical Wiki (`/library` route, filter controls, AI Scribe on demand, "Add to greenhouse" shortcut)
+- [ ] **2.2** Botanical name autocomplete in Add Plant form (requires 2.1)
+- [ ] **2.3** Perenual Taxonomy Integration + AI Scribe fallback
+- [ ] **2.4** Open-Meteo meteorological proxy
+- [ ] **2.5** Monday Morning Email Digest (Resend + cron Edge Function)
+- [ ] **2.6** Web Push Notification Architecture (PWA service worker)
+- [ ] **2.7** Plant Browser & Botanical Wiki (`/library` route, filter controls, AI Scribe on demand, "Add to greenhouse" shortcut)
 
 ### 🔒 Phase 2 QA Criteria
 

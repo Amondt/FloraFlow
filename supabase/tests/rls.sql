@@ -11,7 +11,7 @@
 
 BEGIN;
 
-SELECT plan(16);
+SELECT plan(17);
 
 -- ── SETUP ─────────────────────────────────────────────────────────────────
 -- Disable FK triggers so we can insert profiles without auth.users rows.
@@ -145,7 +145,18 @@ RESET ROLE;
 -- Phase 2.1 — cached_botanical_records RLS
 -- ═══════════════════════════════════════════════════════════════════════════
 
--- ── TEST 12: Authenticated SELECT succeeds ──────────────────────────────────
+-- ── TEST 12: is_perenual_enriched defaults to false ─────────────────────────
+-- Verifies the migration default — catches any accidental DEFAULT TRUE regression.
+RESET ROLE;
+SELECT set_config('request.jwt.claims', '{}', true);
+
+SELECT is(
+  (SELECT is_perenual_enriched FROM public.cached_botanical_records WHERE scientific_name = 'Testus planticus pgTAP'),
+  false,
+  'is_perenual_enriched defaults to false on new cached_botanical_records rows'
+);
+
+-- ── TEST 13: Authenticated SELECT succeeds ──────────────────────────────────
 SET LOCAL ROLE authenticated;
 SELECT set_config('request.jwt.claims', '{"sub":"11111111-1111-1111-1111-111111111111","role":"authenticated"}', true);
 

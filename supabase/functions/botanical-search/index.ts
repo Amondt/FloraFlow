@@ -40,10 +40,10 @@ Deno.serve(async (req: Request) => {
     const q = new URL(req.url).searchParams.get('q')?.trim() ?? '';
     if (q.length < 2) return json({ error: 'Query must be at least 2 characters' }, 400);
 
-    // Cache check — search both common and scientific name, case-insensitive
+    // Cache check — include is_perenual_enriched so we can skip details calls for already-enriched rows
     const { data: cached } = await supabase
       .from('cached_botanical_records')
-      .select('scientific_name, common_name, perenual_id')
+      .select('scientific_name, common_name, perenual_id, is_perenual_enriched')
       .or(`common_name.ilike.%${q}%,scientific_name.ilike.%${q}%`)
       .limit(8);
 
@@ -81,6 +81,50 @@ Deno.serve(async (req: Request) => {
           );
 
         fresh.push({ scientific_name: scientificName, common_name: commonName, perenual_id: perenualId });
+      }
+
+      // Second pass: fetch species/details for each result to populate care fields.
+      // Done separately because the species-list endpoint only returns taxonomy, not care data.
+      // Each call is independently guarded so one 404 or timeout doesn't abort the rest.
+      // Skip plants where Block B has already run — flag is true regardless of what Perenual returned.
+      // This correctly handles plants where Perenual legitimately has null care fields.
+      const perenualEnriched = new Set(
+        (cached ?? []).filter((r) => r.is_perenual_enriched).map((r) => r.scientific_name),
+      );
+      for (const record of fresh) {
+        if (!record.perenual_id) continue;
+        if (perenualEnriched.has(record.scientific_name)) continue;
+        try {
+          const detailsResp = await fetch(
+            `https://perenual.com/api/v2/species/details/${record.perenual_id}?key=${apiKey}`,
+          );
+          if (!detailsResp.ok) throw new Error(`Perenual details responded ${detailsResp.status}`);
+
+          const details = await detailsResp.json() as {
+            poisonous_to_pets?: boolean | null;
+            watering?: string | null;
+            sunlight?: string[] | null;
+            cycle?: string | null;
+            type?: string | null;
+          };
+
+          await supabase
+            .from('cached_botanical_records')
+            .upsert(
+              {
+                scientific_name: record.scientific_name,
+                is_toxic_to_pets: details.poisonous_to_pets ?? null,
+                watering: details.watering ?? null,
+                sunlight: details.sunlight ?? null,
+                cycle: details.cycle ?? null,
+                plant_type: details.type ?? null,
+                is_perenual_enriched: true,
+              },
+              { onConflict: 'scientific_name' },
+            );
+        } catch (detailsErr) {
+          console.error(`Perenual details fetch failed for perenual_id ${record.perenual_id}:`, detailsErr);
+        }
       }
     } catch (err) {
       console.error('Perenual fetch failed — returning cached results only:', err);

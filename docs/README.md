@@ -2,7 +2,7 @@
 
 Welcome to the development repository for **FloraFlow**, an open-source, full-stack, free-tier smart gardening companion app built with Angular 21+ and managed through a multi-agent AI workflow.
 
-This document serves as your operational manual for configuring the local environment, routing system keys securely, and managing workspace AI agents via `skills.sh`.
+This document serves as your operational manual for configuring the local environment, routing system keys securely, and managing workspace AI agents.
 
 ---
 
@@ -50,7 +50,47 @@ This workspace uses **Claude Code custom slash commands** to switch between focu
 
 There is no external tool, package manager, or `skills.sh` runtime involved. The agents are plain markdown prompt files.
 
-### 3.1 Available Agents
+### 3.1 Standard Feature Workflow
+
+This is the normal flow for any new feature or phase task:
+
+```
+Step 1 — Plan
+  /mind <task description>
+  → reads PHASES_PLAN.md, produces a numbered block plan
+  → saves the plan to docs/plans/PHASE_X_Y_PLAN.md
+  → you review and approve before any code is written
+
+Step 2 — Build (block by block)
+  /visualizer <block description>   ← Angular components, UI, templates
+  /plumber <block description>      ← migrations, RLS, Edge Functions
+
+  After each block:
+  → agent runs bun run lint
+  → agent outputs a Manual Browser Check or db test command
+  → you confirm before moving to the next block
+
+Step 3 — QA
+  /gatekeeper                       ← after all blocks are confirmed
+  → runs Vitest, pgTAP, security checks
+  → marks PHASES_PLAN.md checkbox [x]
+
+Step 4 — Commit
+  git commit && git push
+```
+
+### 3.2 Utility Commands (Use As Needed)
+
+These slot in around the standard flow — they don't replace it.
+
+| Command | When to use |
+|---|---|
+| `/align <feature idea>` | Before `/mind` when the feature is still fuzzy — resolves ambiguities, produces a clear brief |
+| `/diagnose <bug description>` | When something is broken — runs a 6-phase investigation loop |
+| `/zoom-out <area of code>` | When an agent (or you) needs a map of an unfamiliar area before touching it |
+| `/handoff` | At the end of a long session — compacts the conversation into a brief for the next session |
+
+### 3.3 Role Agents
 
 | Command | Role | Reads before acting |
 |---|---|---|
@@ -59,18 +99,7 @@ There is no external tool, package manager, or `skills.sh` runtime involved. The
 | `/plumber` | **The Plumber** — Supabase, migrations, Edge Functions | `DB_SCHEMA_MATRIX.md`, `BACKEND_PATTERNS.md`, `AI_PROMPT_MANIFEST.md` |
 | `/gatekeeper` | **The Gatekeeper** — QA, tests, security | `PHASES_PLAN.md`, `DB_SCHEMA_MATRIX.md` |
 
-### 3.2 How to Use
-
-Invoke an agent by typing its slash command followed by your task description:
-
-    /mind plan task 1.1 from PHASES_PLAN.md
-    /visualizer build the login component
-    /plumber write the migration for the plants table
-    /gatekeeper [SECURITY] audit the current RLS policies
-
-The agent loads its context file, reads its required docs, calls context7 for live library documentation, and works one block at a time — explaining each step before proceeding.
-
-### 3.3 Agent Source Files
+### 3.4 Agent Source Files
 
 All agent definitions live in `.claude/commands/`. Edit them directly to adjust any agent's behaviour:
 
@@ -79,7 +108,11 @@ All agent definitions live in `.claude/commands/`. Edit them directly to adjust 
         ├── mind.md          # The Mind — architect role
         ├── visualizer.md    # The Visualizer — frontend role
         ├── plumber.md       # The Plumber — data role
-        └── gatekeeper.md    # The Gatekeeper — QA role
+        ├── gatekeeper.md    # The Gatekeeper — QA role
+        ├── align.md         # Pre-feature alignment
+        ├── diagnose.md      # Bug investigation loop
+        ├── zoom-out.md      # Code orientation map
+        └── handoff.md       # Session compaction
 
 
 ---

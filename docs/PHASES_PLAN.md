@@ -83,7 +83,7 @@
       High-Drainage Aroid / Standard Potting / Heavy Peat → 3 cm; Sphagnum Moss Mix → 2 cm; Desert Succulent → 5 cm.
     - Dialog text updated to show qualitative description alongside the depth (e.g. "Let soil dry completely — check 5 cm deep").
     - No DB migration needed — client-side display fix only.
-- [ ] **2.4 Perenual Taxonomy Integration + AI Scribe fallback** | Agent: `/plumber`
+- [x] **2.4 Perenual Taxonomy Integration + AI Scribe fallback** | Agent: `/plumber`
     - Extend `botanical-search` Edge Function to call Perenual `species/details` endpoint after a cache miss.
     - Populate `cached_botanical_records` with Perenual-sourced fields: `watering`, `sunlight`, `cycle`, `plant_type`.
     - On null fields: chain into `claude-enrichment` Edge Function (AI Scribe) to fill `ideal_min_ph/max_ph`, `is_toxic_to_pets`, `toxicity_notes`, `propagation_methods`.

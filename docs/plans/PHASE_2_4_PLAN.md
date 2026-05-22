@@ -27,21 +27,21 @@ claude-enrichment (new — Block A)
 
 ## Blocks
 
-- [ ] **Block A — `claude-enrichment` Edge Function** | Agent: `/plumber`
+- [x] **Block A — `claude-enrichment` Edge Function** | Agent: `/plumber`
   - New file: `supabase/functions/claude-enrichment/index.ts`
   - Input body: `{ scientificName: string, commonName: string }`
   - Auth: check `Authorization` header is present; reject with 401 if missing (internal function — caller passes service role key)
   - Cache guard: query `cached_botanical_records` by `scientific_name`; if `is_ai_enriched = true`, return the existing row immediately — no Claude call
-  - Zod schema: full shape from `AI_PROMPT_MANIFEST.md §1.2` — validates all fields including Phase 3.1 extras (so Phase 3.1 only needs to extend the upsert, not the schema)
-  - Claude Haiku call: `model: 'claude-haiku-4-5-20251001'`, `max_tokens: 512`, system prompt from `AI_PROMPT_MANIFEST.md §1.1`, user message: `"Enrich: {scientificName} / {commonName}"`
-  - Use `anthropic.messages.parse()` with `zodOutputFormat` for validated output
-  - DB upsert — Phase 2.4 columns only (all exist in current schema):
+  - Zod schema: full shape from `AI_PROMPT_MANIFEST.md §1.2` — validates all 12 fields including Phase 3.1 extras (`check_depth_description`, `ideal_humidity_min`, `ideal_humidity_max`, `care_difficulty`), so Phase 3.1 only needs to extend the upsert, not the schema. Import Zod as `import { z } from 'npm:zod/v4'`.
+  - Claude Haiku call: `model: 'claude-haiku-4-5-20251001'`, `max_tokens: 512`, system prompt from `AI_PROMPT_MANIFEST.md §1.1`, user message: `"${scientificName} / ${commonName}"`
+  - Use `anthropic.messages.parse()` with `output_config: { format: zodOutputFormat(EnrichmentSchema) }`; read result from `msg.parsed_output`. See `BACKEND_PATTERNS.md §Deno Edge Function — Full Structure` for the exact call shape.
+  - DB upsert — Phase 2.4 columns only (Phase 3.1 columns do not exist in the DB yet — do not include them):
     - `ideal_min_ph`, `ideal_max_ph`, `is_toxic_to_pets`, `toxicity_notes`, `propagation_methods`, `is_ai_enriched: true`
     - `onConflict: 'scientific_name'`
   - Silent degradation: if Claude call fails, log to `console.error` and return HTTP 503 — caller treats this as non-fatal
   - Return the upserted record as JSON
 
-- [ ] **Block B — Perenual `species/details` in `botanical-search`** | Agent: `/plumber`
+- [x] **Block B — Perenual `species/details` in `botanical-search`** | Agent: `/plumber`
   - In the cache-miss branch, after the existing `species-list` upsert loop:
     - For each result that has a `perenual_id`, call `https://perenual.com/api/v2/species/details/{perenual_id}?key={PERENUAL_API_KEY}`
     - Apply field mapping from `BACKEND_PATTERNS.md §Perenual API Field Mapping`:
@@ -54,7 +54,7 @@ claude-enrichment (new — Block A)
     - Silent degradation: wrap in try/catch; log failure; continue to next result
   - Return shape stays identical (`{ scientific_name, common_name, perenual_id }[]`) — autocomplete is unaffected
 
-- [ ] **Block C — Fire-and-forget Scribe chain in `botanical-search`** | Agent: `/plumber`
+- [x] **Block C — Fire-and-forget Scribe chain in `botanical-search`** | Agent: `/plumber`
   - After Block B upserts, collect records where `is_ai_enriched` is not yet true (newly inserted rows)
   - Build the `claude-enrichment` URL: `${Deno.env.get('SUPABASE_URL')}/functions/v1/claude-enrichment`
   - For each unenriched record, create a fetch call: POST with `{ scientificName, commonName }` and `Authorization: Bearer ${SUPABASE_SERVICE_ROLE_KEY}` header

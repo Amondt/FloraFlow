@@ -1,6 +1,8 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import type { Database } from '../_shared/database.types.ts';
 
+declare const EdgeRuntime: { waitUntil: (promise: Promise<unknown>) => void };
+
 const cors = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -72,7 +74,7 @@ Deno.serve(async (req: Request) => {
         const perenualId = plant['id'] as number;
 
         // Persist only the basic search fields + raw payload now.
-        // Enriched care fields (pH, toxicity notes, etc.) are added by the AI Scribe in Phase 3.
+        // Enriched care fields (pH, toxicity notes, etc.) are populated by claude-enrichment after insertion.
         await supabase
           .from('cached_botanical_records')
           .upsert(
@@ -86,8 +88,8 @@ Deno.serve(async (req: Request) => {
       // Second pass: fetch species/details for each result to populate care fields.
       // Done separately because the species-list endpoint only returns taxonomy, not care data.
       // Each call is independently guarded so one 404 or timeout doesn't abort the rest.
-      // Skip plants where Block B has already run — flag is true regardless of what Perenual returned.
-      // This correctly handles plants where Perenual legitimately has null care fields.
+      // Skip plants already Perenual-enriched — flag is true regardless of what the details endpoint returned,
+      // which correctly handles plants where Perenual legitimately has null care fields.
       const perenualEnriched = new Set(
         (cached ?? []).filter((r) => r.is_perenual_enriched).map((r) => r.scientific_name),
       );
@@ -124,6 +126,30 @@ Deno.serve(async (req: Request) => {
             );
         } catch (detailsErr) {
           console.error(`Perenual details fetch failed for perenual_id ${record.perenual_id}:`, detailsErr);
+        }
+      }
+
+      // Fire-and-forget AI enrichment for newly cached records.
+      // claude-enrichment has its own is_ai_enriched cache guard, so duplicate calls are safe.
+      if (fresh.length > 0) {
+        const enrichmentUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/claude-enrichment`;
+        const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+
+        const enrichmentCalls = fresh.map((record) =>
+          fetch(enrichmentUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${serviceRoleKey}`,
+            },
+            body: JSON.stringify({ scientificName: record.scientific_name, commonName: record.common_name }),
+          })
+        );
+
+        try {
+          EdgeRuntime.waitUntil(Promise.allSettled(enrichmentCalls));
+        } catch (waitErr) {
+          console.error('EdgeRuntime.waitUntil unavailable — enrichment calls dropped:', waitErr);
         }
       }
     } catch (err) {

@@ -235,7 +235,11 @@ RESET ROLE;
 SELECT set_config('request.jwt.claims', '{}', true);
 
 INSERT INTO public.weather_cache (latitude, longitude, temperature_celsius, relative_humidity_percent, precipitation_probability_percent)
-VALUES (50.85, 4.35, 18.5, 72, 10);
+VALUES (50.85, 4.35, 18.5, 72, 10)
+ON CONFLICT (latitude, longitude) DO UPDATE
+  SET temperature_celsius = 18.5,
+      relative_humidity_percent = 72,
+      precipitation_probability_percent = 10;
 
 -- ── TEST 18: Authenticated SELECT succeeds ──────────────────────────────────
 SET LOCAL ROLE authenticated;

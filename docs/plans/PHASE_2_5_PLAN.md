@@ -33,7 +33,7 @@ No Angular UI. Consumed by Phase 3.6 frost alerts via `supabase.functions.invoke
   - Write policy: `FOR ALL USING (false) WITH CHECK (false)` — service_role only via Edge Function
   - Run `bunx supabase db reset 2>$null` then `bunx supabase gen types typescript --local 2>$null` and copy to `_shared/`
 
-- [ ] **Block B — `weather-proxy` Edge Function** | Agent: `/plumber`
+- [x] **Block B — `weather-proxy` Edge Function** | Agent: `/plumber`
   - New file: `supabase/functions/weather-proxy/index.ts`
   - Auth: require `Authorization` header; verify user JWT via `supabase.auth.getUser()` (same pattern as `botanical-search`)
   - Input: `?lat=&lon=` query params — validate both present, both parseable as numbers, lat in `[-90, 90]`, lon in `[-180, 180]`; return 400 on any failure

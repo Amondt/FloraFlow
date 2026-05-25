@@ -88,7 +88,7 @@
     - Populate `cached_botanical_records` with Perenual-sourced fields: `watering`, `sunlight`, `cycle`, `plant_type`.
     - On null fields: chain into `claude-enrichment` Edge Function (AI Scribe) to fill `ideal_min_ph/max_ph`, `is_toxic_to_pets`, `toxicity_notes`, `propagation_methods`.
     - Set `is_ai_enriched = true` after Scribe pass; `perenual_id` links the plant record to the cache row.
-- [ ] **2.5 Open-Meteo Meteorological Proxy** | Agent: `/plumber`
+- [x] **2.5 Open-Meteo Meteorological Proxy** | Agent: `/plumber`
     - New Edge Function `weather-proxy` calling the Open-Meteo free API (no API key required).
     - Returns current temperature, humidity, precipitation probability for a given lat/lon.
     - Response cached in `frost_date_cache` table (Phase 3.6 stub) with a short TTL; no redundant outbound calls.

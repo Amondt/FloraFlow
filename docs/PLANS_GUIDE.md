@@ -25,7 +25,7 @@ A block's box may be checked only when **all three** conditions are true:
 
 ## Agent responsibility
 
-The agent that completes a block checks its box before reporting done.
+Only `/gatekeeper` marks block checkboxes — after lint, user-confirmed verification, and commit are all done. No implementing agent (`/plumber`, `/visualizer`, `/mind`) may mark a block done, even if it built it.
 
 ## Pointing an agent at a plan
 

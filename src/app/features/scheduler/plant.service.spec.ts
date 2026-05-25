@@ -19,7 +19,7 @@ function makeItem(overrides: Partial<QueuedAction> = {}): QueuedAction {
   };
 }
 
-describe('PlantService — reconciliation loop (Block E)', () => {
+describe('PlantService — reconciliation loop', () => {
   let service: PlantService;
   let isOnline: ReturnType<typeof signal<boolean>>;
   let mockGetAll: ReturnType<typeof vi.fn>;

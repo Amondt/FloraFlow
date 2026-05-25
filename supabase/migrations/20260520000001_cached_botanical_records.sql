@@ -1,4 +1,4 @@
--- Phase 2.1 Block A — Extend cached_botanical_records with Perenual care columns
+-- Phase 2.1 — Extend cached_botanical_records with Perenual care columns
 -- The table and its index/RLS were created in the baseline migration.
 -- These five columns are written by the botanical-search Edge Function from the
 -- Perenual species-list response and are not present in the baseline DDL.

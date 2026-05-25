@@ -11,7 +11,7 @@
 
 BEGIN;
 
-SELECT plan(17);
+SELECT plan(22);
 
 -- ── SETUP ─────────────────────────────────────────────────────────────────
 -- Disable FK triggers so we can insert profiles without auth.users rows.
@@ -223,6 +223,91 @@ SELECT is(
   (SELECT count(*)::int FROM public.cached_botanical_records WHERE scientific_name = 'Testus planticus pgTAP'),
   1,
   'Authenticated DELETE on cached_botanical_records was blocked — row still exists'
+);
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- Phase 2.5 — weather_cache RLS
+-- ═══════════════════════════════════════════════════════════════════════════
+
+-- Seed a test row as superuser — service_role bypasses RLS in production,
+-- so direct insert here mirrors that path.
+RESET ROLE;
+SELECT set_config('request.jwt.claims', '{}', true);
+
+INSERT INTO public.weather_cache (latitude, longitude, temperature_celsius, relative_humidity_percent, precipitation_probability_percent)
+VALUES (50.85, 4.35, 18.5, 72, 10);
+
+-- ── TEST 18: Authenticated SELECT succeeds ──────────────────────────────────
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claims', '{"sub":"11111111-1111-1111-1111-111111111111","role":"authenticated"}', true);
+
+SELECT is(
+  (SELECT count(*)::int FROM public.weather_cache WHERE latitude = 50.85 AND longitude = 4.35),
+  1,
+  'Authenticated user can SELECT from weather_cache'
+);
+
+-- ── TEST 19: Anon SELECT is blocked ─────────────────────────────────────────
+SET LOCAL ROLE anon;
+SELECT set_config('request.jwt.claims', '{}', true);
+
+SELECT is(
+  (SELECT count(*)::int FROM public.weather_cache),
+  0,
+  'Anon role cannot SELECT from weather_cache'
+);
+
+-- ── TEST 20: Authenticated INSERT is blocked ─────────────────────────────────
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claims', '{"sub":"11111111-1111-1111-1111-111111111111","role":"authenticated"}', true);
+
+DO $$
+BEGIN
+  INSERT INTO public.weather_cache (latitude, longitude, temperature_celsius)
+  VALUES (51.50, 0.12, 15.0);
+EXCEPTION WHEN others THEN
+  NULL;
+END;
+$$;
+
+RESET ROLE;
+SELECT set_config('request.jwt.claims', '{}', true);
+
+SELECT is(
+  (SELECT count(*)::int FROM public.weather_cache WHERE latitude = 51.50 AND longitude = 0.12),
+  0,
+  'Authenticated INSERT into weather_cache was blocked by RLS'
+);
+
+-- ── TEST 21: Authenticated UPDATE is blocked ─────────────────────────────────
+-- USING (false) makes the row invisible — UPDATE silently affects 0 rows.
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claims', '{"sub":"11111111-1111-1111-1111-111111111111","role":"authenticated"}', true);
+
+UPDATE public.weather_cache SET temperature_celsius = -99 WHERE latitude = 50.85 AND longitude = 4.35;
+
+RESET ROLE;
+SELECT set_config('request.jwt.claims', '{}', true);
+
+SELECT is(
+  (SELECT temperature_celsius FROM public.weather_cache WHERE latitude = 50.85 AND longitude = 4.35),
+  18.5::numeric(5,2),
+  'Authenticated UPDATE on weather_cache was blocked — value unchanged'
+);
+
+-- ── TEST 22: Authenticated DELETE is blocked ─────────────────────────────────
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claims', '{"sub":"11111111-1111-1111-1111-111111111111","role":"authenticated"}', true);
+
+DELETE FROM public.weather_cache WHERE latitude = 50.85 AND longitude = 4.35;
+
+RESET ROLE;
+SELECT set_config('request.jwt.claims', '{}', true);
+
+SELECT is(
+  (SELECT count(*)::int FROM public.weather_cache WHERE latitude = 50.85 AND longitude = 4.35),
+  1,
+  'Authenticated DELETE on weather_cache was blocked — row still exists'
 );
 
 SELECT * FROM finish();

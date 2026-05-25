@@ -97,7 +97,7 @@ The Anti-Hallucination Cache & Enrichment Sink. This table buffers raw external 
         ideal_humidity_min INT,              -- species-specific RH % lower bound
         ideal_humidity_max INT,              -- species-specific RH % upper bound
         care_difficulty TEXT,               -- 'Beginner' | 'Intermediate' | 'Advanced'
-        is_perenual_enriched BOOLEAN DEFAULT FALSE NOT NULL, -- set true after species/details call completes (Block B)
+        is_perenual_enriched BOOLEAN DEFAULT FALSE NOT NULL, -- set true after the Perenual species/details call completes
         is_ai_enriched BOOLEAN DEFAULT FALSE NOT NULL,
         raw_api_payload JSONB,
         cached_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL

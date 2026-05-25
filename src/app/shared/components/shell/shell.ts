@@ -16,15 +16,15 @@ import { ZoneService } from '../../../features/dashboard/zone.service';
 })
 export class ShellComponent {
   protected readonly networkStatus = inject(NetworkStatusService);
-  protected readonly offlineQueue  = inject(OfflineQueueService);
-  protected readonly plantService  = inject(PlantService);
-  protected readonly zoneService   = inject(ZoneService);
+  protected readonly offlineQueue = inject(OfflineQueueService);
+  protected readonly plantService = inject(PlantService);
+  protected readonly zoneService = inject(ZoneService);
 
   private readonly router = inject(Router);
 
   private readonly currentUrl = toSignal(
     this.router.events.pipe(
-      filter(e => e instanceof NavigationEnd),
+      filter((e) => e instanceof NavigationEnd),
       map(() => this.router.url),
     ),
     { initialValue: this.router.url },
@@ -32,11 +32,13 @@ export class ShellComponent {
 
   protected readonly offlineMessage = computed(() => {
     const url = this.currentUrl() ?? '';
-    if (url.startsWith('/scheduler')) return 'You are offline. Soil checks will sync when reconnected.';
-    if (url.startsWith('/dashboard')) return 'You are offline. Zone changes will sync when reconnected.';
-    if (url.startsWith('/journal'))   return 'You are offline. Journal is read-only.';
-    if (url.startsWith('/library'))   return 'You are offline. Plant library is unavailable.';
-    if (url.startsWith('/vault'))     return 'You are offline. Vault is unavailable.';
+    if (url.startsWith('/scheduler'))
+      return 'You are offline. Soil checks will sync when reconnected.';
+    if (url.startsWith('/dashboard'))
+      return 'You are offline. Zone changes will sync when reconnected.';
+    if (url.startsWith('/journal')) return 'You are offline. Journal is read-only.';
+    if (url.startsWith('/library')) return 'You are offline. Plant library is unavailable.';
+    if (url.startsWith('/vault')) return 'You are offline. Vault is unavailable.';
     return 'You are offline.';
   });
 

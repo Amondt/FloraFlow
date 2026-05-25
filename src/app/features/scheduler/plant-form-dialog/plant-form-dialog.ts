@@ -15,7 +15,10 @@ import {
   FLORA_ERROR,
 } from '../../../shared/ui/pt/index';
 import { ZoneService } from '../../dashboard/zone.service';
-import { BotanicalSearchService, BotanicalSuggestion } from '../../../core/services/botanical-search.service';
+import {
+  BotanicalSearchService,
+  BotanicalSuggestion,
+} from '../../../core/services/botanical-search.service';
 import {
   Plant,
   PlantFormData,
@@ -28,24 +31,32 @@ import {
 @Component({
   selector: 'app-plant-form-dialog',
   standalone: true,
-  imports: [ReactiveFormsModule, FormsModule, DialogModule, InputTextModule, AutoCompleteModule, SelectModule, ButtonModule],
+  imports: [
+    ReactiveFormsModule,
+    FormsModule,
+    DialogModule,
+    InputTextModule,
+    AutoCompleteModule,
+    SelectModule,
+    ButtonModule,
+  ],
   templateUrl: './plant-form-dialog.html',
 })
 export class PlantFormDialogComponent {
-  private readonly zoneService     = inject(ZoneService);
+  private readonly zoneService = inject(ZoneService);
   private readonly botanicalSearch = inject(BotanicalSearchService);
 
-  readonly plant   = input<Plant | null>(null);
+  readonly plant = input<Plant | null>(null);
   readonly visible = model<boolean>(false);
-  readonly saved            = output<PlantFormData>();
-  readonly deleteRequested  = output<Plant>();
+  readonly saved = output<PlantFormData>();
+  readonly deleteRequested = output<Plant>();
 
-  protected readonly FloraDialogPT       = FloraDialogPT;
-  protected readonly FloraInputTextPT    = FloraInputTextPT;
+  protected readonly FloraDialogPT = FloraDialogPT;
+  protected readonly FloraInputTextPT = FloraInputTextPT;
   protected readonly FloraAutoCompletePT = FloraAutoCompletePT;
-  protected readonly FloraSelectPT       = FloraSelectPT;
-  protected readonly FloraButtonPT       = FloraButtonPT;
-  protected readonly FLORA_ERROR         = FLORA_ERROR;
+  protected readonly FloraSelectPT = FloraSelectPT;
+  protected readonly FloraButtonPT = FloraButtonPT;
+  protected readonly FLORA_ERROR = FLORA_ERROR;
 
   protected readonly CONTAINER_VECTOR_OPTIONS = CONTAINER_VECTOR_OPTIONS;
   protected readonly SUBSTRATE_FACTOR_OPTIONS = SUBSTRATE_FACTOR_OPTIONS;
@@ -53,26 +64,32 @@ export class PlantFormDialogComponent {
   protected readonly commonNameId = `flora-plant-name-${crypto.randomUUID().slice(0, 8)}`;
   protected readonly scientificId = `flora-plant-sci-${crypto.randomUUID().slice(0, 8)}`;
   protected readonly zoneSelectId = `flora-plant-zone-${crypto.randomUUID().slice(0, 8)}`;
-  protected readonly containerId  = `flora-plant-ct-${crypto.randomUUID().slice(0, 8)}`;
-  protected readonly substrateId  = `flora-plant-sf-${crypto.randomUUID().slice(0, 8)}`;
+  protected readonly containerId = `flora-plant-ct-${crypto.randomUUID().slice(0, 8)}`;
+  protected readonly substrateId = `flora-plant-sf-${crypto.randomUUID().slice(0, 8)}`;
 
-  protected suggestions        = signal<BotanicalSuggestion[]>([]);
+  protected suggestions = signal<BotanicalSuggestion[]>([]);
   protected selectedPerenualId = signal<number | null>(null);
-  protected commonNameQuery    = '';
+  protected commonNameQuery = '';
 
   readonly form = new FormGroup({
-    common_name:      new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    scientific_name:  new FormControl<string | null>(null),
-    zone_id:          new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    common_name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    scientific_name: new FormControl<string | null>(null),
+    zone_id: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     container_vector: new FormControl<ContainerVector>('Plastic', { nonNullable: true }),
     substrate_factor: new FormControl<SubstrateFactor>('Standard Potting', { nonNullable: true }),
   });
 
-  readonly dialogTitle  = computed(() => this.plant() ? 'Edit Plant' : 'Add Plant');
-  readonly zoneOptions  = computed(() => this.zoneService.zones().map(z => ({ label: z.name, value: z.id })));
+  readonly dialogTitle = computed(() => (this.plant() ? 'Edit Plant' : 'Add Plant'));
+  readonly zoneOptions = computed(() =>
+    this.zoneService.zones().map((z) => ({ label: z.name, value: z.id })),
+  );
 
-  get nameCtrl()   { return this.form.controls.common_name; }
-  get zoneCtrl()   { return this.form.controls.zone_id; }
+  get nameCtrl() {
+    return this.form.controls.common_name;
+  }
+  get zoneCtrl() {
+    return this.form.controls.zone_id;
+  }
 
   private _prevVisible = false;
 
@@ -93,9 +110,9 @@ export class PlantFormDialogComponent {
         this.commonNameQuery = p.common_name;
         this.selectedPerenualId.set(p.perenual_id);
         this.form.patchValue({
-          common_name:      p.common_name,
-          scientific_name:  p.scientific_name,
-          zone_id:          p.zone_id,
+          common_name: p.common_name,
+          scientific_name: p.scientific_name,
+          zone_id: p.zone_id,
           container_vector: p.container_vector,
           substrate_factor: p.substrate_factor,
         });
@@ -103,9 +120,9 @@ export class PlantFormDialogComponent {
         this.commonNameQuery = '';
         this.selectedPerenualId.set(null);
         this.form.reset({
-          common_name:      '',
-          scientific_name:  null,
-          zone_id:          this.zoneService.zones()[0]?.id ?? '',
+          common_name: '',
+          scientific_name: null,
+          zone_id: this.zoneService.zones()[0]?.id ?? '',
           container_vector: 'Plastic',
           substrate_factor: 'Standard Potting',
         });
@@ -142,10 +159,10 @@ export class PlantFormDialogComponent {
     }
 
     const data: PlantFormData = {
-      common_name:      this.form.controls.common_name.value,
-      scientific_name:  this.form.controls.scientific_name.value || null,
-      perenual_id:      this.selectedPerenualId(),
-      zone_id:          this.form.controls.zone_id.value,
+      common_name: this.form.controls.common_name.value,
+      scientific_name: this.form.controls.scientific_name.value || null,
+      perenual_id: this.selectedPerenualId(),
+      zone_id: this.form.controls.zone_id.value,
       container_vector: this.form.controls.container_vector.value,
       substrate_factor: this.form.controls.substrate_factor.value,
     };

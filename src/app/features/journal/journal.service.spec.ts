@@ -5,41 +5,41 @@ import { SupabaseService } from '../../core/services/supabase.service';
 import type { Database } from '../../../types/database.types';
 
 type JournalInsert = Database['public']['Tables']['plant_journals']['Insert'];
-type JournalRow    = Database['public']['Tables']['plant_journals']['Row'];
+type JournalRow = Database['public']['Tables']['plant_journals']['Row'];
 
 const PAYLOAD: JournalInsert = {
-  user_id:  'user-1',
+  user_id: 'user-1',
   plant_id: 'plant-2',
-  notes:    'Leaves look healthy',
+  notes: 'Leaves look healthy',
 };
 
 const RETURNED_ROW: JournalRow = {
-  id:                  'entry-uuid',
-  user_id:             'user-1',
-  plant_id:            'plant-2',
-  notes:               'Leaves look healthy',
-  category:            'Observation',
-  image_storage_path:  null,
-  logged_at:           '2024-01-01T00:00:00Z',
-  created_at:          '2024-01-01T00:00:00Z',
-  updated_at:          '2024-01-01T00:00:00Z',
+  id: 'entry-uuid',
+  user_id: 'user-1',
+  plant_id: 'plant-2',
+  notes: 'Leaves look healthy',
+  category: 'Observation',
+  image_storage_path: null,
+  logged_at: '2024-01-01T00:00:00Z',
+  created_at: '2024-01-01T00:00:00Z',
+  updated_at: '2024-01-01T00:00:00Z',
 };
 
 describe('JournalService', () => {
   let service: JournalService;
-  let mockUpload:      ReturnType<typeof vi.fn>;
+  let mockUpload: ReturnType<typeof vi.fn>;
   let mockStorageFrom: ReturnType<typeof vi.fn>;
-  let mockSingle:      ReturnType<typeof vi.fn>;
-  let mockFrom:        ReturnType<typeof vi.fn>;
+  let mockSingle: ReturnType<typeof vi.fn>;
+  let mockFrom: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
-    mockUpload      = vi.fn().mockResolvedValue({ error: null });
+    mockUpload = vi.fn().mockResolvedValue({ error: null });
     mockStorageFrom = vi.fn().mockReturnValue({ upload: mockUpload });
 
-    mockSingle      = vi.fn().mockResolvedValue({ data: RETURNED_ROW, error: null });
+    mockSingle = vi.fn().mockResolvedValue({ data: RETURNED_ROW, error: null });
     const mockSelect = vi.fn().mockReturnValue({ single: mockSingle });
     const mockInsert = vi.fn().mockReturnValue({ select: mockSelect });
-    mockFrom        = vi.fn().mockReturnValue({ insert: mockInsert });
+    mockFrom = vi.fn().mockReturnValue({ insert: mockInsert });
 
     await TestBed.configureTestingModule({
       providers: [
@@ -59,7 +59,9 @@ describe('JournalService', () => {
     service = TestBed.inject(JournalService);
   });
 
-  afterEach(() => { vi.restoreAllMocks(); });
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
 
   describe('uploadImage()', () => {
     it('calls the correct bucket and builds the path as userId/plantId/timestamp.jpg', async () => {
@@ -69,11 +71,9 @@ describe('JournalService', () => {
       const path = await service.uploadImage('user-1', 'plant-2', blob);
 
       expect(mockStorageFrom).toHaveBeenCalledWith('plant-journal-images');
-      expect(mockUpload).toHaveBeenCalledWith(
-        'user-1/plant-2/1700000000000.jpg',
-        blob,
-        { contentType: 'image/jpeg' },
-      );
+      expect(mockUpload).toHaveBeenCalledWith('user-1/plant-2/1700000000000.jpg', blob, {
+        contentType: 'image/jpeg',
+      });
       expect(path).toBe('user-1/plant-2/1700000000000.jpg');
     });
 
@@ -81,7 +81,9 @@ describe('JournalService', () => {
       const storageError = new Error('storage quota exceeded');
       mockUpload.mockResolvedValue({ error: storageError });
 
-      await expect(service.uploadImage('u', 'p', new Blob())).rejects.toThrow('storage quota exceeded');
+      await expect(service.uploadImage('u', 'p', new Blob())).rejects.toThrow(
+        'storage quota exceeded',
+      );
     });
   });
 

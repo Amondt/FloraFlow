@@ -2,7 +2,6 @@
   class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden"
   [attr.aria-labelledby]="headingId()"
 >
-
   <!-- ── Header: name + status badge ─────────────────────────────── -->
   <header class="px-4 pt-4 pb-0 flex items-start justify-between gap-2">
     <h2
@@ -13,9 +12,11 @@
     </h2>
     <span
       class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium font-display flex-shrink-0"
-      [class]="hasAttention()
-        ? 'bg-yellow-100 text-warning-500 dark:bg-yellow-900/30 dark:text-yellow-400'
-        : 'bg-green-100 text-success-500 dark:bg-green-900/30 dark:text-green-400'"
+      [class]="
+        hasAttention()
+          ? 'bg-yellow-100 text-warning-500 dark:bg-yellow-900/30 dark:text-yellow-400'
+          : 'bg-green-100 text-success-500 dark:bg-green-900/30 dark:text-green-400'
+      "
     >
       <i
         class="text-xs"
@@ -28,30 +29,65 @@
 
   <!-- ── Body: compass + info ──────────────────────────────────────── -->
   <div class="p-4 flex items-center gap-4">
-
     <!-- Compass (unchanged) -->
     <div class="flex-shrink-0" aria-hidden="true">
       <div class="relative w-24 h-24">
         <svg viewBox="0 0 80 80" class="w-full h-full" aria-hidden="true">
           <!-- Outer dashed ring -->
-          <circle cx="40" cy="40" r="35" fill="none" stroke="#cbd5e1" stroke-width="1.25" stroke-dasharray="2 4" class="dark:stroke-neutral-600" />
+          <circle
+            cx="40"
+            cy="40"
+            r="35"
+            fill="none"
+            stroke="#cbd5e1"
+            stroke-width="1.25"
+            stroke-dasharray="2 4"
+            class="dark:stroke-neutral-600"
+          />
           <!-- Inner ring — ticks + N sit in the band between the two rings -->
-          <circle cx="40" cy="40" r="23" fill="none" stroke="#e2e8f0" stroke-width="0.75" class="dark:stroke-neutral-700" />
+          <circle
+            cx="40"
+            cy="40"
+            r="23"
+            fill="none"
+            stroke="#e2e8f0"
+            stroke-width="0.75"
+            class="dark:stroke-neutral-700"
+          />
           <!-- 7 tick marks (0° skipped — N text takes its place) -->
           @for (tick of compassTicks; track $index) {
             <line
-              [attr.x1]="tick.x1" [attr.y1]="tick.y1"
-              [attr.x2]="tick.x2" [attr.y2]="tick.y2"
-              stroke="#cbd5e1" stroke-width="1" stroke-linecap="round"
+              [attr.x1]="tick.x1"
+              [attr.y1]="tick.y1"
+              [attr.x2]="tick.x2"
+              [attr.y2]="tick.y2"
+              stroke="#cbd5e1"
+              stroke-width="1"
+              stroke-linecap="round"
               class="dark:stroke-neutral-600"
             />
           }
           <!-- N label — replaces the north tick, bolder -->
-          <text x="40" y="13" text-anchor="middle" font-size="8" font-weight="600" fill="#94a3b8" font-family="sans-serif" class="dark:fill-neutral-400">N</text>
+          <text
+            x="40"
+            y="13"
+            text-anchor="middle"
+            font-size="8"
+            font-weight="600"
+            fill="#94a3b8"
+            font-family="sans-serif"
+            class="dark:fill-neutral-400"
+          >
+            N
+          </text>
           <!-- Center dot -->
           <circle cx="40" cy="40" r="3" fill="#e2e8f0" class="dark:fill-neutral-600" />
           <!-- Static gray needle — always points North, never rotates -->
-          <polygon points="40,20 41.5,37 40,40 38.5,37" fill="#cbd5e1" class="dark:fill-neutral-500" />
+          <polygon
+            points="40,20 41.5,37 40,40 38.5,37"
+            fill="#cbd5e1"
+            class="dark:fill-neutral-500"
+          />
           <!-- Rotating green orientation indicator — circle only, no arm -->
           @if (hasOrientation()) {
             <g [attr.transform]="'rotate(' + compassAngle() + ', 40, 40)'">
@@ -64,18 +100,27 @@
 
     <!-- Info column -->
     <div class="flex-1 min-w-0 flex flex-col gap-2.5">
-
       <!-- Light -->
       <div class="flex items-baseline justify-between gap-2">
-        <p class="text-xs uppercase tracking-widest font-display text-neutral-400 dark:text-neutral-500 flex-shrink-0">Light</p>
-        <p class="text-sm font-semibold font-display text-neutral-800 dark:text-neutral-100 truncate text-right">
+        <p
+          class="text-xs uppercase tracking-widest font-display text-neutral-400 dark:text-neutral-500 flex-shrink-0"
+        >
+          Light
+        </p>
+        <p
+          class="text-sm font-semibold font-display text-neutral-800 dark:text-neutral-100 truncate text-right"
+        >
           {{ lightLabel() }}
         </p>
       </div>
 
       <!-- Humidity — inline: label | bar | % -->
       <div class="flex items-center gap-2">
-        <p class="text-xs uppercase tracking-widest font-display text-neutral-400 dark:text-neutral-500 flex-shrink-0">Humidity</p>
+        <p
+          class="text-xs uppercase tracking-widest font-display text-neutral-400 dark:text-neutral-500 flex-shrink-0"
+        >
+          Humidity
+        </p>
         <div
           class="flex-1 h-1 bg-neutral-200 dark:bg-neutral-600 rounded-full overflow-hidden"
           role="meter"
@@ -89,7 +134,9 @@
             [style.width.%]="zone().humidity_baseline"
           ></div>
         </div>
-        <p class="text-xs font-semibold font-display text-neutral-600 dark:text-neutral-300 flex-shrink-0 w-8 text-right">
+        <p
+          class="text-xs font-semibold font-display text-neutral-600 dark:text-neutral-300 flex-shrink-0 w-8 text-right"
+        >
           {{ zone().humidity_baseline }}%
         </p>
       </div>
@@ -98,9 +145,11 @@
       <div class="flex items-center gap-2 flex-wrap" aria-label="Active systems">
         <span
           class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium font-display border transition-colors"
-          [class]="zone().has_grow_lights
-            ? 'bg-primary-50 border-primary-200 text-primary-700 dark:bg-primary-900/30 dark:border-primary-800 dark:text-primary-300'
-            : 'bg-neutral-100 border-neutral-200 text-neutral-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-400'"
+          [class]="
+            zone().has_grow_lights
+              ? 'bg-primary-50 border-primary-200 text-primary-700 dark:bg-primary-900/30 dark:border-primary-800 dark:text-primary-300'
+              : 'bg-neutral-100 border-neutral-200 text-neutral-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-400'
+          "
           [attr.aria-label]="'Grow lights: ' + (zone().has_grow_lights ? 'active' : 'inactive')"
         >
           <i class="pi pi-sun text-xs" aria-hidden="true"></i>
@@ -108,24 +157,31 @@
         </span>
         <span
           class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium font-display border transition-colors"
-          [class]="zone().has_active_ventilation
-            ? 'bg-primary-50 border-primary-200 text-primary-700 dark:bg-primary-900/30 dark:border-primary-800 dark:text-primary-300'
-            : 'bg-neutral-100 border-neutral-200 text-neutral-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-400'"
-          [attr.aria-label]="'Ventilation: ' + (zone().has_active_ventilation ? 'active' : 'inactive')"
+          [class]="
+            zone().has_active_ventilation
+              ? 'bg-primary-50 border-primary-200 text-primary-700 dark:bg-primary-900/30 dark:border-primary-800 dark:text-primary-300'
+              : 'bg-neutral-100 border-neutral-200 text-neutral-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-400'
+          "
+          [attr.aria-label]="
+            'Ventilation: ' + (zone().has_active_ventilation ? 'active' : 'inactive')
+          "
         >
           <i class="pi pi-send text-xs" aria-hidden="true"></i>
           Vent
         </span>
       </div>
-
     </div>
   </div>
 
   <!-- ── Footer: plant count + Edit / Delete ──────────────────────── -->
-  <footer class="px-4 pb-3 border-t border-neutral-100 dark:border-neutral-700 pt-3 flex items-center justify-between">
+  <footer
+    class="px-4 pb-3 border-t border-neutral-100 dark:border-neutral-700 pt-3 flex items-center justify-between"
+  >
     <div class="flex-1 min-w-0">
       <p class="text-xs text-neutral-500 dark:text-neutral-400 font-display truncate">
-        <span class="font-medium text-neutral-700 dark:text-neutral-200">{{ plantCount() }} {{ plantCount() === 1 ? 'plant' : 'plants' }}</span>
+        <span class="font-medium text-neutral-700 dark:text-neutral-200"
+          >{{ plantCount() }} {{ plantCount() === 1 ? 'plant' : 'plants' }}</span
+        >
         @if (plantCount() > 0) {
           <span> · {{ plantSummary() }}</span>
         }
@@ -150,5 +206,4 @@
       </button>
     </div>
   </footer>
-
 </article>

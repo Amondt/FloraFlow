@@ -4,8 +4,8 @@ import type { ToggleSwitchPassThroughOptions } from 'primeng/toggleswitch';
 import { FLORA_FOCUS } from './states.pt';
 
 export const FloraCheckboxPT = {
-  root:  { class: 'inline-flex items-center gap-2 cursor-pointer' },
-  box:   {
+  root: { class: 'inline-flex items-center gap-2 cursor-pointer' },
+  box: {
     class: [
       'w-4 h-4 flex items-center justify-center rounded-garden-sm border-2',
       'border-neutral-300 dark:border-neutral-600',
@@ -15,12 +15,12 @@ export const FloraCheckboxPT = {
       FLORA_FOCUS,
     ].join(' '),
   },
-  icon:  { class: 'text-white text-xs' },
+  icon: { class: 'text-white text-xs' },
 } satisfies CheckboxPassThroughOptions;
 
 export const FloraRadioButtonPT = {
-  root:  { class: 'inline-flex items-center gap-2 cursor-pointer' },
-  box:   {
+  root: { class: 'inline-flex items-center gap-2 cursor-pointer' },
+  box: {
     class: [
       'w-4 h-4 rounded-full border-2 flex items-center justify-center',
       'border-neutral-300 dark:border-neutral-600',
@@ -29,7 +29,7 @@ export const FloraRadioButtonPT = {
       FLORA_FOCUS,
     ].join(' '),
   },
-  icon:  { class: 'w-2 h-2 rounded-full bg-primary-500' },
+  icon: { class: 'w-2 h-2 rounded-full bg-primary-500' },
 } satisfies RadioButtonPassThroughOptions;
 
 export const FloraToggleSwitchPT = {

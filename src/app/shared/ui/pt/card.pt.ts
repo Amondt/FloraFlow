@@ -2,7 +2,8 @@ import type { CardPassThroughOptions } from 'primeng/card';
 
 export const FloraCardPT = {
   root: {
-    class: 'bg-neutral-100 dark:bg-neutral-800 border border-neutral-200/50 dark:border-neutral-700/50 rounded-garden-md p-5 shadow-sm transition-all duration-200 hover:shadow-md',
+    class:
+      'bg-neutral-100 dark:bg-neutral-800 border border-neutral-200/50 dark:border-neutral-700/50 rounded-garden-md p-5 shadow-sm transition-all duration-200 hover:shadow-md',
   },
   title: {
     class: 'text-lg font-semibold font-display text-neutral-900 dark:text-white mb-2',

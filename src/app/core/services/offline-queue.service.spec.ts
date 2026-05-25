@@ -9,20 +9,29 @@ import { OfflineQueueService, type QueuedAction } from './offline-queue.service'
 function makeFakeDB() {
   const store = new Map<string, QueuedAction>();
   return {
-    put:    (_storeName: string, value: QueuedAction) => { store.set(value.id, value); return Promise.resolve(value.id); },
-    getAll: ()                                        => Promise.resolve([...store.values()]),
-    delete: (_storeName: string, key: string)         => { store.delete(key);           return Promise.resolve(); },
-    clear:  ()                                        => { store.clear();               return Promise.resolve(); },
-    count:  ()                                        => Promise.resolve(store.size),
+    put: (_storeName: string, value: QueuedAction) => {
+      store.set(value.id, value);
+      return Promise.resolve(value.id);
+    },
+    getAll: () => Promise.resolve([...store.values()]),
+    delete: (_storeName: string, key: string) => {
+      store.delete(key);
+      return Promise.resolve();
+    },
+    clear: () => {
+      store.clear();
+      return Promise.resolve();
+    },
+    count: () => Promise.resolve(store.size),
     objectStoreNames: { contains: () => true },
   };
 }
 
 function makeItem(overrides: Partial<QueuedAction> = {}): QueuedAction {
   return {
-    id:        crypto.randomUUID(),
-    action:    'confirm',
-    plant_id:  'plant-1',
+    id: crypto.randomUUID(),
+    action: 'confirm',
+    plant_id: 'plant-1',
     queued_at: new Date().toISOString(),
     ...overrides,
   };
@@ -70,7 +79,7 @@ describe('OfflineQueueService', () => {
 
       const all = await service.getAll();
       expect(all).toHaveLength(2);
-      const ids = all.map(i => i.id);
+      const ids = all.map((i) => i.id);
       expect(ids).toContain('c1');
       expect(ids).toContain('c2');
     });
@@ -97,8 +106,8 @@ describe('OfflineQueueService', () => {
       await service.remove('e2');
 
       const all = await service.getAll();
-      expect(all.map(i => i.id)).toEqual(expect.arrayContaining(['e1', 'e3']));
-      expect(all.find(i => i.id === 'e2')).toBeUndefined();
+      expect(all.map((i) => i.id)).toEqual(expect.arrayContaining(['e1', 'e3']));
+      expect(all.find((i) => i.id === 'e2')).toBeUndefined();
     });
   });
 

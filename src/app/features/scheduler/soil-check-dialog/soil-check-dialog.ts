@@ -5,11 +5,23 @@ import { FloraDialogPT, FloraButtonPT } from '../../../shared/ui/pt/index';
 import { Plant, SubstrateFactor } from '../plant.model';
 
 const SUBSTRATE_DEPTH_RULES: Record<SubstrateFactor, { depth: string; description: string }> = {
-  'High-Drainage Aroid': { depth: '3 cm', description: 'This mix drains quickly — water when the top 3 cm are dry.' },
-  'Standard Potting':    { depth: '3 cm', description: 'Water when the top 3 cm of soil are dry.' },
-  'Heavy Peat':          { depth: '3 cm', description: 'Peat retains moisture well — water when the top 3 cm are dry.' },
-  'Sphagnum Moss Mix':   { depth: '2 cm', description: 'Sphagnum likes to stay mostly moist — check shallower than usual.' },
-  'Desert Succulent':    { depth: '5 cm', description: 'Succulents need soil to fully dry out between waterings.' },
+  'High-Drainage Aroid': {
+    depth: '3 cm',
+    description: 'This mix drains quickly — water when the top 3 cm are dry.',
+  },
+  'Standard Potting': { depth: '3 cm', description: 'Water when the top 3 cm of soil are dry.' },
+  'Heavy Peat': {
+    depth: '3 cm',
+    description: 'Peat retains moisture well — water when the top 3 cm are dry.',
+  },
+  'Sphagnum Moss Mix': {
+    depth: '2 cm',
+    description: 'Sphagnum likes to stay mostly moist — check shallower than usual.',
+  },
+  'Desert Succulent': {
+    depth: '5 cm',
+    description: 'Succulents need soil to fully dry out between waterings.',
+  },
 };
 
 type CheckStep = 'ask' | 'dry' | 'moist';
@@ -21,26 +33,24 @@ type CheckStep = 'ask' | 'dry' | 'moist';
   templateUrl: './soil-check-dialog.html',
 })
 export class SoilCheckDialogComponent {
-  readonly plant     = input.required<Plant>();
-  readonly zoneName  = input<string | null>(null);
-  readonly visible   = model<boolean>(false);
+  readonly plant = input.required<Plant>();
+  readonly zoneName = input<string | null>(null);
+  readonly visible = model<boolean>(false);
   readonly confirmed = output<Plant>();
-  readonly snoozed   = output<string>();
+  readonly snoozed = output<string>();
 
   protected readonly FloraDialogPT = FloraDialogPT;
   protected readonly FloraButtonPT = FloraButtonPT;
 
-  readonly step          = signal<CheckStep>('ask');
-  readonly snoozeDays    = signal(5);
-  readonly note          = signal('');
+  readonly step = signal<CheckStep>('ask');
+  readonly snoozeDays = signal(5);
+  readonly note = signal('');
   readonly snoozePresets = [2, 5, 7] as const;
 
-  readonly checkDepth = computed(() =>
-    SUBSTRATE_DEPTH_RULES[this.plant().substrate_factor].depth
-  );
+  readonly checkDepth = computed(() => SUBSTRATE_DEPTH_RULES[this.plant().substrate_factor].depth);
 
-  readonly checkDepthDescription = computed(() =>
-    SUBSTRATE_DEPTH_RULES[this.plant().substrate_factor].description
+  readonly checkDepthDescription = computed(
+    () => SUBSTRATE_DEPTH_RULES[this.plant().substrate_factor].description,
   );
 
   readonly lastCheckedLabel = computed(() => {
@@ -57,12 +67,12 @@ export class SoilCheckDialogComponent {
     if (!interval) return 5;
     const presets = [2, 5, 7] as const;
     return presets.reduce((prev, cur) =>
-      Math.abs(cur - interval) < Math.abs(prev - interval) ? cur : prev
+      Math.abs(cur - interval) < Math.abs(prev - interval) ? cur : prev,
     );
   });
 
   readonly todayLabel = computed(() =>
-    new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+    new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
   );
 
   readonly snoozeLabelText = computed(() => `Snooze ${this.snoozeDays()} days`);

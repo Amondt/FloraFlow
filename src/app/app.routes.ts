@@ -4,43 +4,34 @@ import { authGuard } from './core/guards/auth.guard';
 export const routes: Routes = [
   {
     path: 'login',
-    loadComponent: () =>
-      import('./features/auth/login').then((m) => m.LoginComponent),
+    loadComponent: () => import('./features/auth/login').then((m) => m.LoginComponent),
   },
   {
     path: '',
-    loadComponent: () =>
-      import('./shared/components/shell/shell').then((m) => m.ShellComponent),
+    loadComponent: () => import('./shared/components/shell/shell').then((m) => m.ShellComponent),
     canActivate: [authGuard],
     children: [
       {
         path: 'dashboard',
         loadComponent: () =>
-          import('./features/dashboard/dashboard').then(
-            (m) => m.DashboardComponent,
-          ),
+          import('./features/dashboard/dashboard').then((m) => m.DashboardComponent),
       },
       {
         path: 'scheduler',
         loadComponent: () =>
-          import('./features/scheduler/scheduler').then(
-            (m) => m.SchedulerComponent,
-          ),
+          import('./features/scheduler/scheduler').then((m) => m.SchedulerComponent),
       },
       {
         path: 'journal',
-        loadComponent: () =>
-          import('./features/journal/journal').then((m) => m.JournalComponent),
+        loadComponent: () => import('./features/journal/journal').then((m) => m.JournalComponent),
       },
       {
         path: 'library',
-        loadComponent: () =>
-          import('./features/library/library').then((m) => m.LibraryComponent),
+        loadComponent: () => import('./features/library/library').then((m) => m.LibraryComponent),
       },
       {
         path: 'vault',
-        loadComponent: () =>
-          import('./features/vault/vault').then((m) => m.VaultComponent),
+        loadComponent: () => import('./features/vault/vault').then((m) => m.VaultComponent),
       },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],

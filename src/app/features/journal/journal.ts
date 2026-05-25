@@ -18,11 +18,11 @@ export class JournalComponent {
   private readonly messageService = inject(MessageService);
 
   protected readonly FloraButtonPT = FloraButtonPT;
-  protected readonly FloraToastPT  = FloraToastPT;
+  protected readonly FloraToastPT = FloraToastPT;
 
   readonly dialogVisible = signal(false);
-  readonly hasPlants     = computed(() => this.plantService.plants().length > 0);
-  readonly loading       = computed(() => this.plantService.loading());
+  readonly hasPlants = computed(() => this.plantService.plants().length > 0);
+  readonly loading = computed(() => this.plantService.loading());
 
   constructor() {
     if (this.plantService.plants().length === 0) {

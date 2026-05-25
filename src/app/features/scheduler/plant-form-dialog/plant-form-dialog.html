@@ -8,7 +8,6 @@
   [dismissableMask]="true"
   [pt]="FloraDialogPT"
 >
-
   <form
     [formGroup]="form"
     (ngSubmit)="onSubmit()"
@@ -16,7 +15,6 @@
     class="flex flex-col gap-4"
     aria-label="Plant details form"
   >
-
     <div class="flex flex-col gap-1.5">
       <label
         [for]="commonNameId"
@@ -38,7 +36,9 @@
         [pt]="FloraAutoCompletePT"
         [class]="nameCtrl.invalid && nameCtrl.touched ? FLORA_ERROR : ''"
         [attr.aria-invalid]="nameCtrl.invalid && nameCtrl.touched"
-        [attr.aria-describedby]="nameCtrl.invalid && nameCtrl.touched ? commonNameId + '-error' : null"
+        [attr.aria-describedby]="
+          nameCtrl.invalid && nameCtrl.touched ? commonNameId + '-error' : null
+        "
         aria-required="true"
         placeholder="e.g. Monstera Deliciosa"
         autocomplete="off"
@@ -63,7 +63,9 @@
         class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
       >
         Scientific name
-        <span class="text-neutral-400 font-normal text-xs ml-1">(optional — auto-filled on suggestion select)</span>
+        <span class="text-neutral-400 font-normal text-xs ml-1"
+          >(optional — auto-filled on suggestion select)</span
+        >
       </label>
       <input
         pInputText
@@ -91,7 +93,9 @@
         optionLabel="label"
         optionValue="value"
         [pt]="FloraSelectPT"
-        [attr.aria-describedby]="zoneCtrl.invalid && zoneCtrl.touched ? zoneSelectId + '-error' : null"
+        [attr.aria-describedby]="
+          zoneCtrl.invalid && zoneCtrl.touched ? zoneSelectId + '-error' : null
+        "
         [attr.aria-invalid]="zoneCtrl.invalid && zoneCtrl.touched"
         aria-required="true"
         placeholder="Select a zone"
@@ -139,7 +143,6 @@
         appendTo="body"
       />
     </div>
-
   </form>
 
   <ng-template #footer>
@@ -169,5 +172,4 @@
       (onClick)="onSubmit()"
     />
   </ng-template>
-
 </p-dialog>

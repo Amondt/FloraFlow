@@ -27,7 +27,7 @@ export class BotanicalSearchService {
 
       if (!res.ok) return [];
 
-      const data = await res.json() as BotanicalSuggestion[];
+      const data = (await res.json()) as BotanicalSuggestion[];
       return Array.isArray(data) ? data : [];
     } catch {
       return [];

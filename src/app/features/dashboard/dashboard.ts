@@ -45,21 +45,21 @@ interface AttentionChip {
   templateUrl: './dashboard.html',
 })
 export class DashboardComponent {
-  protected readonly zoneService         = inject(ZoneService);
-  protected readonly plantService        = inject(PlantService);
-  private  readonly confirmationService  = inject(ConfirmationService);
-  private  readonly messageService       = inject(MessageService);
-  private  readonly destroyRef           = inject(DestroyRef);
+  protected readonly zoneService = inject(ZoneService);
+  protected readonly plantService = inject(PlantService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly messageService = inject(MessageService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly FloraButtonPT        = FloraButtonPT;
-  protected readonly FloraMessagePT       = FloraMessagePT;
-  protected readonly FloraSkeletonPT      = FloraSkeletonPT;
+  protected readonly FloraButtonPT = FloraButtonPT;
+  protected readonly FloraMessagePT = FloraMessagePT;
+  protected readonly FloraSkeletonPT = FloraSkeletonPT;
   protected readonly FloraConfirmDialogPT = FloraConfirmDialogPT;
-  protected readonly FloraToastPT         = FloraToastPT;
+  protected readonly FloraToastPT = FloraToastPT;
 
   // ── Greeting ──────────────────────────────────────────────────
   protected readonly todayLabel = computed(() =>
-    new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
+    new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }),
   );
 
   protected readonly greeting = computed(() => {
@@ -71,11 +71,11 @@ export class DashboardComponent {
 
   // ── Global stats ──────────────────────────────────────────────
   protected readonly totalPlantCount = computed(() => this.plantService.plants().length);
-  protected readonly totalZoneCount  = computed(() => this.zoneService.zones().length);
+  protected readonly totalZoneCount = computed(() => this.zoneService.zones().length);
 
   // ── Zone name lookup for chip rows ────────────────────────────
-  protected readonly zoneMap = computed(() =>
-    new Map(this.zoneService.zones().map(z => [z.id, z]))
+  protected readonly zoneMap = computed(
+    () => new Map(this.zoneService.zones().map((z) => [z.id, z])),
   );
 
   // ── Attention chips: overdue + due today + due in ≤1 day ─────
@@ -87,22 +87,27 @@ export class DashboardComponent {
     const endOfTomorrow = new Date(startOfTomorrow);
     endOfTomorrow.setDate(endOfTomorrow.getDate() + 1);
 
-    return this.plantService.plants()
-      .filter(p => new Date(p.next_check_due_at) < endOfTomorrow)
-      .sort((a, b) => new Date(a.next_check_due_at).getTime() - new Date(b.next_check_due_at).getTime())
+    return this.plantService
+      .plants()
+      .filter((p) => new Date(p.next_check_due_at) < endOfTomorrow)
+      .sort(
+        (a, b) => new Date(a.next_check_due_at).getTime() - new Date(b.next_check_due_at).getTime(),
+      )
       .slice(0, 6)
-      .map(p => {
-        const due       = new Date(p.next_check_due_at);
+      .map((p) => {
+        const due = new Date(p.next_check_due_at);
         const isOverdue = due < startOfToday;
-        const label     = isOverdue
+        const label = isOverdue
           ? `overdue ${Math.ceil((startOfToday.getTime() - due.getTime()) / 86_400_000)}d`
-          : due < startOfTomorrow ? 'due today' : 'due in 1d';
+          : due < startOfTomorrow
+            ? 'due today'
+            : 'due in 1d';
         return { plant: p, label, isOverdue };
       });
   });
 
-  protected readonly attentionOverdueCount = computed(() =>
-    this.attentionChips().filter(c => c.isOverdue).length
+  protected readonly attentionOverdueCount = computed(
+    () => this.attentionChips().filter((c) => c.isOverdue).length,
   );
 
   // ── Zone stats for zone-card inputs ──────────────────────────
@@ -113,25 +118,27 @@ export class DashboardComponent {
     const startOfTomorrow = new Date(startOfToday);
     startOfTomorrow.setDate(startOfTomorrow.getDate() + 1);
     return new Map(
-      this.zoneService.zones().map(z => {
-        const zonePlants    = plants.filter(p => p.zone_id === z.id);
-        const overdueCount  = zonePlants.filter(p => new Date(p.next_check_due_at) < startOfToday).length;
-        const dueTodayCount = zonePlants.filter(p => {
+      this.zoneService.zones().map((z) => {
+        const zonePlants = plants.filter((p) => p.zone_id === z.id);
+        const overdueCount = zonePlants.filter(
+          (p) => new Date(p.next_check_due_at) < startOfToday,
+        ).length;
+        const dueTodayCount = zonePlants.filter((p) => {
           const d = new Date(p.next_check_due_at);
           return d >= startOfToday && d < startOfTomorrow;
         }).length;
-        const names = zonePlants.map(p => p.common_name);
+        const names = zonePlants.map((p) => p.common_name);
         return [z.id, { count: zonePlants.length, overdueCount, dueTodayCount, names }];
-      })
+      }),
     );
   });
 
   // ── Zone dialog ───────────────────────────────────────────────
-  readonly zoneDialogVisible    = signal(false);
-  readonly editingZone          = signal<Zone | null>(null);
+  readonly zoneDialogVisible = signal(false);
+  readonly editingZone = signal<Zone | null>(null);
   readonly pendingDeleteZoneIds = signal<Set<string>>(new Set());
-  readonly displayedZones       = computed(() =>
-    this.zoneService.zones().filter(z => !this.pendingDeleteZoneIds().has(z.id))
+  readonly displayedZones = computed(() =>
+    this.zoneService.zones().filter((z) => !this.pendingDeleteZoneIds().has(z.id)),
   );
   private readonly _deleteTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
@@ -194,22 +201,38 @@ export class DashboardComponent {
     if (target) {
       await this.zoneService.updateZone(target.id, formData);
       if (this.zoneService.error()) {
-        this.messageService.add({ severity: 'error', summary: 'Update failed', detail: this.zoneService.error()! });
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Update failed',
+          detail: this.zoneService.error()!,
+        });
       } else {
-        this.messageService.add({ severity: 'success', summary: 'Zone updated', detail: `"${formData.name}" has been saved.` });
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Zone updated',
+          detail: `"${formData.name}" has been saved.`,
+        });
       }
     } else {
       await this.zoneService.createZone(formData);
       if (this.zoneService.error()) {
-        this.messageService.add({ severity: 'error', summary: 'Add failed', detail: this.zoneService.error()! });
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Add failed',
+          detail: this.zoneService.error()!,
+        });
       } else {
-        this.messageService.add({ severity: 'success', summary: 'Zone added', detail: `"${formData.name}" added to your greenhouse.` });
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Zone added',
+          detail: `"${formData.name}" added to your greenhouse.`,
+        });
       }
     }
   }
 
   onDeleteRequest(zoneId: string): void {
-    const zone = this.zoneService.zones().find(z => z.id === zoneId);
+    const zone = this.zoneService.zones().find((z) => z.id === zoneId);
     if (!zone) return;
     this.confirmationService.confirm({
       message: `Remove "${zone.name}"? All its plants will also be removed. You can undo this.`,
@@ -217,7 +240,7 @@ export class DashboardComponent {
       acceptLabel: 'Delete',
       rejectLabel: 'Cancel',
       accept: () => {
-        this.pendingDeleteZoneIds.update(ids => new Set([...ids, zoneId]));
+        this.pendingDeleteZoneIds.update((ids) => new Set([...ids, zoneId]));
         this.messageService.add({
           severity: 'warn',
           summary: 'Zone deleted',
@@ -227,14 +250,18 @@ export class DashboardComponent {
         });
         const timer = setTimeout(async () => {
           this._deleteTimers.delete(zoneId);
-          this.pendingDeleteZoneIds.update(ids => {
+          this.pendingDeleteZoneIds.update((ids) => {
             const next = new Set(ids);
             next.delete(zoneId);
             return next;
           });
           await this.zoneService.deleteZone(zoneId);
           if (this.zoneService.error()) {
-            this.messageService.add({ severity: 'error', summary: 'Delete failed', detail: this.zoneService.error()! });
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Delete failed',
+              detail: this.zoneService.error()!,
+            });
           }
         }, 5000);
         this._deleteTimers.set(zoneId, timer);
@@ -248,7 +275,7 @@ export class DashboardComponent {
       clearTimeout(timer);
       this._deleteTimers.delete(id);
     }
-    this.pendingDeleteZoneIds.update(ids => {
+    this.pendingDeleteZoneIds.update((ids) => {
       const next = new Set(ids);
       next.delete(id);
       return next;
@@ -260,9 +287,17 @@ export class DashboardComponent {
   async onPlantSaved(formData: PlantFormData): Promise<void> {
     await this.plantService.createPlant(formData);
     if (this.plantService.error()) {
-      this.messageService.add({ severity: 'error', summary: 'Add plant failed', detail: this.plantService.error()! });
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Add plant failed',
+        detail: this.plantService.error()!,
+      });
     } else {
-      this.messageService.add({ severity: 'success', summary: 'Plant added', detail: `"${formData.common_name}" added to your greenhouse.` });
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Plant added',
+        detail: `"${formData.common_name}" added to your greenhouse.`,
+      });
     }
   }
 }

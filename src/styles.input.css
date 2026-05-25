@@ -1,8 +1,8 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   /* --- Semantic Palette --- */
-  --color-primary-50:  #f0fdf4;
+  --color-primary-50: #f0fdf4;
   --color-primary-100: #dcfce7;
   --color-primary-200: #bbf7d0;
   --color-primary-500: #10b981;
@@ -12,10 +12,10 @@
 
   --color-success-500: #22c55e;
   --color-warning-500: #d97706;
-  --color-danger-500:  #ef4444;
-  --color-danger-700:  #b91c1c;
+  --color-danger-500: #ef4444;
+  --color-danger-700: #b91c1c;
 
-  --color-neutral-50:  #f8fafc;
+  --color-neutral-50: #f8fafc;
   --color-neutral-100: #f1f5f9;
   --color-neutral-200: #e2e8f0;
   --color-neutral-300: #cbd5e1;
@@ -26,7 +26,7 @@
   --color-neutral-800: #1e293b;
   --color-neutral-900: #0f172a;
 
-  --font-display: "Inter", system-ui, sans-serif;
+  --font-display: 'Inter', system-ui, sans-serif;
 
   --radius-garden-sm: 0.375rem;
   --radius-garden-md: 0.75rem;
@@ -37,8 +37,13 @@
 @variant dark (&:where(.dark, .dark *));
 
 @keyframes flora-skeleton {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.4; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
 }
 
 /* ToggleSwitch active state
@@ -53,13 +58,13 @@ p-toggleswitch:has(input:checked) {
   background-color: var(--color-primary-500);
 }
 
-p-toggleswitch:has(input:checked) [data-pc-section="slider"] {
+p-toggleswitch:has(input:checked) [data-pc-section='slider'] {
   translate: 1rem 0;
 }
 
 /* Select listcontainer has an inline max-height:200px set by PrimeNG — override with !important
    and clip overflow so the list's own overflow-auto scrollbar is the only scroll mechanism. */
-[data-pc-section="listcontainer"] {
+[data-pc-section='listcontainer'] {
   max-height: 15rem !important;
   overflow: auto !important;
 }
@@ -67,8 +72,8 @@ p-toggleswitch:has(input:checked) [data-pc-section="slider"] {
 /* Select / MultiSelect component-level keyboard focus indicator
    The focusable input lives in the label PT slot; :has() surfaces the ring on
    the host element so it wraps the full select boundary — mirrors p-toggleswitch pattern. */
-p-select:has([data-pc-section="label"]:focus-visible),
-p-multiselect:has([data-pc-section="label"]:focus-visible) {
+p-select:has([data-pc-section='label']:focus-visible),
+p-multiselect:has([data-pc-section='label']:focus-visible) {
   outline: 2px solid var(--color-primary-500);
   outline-offset: 2px;
   border-radius: var(--radius-garden-sm);
@@ -77,37 +82,36 @@ p-multiselect:has([data-pc-section="label"]:focus-visible) {
 /* Select / MultiSelect keyboard focus indicator
    PrimeNG v21 sets data-p-focused="true" on the arrow-key-focused option but
    doesn't re-evaluate PT functions on focus change, so we target it here. */
-[data-pc-section="option"][data-p-focused="true"] {
+[data-pc-section='option'][data-p-focused='true'] {
   outline: 2px solid var(--color-primary-500);
   outline-offset: -2px;
 }
 
-[data-pc-section="option"][data-p-focused="true"]:not([data-p-selected="true"]) {
+[data-pc-section='option'][data-p-focused='true']:not([data-p-selected='true']) {
   background-color: var(--color-neutral-100);
 }
 
-:where(.dark, .dark *) [data-pc-section="option"][data-p-focused="true"]:not([data-p-selected="true"]) {
+:where(.dark, .dark *)
+  [data-pc-section='option'][data-p-focused='true']:not([data-p-selected='true']) {
   background-color: var(--color-neutral-700);
 }
 
 /* Plant thumbnail placeholder — diagonal stripe pattern used in scheduler rows and soil-check dialog */
 .flora-plant-thumb {
-  background:
-    repeating-linear-gradient(
-      135deg,
-      var(--color-primary-100) 0px,
-      var(--color-primary-100) 10px,
-      var(--color-primary-200) 10px,
-      var(--color-primary-200) 20px
-    );
+  background: repeating-linear-gradient(
+    135deg,
+    var(--color-primary-100) 0px,
+    var(--color-primary-100) 10px,
+    var(--color-primary-200) 10px,
+    var(--color-primary-200) 20px
+  );
 }
 :where(.dark, .dark *) .flora-plant-thumb {
-  background:
-    repeating-linear-gradient(
-      135deg,
-      #1f2f25 0px,
-      #1f2f25 10px,
-      #1a2a20 10px,
-      #1a2a20 20px
-    );
+  background: repeating-linear-gradient(
+    135deg,
+    #1f2f25 0px,
+    #1f2f25 10px,
+    #1a2a20 10px,
+    #1a2a20 20px
+  );
 }

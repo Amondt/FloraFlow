@@ -39,20 +39,18 @@ import {
 })
 export class SchedulerComponent {
   protected readonly plantService = inject(PlantService);
-  protected readonly zoneService  = inject(ZoneService);
+  protected readonly zoneService = inject(ZoneService);
   private readonly confirmService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
-  private  readonly destroyRef    = inject(DestroyRef);
-  protected readonly FloraButtonPT        = FloraButtonPT;
+  private readonly destroyRef = inject(DestroyRef);
+  protected readonly FloraButtonPT = FloraButtonPT;
   protected readonly FloraConfirmDialogPT = FloraConfirmDialogPT;
-  protected readonly FloraMessagePT       = FloraMessagePT;
-  protected readonly FloraSkeletonPT      = FloraSkeletonPT;
-  protected readonly FloraToastPT         = FloraToastPT;
-  protected readonly loadingPlaceholders  = [1, 2, 3];
+  protected readonly FloraMessagePT = FloraMessagePT;
+  protected readonly FloraSkeletonPT = FloraSkeletonPT;
+  protected readonly FloraToastPT = FloraToastPT;
+  protected readonly loadingPlaceholders = [1, 2, 3];
 
-  readonly zoneMap = computed(() =>
-    new Map(this.zoneService.zones().map(z => [z.id, z]))
-  );
+  readonly zoneMap = computed(() => new Map(this.zoneService.zones().map((z) => [z.id, z])));
 
   protected readonly hasZones = computed(() => this.zoneService.zones().length > 0);
 
@@ -63,34 +61,42 @@ export class SchedulerComponent {
 
   readonly soonCount = computed(() => this.plantsGrouped().soon.length);
 
-  readonly plant            = input<string | undefined>(undefined);
+  readonly plant = input<string | undefined>(undefined);
 
-  readonly selectedPlant    = signal<Plant | null>(null);
-  readonly dialogVisible    = signal(false);
+  readonly selectedPlant = signal<Plant | null>(null);
+  readonly dialogVisible = signal(false);
   readonly plantFormVisible = signal(false);
-  readonly plantFormTarget  = signal<Plant | null>(null);
-  readonly plantToDelete    = signal<Plant | null>(null);
+  readonly plantFormTarget = signal<Plant | null>(null);
+  readonly plantToDelete = signal<Plant | null>(null);
 
   readonly pendingDeleteIds = signal<Set<string>>(new Set());
   readonly plantsGrouped = computed(() => {
     const now = new Date();
-    const startOfToday    = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const startOfTomorrow = new Date(startOfToday.getFullYear(), startOfToday.getMonth(), startOfToday.getDate() + 1);
-    const startOfDay7     = new Date(startOfToday.getFullYear(), startOfToday.getMonth(), startOfToday.getDate() + 7);
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfTomorrow = new Date(
+      startOfToday.getFullYear(),
+      startOfToday.getMonth(),
+      startOfToday.getDate() + 1,
+    );
+    const startOfDay7 = new Date(
+      startOfToday.getFullYear(),
+      startOfToday.getMonth(),
+      startOfToday.getDate() + 7,
+    );
 
-    const active = this.plantService.plants().filter(p => !this.pendingDeleteIds().has(p.id));
+    const active = this.plantService.plants().filter((p) => !this.pendingDeleteIds().has(p.id));
 
     return {
-      overdue:  active.filter(p => new Date(p.next_check_due_at) < startOfToday),
-      today:    active.filter(p => {
+      overdue: active.filter((p) => new Date(p.next_check_due_at) < startOfToday),
+      today: active.filter((p) => {
         const due = new Date(p.next_check_due_at);
         return due >= startOfToday && due < startOfTomorrow;
       }),
-      soon:     active.filter(p => {
+      soon: active.filter((p) => {
         const due = new Date(p.next_check_due_at);
         return due >= startOfTomorrow && due < startOfDay7;
       }),
-      upcoming: active.filter(p => new Date(p.next_check_due_at) >= startOfDay7),
+      upcoming: active.filter((p) => new Date(p.next_check_due_at) >= startOfDay7),
     };
   });
 
@@ -117,7 +123,7 @@ export class SchedulerComponent {
       if (this.plantService.loading()) return;
       const plants = this.plantService.plants();
       if (this._autoOpenedPlantId === id) return;
-      const plant = plants.find(p => p.id === id);
+      const plant = plants.find((p) => p.id === id);
       if (!plant) return;
       this._autoOpenedPlantId = id;
       this.onCheckNow(plant);
@@ -190,7 +196,7 @@ export class SchedulerComponent {
       acceptLabel: 'Delete',
       rejectLabel: 'Cancel',
       accept: () => {
-        this.pendingDeleteIds.update(ids => new Set([...ids, plant.id]));
+        this.pendingDeleteIds.update((ids) => new Set([...ids, plant.id]));
         this.plantToDelete.set(null);
         this.messageService.add({
           severity: 'warn',
@@ -201,7 +207,7 @@ export class SchedulerComponent {
         });
         const timer = setTimeout(async () => {
           this._deleteTimers.delete(plant.id);
-          this.pendingDeleteIds.update(ids => {
+          this.pendingDeleteIds.update((ids) => {
             const next = new Set(ids);
             next.delete(plant.id);
             return next;
@@ -229,7 +235,7 @@ export class SchedulerComponent {
       clearTimeout(timer);
       this._deleteTimers.delete(id);
     }
-    this.pendingDeleteIds.update(ids => {
+    this.pendingDeleteIds.update((ids) => {
       const next = new Set(ids);
       next.delete(id);
       return next;

@@ -8,6 +8,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "eslint src/**/*.ts src/**/*.html --no-warn-ignored",
+    "format": "prettier --write \"src/**/*.{ts,html,css}\" \"supabase/**/*.sql\"",
+    "format:check": "prettier --check \"src/**/*.{ts,html,css}\" \"supabase/**/*.sql\"",
     "tw": "tailwindcss -i ./src/styles.input.css -o ./src/styles.css",
     "tw:watch": "tailwindcss -i ./src/styles.input.css -o ./src/styles.css --watch",
     "dev": "concurrently \"ng serve\" \"tailwindcss -i ./src/styles.input.css -o ./src/styles.css --watch\""
@@ -45,6 +47,7 @@
     "eslint": "^10.4.0",
     "jsdom": "^28.0.0",
     "prettier": "^3.8.1",
+    "prettier-plugin-sql": "^0.20.0",
     "typescript": "~5.9.2",
     "typescript-eslint": "^8.59.3",
     "vitest": "^4.0.8"

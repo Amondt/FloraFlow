@@ -1,5 +1,15 @@
-import { APP_INITIALIZER, ApplicationConfig, provideZonelessChangeDetection, isDevMode } from '@angular/core';
-import { PreloadAllModules, provideRouter, withComponentInputBinding, withPreloading } from '@angular/router';
+import {
+  APP_INITIALIZER,
+  ApplicationConfig,
+  provideZonelessChangeDetection,
+  isDevMode,
+} from '@angular/core';
+import {
+  PreloadAllModules,
+  provideRouter,
+  withComponentInputBinding,
+  withPreloading,
+} from '@angular/router';
 import { provideHttpClient, withFetch } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
@@ -10,7 +20,7 @@ function clearStaleSwInDev(): () => Promise<void> {
   return async () => {
     if (isDevMode() && 'serviceWorker' in navigator) {
       const regs = await navigator.serviceWorker.getRegistrations();
-      await Promise.all(regs.map(r => r.unregister()));
+      await Promise.all(regs.map((r) => r.unregister()));
     }
   };
 }

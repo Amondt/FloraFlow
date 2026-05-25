@@ -4,10 +4,7 @@ import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class SupabaseService {
-  readonly client: SupabaseClient = createClient(
-    environment.supabaseUrl,
-    environment.supabaseKey,
-  );
+  readonly client: SupabaseClient = createClient(environment.supabaseUrl, environment.supabaseKey);
 
   private readonly _session = signal<Session | null | undefined>(undefined);
   readonly session = this._session.asReadonly();
@@ -16,7 +13,9 @@ export class SupabaseService {
 
   constructor() {
     let onFirst!: () => void;
-    this.sessionReady = new Promise(resolve => { onFirst = resolve; });
+    this.sessionReady = new Promise((resolve) => {
+      onFirst = resolve;
+    });
 
     this.client.auth.onAuthStateChange((_event, session) => {
       this._session.set(session);

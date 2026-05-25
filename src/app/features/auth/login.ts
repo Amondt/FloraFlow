@@ -14,26 +14,33 @@ import { SupabaseService } from '../../core/services/supabase.service';
 })
 export class LoginComponent {
   private readonly supabase = inject(SupabaseService);
-  private readonly router   = inject(Router);
+  private readonly router = inject(Router);
 
-  protected readonly FloraButtonPT   = FloraButtonPT;
+  protected readonly FloraButtonPT = FloraButtonPT;
   protected readonly FloraInputTextPT = FloraInputTextPT;
-  protected readonly FLORA_ERROR      = FLORA_ERROR;
+  protected readonly FLORA_ERROR = FLORA_ERROR;
 
   readonly form = new FormGroup({
-    email:    new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
+    email: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.email],
+    }),
     password: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
   });
 
-  readonly loading   = signal(false);
+  readonly loading = signal(false);
   readonly authError = signal('');
 
-  get email()    { return this.form.controls.email; }
-  get password() { return this.form.controls.password; }
+  get email() {
+    return this.form.controls.email;
+  }
+  get password() {
+    return this.form.controls.password;
+  }
 
   readonly emailError = () => {
     if (this.email.hasError('required')) return 'Email address is required.';
-    if (this.email.hasError('email'))    return 'Please enter a valid email address.';
+    if (this.email.hasError('email')) return 'Please enter a valid email address.';
     return '';
   };
 

@@ -13,12 +13,14 @@ export const FloraAutoCompletePT = {
         'text-neutral-900 dark:text-neutral-100',
         'border border-neutral-300 dark:border-neutral-600 rounded-garden-sm',
         'placeholder:text-neutral-400',
-        FLORA_FOCUS, FLORA_DISABLED,
+        FLORA_FOCUS,
+        FLORA_DISABLED,
       ].join(' '),
     },
   },
   overlay: {
-    class: 'mt-1 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md shadow-xl z-50',
+    class:
+      'mt-1 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md shadow-xl z-50',
   },
   list: { class: 'py-1 max-h-60 overflow-auto' },
   option: ({ context = { selected: false } }: { context?: { selected: boolean } } = {}) => ({
@@ -27,7 +29,8 @@ export const FloraAutoCompletePT = {
       'text-neutral-700 dark:text-neutral-200',
       FLORA_HOVER,
       {
-        'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-medium': context.selected,
+        'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-medium':
+          context.selected,
         'hover:bg-neutral-100 dark:hover:bg-neutral-700': !context.selected,
       },
     ],

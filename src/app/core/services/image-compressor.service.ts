@@ -28,14 +28,14 @@ export class ImageCompressorService {
     height: number,
     maxBytes: number,
   ): Promise<Blob> {
-    return this.tryQualities(img, width, height, 0.85, maxBytes).then(result => {
+    return this.tryQualities(img, width, height, 0.85, maxBytes).then((result) => {
       if (result !== null) return result;
 
       const halfWidth = Math.max(1, Math.floor(width / 2));
       const halfHeight = Math.max(1, Math.floor(height / 2));
 
       if (halfWidth === width && halfHeight === height) {
-        return this.drawToBlob(img, width, height, 0.10).then(b => b!);
+        return this.drawToBlob(img, width, height, 0.1).then((b) => b!);
       }
 
       return this.reduceToTarget(img, halfWidth, halfHeight, maxBytes);
@@ -49,12 +49,12 @@ export class ImageCompressorService {
     quality: number,
     maxBytes: number,
   ): Promise<Blob | null> {
-    if (quality < 0.10) return Promise.resolve(null);
+    if (quality < 0.1) return Promise.resolve(null);
 
-    return this.drawToBlob(img, width, height, quality).then(blob => {
+    return this.drawToBlob(img, width, height, quality).then((blob) => {
       if (blob === null) return null;
       if (blob.size <= maxBytes) return blob;
-      return this.tryQualities(img, width, height, quality - 0.10, maxBytes);
+      return this.tryQualities(img, width, height, quality - 0.1, maxBytes);
     });
   }
 
@@ -73,7 +73,7 @@ export class ImageCompressorService {
 
     ctx.drawImage(img, 0, 0, width, height);
 
-    return new Promise<Blob | null>(resolve => {
+    return new Promise<Blob | null>((resolve) => {
       canvas.toBlob(resolve, 'image/jpeg', quality);
     });
   }

@@ -3,7 +3,7 @@ import { SupabaseService } from '../../core/services/supabase.service';
 import type { Database } from '../../../types/database.types';
 
 type JournalInsert = Database['public']['Tables']['plant_journals']['Insert'];
-type JournalRow    = Database['public']['Tables']['plant_journals']['Row'];
+type JournalRow = Database['public']['Tables']['plant_journals']['Row'];
 
 @Injectable({ providedIn: 'root' })
 export class JournalService {

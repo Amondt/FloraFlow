@@ -13,7 +13,7 @@ describe('NetworkStatusService', () => {
     }).compileComponents();
 
     service = TestBed.inject(NetworkStatusService);
-    appRef  = TestBed.inject(ApplicationRef);
+    appRef = TestBed.inject(ApplicationRef);
     appRef.tick();
   });
 

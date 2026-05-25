@@ -32,23 +32,23 @@ import { Zone, ZoneFormData, WindowOrientation, WINDOW_ORIENTATION_OPTIONS } fro
   templateUrl: './zone-form.html',
 })
 export class ZoneFormComponent {
-  readonly visible  = model<boolean>(false);
+  readonly visible = model<boolean>(false);
   readonly editZone = input<Zone | null>(null);
-  readonly saved    = output<ZoneFormData>();
+  readonly saved = output<ZoneFormData>();
 
-  protected readonly FloraDialogPT       = FloraDialogPT;
-  protected readonly FloraInputTextPT    = FloraInputTextPT;
-  protected readonly FloraInputNumberPT  = FloraInputNumberPT;
-  protected readonly FloraSelectPT       = FloraSelectPT;
+  protected readonly FloraDialogPT = FloraDialogPT;
+  protected readonly FloraInputTextPT = FloraInputTextPT;
+  protected readonly FloraInputNumberPT = FloraInputNumberPT;
+  protected readonly FloraSelectPT = FloraSelectPT;
   protected readonly FloraToggleSwitchPT = FloraToggleSwitchPT;
-  protected readonly FloraButtonPT       = FloraButtonPT;
-  protected readonly FLORA_ERROR         = FLORA_ERROR;
-  protected readonly orientationOptions  = WINDOW_ORIENTATION_OPTIONS;
+  protected readonly FloraButtonPT = FloraButtonPT;
+  protected readonly FLORA_ERROR = FLORA_ERROR;
+  protected readonly orientationOptions = WINDOW_ORIENTATION_OPTIONS;
 
-  readonly dialogTitle = computed(() => this.editZone() ? 'Edit Zone' : 'Add Zone');
+  readonly dialogTitle = computed(() => (this.editZone() ? 'Edit Zone' : 'Add Zone'));
 
-  protected readonly nameId        = `flora-zone-name-${crypto.randomUUID().slice(0, 8)}`;
-  protected readonly humidityId    = `flora-zone-humidity-${crypto.randomUUID().slice(0, 8)}`;
+  protected readonly nameId = `flora-zone-name-${crypto.randomUUID().slice(0, 8)}`;
+  protected readonly humidityId = `flora-zone-humidity-${crypto.randomUUID().slice(0, 8)}`;
   protected readonly orientationId = `flora-zone-orientation-${crypto.randomUUID().slice(0, 8)}`;
 
   readonly form = new FormGroup({
@@ -59,7 +59,7 @@ export class ZoneFormComponent {
     icon: new FormControl('ri-plant-line', { nonNullable: true }),
     window_orientation: new FormControl<WindowOrientation>('None', { nonNullable: true }),
     has_active_ventilation: new FormControl(false, { nonNullable: true }),
-    has_grow_lights:        new FormControl(false, { nonNullable: true }),
+    has_grow_lights: new FormControl(false, { nonNullable: true }),
     humidity_baseline: new FormControl(40, {
       nonNullable: true,
       validators: [Validators.required, Validators.min(0), Validators.max(100)],
@@ -81,27 +81,31 @@ export class ZoneFormComponent {
     const zone = untracked(() => this.editZone());
     if (zone) {
       this.form.patchValue({
-        name:                   zone.name,
-        icon:                   zone.icon,
-        window_orientation:     zone.window_orientation,
+        name: zone.name,
+        icon: zone.icon,
+        window_orientation: zone.window_orientation,
         has_active_ventilation: zone.has_active_ventilation,
-        has_grow_lights:        zone.has_grow_lights,
-        humidity_baseline:      zone.humidity_baseline,
+        has_grow_lights: zone.has_grow_lights,
+        humidity_baseline: zone.humidity_baseline,
       });
     } else {
       this.form.reset({
-        name:                   '',
-        icon:                   'ri-plant-line',
-        window_orientation:     'None',
+        name: '',
+        icon: 'ri-plant-line',
+        window_orientation: 'None',
         has_active_ventilation: false,
-        has_grow_lights:        false,
-        humidity_baseline:      40,
+        has_grow_lights: false,
+        humidity_baseline: 40,
       });
     }
   });
 
-  get nameCtrl()     { return this.form.controls.name; }
-  get humidityCtrl() { return this.form.controls.humidity_baseline; }
+  get nameCtrl() {
+    return this.form.controls.name;
+  }
+  get humidityCtrl() {
+    return this.form.controls.humidity_baseline;
+  }
 
   onSubmit(): void {
     if (this.form.invalid) {

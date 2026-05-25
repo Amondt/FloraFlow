@@ -19,6 +19,5 @@ export class NavComponent {
     FLORA_HOVER,
   ].join(' ');
 
-  protected readonly linkActive =
-    '!border-primary-500 text-primary-600 dark:text-primary-400';
+  protected readonly linkActive = '!border-primary-500 text-primary-600 dark:text-primary-400';
 }

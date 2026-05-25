@@ -18,17 +18,13 @@
 --      (plant_id, logged_at DESC), which covers all single-column
 --      plant_id lookups. The original index is now redundant.
 -- ============================================================
-
 -- ─── A. confirm_plant_check RPC ──────────────────────────────
-
 -- Called from the client via supabase.rpc('confirm_plant_check', { p_plant_id }).
 -- Runs when the user confirms the soil IS dry.
 -- Derives next_check_due_at server-side from the snooze_interval_rules
 -- lookup table, identical to snooze_plant_check. Both paths are now
 -- clock-skew-proof and always consistent with the lookup matrix.
-CREATE OR REPLACE FUNCTION public.confirm_plant_check(
-  p_plant_id UUID
-) RETURNS VOID LANGUAGE plpgsql SECURITY DEFINER AS $$
+CREATE OR REPLACE FUNCTION public.confirm_plant_check (p_plant_id UUID) RETURNS VOID LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE
   v_days INT;
 BEGIN
@@ -54,23 +50,25 @@ END;
 $$;
 
 -- ─── B. plant_journals RLS — plant_id ownership check ────────
-
 DROP POLICY "Gardeners manage their own journal entries" ON public.plant_journals;
 
 -- USING: governs SELECT, UPDATE, DELETE — user can only see/touch their own rows.
 -- WITH CHECK: governs INSERT and UPDATE new values — enforces that plant_id
 --   also belongs to the authenticated user, blocking cross-user journal writes.
-CREATE POLICY "Gardeners manage their own journal entries"
-ON public.plant_journals FOR ALL
-USING (auth.uid() = user_id)
-WITH CHECK (
-  auth.uid() = user_id
-  AND EXISTS (
-    SELECT 1 FROM public.plants p
-    WHERE p.id = plant_id AND p.user_id = auth.uid()
-  )
-);
+CREATE POLICY "Gardeners manage their own journal entries" ON public.plant_journals FOR ALL USING (auth.uid () = user_id)
+WITH
+  CHECK (
+    auth.uid () = user_id
+    AND EXISTS (
+      SELECT
+        1
+      FROM
+        public.plants p
+      WHERE
+        p.id = plant_id
+        AND p.user_id = auth.uid ()
+    )
+  );
 
 -- ─── C. Drop redundant single-column index ────────────────────
-
 DROP INDEX IF EXISTS idx_journals_plant;

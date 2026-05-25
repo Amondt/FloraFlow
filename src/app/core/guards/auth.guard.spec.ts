@@ -15,7 +15,7 @@ describe('authGuard', () => {
 
   beforeEach(async () => {
     sessionSignal = signal<Session | null | undefined>(null);
-    mockParseUrl   = vi.fn().mockReturnValue('url-tree-/login');
+    mockParseUrl = vi.fn().mockReturnValue('url-tree-/login');
 
     await TestBed.configureTestingModule({
       providers: [

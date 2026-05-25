@@ -7,7 +7,6 @@
   [resizable]="false"
   [pt]="FloraDialogPT"
 >
-
   <form
     [formGroup]="form"
     (ngSubmit)="onSubmit()"
@@ -15,7 +14,6 @@
     class="flex flex-col gap-5"
     aria-label="Zone details form"
   >
-
     <div class="flex flex-col gap-1.5">
       <label
         [for]="nameId"
@@ -38,11 +36,7 @@
         autocomplete="off"
       />
       @if (nameCtrl.invalid && nameCtrl.touched) {
-        <small
-          [id]="nameId + '-error'"
-          class="text-danger-500 text-xs font-display"
-          role="alert"
-        >
+        <small [id]="nameId + '-error'" class="text-danger-500 text-xs font-display" role="alert">
           Zone name is required.
         </small>
       }
@@ -80,7 +74,9 @@
         [max]="100"
         [showButtons]="true"
         [pt]="FloraInputNumberPT"
-        [attr.aria-describedby]="humidityCtrl.invalid && humidityCtrl.touched ? humidityId + '-error' : null"
+        [attr.aria-describedby]="
+          humidityCtrl.invalid && humidityCtrl.touched ? humidityId + '-error' : null
+        "
         [attr.aria-invalid]="humidityCtrl.invalid && humidityCtrl.touched"
       />
       @if (humidityCtrl.invalid && humidityCtrl.touched) {
@@ -117,7 +113,6 @@
         ariaLabel="Toggle grow lights"
       />
     </label>
-
   </form>
 
   <ng-template #footer>
@@ -135,5 +130,4 @@
       (onClick)="onSubmit()"
     />
   </ng-template>
-
 </p-dialog>

@@ -7,7 +7,7 @@ import { OfflineQueueService } from '../../core/services/offline-queue.service';
 import { SupabaseService } from '../../core/services/supabase.service';
 import type { QueuedAction } from '../../core/services/offline-queue.service';
 
-const flushPromises = () => new Promise<void>(resolve => setTimeout(resolve, 0));
+const flushPromises = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 
 function makeItem(overrides: Partial<QueuedAction> = {}): QueuedAction {
   return {
@@ -92,7 +92,12 @@ describe('PlantService — reconciliation loop', () => {
   });
 
   it('replays a snooze action and removes it on success', async () => {
-    const item = makeItem({ id: 'snooze-1', action: 'snooze', plant_id: 'plant-b', snooze_days: 5 });
+    const item = makeItem({
+      id: 'snooze-1',
+      action: 'snooze',
+      plant_id: 'plant-b',
+      snooze_days: 5,
+    });
     mockGetAll.mockResolvedValue([item]);
     mockRpc.mockResolvedValue({ error: null });
 
@@ -120,7 +125,7 @@ describe('PlantService — reconciliation loop', () => {
 
   it('continues processing subsequent items after a partial failure', async () => {
     const failItem = makeItem({ id: 'fail', plant_id: 'plant-x' });
-    const okItem   = makeItem({ id: 'ok',   plant_id: 'plant-y' });
+    const okItem = makeItem({ id: 'ok', plant_id: 'plant-y' });
     mockGetAll.mockResolvedValue([failItem, okItem]);
     mockRpc
       .mockResolvedValueOnce({ error: { message: 'first fails' } })

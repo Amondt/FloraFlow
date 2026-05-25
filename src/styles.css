@@ -95,7 +95,7 @@
     --color-warning-500: #d97706;
     --color-danger-500: #ef4444;
     --color-danger-700: #b91c1c;
-    --font-display: "Inter", system-ui, sans-serif;
+    --font-display: 'Inter', system-ui, sans-serif;
     --radius-garden-sm: 0.375rem;
     --radius-garden-md: 0.75rem;
     --radius-garden-lg: 1.25rem;
@@ -253,9 +253,6 @@
   .pointer-events-none {
     pointer-events: none;
   }
-  .collapse {
-    visibility: collapse;
-  }
   .invisible {
     visibility: hidden;
   }
@@ -276,14 +273,8 @@
   .absolute {
     position: absolute;
   }
-  .fixed {
-    position: fixed;
-  }
   .relative {
     position: relative;
-  }
-  .static {
-    position: static;
   }
   .inset-0 {
     inset: calc(var(--spacing) * 0);
@@ -411,9 +402,6 @@
   .block {
     display: block;
   }
-  .contents {
-    display: contents;
-  }
   .flex {
     display: flex;
   }
@@ -452,9 +440,6 @@
   }
   .h-10 {
     height: calc(var(--spacing) * 10);
-  }
-  .h-12 {
-    height: calc(var(--spacing) * 12);
   }
   .h-14 {
     height: calc(var(--spacing) * 14);
@@ -638,20 +623,6 @@
   .gap-5 {
     gap: calc(var(--spacing) * 5);
   }
-  .space-y-10 {
-    :where(& > :not(:last-child)) {
-      --tw-space-y-reverse: 0;
-      margin-block-start: calc(calc(var(--spacing) * 10) * var(--tw-space-y-reverse));
-      margin-block-end: calc(calc(var(--spacing) * 10) * calc(1 - var(--tw-space-y-reverse)));
-    }
-  }
-  .space-y-12 {
-    :where(& > :not(:last-child)) {
-      --tw-space-y-reverse: 0;
-      margin-block-start: calc(calc(var(--spacing) * 12) * var(--tw-space-y-reverse));
-      margin-block-end: calc(calc(var(--spacing) * 12) * calc(1 - var(--tw-space-y-reverse)));
-    }
-  }
   .truncate {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -680,9 +651,6 @@
   }
   .rounded-garden-sm {
     border-radius: var(--radius-garden-sm);
-  }
-  .rounded-lg {
-    border-radius: var(--radius-lg);
   }
   .border {
     border-style: var(--tw-border-style);
@@ -756,9 +724,6 @@
       border-color: color-mix(in oklab, var(--color-primary-500) 30%, transparent);
     }
   }
-  .border-slate-200 {
-    border-color: var(--color-slate-200);
-  }
   .border-success-500 {
     border-color: var(--color-success-500);
   }
@@ -821,9 +786,6 @@
   }
   .bg-red-100 {
     background-color: var(--color-red-100);
-  }
-  .bg-stone-50 {
-    background-color: var(--color-stone-50);
   }
   .bg-transparent {
     background-color: transparent;
@@ -909,9 +871,6 @@
   .py-4 {
     padding-block: calc(var(--spacing) * 4);
   }
-  .py-12 {
-    padding-block: calc(var(--spacing) * 12);
-  }
   .py-16 {
     padding-block: calc(var(--spacing) * 16);
   }
@@ -953,15 +912,6 @@
   }
   .font-display {
     font-family: var(--font-display);
-  }
-  .font-mono {
-    font-family: var(--font-mono);
-  }
-  .font-sans {
-    font-family: var(--font-sans);
-  }
-  .font-serif {
-    font-family: var(--font-serif);
   }
   .text-2xl {
     font-size: var(--text-2xl);
@@ -1023,10 +973,6 @@
     --tw-tracking: var(--tracking-wide);
     letter-spacing: var(--tracking-wide);
   }
-  .tracking-wider {
-    --tw-tracking: var(--tracking-wider);
-    letter-spacing: var(--tracking-wider);
-  }
   .tracking-widest {
     --tw-tracking: var(--tracking-widest);
     letter-spacing: var(--tracking-widest);
@@ -1084,9 +1030,6 @@
   }
   .text-red-900 {
     color: var(--color-red-900);
-  }
-  .text-slate-900 {
-    color: var(--color-slate-900);
   }
   .text-success-500 {
     color: var(--color-success-500);
@@ -1156,10 +1099,6 @@
   .outline {
     outline-style: var(--tw-outline-style);
     outline-width: 1px;
-  }
-  .blur {
-    --tw-blur: blur(8px);
-    filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
   }
   .filter {
     filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
@@ -1851,26 +1790,26 @@ p-toggleswitch:has(input:focus-visible) {
 p-toggleswitch:has(input:checked) {
   background-color: var(--color-primary-500);
 }
-p-toggleswitch:has(input:checked) [data-pc-section="slider"] {
+p-toggleswitch:has(input:checked) [data-pc-section='slider'] {
   translate: 1rem 0;
 }
-[data-pc-section="listcontainer"] {
+[data-pc-section='listcontainer'] {
   max-height: 15rem !important;
   overflow: auto !important;
 }
-p-select:has([data-pc-section="label"]:focus-visible), p-multiselect:has([data-pc-section="label"]:focus-visible) {
+p-select:has([data-pc-section='label']:focus-visible), p-multiselect:has([data-pc-section='label']:focus-visible) {
   outline: 2px solid var(--color-primary-500);
   outline-offset: 2px;
   border-radius: var(--radius-garden-sm);
 }
-[data-pc-section="option"][data-p-focused="true"] {
+[data-pc-section='option'][data-p-focused='true'] {
   outline: 2px solid var(--color-primary-500);
   outline-offset: -2px;
 }
-[data-pc-section="option"][data-p-focused="true"]:not([data-p-selected="true"]) {
+[data-pc-section='option'][data-p-focused='true']:not([data-p-selected='true']) {
   background-color: var(--color-neutral-100);
 }
-:where(.dark, .dark *) [data-pc-section="option"][data-p-focused="true"]:not([data-p-selected="true"]) {
+:where(.dark, .dark *) [data-pc-section='option'][data-p-focused='true']:not([data-p-selected='true']) {
   background-color: var(--color-neutral-700);
 }
 .flora-plant-thumb {
@@ -1913,11 +1852,6 @@ p-select:has([data-pc-section="label"]:focus-visible), p-multiselect:has([data-p
 @property --tw-skew-y {
   syntax: "*";
   inherits: false;
-}
-@property --tw-space-y-reverse {
-  syntax: "*";
-  inherits: false;
-  initial-value: 0;
 }
 @property --tw-border-style {
   syntax: "*";
@@ -2120,7 +2054,6 @@ p-select:has([data-pc-section="label"]:focus-visible), p-multiselect:has([data-p
       --tw-rotate-z: initial;
       --tw-skew-x: initial;
       --tw-skew-y: initial;
-      --tw-space-y-reverse: 0;
       --tw-border-style: solid;
       --tw-leading: initial;
       --tw-font-weight: initial;

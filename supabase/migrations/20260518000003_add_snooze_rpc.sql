@@ -11,10 +11,7 @@
 --   snooze  = soil NOT dry → same formula, identical DB effect
 --   (The semantic difference is captured in the UX, not the SQL.)
 -- ============================================================
-
-CREATE OR REPLACE FUNCTION public.snooze_plant_check(
-  p_plant_id UUID
-) RETURNS VOID LANGUAGE plpgsql SECURITY DEFINER AS $$
+CREATE OR REPLACE FUNCTION public.snooze_plant_check (p_plant_id UUID) RETURNS VOID LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE
   v_days INT;
 BEGIN

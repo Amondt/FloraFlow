@@ -106,6 +106,6 @@ describe('ImageCompressorService [BUGS]', () => {
 
     await service.compress(makeFile()).catch(() => undefined);
 
-    expect((URL.revokeObjectURL as ReturnType<typeof vi.fn>)).toHaveBeenCalledWith('blob:mock-url');
+    expect(URL.revokeObjectURL as ReturnType<typeof vi.fn>).toHaveBeenCalledWith('blob:mock-url');
   });
 });

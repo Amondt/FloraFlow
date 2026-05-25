@@ -19,18 +19,18 @@ function localMidnight(offsetDays: number): string {
 function makePlant(id: string, offsetDays: number): Plant {
   return {
     id,
-    user_id:                     'u',
-    zone_id:                     'z',
-    common_name:                 `Plant ${id}`,
-    scientific_name:             null,
-    perenual_id:                 null,
-    container_vector:            'Terracotta',
-    substrate_factor:            'Standard Potting',
-    last_checked_at:             null,
-    next_check_due_at:           localMidnight(offsetDays),
+    user_id: 'u',
+    zone_id: 'z',
+    common_name: `Plant ${id}`,
+    scientific_name: null,
+    perenual_id: null,
+    container_vector: 'Terracotta',
+    substrate_factor: 'Standard Potting',
+    last_checked_at: null,
+    next_check_due_at: localMidnight(offsetDays),
     current_snooze_interval_days: 7,
-    created_at:                  '',
-    updated_at:                  '',
+    created_at: '',
+    updated_at: '',
   };
 }
 
@@ -48,41 +48,43 @@ describe('SchedulerComponent — plantsGrouped()', () => {
         {
           provide: PlantService,
           useValue: {
-            plants:       plantsSignal,
-            loading:      signal(false),
-            error:        signal(null),
-            loadPlants:   vi.fn().mockResolvedValue(undefined),
+            plants: plantsSignal,
+            loading: signal(false),
+            error: signal(null),
+            loadPlants: vi.fn().mockResolvedValue(undefined),
             confirmCheck: vi.fn(),
-            snoozeCheck:  vi.fn(),
-            createPlant:  vi.fn(),
-            updatePlant:  vi.fn(),
-            deletePlant:  vi.fn(),
+            snoozeCheck: vi.fn(),
+            createPlant: vi.fn(),
+            updatePlant: vi.fn(),
+            deletePlant: vi.fn(),
           },
         },
         {
           provide: ZoneService,
           useValue: {
-            zones:     signal([]),
-            loading:   signal(false),
-            error:     signal(null),
+            zones: signal([]),
+            loading: signal(false),
+            error: signal(null),
             loadZones: vi.fn().mockResolvedValue(undefined),
           },
         },
       ],
     })
-    .overrideTemplate(SchedulerComponent, '')
-    .compileComponents();
+      .overrideTemplate(SchedulerComponent, '')
+      .compileComponents();
 
     component = TestBed.createComponent(SchedulerComponent).componentInstance;
   });
 
-  afterEach(() => { vi.useRealTimers(); });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
 
   it('places a plant due yesterday in overdue', () => {
     plantsSignal.set([makePlant('p-overdue', -1)]);
 
     const g = component.plantsGrouped();
-    expect(g.overdue.map(p => p.id)).toContain('p-overdue');
+    expect(g.overdue.map((p) => p.id)).toContain('p-overdue');
     expect(g.today).toHaveLength(0);
     expect(g.soon).toHaveLength(0);
     expect(g.upcoming).toHaveLength(0);
@@ -92,7 +94,7 @@ describe('SchedulerComponent — plantsGrouped()', () => {
     plantsSignal.set([makePlant('p-today', 0)]);
 
     const g = component.plantsGrouped();
-    expect(g.today.map(p => p.id)).toContain('p-today');
+    expect(g.today.map((p) => p.id)).toContain('p-today');
     expect(g.overdue).toHaveLength(0);
     expect(g.soon).toHaveLength(0);
     expect(g.upcoming).toHaveLength(0);
@@ -102,7 +104,7 @@ describe('SchedulerComponent — plantsGrouped()', () => {
     plantsSignal.set([makePlant('p-tomorrow', 1)]);
 
     const g = component.plantsGrouped();
-    expect(g.soon.map(p => p.id)).toContain('p-tomorrow');
+    expect(g.soon.map((p) => p.id)).toContain('p-tomorrow');
     expect(g.overdue).toHaveLength(0);
     expect(g.today).toHaveLength(0);
     expect(g.upcoming).toHaveLength(0);
@@ -112,7 +114,7 @@ describe('SchedulerComponent — plantsGrouped()', () => {
     plantsSignal.set([makePlant('p-6days', 6)]);
 
     const g = component.plantsGrouped();
-    expect(g.soon.map(p => p.id)).toContain('p-6days');
+    expect(g.soon.map((p) => p.id)).toContain('p-6days');
     expect(g.upcoming).toHaveLength(0);
   });
 
@@ -120,7 +122,7 @@ describe('SchedulerComponent — plantsGrouped()', () => {
     plantsSignal.set([makePlant('p-7days', 7)]);
 
     const g = component.plantsGrouped();
-    expect(g.upcoming.map(p => p.id)).toContain('p-7days');
+    expect(g.upcoming.map((p) => p.id)).toContain('p-7days');
     expect(g.soon).toHaveLength(0);
   });
 
@@ -129,7 +131,7 @@ describe('SchedulerComponent — plantsGrouped()', () => {
     component.pendingDeleteIds.set(new Set(['p-deleted']));
 
     const g = component.plantsGrouped();
-    const allIds = [...g.overdue, ...g.today, ...g.soon, ...g.upcoming].map(p => p.id);
+    const allIds = [...g.overdue, ...g.today, ...g.soon, ...g.upcoming].map((p) => p.id);
     expect(allIds).not.toContain('p-deleted');
     expect(allIds).toContain('p-keep');
   });
@@ -159,11 +161,7 @@ describe('SchedulerComponent — plantsGrouped()', () => {
 
   describe('soonCount', () => {
     it('equals the number of plants in the soon bucket', () => {
-      plantsSignal.set([
-        makePlant('s1', 1),
-        makePlant('s2', 3),
-        makePlant('u1', 7),
-      ]);
+      plantsSignal.set([makePlant('s1', 1), makePlant('s2', 3), makePlant('u1', 7)]);
 
       expect(component.soonCount()).toBe(2);
     });

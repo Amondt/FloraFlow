@@ -8,7 +8,7 @@ import { SupabaseService } from '../../core/services/supabase.service';
 import type { ZoneFormData } from './zone.model';
 import type { QueuedAction } from '../../core/services/offline-queue.service';
 
-const flushPromises = () => new Promise<void>(resolve => setTimeout(resolve, 0));
+const flushPromises = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 
 const FORM_DATA: ZoneFormData = {
   name: 'Living Room',
@@ -36,14 +36,21 @@ function makeZoneItem(overrides: Partial<QueuedAction> = {}): QueuedAction {
 }
 
 function makeFromMock(insertResult: { error: { message: string } | null } = { error: null }) {
-  const mockOrder  = vi.fn().mockResolvedValue({ data: [], error: null });
+  const mockOrder = vi.fn().mockResolvedValue({ data: [], error: null });
   const mockSelect = vi.fn().mockReturnValue({ order: mockOrder });
   const mockInsert = vi.fn().mockResolvedValue(insertResult);
-  const mockEqUpd  = vi.fn().mockResolvedValue({ error: null });
+  const mockEqUpd = vi.fn().mockResolvedValue({ error: null });
   const mockUpdate = vi.fn().mockReturnValue({ eq: mockEqUpd });
-  const mockEqDel  = vi.fn().mockResolvedValue({ error: null });
+  const mockEqDel = vi.fn().mockResolvedValue({ error: null });
   const mockDelete = vi.fn().mockReturnValue({ eq: mockEqDel });
-  return vi.fn().mockReturnValue({ select: mockSelect, insert: mockInsert, update: mockUpdate, delete: mockDelete });
+  return vi
+    .fn()
+    .mockReturnValue({
+      select: mockSelect,
+      insert: mockInsert,
+      update: mockUpdate,
+      delete: mockDelete,
+    });
 }
 
 describe('ZoneService', () => {
@@ -56,12 +63,12 @@ describe('ZoneService', () => {
   let mockGetUser: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
-    isOnline    = signal(false);
-    mockGetAll  = vi.fn().mockResolvedValue([]);
-    mockRemove  = vi.fn().mockResolvedValue(undefined);
+    isOnline = signal(false);
+    mockGetAll = vi.fn().mockResolvedValue([]);
+    mockRemove = vi.fn().mockResolvedValue(undefined);
     mockEnqueue = vi.fn().mockResolvedValue(undefined);
     mockGetUser = vi.fn().mockResolvedValue({ data: { user: { id: 'user-123' } } });
-    mockFrom    = makeFromMock();
+    mockFrom = makeFromMock();
 
     await TestBed.configureTestingModule({
       providers: [
@@ -158,7 +165,9 @@ describe('ZoneService', () => {
   });
 
   describe('createZone() — online', () => {
-    beforeEach(() => { isOnline.set(true); });
+    beforeEach(() => {
+      isOnline.set(true);
+    });
 
     it('calls DB insert and reloads zones on success', async () => {
       await service.createZone(FORM_DATA);
@@ -180,7 +189,9 @@ describe('ZoneService', () => {
 
   describe('updateZone() — offline', () => {
     it('updates the matching zone optimistically in the signal', async () => {
-      service.zones.set([{ id: 'z1', user_id: 'u', ...FORM_DATA, name: 'Old Name', created_at: '', updated_at: '' }]);
+      service.zones.set([
+        { id: 'z1', user_id: 'u', ...FORM_DATA, name: 'Old Name', created_at: '', updated_at: '' },
+      ]);
 
       await service.updateZone('z1', { ...FORM_DATA, name: 'New Name' });
 
@@ -245,10 +256,10 @@ describe('ZoneService', () => {
       const item = makeZoneItem({ id: 'cz-fail', action: 'create-zone' });
       mockGetAll.mockResolvedValue([item]);
 
-      const mockOrder  = vi.fn().mockResolvedValue({ data: [], error: null });
+      const mockOrder = vi.fn().mockResolvedValue({ data: [], error: null });
       const mockSelect = vi.fn().mockReturnValue({ order: mockOrder });
-      const mockEqUpd  = vi.fn().mockResolvedValue({ error: null });
-      const mockEqDel  = vi.fn().mockResolvedValue({ error: null });
+      const mockEqUpd = vi.fn().mockResolvedValue({ error: null });
+      const mockEqDel = vi.fn().mockResolvedValue({ error: null });
       mockFrom.mockReturnValue({
         select: mockSelect,
         insert: vi.fn().mockResolvedValue({ error: { message: 'insert failed' } }),

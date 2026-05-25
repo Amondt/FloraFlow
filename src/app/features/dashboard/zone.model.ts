@@ -10,8 +10,14 @@ export type WindowOrientation =
   | 'None';
 
 export const WINDOW_ORIENTATION_OPTIONS: WindowOrientation[] = [
-  'North', 'South', 'East', 'West',
-  'Northeast', 'Northwest', 'Southeast', 'Southwest',
+  'North',
+  'South',
+  'East',
+  'West',
+  'Northeast',
+  'Northwest',
+  'Southeast',
+  'Southwest',
   'None',
 ];
 

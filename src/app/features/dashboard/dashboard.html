@@ -127,26 +127,29 @@
         </header>
 
         @if (plantService.loading()) {
-          <!-- Skeleton chips while plants load -->
-          <ul class="flex gap-3 overflow-x-auto -mx-6 px-6 pb-2" aria-label="Loading check tasks">
+          <!-- Skeleton cards while plants load -->
+          <ul
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+            aria-label="Loading check tasks"
+          >
             @for (n of [1, 2, 3]; track n) {
-              <li class="flex-shrink-0" aria-hidden="true">
-                <p-skeleton height="5rem" width="14rem" [pt]="FloraSkeletonPT" />
+              <li aria-hidden="true">
+                <p-skeleton height="5rem" [pt]="FloraSkeletonPT" />
               </li>
             }
           </ul>
         } @else {
-          <!-- Chip strip -->
+          <!-- Task cards grid -->
           <ul
-            class="flex gap-3 overflow-x-auto -mx-6 px-6 pb-2"
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
             aria-label="Plants needing attention"
           >
             @for (chip of attentionChips(); track chip.plant.id) {
-              <li class="flex-shrink-0">
+              <li>
                 <a
                   [routerLink]="['/scheduler']"
                   [queryParams]="{ plant: chip.plant.id }"
-                  class="flex items-center gap-3 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md px-4 py-3 hover:border-primary-300 dark:hover:border-primary-700 transition-colors w-72 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+                  class="flex items-center gap-3 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md px-4 py-3 hover:border-primary-300 dark:hover:border-primary-700 transition-colors w-full outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
                   [attr.aria-label]="chipAriaLabel(chip)"
                 >
                   <!-- Leaf thumbnail -->

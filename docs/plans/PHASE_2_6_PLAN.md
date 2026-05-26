@@ -52,7 +52,7 @@ No Angular UI. `RESEND_API_KEY` in Edge Function secrets only.
   - `host.docker.internal` is Docker Desktop's hostname for reaching the host machine (works on macOS and Windows); the local Edge Function runtime listens on port 54321
   - Run `bunx supabase db reset` to apply
 
-- [ ] **Block B — `digest-email` Edge Function** | Agent: `/plumber`
+- [x] **Block B — `digest-email` Edge Function** | Agent: `/plumber`
   - New file: `supabase/functions/digest-email/index.ts`
   - **Auth:** This function is server-to-server only (not called by a browser). Verify the caller by comparing the `Authorization` header against `SUPABASE_SERVICE_ROLE_KEY` — reject with 401 if it doesn't match. No user JWT is involved.
   - **Data fetch:**

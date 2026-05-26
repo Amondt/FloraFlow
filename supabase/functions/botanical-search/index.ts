@@ -33,9 +33,10 @@ Deno.serve(async (req: Request) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     );
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader.replace('Bearer ', ''),
-    );
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
     if (authError || !user) return json({ error: 'Unauthorized' }, 401);
 
     // Require at least 2 characters — avoids full-table scans and useless API calls
@@ -62,7 +63,7 @@ Deno.serve(async (req: Request) => {
       );
       if (!resp.ok) throw new Error(`Perenual responded ${resp.status}`);
 
-      const body = await resp.json() as { data?: Record<string, unknown>[] };
+      const body = (await resp.json()) as { data?: Record<string, unknown>[] };
 
       for (const plant of body.data ?? []) {
         // Perenual returns scientific_name as an array — take the first entry
@@ -75,14 +76,21 @@ Deno.serve(async (req: Request) => {
 
         // Persist only the basic search fields + raw payload now.
         // Enriched care fields (pH, toxicity notes, etc.) are populated by claude-enrichment after insertion.
-        await supabase
-          .from('cached_botanical_records')
-          .upsert(
-            { scientific_name: scientificName, common_name: commonName, perenual_id: perenualId, raw_api_payload: plant },
-            { onConflict: 'scientific_name' },
-          );
+        await supabase.from('cached_botanical_records').upsert(
+          {
+            scientific_name: scientificName,
+            common_name: commonName,
+            perenual_id: perenualId,
+            raw_api_payload: plant,
+          },
+          { onConflict: 'scientific_name' },
+        );
 
-        fresh.push({ scientific_name: scientificName, common_name: commonName, perenual_id: perenualId });
+        fresh.push({
+          scientific_name: scientificName,
+          common_name: commonName,
+          perenual_id: perenualId,
+        });
       }
 
       // Second pass: fetch species/details for each result to populate care fields.
@@ -102,7 +110,7 @@ Deno.serve(async (req: Request) => {
           );
           if (!detailsResp.ok) throw new Error(`Perenual details responded ${detailsResp.status}`);
 
-          const details = await detailsResp.json() as {
+          const details = (await detailsResp.json()) as {
             poisonous_to_pets?: boolean | null;
             watering?: string | null;
             sunlight?: string[] | null;
@@ -110,22 +118,23 @@ Deno.serve(async (req: Request) => {
             type?: string | null;
           };
 
-          await supabase
-            .from('cached_botanical_records')
-            .upsert(
-              {
-                scientific_name: record.scientific_name,
-                is_toxic_to_pets: details.poisonous_to_pets ?? null,
-                watering: details.watering ?? null,
-                sunlight: details.sunlight ?? null,
-                cycle: details.cycle ?? null,
-                plant_type: details.type ?? null,
-                is_perenual_enriched: true,
-              },
-              { onConflict: 'scientific_name' },
-            );
+          await supabase.from('cached_botanical_records').upsert(
+            {
+              scientific_name: record.scientific_name,
+              is_toxic_to_pets: details.poisonous_to_pets ?? null,
+              watering: details.watering ?? null,
+              sunlight: details.sunlight ?? null,
+              cycle: details.cycle ?? null,
+              plant_type: details.type ?? null,
+              is_perenual_enriched: true,
+            },
+            { onConflict: 'scientific_name' },
+          );
         } catch (detailsErr) {
-          console.error(`Perenual details fetch failed for perenual_id ${record.perenual_id}:`, detailsErr);
+          console.error(
+            `Perenual details fetch failed for perenual_id ${record.perenual_id}:`,
+            detailsErr,
+          );
         }
       }
 
@@ -140,10 +149,13 @@ Deno.serve(async (req: Request) => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${serviceRoleKey}`,
+              Authorization: `Bearer ${serviceRoleKey}`,
             },
-            body: JSON.stringify({ scientificName: record.scientific_name, commonName: record.common_name }),
-          })
+            body: JSON.stringify({
+              scientificName: record.scientific_name,
+              commonName: record.common_name,
+            }),
+          }),
         );
 
         try {
@@ -158,10 +170,7 @@ Deno.serve(async (req: Request) => {
 
     // Merge cached hits with newly fetched results; deduplicate by scientific_name
     const seen = new Set((cached ?? []).map((r) => r.scientific_name));
-    const merged = [
-      ...(cached ?? []),
-      ...fresh.filter((r) => !seen.has(r.scientific_name)),
-    ];
+    const merged = [...(cached ?? []), ...fresh.filter((r) => !seen.has(r.scientific_name))];
 
     return json(merged);
   } catch (err) {

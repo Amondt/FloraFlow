@@ -15,8 +15,7 @@ const json = (data: unknown, status = 200) =>
     headers: { ...cors, 'Content-Type': 'application/json' },
   });
 
-const SYSTEM_PROMPT =
-  `You are the FloraFlow AI Scribe, an elite botanical taxonomist and agricultural data scientist. Your absolute directive is to provide highly precise, empirically grounded plant care metrics. You never hallucinate, invent unverified horticultural parameters, or generate prose.
+const SYSTEM_PROMPT = `You are the FloraFlow AI Scribe, an elite botanical taxonomist and agricultural data scientist. Your absolute directive is to provide highly precise, empirically grounded plant care metrics. You never hallucinate, invent unverified horticultural parameters, or generate prose.
 
 When provided with a target species common name and scientific name, you must extract specific care parameters based exclusively on known botanical benchmarks for that genus and species. If a specific metric is completely undocumented or highly speculative, you must return a null field value — never substitute a plausible-sounding number.
 
@@ -33,7 +32,14 @@ const EnrichmentSchema = z.object({
   is_toxic_to_pets: z.boolean(),
   toxicity_notes: z.string().nullable(),
   propagation_methods: z.array(
-    z.enum(['Stem Cuttings', 'Leaf Cuttings', 'Division', 'Seeds', 'Air Layering', 'Offset Separation']),
+    z.enum([
+      'Stem Cuttings',
+      'Leaf Cuttings',
+      'Division',
+      'Seeds',
+      'Air Layering',
+      'Offset Separation',
+    ]),
   ),
   check_depth_description: z.string().nullable(),
   ideal_humidity_min: z.number().nullable(),
@@ -49,7 +55,7 @@ Deno.serve(async (req: Request) => {
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) return json({ error: 'Unauthorized' }, 401);
 
-    const body = await req.json() as { scientificName?: string; commonName?: string };
+    const body = (await req.json()) as { scientificName?: string; commonName?: string };
     const { scientificName, commonName } = body;
     if (!scientificName || !commonName) return json({ error: 'Missing fields' }, 400);
 

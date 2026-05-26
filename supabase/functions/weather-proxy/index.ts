@@ -37,9 +37,10 @@ Deno.serve(async (req: Request) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     );
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader.replace('Bearer ', ''),
-    );
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
     if (authError || !user) return json({ error: 'Unauthorized' }, 401);
 
     // Parse and validate query params
@@ -71,7 +72,9 @@ Deno.serve(async (req: Request) => {
     // Cache check — return immediately if a fresh row exists (within 30 min)
     const { data: cached } = await supabase
       .from('weather_cache')
-      .select('latitude, longitude, temperature_celsius, relative_humidity_percent, precipitation_probability_percent, fetched_at')
+      .select(
+        'latitude, longitude, temperature_celsius, relative_humidity_percent, precipitation_probability_percent, fetched_at',
+      )
       .eq('latitude', lat)
       .eq('longitude', lon)
       .gte('fetched_at', new Date(Date.now() - 30 * 60 * 1000).toISOString())
@@ -91,16 +94,15 @@ Deno.serve(async (req: Request) => {
       const resp = await fetch(meteoUrl);
       if (!resp.ok) throw new Error(`Open-Meteo responded ${resp.status}`);
 
-      const meteo = await resp.json() as OpenMeteoResponse;
+      const meteo = (await resp.json()) as OpenMeteoResponse;
 
       // Find the current UTC hour index in hourly.time
       // Open-Meteo formats hourly times as "YYYY-MM-DDTHH:MM" (no seconds)
       const currentHourStr = new Date().toISOString().slice(0, 13) + ':00';
       const hourIndex = meteo.hourly.time.indexOf(currentHourStr);
 
-      const precipProbability = hourIndex >= 0
-        ? (meteo.hourly.precipitation_probability[hourIndex] ?? null)
-        : null;
+      const precipProbability =
+        hourIndex >= 0 ? (meteo.hourly.precipitation_probability[hourIndex] ?? null) : null;
 
       const record = {
         latitude: lat,
@@ -111,9 +113,7 @@ Deno.serve(async (req: Request) => {
         fetched_at: new Date().toISOString(),
       };
 
-      await supabase
-        .from('weather_cache')
-        .upsert(record, { onConflict: 'latitude,longitude' });
+      await supabase.from('weather_cache').upsert(record, { onConflict: 'latitude,longitude' });
 
       return json(record);
     } catch (meteoErr) {

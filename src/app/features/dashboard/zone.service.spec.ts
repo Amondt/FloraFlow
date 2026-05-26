@@ -43,14 +43,12 @@ function makeFromMock(insertResult: { error: { message: string } | null } = { er
   const mockUpdate = vi.fn().mockReturnValue({ eq: mockEqUpd });
   const mockEqDel = vi.fn().mockResolvedValue({ error: null });
   const mockDelete = vi.fn().mockReturnValue({ eq: mockEqDel });
-  return vi
-    .fn()
-    .mockReturnValue({
-      select: mockSelect,
-      insert: mockInsert,
-      update: mockUpdate,
-      delete: mockDelete,
-    });
+  return vi.fn().mockReturnValue({
+    select: mockSelect,
+    insert: mockInsert,
+    update: mockUpdate,
+    delete: mockDelete,
+  });
 }
 
 describe('ZoneService', () => {

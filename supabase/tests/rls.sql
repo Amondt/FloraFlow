@@ -11,7 +11,7 @@
 BEGIN;
 
 SELECT
-  plan (22);
+  plan (24);
 
 -- ── SETUP ─────────────────────────────────────────────────────────────────
 -- Disable FK triggers so we can insert profiles without auth.users rows.
@@ -626,6 +626,67 @@ SELECT
     ),
     1,
     'Authenticated DELETE on weather_cache was blocked — row still exists'
+  );
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- Phase 2.7 — profiles.push_subscription column
+-- ═══════════════════════════════════════════════════════════════════════════
+-- ── TEST 23: push_subscription defaults to NULL ──────────────────────────────
+RESET ROLE;
+
+SELECT
+  set_config('request.jwt.claims', '{}', TRUE);
+
+SELECT
+  IS (
+    (
+      SELECT
+        push_subscription
+      FROM
+        public.profiles
+      WHERE
+        id = '11111111-1111-1111-1111-111111111111'
+    ),
+    NULL::jsonb,
+    'push_subscription is NULL by default on new profiles rows'
+  );
+
+-- ── TEST 24: Bob cannot UPDATE Alice's push_subscription ───────────────────
+-- Bob's UPDATE: USING (auth.uid() = id) → Bob's id ≠ Alice's id → row invisible → 0 rows, no exception.
+-- push_subscription was never set, so we assert it remains NULL after Bob's attempt.
+SET
+  LOCAL ROLE authenticated;
+
+SELECT
+  set_config(
+    'request.jwt.claims',
+    '{"sub":"22222222-2222-2222-2222-222222222222","role":"authenticated"}',
+    TRUE
+  );
+
+UPDATE public.profiles
+SET
+  push_subscription = '{"endpoint":"https://bob-hacked.example.com"}'::jsonb
+WHERE
+  id = '11111111-1111-1111-1111-111111111111';
+
+RESET ROLE;
+
+SELECT
+  set_config('request.jwt.claims', '{}', TRUE);
+
+SELECT
+  IS (
+    (
+      SELECT
+        push_subscription
+      FROM
+        public.profiles
+      WHERE
+        id = '11111111-1111-1111-1111-111111111111'
+    ),
+    NULL::jsonb,
+    'Bob cannot UPDATE Alice''s push_subscription — remains NULL'
   );
 
 SELECT

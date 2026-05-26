@@ -1,0 +1,2 @@
+-- Superseded by the corrected 20260526000002 migration.
+-- No-op: kept to preserve migration sequence continuity.

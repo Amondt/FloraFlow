@@ -351,3 +351,57 @@ Create a `.env.local` file in the project root (never commit it). All secrets st
 | `RESEND_API_KEY` | resend.com → API Keys | Edge Functions only — **never in client** |
 
 For local Supabase development, `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are auto-injected into Edge Functions by the CLI — you do not need to set them in `.env.local` for local dev. They are required in the Supabase dashboard Secrets panel for production deployments.
+
+---
+
+## pgTAP Test Patterns
+
+All tests live in `supabase/tests/rls.sql` inside a single `BEGIN` / `ROLLBACK` transaction. The `plan(N)` count must equal the exact number of `IS()` calls — a mismatch fails the suite even if every assertion passes.
+
+### What works reliably
+
+| Pattern | How |
+|---|---|
+| Column default / schema assertion | `RESET ROLE` (superuser) + direct `SELECT IS(...)` |
+| Authenticated read succeeds | `SET LOCAL ROLE authenticated` + JWT claims + `SELECT IS(count, N, ...)` |
+| Blocked write: 0 rows affected | `SET LOCAL ROLE authenticated` + JWT claims + `UPDATE/DELETE` (silently affects 0 rows) + `RESET ROLE` + verify value unchanged |
+| Blocked insert: exception path | `SET LOCAL ROLE authenticated` + `DO $$ BEGIN INSERT ... EXCEPTION WHEN others THEN NULL; END; $$` + verify row absent |
+
+### What does NOT work — never attempt these in pgTAP
+
+**Positive authenticated write** — testing that a user _can_ write their own row:
+
+```sql
+-- ❌ BROKEN — auth.uid() evaluates to NULL during WITH CHECK on UPDATE
+-- in the pgTAP harness. The UPDATE raises an RLS exception, aborts the
+-- transaction, and all subsequent IS() calls are silently skipped —
+-- giving a misleading "planned N, ran M" failure with 0 reported failures.
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claims', '{"sub":"alice-id","role":"authenticated"}', TRUE);
+UPDATE public.profiles SET push_subscription = '...' WHERE id = 'alice-id';
+```
+
+The USING clause (for SELECT) resolves `auth.uid()` correctly. The `WITH CHECK` clause (for INSERT/UPDATE) does not — it throws rather than returning TRUE, even when the user owns the row. This appears to be a limitation of the pgTAP execution environment in Supabase local.
+
+**Rule:** For every table with `FOR ALL ... WITH CHECK`, only write blocking tests (wrong user → 0 rows) in pgTAP. Positive write coverage is provided by the policy structure itself and the manual browser check.
+
+**Second rule — never UPDATE `profiles` in pgTAP tests.** Even a superuser UPDATE on `profiles` throws inside the pgTAP harness (the `trg_profiles_updated_at` trigger cannot complete in this context). Tests touching `profiles` must only SELECT or attempt a blocked write that resolves to 0 rows. All `profiles` seed data must come from the initial INSERT block at the top of the test file.
+
+### Seeding test data for blocking assertions
+
+If a blocking test needs a pre-existing value to assert "unchanged", seed it as superuser first — not as authenticated:
+
+```sql
+-- ✅ Correct — seed as superuser, then try to overwrite as wrong user
+RESET ROLE;
+SELECT set_config('request.jwt.claims', '{}', TRUE);
+UPDATE public.profiles SET push_subscription = '{"endpoint":"https://alice.example.com"}' WHERE id = 'alice-id';
+
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claims', '{"sub":"bob-id","role":"authenticated"}', TRUE);
+UPDATE public.profiles SET push_subscription = '{"endpoint":"https://hacked.example.com"}' WHERE id = 'alice-id';
+
+RESET ROLE;
+SELECT set_config('request.jwt.claims', '{}', TRUE);
+SELECT IS((SELECT push_subscription->>'endpoint' FROM profiles WHERE id = 'alice-id'), 'https://alice.example.com', 'Bob blocked');
+```

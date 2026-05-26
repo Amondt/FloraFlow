@@ -31,7 +31,7 @@ No Angular UI. Consumed by Phase 3.6 frost alerts via `supabase.functions.invoke
   - RLS: `ENABLE ROW LEVEL SECURITY`
   - SELECT policy: authenticated users can read (same pattern as `cached_botanical_records`)
   - Write policy: `FOR ALL USING (false) WITH CHECK (false)` — service_role only via Edge Function
-  - Run `bunx supabase db reset 2>$null` then `bunx supabase gen types typescript --local 2>$null` and copy to `_shared/`
+  - Run `bunx supabase db reset` then `bun run types` and copy to `_shared/`
 
 - [x] **Block B — `weather-proxy` Edge Function** | Agent: `/plumber`
   - New file: `supabase/functions/weather-proxy/index.ts`
@@ -53,8 +53,7 @@ No Angular UI. Consumed by Phase 3.6 frost alerts via `supabase.functions.invoke
 
 After Block A:
 ```powershell
-bunx supabase db test 2>$null
-```
+bunx supabase db test```
 
 After Block B — end-to-end test (local):
 1. Start the local Supabase stack

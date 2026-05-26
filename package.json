@@ -8,11 +8,12 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "eslint src/**/*.ts src/**/*.html --no-warn-ignored",
-    "format": "prettier --write \"src/**/*.{ts,html,css}\" \"supabase/**/*.sql\"",
-    "format:check": "prettier --check \"src/**/*.{ts,html,css}\" \"supabase/**/*.sql\"",
+    "format": "prettier --write \"src/**/*.{ts,html,css}\" \"supabase/functions/**/*.ts\" \"supabase/**/*.sql\"",
+    "format:check": "prettier --check \"src/**/*.{ts,html,css}\" \"supabase/functions/**/*.ts\" \"supabase/**/*.sql\"",
     "tw": "tailwindcss -i ./src/styles.input.css -o ./src/styles.css",
     "tw:watch": "tailwindcss -i ./src/styles.input.css -o ./src/styles.css --watch",
-    "dev": "concurrently \"ng serve\" \"tailwindcss -i ./src/styles.input.css -o ./src/styles.css --watch\""
+    "dev": "concurrently \"ng serve\" \"tailwindcss -i ./src/styles.input.css -o ./src/styles.css --watch\"",
+    "types": "bunx supabase gen types typescript --local > src/types/database.types.ts"
   },
   "private": true,
   "packageManager": "bun@1.3.13",

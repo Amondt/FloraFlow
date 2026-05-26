@@ -14,9 +14,9 @@
 - DDL exactly as specified in `docs/DB_SCHEMA_MATRIX.md §2.4`
 - Index `idx_botanical_cache_id` on `perenual_id` (§3)
 - RLS: `SELECT` open to `auth.role() = 'authenticated'`; `ALL` policy with `USING (false)` / `WITH CHECK (false)` blocks client writes (§5)
-- Run `bunx supabase db reset 2>$null` → confirm zero errors
-- Run `bunx supabase gen types typescript --local 2>$null` → copy to `supabase/functions/_shared/database.types.ts`
-- Run `bunx supabase db test 2>$null` → confirm existing RLS tests still pass
+- Run `bunx supabase db reset` → confirm zero errors
+- Run `bun run types` → copy to `supabase/functions/_shared/database.types.ts`
+- Run `bunx supabase db test` → confirm existing RLS tests still pass
 
 ---
 
@@ -40,7 +40,7 @@ File: `supabase/functions/botanical-search/index.ts`
 
 **Env vars needed:** `PERENUAL_API_KEY` — add to `supabase/functions/.env` for local dev, document for Supabase dashboard Secrets for production.
 
-**Verification:** test with `bunx supabase functions serve botanical-search 2>$null` + `curl` with a valid JWT.
+**Verification:** test with `bunx supabase functions serve botanical-search` + `curl` with a valid JWT.
 
 ---
 

@@ -68,8 +68,7 @@ claude-enrichment (new — Block A)
 After each block, run:
 
 ```powershell
-bunx supabase db test 2>$null
-```
+bunx supabase db test```
 
 End-to-end test sequence (local):
 

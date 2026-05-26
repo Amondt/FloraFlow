@@ -10,7 +10,7 @@ Task 1.7 delivers the offscreen HTML5 Canvas compression pipeline that intercept
   - SQL migration: insert into `storage.buckets` (`plant-journal-images`, `public: false`)
   - RLS INSERT policy: `auth.uid()::text = (storage.foldername(name))[1]`
   - RLS SELECT policy: same condition
-  - Push with `bunx supabase db push 2>$null` and confirm bucket visible in Supabase Studio
+  - Push with `bunx supabase db push` and confirm bucket visible in Supabase Studio
 
 ---
 

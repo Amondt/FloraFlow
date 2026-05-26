@@ -7,7 +7,7 @@ Reference for **The Plumber**. Always verify against context7 before implementin
 ## Supabase Type Generation (run once per schema change)
 
 ```powershell
-bunx supabase gen types typescript --local 2>$null > src/types/database.types.ts
+bun run types
 ```
 
 After generating, copy the file into the shared Edge Function folder so Deno can import it:
@@ -127,7 +127,7 @@ Deno's module resolver does not bundle files outside the function directory duri
 **Use the `_shared/` convention instead:**
 
 ```powershell
-# After running: bunx supabase gen types typescript --local 2>$null > src/types/database.types.ts
+# After running: bun run types
 # Copy the generated file into the shared Edge Function folder:
 Copy-Item src/types/database.types.ts supabase/functions/_shared/database.types.ts
 ```

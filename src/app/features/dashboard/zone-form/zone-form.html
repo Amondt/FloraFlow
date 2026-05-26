@@ -90,29 +90,27 @@
       }
     </div>
 
-    <label class="flex items-center justify-between gap-4 cursor-pointer">
+    <div class="flex items-center justify-between gap-4">
       <span class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display">
         Active ventilation
       </span>
       <p-toggleswitch
         formControlName="has_active_ventilation"
-        name="has_active_ventilation"
         [pt]="FloraToggleSwitchPT"
         ariaLabel="Toggle active ventilation"
       />
-    </label>
+    </div>
 
-    <label class="flex items-center justify-between gap-4 cursor-pointer">
+    <div class="flex items-center justify-between gap-4">
       <span class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display">
         Supplemental grow lights
       </span>
       <p-toggleswitch
         formControlName="has_grow_lights"
-        name="has_grow_lights"
         [pt]="FloraToggleSwitchPT"
         ariaLabel="Toggle grow lights"
       />
-    </label>
+    </div>
   </form>
 
   <ng-template #footer>

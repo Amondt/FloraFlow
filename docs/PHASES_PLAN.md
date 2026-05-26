@@ -93,7 +93,7 @@
     - Returns current temperature, humidity, precipitation probability for a given lat/lon.
     - Response cached in `frost_date_cache` table (Phase 3.6 stub) with a short TTL; no redundant outbound calls.
     - No Angular UI at this phase — backend data layer only; consumed by Phase 3.6 frost alerts.
-- [ ] **2.6 Monday Morning Email Digest** | Agent: `/plumber`
+- [x] **2.6 Monday Morning Email Digest** | Agent: `/plumber`
     - Edge Function `digest-email` queries all users' overdue and due-today plants grouped by zone.
     - Composes and sends an HTML email via Resend API (free tier: 100 emails/day).
     - Triggered by a Supabase cron job (pg_cron) firing every Monday at 07:00 UTC.
@@ -206,6 +206,12 @@
     - `LanguageSwitcherComponent` added to the nav bar; selection persisted to localStorage (requires 1.7).
     - Full string audit across all components and templates — no hardcoded UI text left after this phase.
     - Language switch applies in the same render cycle without page reload.
+- [ ] **4.3 Plant Species Thumbnails** | Agent: `/plumber` → `/visualizer`
+    - Migration: add `default_image_url TEXT` (nullable) to `cached_botanical_records`.
+    - Update `botanical-search` Edge Function: persist `default_image.regular_url` from Perenual response when populating the cache row.
+    - Update `PlantService.loadPlants()`: join `cached_botanical_records` via `perenual_id` to expose `default_image_url` on the returned plant shape.
+    - Replace the leaf-icon placeholder in `plant-alert-card` (scheduler rows) and dashboard task cards with a real `<img>` when `default_image_url` is present; fall back to the leaf icon otherwise.
+    - No image is downloaded to Supabase Storage — Perenual CDN URL is linked directly (acceptable for free-tier training project).
 
 ### 🔒 Phase 4 QA Criteria
 

@@ -12,6 +12,7 @@ import {
   FloraButtonPT,
   FLORA_ERROR,
 } from '../../../shared/ui/pt/index';
+import { blurActiveElement } from '../../../shared/utils/dom';
 import { PlantService } from '../../scheduler/plant.service';
 import { JournalService } from '../journal.service';
 import { ImageCompressorService } from '../../../core/services/image-compressor.service';
@@ -162,8 +163,6 @@ export class JournalEntryFormComponent {
     this.form.reset({ plant_id: '', category: '', notes: null });
     this.compressedBlob.set(null);
     this.compressedLabel.set(null);
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
+    blurActiveElement();
   }
 }

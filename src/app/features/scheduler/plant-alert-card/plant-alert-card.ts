@@ -1,6 +1,7 @@
 import { Component, computed, input, output } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { Plant } from '../plant.model';
+import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-icon';
 
 const BASE_BADGE = [
   'inline-flex items-center gap-1.5',
@@ -13,7 +14,7 @@ const BASE_BADGE = [
 @Component({
   selector: 'app-plant-alert-card',
   standalone: true,
-  imports: [NgClass],
+  imports: [NgClass, LeafIconComponent],
   templateUrl: './plant-alert-card.html',
 })
 export class PlantAlertCardComponent {

@@ -18,6 +18,8 @@ import { Plant, PlantFormData } from '../scheduler/plant.model';
 import { PlantFormDialogComponent } from '../scheduler/plant-form-dialog/plant-form-dialog';
 import { ZoneService } from './zone.service';
 import { ZoneCardComponent } from './zone-card/zone-card';
+import { LeafIconComponent } from '../../shared/components/leaf-icon/leaf-icon';
+import { blurActiveElement } from '../../shared/utils/dom';
 import { ZoneFormComponent } from './zone-form/zone-form';
 import { Zone, ZoneFormData } from './zone.model';
 
@@ -40,6 +42,7 @@ interface AttentionChip {
     ZoneCardComponent,
     ZoneFormComponent,
     PlantFormDialogComponent,
+    LeafIconComponent,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './dashboard.html',
@@ -162,10 +165,8 @@ export class DashboardComponent {
       : `${base} bg-primary-50 dark:bg-primary-900/20`;
   }
 
-  protected chipIconClass(isOverdue: boolean): string {
-    return isOverdue
-      ? 'pi pi-leaf text-base text-warning-500'
-      : 'pi pi-leaf text-base text-primary-500';
+  protected chipIconColorClass(isOverdue: boolean): string {
+    return isOverdue ? 'text-warning-500' : 'text-primary-500';
   }
 
   protected chipStatusClass(isOverdue: boolean): string {
@@ -179,9 +180,7 @@ export class DashboardComponent {
 
   // ── Plant Add dialog (Dashboard entry point) ─────────────────
   openAddPlantDialog(): void {
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
+    blurActiveElement();
     this.plantFormVisible.set(true);
   }
 

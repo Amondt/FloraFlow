@@ -3,6 +3,8 @@ import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { FloraDialogPT, FloraButtonPT } from '../../../shared/ui/pt/index';
 import { Plant, SubstrateFactor } from '../plant.model';
+import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-icon';
+import { blurActiveElement } from '../../../shared/utils/dom';
 
 const SUBSTRATE_DEPTH_RULES: Record<SubstrateFactor, { depth: string; description: string }> = {
   'High-Drainage Aroid': {
@@ -29,7 +31,7 @@ type CheckStep = 'ask' | 'dry' | 'moist';
 @Component({
   selector: 'app-soil-check-dialog',
   standalone: true,
-  imports: [DialogModule, ButtonModule],
+  imports: [DialogModule, ButtonModule, LeafIconComponent],
   templateUrl: './soil-check-dialog.html',
 })
 export class SoilCheckDialogComponent {
@@ -115,9 +117,7 @@ export class SoilCheckDialogComponent {
   private close(): void {
     this.step.set('ask');
     this.note.set('');
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
+    blurActiveElement();
     this.visible.set(false);
   }
 }

@@ -154,7 +154,7 @@
                 >
                   <!-- Leaf thumbnail -->
                   <div [class]="chipThumbClass(chip.isOverdue)">
-                    <i [class]="chipIconClass(chip.isOverdue)" aria-hidden="true"></i>
+                    <app-leaf-icon [class]="chipIconColorClass(chip.isOverdue)" />
                   </div>
 
                   <!-- Plant name + zone + status -->

@@ -14,6 +14,7 @@ import {
   FloraButtonPT,
   FLORA_ERROR,
 } from '../../../shared/ui/pt/index';
+import { blurActiveElement } from '../../../shared/utils/dom';
 import { ZoneService } from '../../dashboard/zone.service';
 import {
   BotanicalSearchService,
@@ -131,7 +132,7 @@ export class PlantFormDialogComponent {
   }
 
   onVisibleChange(v: boolean): void {
-    if (!v) this.blurActive();
+    if (!v) blurActiveElement();
     this.visible.set(v);
   }
 
@@ -183,13 +184,7 @@ export class PlantFormDialogComponent {
   }
 
   private close(): void {
-    this.blurActive();
+    blurActiveElement();
     this.visible.set(false);
-  }
-
-  private blurActive(): void {
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
   }
 }

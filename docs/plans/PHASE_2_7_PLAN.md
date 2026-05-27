@@ -82,7 +82,7 @@ VAPID public key is intentionally public — lives in `environment.ts`. Private 
     - Per-user errors caught and logged — never abort the loop
   - **Response:** `{ sent: N, skipped: N, errors: N }` always HTTP 200
 
-- [ ] **Block E — Cron Schedule** | Agent: `/plumber`
+- [x] **Block E — Cron Schedule** | Agent: `/plumber`
   - New migration: `supabase/migrations/<timestamp>_push_alerts_cron.sql`
   - `SELECT cron.schedule(...)` calling `net.http_post()` to `push-plant-alerts` at `0 8 * * *` (daily 08:00 UTC)
   - Same `host.docker.internal:54321` pattern as `digest-email` cron

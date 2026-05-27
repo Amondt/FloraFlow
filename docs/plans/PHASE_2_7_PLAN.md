@@ -55,7 +55,7 @@ VAPID public key is intentionally public — lives in `environment.ts`. Private 
   - `urlBase64ToUint8Array()` pure helper extracted to `src/app/shared/utils/vapid.util.ts`
   - Wire `inject(PushNotificationService).initializePush()` into `ShellComponent` constructor
 
-- [ ] **Block D — push-plant-alerts Edge Function** | Agent: `/plumber`
+- [x] **Block D — push-plant-alerts Edge Function** | Agent: `/plumber`
   - New file: `supabase/functions/push-plant-alerts/index.ts`
   - Auth: same service-role key check as `digest-email` — reject with 401 if header doesn't match `SUPABASE_SERVICE_ROLE_KEY`
   - **Data fetch:**

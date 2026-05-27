@@ -5,6 +5,7 @@ import { filter, map } from 'rxjs';
 import { NavComponent } from '../nav/nav';
 import { NetworkStatusService } from '../../../core/services/network-status.service';
 import { OfflineQueueService } from '../../../core/services/offline-queue.service';
+import { PushNotificationService } from '../../../core/services/push-notification.service';
 import { PlantService } from '../../../features/scheduler/plant.service';
 import { ZoneService } from '../../../features/dashboard/zone.service';
 
@@ -20,7 +21,12 @@ export class ShellComponent {
   protected readonly plantService = inject(PlantService);
   protected readonly zoneService = inject(ZoneService);
 
+  private readonly pushNotification = inject(PushNotificationService);
   private readonly router = inject(Router);
+
+  constructor() {
+    void this.pushNotification.initializePush();
+  }
 
   private readonly currentUrl = toSignal(
     this.router.events.pipe(

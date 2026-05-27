@@ -43,7 +43,7 @@ VAPID public key is intentionally public — lives in `environment.ts`. Private 
   - Add `vapidPublicKey` field to `src/environments/environment.ts` with the public key value (safe to expose — designed to be public)
   - No migration needed
 
-- [ ] **Block C — PushNotificationService** | Agent: `/visualizer`
+- [x] **Block C — PushNotificationService** | Agent: `/visualizer`
   - New file: `src/app/core/services/push-notification.service.ts`
   - `providedIn: 'root'` singleton
   - `initializePush()` — entry point called from `ShellComponent` constructor
@@ -63,7 +63,20 @@ VAPID public key is intentionally public — lives in `environment.ts`. Private 
     2. Query `profiles` where `push_subscription IS NOT NULL` — get `id`, `push_subscription`
     3. For each profile: query `plants` where `user_id = profile.id AND next_check_due_at <= NOW()` — count only
     4. Skip profiles with zero due plants
-  - **Push payload:** `{ title: 'FloraFlow', body: '{N} plant(s) need attention today', data: { url: '/scheduler' } }`
+  - **Push payload** — must use Angular ngsw envelope so the built-in SW handler shows the notification automatically (no custom push listener needed):
+    ```json
+    {
+      "notification": {
+        "title": "FloraFlow",
+        "body": "{N} plant(s) need attention today",
+        "data": {
+          "onActionClick": {
+            "default": { "operation": "navigateLastFocusedOrOpen", "url": "/scheduler" }
+          }
+        }
+      }
+    }
+    ```
   - **Send:** `webPush.sendNotification(subscription, JSON.stringify(payload))` using `npm:web-push`
     - Pass VAPID details: `{ subject: VAPID_SUBJECT, publicKey: VAPID_PUBLIC_KEY, privateKey: VAPID_PRIVATE_KEY }`
     - Per-user errors caught and logged — never abort the loop

@@ -34,7 +34,7 @@ VAPID public key is intentionally public — lives in `environment.ts`. Private 
   - Apply with `bunx supabase db reset`
   - Run `bun run types` to regenerate `database.types.ts`
 
-- [ ] **Block B — VAPID Key Generation + Secrets** | Agent: `/plumber`
+- [x] **Block B — VAPID Key Generation + Secrets** | Agent: `/plumber`
   - One-time key generation: `npx web-push generate-vapid-keys`
   - Add to `supabase/functions/.env`:
     - `VAPID_PUBLIC_KEY=<generated-public-key>`

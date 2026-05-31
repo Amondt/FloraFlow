@@ -59,7 +59,7 @@ Name search path: `BotanicalSearchService.search()` → `botanical-search` EF ha
     - Returns filtered full records
   - `CachedBotanicalRecord` = `Database['public']['Tables']['cached_botanical_records']['Row']` (re-exported for templates)
 
-- [ ] **Block B — Library Page** | Agent: `/visualizer`
+- [x] **Block B — Library Page** | Agent: `/visualizer`
   - Replace stub in `src/app/features/library/library.ts`
   - Imports: `LibraryService`, `BotanicalSearchService`, `LibraryFilters`, option-list constants, PT objects, `FormsModule`, `SkeletonModule`
   - Signals:

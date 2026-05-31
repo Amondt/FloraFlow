@@ -38,7 +38,7 @@ Name search path: `BotanicalSearchService.search()` → `botanical-search` EF ha
 
 ## Blocks
 
-- [ ] **Block A — LibraryService** | Agent: `/plumber`
+- [x] **Block A — LibraryService** | Agent: `/plumber`
   - New file: `src/app/features/library/library.service.ts`
   - `providedIn: 'root'`
   - `LibraryFilters` interface: `{ watering?: string; sunlight?: string; is_toxic_to_pets?: boolean | null; cycle?: string }`

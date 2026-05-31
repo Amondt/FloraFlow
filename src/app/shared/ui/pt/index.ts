@@ -17,3 +17,4 @@ export * from './badge.pt';
 export * from './skeleton.pt';
 export * from './progress.pt';
 export * from './menu.pt';
+export * from './slider.pt';

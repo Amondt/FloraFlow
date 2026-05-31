@@ -1,0 +1,662 @@
+﻿<main class="p-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen" aria-labelledby="library-heading">
+  <div class="max-w-5xl mx-auto">
+    <!-- Page header -->
+    <header class="mb-8">
+      <p
+        class="text-xs font-semibold uppercase tracking-widest text-primary-600 dark:text-primary-400 font-display mb-1"
+      >
+        Botanical Registry
+      </p>
+      <h1
+        id="library-heading"
+        class="text-3xl font-semibold font-display text-neutral-900 dark:text-white"
+      >
+        Plant Browser
+      </h1>
+      <p class="text-sm text-neutral-500 dark:text-neutral-400 font-display mt-1">
+        Browse your cached registry. Search to discover and cache new species.
+      </p>
+    </header>
+
+    <!-- Search bar - prominent, full-width -->
+    <div id="library-search-area" class="mb-6">
+      <label for="library-search" class="sr-only">Search botanical registry</label>
+      <div class="relative">
+        <i
+          class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 text-sm pointer-events-none"
+          aria-hidden="true"
+        ></i>
+        <input
+          pInputText
+          id="library-search"
+          type="search"
+          [pt]="FloraInputTextPT"
+          class="pl-10"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+          placeholder="Search by common or scientific name..."
+          autocomplete="off"
+          aria-label="Search botanical registry"
+          aria-describedby="search-hint"
+        />
+      </div>
+      <p id="search-hint" class="text-xs text-neutral-400 font-display mt-1.5" role="note">
+        Type 2+ characters to search for species not yet in your registry.
+      </p>
+    </div>
+
+    <!-- Two-column layout: filter sidebar + results -->
+    <div class="flex gap-6 items-start">
+      <!-- Filter sidebar -->
+      <aside class="w-52 shrink-0 self-start sticky top-6 z-10" aria-label="Filter options">
+        <div
+          class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md p-4"
+        >
+          <div class="flex items-center justify-between mb-3">
+            <span
+              class="text-xs font-semibold uppercase tracking-widest text-neutral-500 font-display"
+            >
+              Filters
+            </span>
+            @if (hasActiveFilters()) {
+              <button
+                type="button"
+                class="text-xs font-medium font-display text-primary-600 hover:text-primary-700 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded cursor-pointer"
+                aria-label="Clear all active filters"
+                (click)="clearFilters()"
+              >
+                Clear all
+              </button>
+            }
+          </div>
+
+          <!-- Watering -->
+          <details class="group mb-4" open>
+            <summary
+              class="flex items-center justify-between py-0.5 mb-2 cursor-pointer list-none select-none outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
+            >
+              <div class="flex items-center gap-1">
+                <h2
+                  class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display"
+                >
+                  Watering
+                </h2>
+                <span class="relative group/hint">
+                  <button
+                    type="button"
+                    class="inline-flex items-center justify-center cursor-pointer text-neutral-300 hover:text-neutral-500 dark:hover:text-neutral-300 outline-none focus-visible:ring-1 focus-visible:ring-primary-500 rounded-full"
+                    aria-label="About watering: how often the plant needs water"
+                    (click)="$event.stopPropagation()"
+                  >
+                    <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
+                  </button>
+                  <span
+                    aria-hidden="true"
+                    class="absolute left-0 top-full mt-1.5 z-30 px-2.5 py-1.5 rounded-garden-sm bg-neutral-900 dark:bg-neutral-700 text-white text-xs font-display leading-snug w-44 shadow-lg invisible opacity-0 group-hover/hint:visible group-hover/hint:opacity-100 group-focus-within/hint:visible group-focus-within/hint:opacity-100 transition-opacity duration-150 pointer-events-none"
+                  >
+                    How often the plant needs water
+                  </span>
+                </span>
+                @if (hasWateringFilter()) {
+                  <span
+                    class="w-1.5 h-1.5 rounded-full bg-primary-500 ml-0.5"
+                    aria-label="Watering filter active"
+                    role="img"
+                  ></span>
+                }
+              </div>
+              <i
+                class="pi pi-chevron-down text-xs text-neutral-300 transition-transform duration-200 group-open:rotate-180"
+                aria-hidden="true"
+              ></i>
+            </summary>
+            <div class="flex flex-col gap-0.5" role="group" aria-label="Filter by watering">
+              @for (opt of WATERING_OPTIONS; track opt) {
+                <button
+                  type="button"
+                  [class]="filterBtnClass(isFilterActive('watering', opt))"
+                  [attr.aria-pressed]="isFilterActive('watering', opt)"
+                  (click)="toggleFilter('watering', opt)"
+                >
+                  {{ opt }}
+                </button>
+              }
+            </div>
+          </details>
+
+          <!-- Sunlight -->
+          <details class="group mb-4" open>
+            <summary
+              class="flex items-center justify-between py-0.5 mb-2 cursor-pointer list-none select-none outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
+            >
+              <div class="flex items-center gap-1">
+                <h2
+                  class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display"
+                >
+                  Sunlight
+                </h2>
+                <span class="relative group/hint">
+                  <button
+                    type="button"
+                    class="inline-flex items-center justify-center cursor-pointer text-neutral-300 hover:text-neutral-500 dark:hover:text-neutral-300 outline-none focus-visible:ring-1 focus-visible:ring-primary-500 rounded-full"
+                    aria-label="About sunlight: required daily light level for the plant"
+                    (click)="$event.stopPropagation()"
+                  >
+                    <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
+                  </button>
+                  <span
+                    aria-hidden="true"
+                    class="absolute left-0 top-full mt-1.5 z-30 px-2.5 py-1.5 rounded-garden-sm bg-neutral-900 dark:bg-neutral-700 text-white text-xs font-display leading-snug w-44 shadow-lg invisible opacity-0 group-hover/hint:visible group-hover/hint:opacity-100 group-focus-within/hint:visible group-focus-within/hint:opacity-100 transition-opacity duration-150 pointer-events-none"
+                  >
+                    Required daily light level
+                  </span>
+                </span>
+                @if (hasSunlightFilter()) {
+                  <span
+                    class="w-1.5 h-1.5 rounded-full bg-primary-500 ml-0.5"
+                    aria-label="Sunlight filter active"
+                    role="img"
+                  ></span>
+                }
+              </div>
+              <i
+                class="pi pi-chevron-down text-xs text-neutral-300 transition-transform duration-200 group-open:rotate-180"
+                aria-hidden="true"
+              ></i>
+            </summary>
+            <div class="flex flex-col gap-0.5" role="group" aria-label="Filter by sunlight">
+              @for (opt of SUNLIGHT_OPTIONS; track opt) {
+                <button
+                  type="button"
+                  [class]="filterBtnClass(isFilterActive('sunlight', opt))"
+                  [attr.aria-pressed]="isFilterActive('sunlight', opt)"
+                  (click)="toggleFilter('sunlight', opt)"
+                >
+                  {{ opt }}
+                </button>
+              }
+            </div>
+          </details>
+
+          <!-- Pet toxicity -->
+          <details class="group mb-4" open>
+            <summary
+              class="flex items-center justify-between py-0.5 mb-2 cursor-pointer list-none select-none outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
+            >
+              <div class="flex items-center gap-1">
+                <h2
+                  class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display"
+                >
+                  Pet toxicity
+                </h2>
+                <span class="relative group/hint">
+                  <button
+                    type="button"
+                    class="inline-flex items-center justify-center cursor-pointer text-neutral-300 hover:text-neutral-500 dark:hover:text-neutral-300 outline-none focus-visible:ring-1 focus-visible:ring-primary-500 rounded-full"
+                    aria-label="About pet toxicity: whether the plant is safe for cats and dogs"
+                    (click)="$event.stopPropagation()"
+                  >
+                    <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
+                  </button>
+                  <span
+                    aria-hidden="true"
+                    class="absolute left-0 top-full mt-1.5 z-30 px-2.5 py-1.5 rounded-garden-sm bg-neutral-900 dark:bg-neutral-700 text-white text-xs font-display leading-snug w-44 shadow-lg invisible opacity-0 group-hover/hint:visible group-hover/hint:opacity-100 group-focus-within/hint:visible group-focus-within/hint:opacity-100 transition-opacity duration-150 pointer-events-none"
+                  >
+                    Safe for cats and dogs
+                  </span>
+                </span>
+                @if (hasToxicityFilter()) {
+                  <span
+                    class="w-1.5 h-1.5 rounded-full bg-primary-500 ml-0.5"
+                    aria-label="Pet toxicity filter active"
+                    role="img"
+                  ></span>
+                }
+              </div>
+              <i
+                class="pi pi-chevron-down text-xs text-neutral-300 transition-transform duration-200 group-open:rotate-180"
+                aria-hidden="true"
+              ></i>
+            </summary>
+            <div class="flex flex-col gap-0.5" role="group" aria-label="Filter by pet toxicity">
+              @for (opt of TOXICITY_OPTIONS; track opt.label) {
+                <button
+                  type="button"
+                  [class]="filterBtnClass(filters().is_toxic_to_pets === opt.value)"
+                  [attr.aria-pressed]="filters().is_toxic_to_pets === opt.value"
+                  (click)="toggleToxFilter(opt.value)"
+                >
+                  {{ opt.label }}
+                </button>
+              }
+            </div>
+          </details>
+
+          <!-- Lifecycle -->
+          <details class="group mb-4" open>
+            <summary
+              class="flex items-center justify-between py-0.5 mb-2 cursor-pointer list-none select-none outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
+            >
+              <div class="flex items-center gap-1">
+                <h2
+                  class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display"
+                >
+                  Lifecycle
+                </h2>
+                <span class="relative group/hint">
+                  <button
+                    type="button"
+                    class="inline-flex items-center justify-center cursor-pointer text-neutral-300 hover:text-neutral-500 dark:hover:text-neutral-300 outline-none focus-visible:ring-1 focus-visible:ring-primary-500 rounded-full"
+                    aria-label="About lifecycle: Annual completes in one season, Perennial returns yearly"
+                    (click)="$event.stopPropagation()"
+                  >
+                    <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
+                  </button>
+                  <span
+                    aria-hidden="true"
+                    class="absolute left-0 top-full mt-1.5 z-30 px-2.5 py-1.5 rounded-garden-sm bg-neutral-900 dark:bg-neutral-700 text-white text-xs font-display leading-snug w-44 shadow-lg invisible opacity-0 group-hover/hint:visible group-hover/hint:opacity-100 group-focus-within/hint:visible group-focus-within/hint:opacity-100 transition-opacity duration-150 pointer-events-none"
+                  >
+                    Annual = one season Perennial = returns yearly
+                  </span>
+                </span>
+                @if (hasCycleFilter()) {
+                  <span
+                    class="w-1.5 h-1.5 rounded-full bg-primary-500 ml-0.5"
+                    aria-label="Lifecycle filter active"
+                    role="img"
+                  ></span>
+                }
+              </div>
+              <i
+                class="pi pi-chevron-down text-xs text-neutral-300 transition-transform duration-200 group-open:rotate-180"
+                aria-hidden="true"
+              ></i>
+            </summary>
+            <div class="flex flex-col gap-0.5" role="group" aria-label="Filter by lifecycle">
+              @for (opt of CYCLE_OPTIONS; track opt) {
+                <button
+                  type="button"
+                  [class]="filterBtnClass(isFilterActive('cycle', opt))"
+                  [attr.aria-pressed]="isFilterActive('cycle', opt)"
+                  (click)="toggleFilter('cycle', opt)"
+                >
+                  {{ opt }}
+                </button>
+              }
+            </div>
+          </details>
+
+          <!-- Soil pH range — closed by default (advanced filter) -->
+          <details class="group">
+            <summary
+              class="flex items-center justify-between py-0.5 mb-2 cursor-pointer list-none select-none outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
+            >
+              <div class="flex items-center gap-1">
+                <h2
+                  class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display"
+                >
+                  Soil pH
+                </h2>
+                <span class="relative group/hint">
+                  <button
+                    type="button"
+                    class="inline-flex items-center justify-center cursor-pointer text-neutral-300 hover:text-neutral-500 dark:hover:text-neutral-300 outline-none focus-visible:ring-1 focus-visible:ring-primary-500 rounded-full"
+                    aria-label="About soil pH: ideal acidity level, scale 0 (acid) to 14 (alkaline), most plants prefer 5.5 to 7"
+                    (click)="$event.stopPropagation()"
+                  >
+                    <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
+                  </button>
+                  <span
+                    aria-hidden="true"
+                    class="absolute left-0 top-full mt-1.5 z-30 px-2.5 py-1.5 rounded-garden-sm bg-neutral-900 dark:bg-neutral-700 text-white text-xs font-display leading-snug w-48 shadow-lg invisible opacity-0 group-hover/hint:visible group-hover/hint:opacity-100 group-focus-within/hint:visible group-focus-within/hint:opacity-100 transition-opacity duration-150 pointer-events-none"
+                  >
+                    Soil acidity scale 0 (very acid) to 14 (alkaline) most plants: 5.5-7
+                  </span>
+                </span>
+                @if (hasPhFilter()) {
+                  <span
+                    class="w-1.5 h-1.5 rounded-full bg-primary-500 ml-0.5"
+                    aria-label="Soil pH filter active"
+                    role="img"
+                  ></span>
+                }
+              </div>
+              <div class="flex items-center gap-2">
+                @if (hasPhFilter()) {
+                  <button
+                    type="button"
+                    class="text-xs font-medium font-display text-primary-600 hover:text-primary-700 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded cursor-pointer"
+                    aria-label="Reset pH range filter"
+                    (click)="$event.stopPropagation(); clearPhFilter()"
+                  >
+                    Reset
+                  </button>
+                }
+                <i
+                  class="pi pi-chevron-down text-xs text-neutral-300 transition-transform duration-200 group-open:rotate-180"
+                  aria-hidden="true"
+                ></i>
+              </div>
+            </summary>
+            <div class="px-2 py-3" (mousedown)="onPhSliderMouseDown($event)">
+              <p-slider
+                [ngModel]="phRange()"
+                [range]="true"
+                [min]="0"
+                [max]="14"
+                [step]="0.5"
+                [pt]="FloraSliderPT"
+                (onChange)="onPhChange($event)"
+                (onSlideEnd)="onPhSlideEnd($event)"
+                aria-label="Filter by soil pH range"
+              />
+            </div>
+            <div class="flex justify-between">
+              <span class="text-xs font-display text-neutral-500">{{ phDisplay()[0] }}</span>
+              <span class="text-xs font-display text-neutral-500">{{ phDisplay()[1] }}</span>
+            </div>
+          </details>
+        </div>
+      </aside>
+
+      <!-- Results area -->
+      <section class="flex-1 min-w-0" aria-label="Browse results" [attr.aria-busy]="isLoading()">
+        <div
+          class="sticky top-0 bg-neutral-50 dark:bg-neutral-900 z-10 transition-all duration-150"
+          [class.h-6]="!headerVisible()"
+          aria-hidden="true"
+        ></div>
+        @if (isInitialLoad()) {
+          <ul
+            class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4"
+            aria-label="Loading botanical records"
+          >
+            @for (_ of loadingPlaceholders; track $index) {
+              <li aria-hidden="true">
+                <p-skeleton height="7rem" [pt]="FloraSkeletonPT" />
+              </li>
+            }
+          </ul>
+        } @else if (!results().length) {
+          <div class="flex flex-col items-center justify-center py-16 text-center" role="status">
+            <i
+              class="pi pi-leaf text-4xl text-neutral-300 dark:text-neutral-600 mb-4"
+              aria-hidden="true"
+            ></i>
+            @if (hasActiveFilters() || searchQuery().length >= 2) {
+              <p class="text-neutral-500 dark:text-neutral-400 font-display text-sm mb-1">
+                No species match your current search or filters.
+              </p>
+              <p class="text-xs text-neutral-400 dark:text-neutral-500 font-display mb-3">
+                Care fields (watering, sunlight, lifecycle) may be missing for some cached species.
+              </p>
+              <button
+                type="button"
+                class="text-sm font-medium font-display text-primary-600 hover:text-primary-700 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 rounded cursor-pointer"
+                aria-label="Clear all active filters and search"
+                (click)="clearFilters(); searchQuery.set('')"
+              >
+                Clear all
+              </button>
+            } @else {
+              <p class="text-neutral-500 dark:text-neutral-400 font-display text-sm">
+                Your botanical registry is empty. Search by name above to discover and cache
+                species.
+              </p>
+            }
+          </div>
+        } @else {
+          <div class="relative">
+            @if (isReloading()) {
+              <div
+                class="absolute inset-0 z-10 flex items-start justify-center pt-10 bg-neutral-50/70 dark:bg-neutral-900/70 rounded-garden-sm"
+                role="status"
+                aria-label="Updating results"
+              >
+                <span
+                  class="w-5 h-5 border-2 border-neutral-200 dark:border-neutral-700 border-t-primary-500 rounded-full animate-spin"
+                  aria-hidden="true"
+                ></span>
+              </div>
+            }
+            <p
+              class="text-xs text-neutral-400 font-display mb-3 transition-opacity duration-200"
+              [class.opacity-0]="isReloading()"
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              {{ results().length }} species found
+            </p>
+            <ul
+              class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 transition-opacity duration-200"
+              [class.opacity-40]="isReloading()"
+              aria-label="Botanical records"
+            >
+              @for (record of results(); track record.scientific_name) {
+                <li>
+                  <article
+                    role="button"
+                    tabindex="0"
+                    [attr.aria-label]="
+                      record.scientific_name +
+                      (record.common_name ? ', also known as ' + record.common_name : '')
+                    "
+                    class="p-4 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md cursor-pointer transition-all duration-150 hover:border-primary-300 dark:hover:border-primary-700 hover:shadow-md outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 h-full flex flex-col"
+                    (click)="selectedRecord.set(record)"
+                    (keydown.enter)="selectedRecord.set(record)"
+                    (keydown.space)="onCardSpaceKey($event, record)"
+                  >
+                    <h2
+                      class="text-sm font-semibold font-display text-neutral-900 dark:text-neutral-100 mb-0.5 leading-snug italic"
+                    >
+                      {{ record.scientific_name }}
+                    </h2>
+                    @if (record.common_name) {
+                      <p class="text-xs text-neutral-400 font-display mb-3 leading-snug">
+                        {{ record.common_name }}
+                      </p>
+                    }
+                    <div class="flex flex-wrap gap-1.5 mt-auto">
+                      @if (record.watering) {
+                        <p-tag severity="secondary" [pt]="FloraTagPT">
+                          <svg
+                            class="w-2.5 h-2.5 shrink-0"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            aria-hidden="true"
+                          >
+                            <path d="M12 3C12 3 4 11 4 16a8 8 0 0 0 16 0C20 11 12 3 12 3z" />
+                          </svg>
+                          <span>{{ record.watering }}</span>
+                        </p-tag>
+                      }
+                      @if (record.sunlight && record.sunlight.length > 0) {
+                        <p-tag
+                          [value]="record.sunlight[0]"
+                          severity="secondary"
+                          icon="pi pi-sun"
+                          [pt]="FloraTagPT"
+                        />
+                      }
+                      @if (record.cycle) {
+                        <p-tag
+                          [value]="record.cycle"
+                          severity="secondary"
+                          icon="pi pi-refresh"
+                          [pt]="FloraTagPT"
+                        />
+                      }
+                      @if (record.is_toxic_to_pets === true) {
+                        <p-tag
+                          value="Toxic"
+                          severity="danger"
+                          icon="pi pi-exclamation-triangle"
+                          [pt]="FloraTagPT"
+                        />
+                      } @else if (record.is_toxic_to_pets === false) {
+                        <p-tag
+                          value="Pet-safe"
+                          severity="success"
+                          icon="pi pi-check-circle"
+                          [pt]="FloraTagPT"
+                        />
+                      }
+                    </div>
+                  </article>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </section>
+    </div>
+  </div>
+
+  <!-- Species detail dialog -->
+  <p-dialog
+    [visible]="detailVisible()"
+    (visibleChange)="onDetailClose($event)"
+    [header]="selectedRecord()?.scientific_name ?? ''"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [dismissableMask]="true"
+    [pt]="FloraDetailDialogPT"
+  >
+    @if (selectedRecord(); as rec) {
+      <div class="flex flex-col gap-4">
+        @if (rec.common_name) {
+          <p class="text-sm text-neutral-400 font-display -mt-2">
+            Also known as {{ rec.common_name }}
+          </p>
+        }
+
+        <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm font-display">
+          @if (rec.watering) {
+            <div>
+              <dt class="text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-0.5">
+                Watering
+              </dt>
+              <dd class="text-neutral-700 dark:text-neutral-200">{{ rec.watering }}</dd>
+            </div>
+          }
+          @if (rec.cycle) {
+            <div>
+              <dt class="text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-0.5">
+                Lifecycle
+              </dt>
+              <dd class="text-neutral-700 dark:text-neutral-200">
+                {{ rec.cycle }}
+                <span class="block text-xs text-neutral-400 mt-0.5">
+                  @if (rec.cycle === 'Annual') {
+                    completes its life in one growing season
+                  } @else if (rec.cycle === 'Perennial') {
+                    returns year after year
+                  } @else if (rec.cycle === 'Biennial') {
+                    two-year life cycle
+                  } @else {
+                    twice a year
+                  }
+                </span>
+              </dd>
+            </div>
+          }
+          @if (rec.sunlight && rec.sunlight.length > 0) {
+            <div class="sm:col-span-2">
+              <dt class="text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-0.5">
+                Sunlight
+              </dt>
+              <dd class="text-neutral-700 dark:text-neutral-200">{{ rec.sunlight.join(', ') }}</dd>
+            </div>
+          }
+          @if (rec.ideal_min_ph !== null || rec.ideal_max_ph !== null) {
+            <div>
+              <dt class="text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-0.5">
+                Soil pH Range
+              </dt>
+              <dd class="text-neutral-700 dark:text-neutral-200">
+                @if (rec.ideal_min_ph !== null && rec.ideal_max_ph !== null) {
+                  {{ rec.ideal_min_ph }} - {{ rec.ideal_max_ph }}
+                } @else if (rec.ideal_min_ph !== null) {
+                  >= {{ rec.ideal_min_ph }}
+                } @else {
+                  <= {{ rec.ideal_max_ph }}
+                }
+                <span class="block text-xs text-neutral-400 mt-0.5">
+                  ideal soil acidity scale 0 (acid) - 14 (alkaline)
+                </span>
+              </dd>
+            </div>
+          }
+          @if (rec.is_toxic_to_pets !== null) {
+            <div>
+              <dt class="text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-0.5">
+                Pet toxicity
+              </dt>
+              <dd class="text-neutral-700 dark:text-neutral-200">
+                @if (rec.is_toxic_to_pets) {
+                  <span class="text-danger-500 font-medium">Toxic to pets</span>
+                  @if (rec.toxicity_notes) {
+                    <span class="text-neutral-500"> - {{ rec.toxicity_notes }}</span>
+                  }
+                } @else {
+                  <span class="text-success-500 font-medium">Pet-safe</span>
+                }
+              </dd>
+            </div>
+          }
+        </dl>
+
+        @if (rec.propagation_methods && rec.propagation_methods.length > 0) {
+          <div>
+            <p
+              class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display mb-1.5"
+            >
+              Propagation
+            </p>
+            <ul class="flex flex-wrap gap-1.5" aria-label="Propagation methods">
+              @for (method of rec.propagation_methods; track method) {
+                <li>
+                  <span
+                    class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium font-display bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300"
+                  >
+                    {{ method }}
+                  </span>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+
+        <p
+          class="text-xs text-neutral-400 font-display border-t border-neutral-100 dark:border-neutral-700 pt-3 mt-1"
+        >
+          Plant data from Perenual
+          @if (rec.is_ai_enriched) {
+            some fields (pH, toxicity, propagation) completed by AI - not scientifically verified
+          }
+        </p>
+      </div>
+
+      <div
+        class="flex justify-end gap-3 border-t border-neutral-100 dark:border-neutral-700 pt-4 mt-4"
+      >
+        <p-button
+          label="Close"
+          variant="outlined"
+          [pt]="FloraButtonPT"
+          ariaLabel="Close species details"
+          (onClick)="selectedRecord.set(null)"
+        />
+        <p-button
+          label="Add to my greenhouse"
+          [pt]="FloraButtonPT"
+          [ariaLabel]="'Add ' + rec.scientific_name + ' to my greenhouse'"
+          (onClick)="openAddDialog(rec)"
+        />
+      </div>
+    }
+  </p-dialog>
+
+  <app-plant-form-dialog [(visible)]="showAddDialog" (saved)="onPlantSaved($event)" />
+</main>

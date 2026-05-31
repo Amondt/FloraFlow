@@ -2,6 +2,17 @@
 
 Reference for **The Plumber**. Always verify against context7 before implementing — SDKs evolve.
 
+## Debugging Rule — Instrument Before Fixing
+
+When a function returns an unexpected result (wrong status code, wrong auth behavior, unexpected data), **never guess**. Add a targeted `console.error` first, invoke once, read the output, then fix. One concrete data point eliminates multiple guesses.
+
+```ts
+// Safe debug pattern — logs shape, not secrets
+console.error('[debug]', { secretLen: secret.length, tokenLen: token.length, match: token === secret });
+```
+
+Remove all `[debug]` lines before the block is marked done.
+
 ---
 
 ## Supabase Type Generation (run once per schema change)
@@ -300,6 +311,8 @@ return json(plant);
 
 ## Supabase Auth in Edge Functions
 
+### User-facing functions (called from Angular with a logged-in user's JWT)
+
 ```ts
 // Verify the calling user's JWT
 const authHeader = req.headers.get('Authorization');
@@ -312,6 +325,49 @@ if (error || !user) return json({ error: 'Unauthorized' }, 401);
 
 // Now safe to use user.id in queries
 ```
+
+### Server-to-server functions (called by cron or manual invocation — no user JWT)
+
+Use a `CRON_SECRET` env var stored in `supabase/functions/.env`. **Never** compare against `SUPABASE_SERVICE_ROLE_KEY` — that is an internal PostgREST JWT that is auto-injected and invisible in `supabase status`; it cannot be used as an invocation token.
+
+**Important:** Kong (the local API gateway) strips the `Authorization` header before it reaches the Deno function. Use the custom header `x-cron-secret` instead — Kong passes it through untouched.
+
+```ts
+// Auth check — must be the first thing after OPTIONS handling
+// Use x-cron-secret, NOT Authorization — Kong strips Authorization before reaching Deno
+const token = req.headers.get('x-cron-secret') ?? '';
+const cronSecret = Deno.env.get('CRON_SECRET') ?? '';
+if (!token || token !== cronSecret) {
+  return json({ error: 'Unauthorized' }, 401);
+}
+
+// SUPABASE_SERVICE_ROLE_KEY is still used for the DB client — that's its only role
+const supabase = createClient<Database>(
+  Deno.env.get('SUPABASE_URL')!,
+  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+);
+```
+
+`supabase/functions/.env` entry:
+```
+CRON_SECRET=<your-sb_secret_...key-from-supabase-status>
+```
+
+Cron migration header:
+```sql
+headers := jsonb_build_object('x-cron-secret', '<same-CRON_SECRET-value>')
+```
+
+### Serving functions locally for manual testing
+
+Always use both flags — omitting either causes silent auth failures:
+
+```powershell
+bunx supabase functions serve --no-verify-jwt --env-file supabase/functions/.env
+```
+
+- `--no-verify-jwt`: without this the gateway rejects the `sb_secret_...` token as an invalid JWT before the request reaches the function
+- `--env-file`: without this, env changes made after `supabase start` are not picked up
 
 ---
 

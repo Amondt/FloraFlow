@@ -15,7 +15,12 @@ export interface LibraryFilters {
 }
 
 export const WATERING_OPTIONS = ['Frequent', 'Average', 'Minimum', 'None'] as const;
-export const SUNLIGHT_OPTIONS = ['full sun', 'part shade', 'full shade'] as const;
+export const SUNLIGHT_OPTIONS = [
+  'full_sun',
+  'part_shade',
+  'full_shade',
+  'filtered_indirect',
+] as const;
 export const CYCLE_OPTIONS = ['Perennial', 'Annual', 'Biennial', 'Biannual'] as const;
 
 @Injectable({ providedIn: 'root' })

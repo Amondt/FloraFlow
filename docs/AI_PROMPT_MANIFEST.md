@@ -79,6 +79,24 @@ The inference pipeline must strictly mandate a JSON Schema response matching you
             "enum": ["Stem Cuttings", "Leaf Cuttings", "Division", "Seeds", "Air Layering", "Offset Separation"]
           }
         },
+        "watering": {
+          "type": ["string", "null"],
+          "enum": ["Frequent", "Average", "Minimum", "None", null],
+          "description": "Watering frequency category. Use null if ambiguous or unknown."
+        },
+        "sunlight": {
+          "type": ["array", "null"],
+          "items": {
+            "type": "string",
+            "enum": ["full_sun", "part_shade", "full_shade", "filtered_indirect"]
+          },
+          "description": "Array of applicable sunlight conditions using canonical snake_case values. Use null if unknown."
+        },
+        "cycle": {
+          "type": ["string", "null"],
+          "enum": ["Perennial", "Annual", "Biennial", "Biannual", null],
+          "description": "Plant lifecycle type. Use null if unclear."
+        },
         "check_depth_description": {
           "type": ["string", "null"],
           "description": "Species-specific soil moisture check guidance. Must reference actual species watering requirements — never invent values. Examples: 'Allow the top 3–4 cm of soil to dry before watering', 'Let soil dry completely between waterings'. Null if insufficient data."
@@ -102,7 +120,7 @@ The inference pipeline must strictly mandate a JSON Schema response matching you
         },
         "is_ai_enriched": { "type": "boolean", "const": true }
       },
-      "required": ["scientific_name", "common_name", "ideal_min_ph", "ideal_max_ph", "is_toxic_to_pets", "toxicity_notes", "propagation_methods", "check_depth_description", "ideal_humidity_min", "ideal_humidity_max", "care_difficulty", "is_ai_enriched"]
+      "required": ["scientific_name", "common_name", "ideal_min_ph", "ideal_max_ph", "is_toxic_to_pets", "toxicity_notes", "propagation_methods", "watering", "sunlight", "cycle", "check_depth_description", "ideal_humidity_min", "ideal_humidity_max", "care_difficulty", "is_ai_enriched"]
     }
 
 ---

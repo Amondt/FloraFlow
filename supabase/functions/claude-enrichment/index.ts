@@ -22,7 +22,10 @@ When provided with a target species common name and scientific name, you must ex
 CRITICAL ACCURACY RULES:
 1. check_depth_description must reflect the species' actual watering requirements — not a generic formula. Aroids typically: "Allow top 2–3 cm to dry". Succulents typically: "Let soil dry completely between waterings". Ferns: "Keep consistently moist, check at the surface." Use null if the species is unknown to you.
 2. ideal_humidity_min and ideal_humidity_max must be species-specific, not category averages. A Pothos and a Calathea are both tropicals but have different humidity tolerances. Use null if the species-specific range is undocumented.
-3. Never invent numbers. A null is always more accurate than a fabricated value.`;
+3. Never invent numbers. A null is always more accurate than a fabricated value.
+4. watering must be exactly one of: 'Frequent', 'Average', 'Minimum', 'None'. Return null if the species' watering needs are ambiguous or unknown.
+5. sunlight must be an array using only these exact values: 'full_sun', 'part_shade', 'full_shade', 'filtered_indirect'. Return null if the species' light requirements are unknown.
+6. cycle must be exactly one of: 'Perennial', 'Annual', 'Biennial', 'Biannual'. Return null if the species lifecycle is unclear.`;
 
 const EnrichmentSchema = z.object({
   scientific_name: z.string(),
@@ -45,6 +48,11 @@ const EnrichmentSchema = z.object({
   ideal_humidity_min: z.number().nullable(),
   ideal_humidity_max: z.number().nullable(),
   care_difficulty: z.enum(['Beginner', 'Intermediate', 'Advanced']).nullable(),
+  watering: z.enum(['Frequent', 'Average', 'Minimum', 'None']).nullable(),
+  sunlight: z
+    .array(z.enum(['full_sun', 'part_shade', 'full_shade', 'filtered_indirect']))
+    .nullable(),
+  cycle: z.enum(['Perennial', 'Annual', 'Biennial', 'Biannual']).nullable(),
   is_ai_enriched: z.literal(true),
 });
 
@@ -70,7 +78,7 @@ Deno.serve(async (req: Request) => {
       .eq('scientific_name', scientificName)
       .maybeSingle();
 
-    if (cached?.is_ai_enriched) return json(cached);
+    if (cached?.is_ai_enriched && cached?.watering && cached?.cycle) return json(cached);
 
     const anthropic = new Anthropic({ apiKey: Deno.env.get('ANTHROPIC_API_KEY')! });
 
@@ -94,6 +102,21 @@ Deno.serve(async (req: Request) => {
       return json({ error: 'Enrichment service unavailable' }, 503);
     }
 
+    const conditionalFields: {
+      watering?: string;
+      sunlight?: string[];
+      cycle?: string;
+    } = {};
+    if (parsed.watering != null && (cached == null || cached.watering == null)) {
+      conditionalFields.watering = parsed.watering;
+    }
+    if (parsed.sunlight != null && (cached == null || cached.sunlight == null)) {
+      conditionalFields.sunlight = parsed.sunlight;
+    }
+    if (parsed.cycle != null && (cached == null || cached.cycle == null)) {
+      conditionalFields.cycle = parsed.cycle;
+    }
+
     const { data: upserted, error: upsertError } = await supabase
       .from('cached_botanical_records')
       .upsert(
@@ -106,6 +129,7 @@ Deno.serve(async (req: Request) => {
           toxicity_notes: parsed.toxicity_notes,
           propagation_methods: parsed.propagation_methods,
           is_ai_enriched: true,
+          ...conditionalFields,
         },
         { onConflict: 'scientific_name' },
       )

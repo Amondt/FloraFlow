@@ -87,7 +87,18 @@ Name search path: `BotanicalSearchService.search()` → `botanical-search` EF ha
     - `<app-plant-form-dialog [(visible)]="showAddDialog" [botanicalPrefill]="prefillRecord()" />`
   - On init: call `libraryService.browse({})` to pre-populate with cached records
 
-- [ ] **Block C — Botanical Record Card** | Agent: `/visualizer`
+- [x] **Block C — AI Scribe: Filter Field Enrichment** | Agent: `/plumber`
+  - Extend `EnrichmentSchema` in `supabase/functions/claude-enrichment/index.ts`:
+    - `watering`: `z.enum(['Frequent', 'Average', 'Minimum', 'None']).nullable()`
+    - `sunlight`: `z.array(z.enum(['full_sun', 'part_shade', 'full_shade', 'filtered_indirect'])).nullable()`
+    - `cycle`: `z.enum(['Perennial', 'Annual', 'Biennial', 'Biannual']).nullable()`
+  - Extend the system prompt to instruct Claude to use only the exact enum values above; return `null` if the species is unknown or ambiguous.
+  - Update the upsert: write `watering`, `sunlight`, `cycle` **conditionally** — only set each field when the existing DB row has it as `null` (preserves any Perenual data already present).
+  - Update the re-enrichment guard: change `if (cached?.is_ai_enriched) return json(cached)` to also require `cached?.watering && cached?.cycle` — so records enriched before this block ship will get a second pass.
+  - Correct the `SUNLIGHT_OPTIONS` constant in `src/app/features/library/library.service.ts` to match the canonical snake_case format: `['full_sun', 'part_shade', 'full_shade', 'filtered_indirect']` (aligns with what Perenual writes; no Perenual ingest change needed).
+  - Update `AI_PROMPT_MANIFEST.md` §1.2 to include `watering`, `sunlight`, `cycle` in the JSON schema definition.
+
+- [ ] **Block D — Botanical Record Card** | Agent: `/visualizer`
   - New file: `src/app/features/library/botanical-record-card/botanical-record-card.ts`
   - `record = input.required<CachedBotanicalRecord>()`
   - `selected = input<boolean>(false)`
@@ -100,7 +111,7 @@ Name search path: `BotanicalSearchService.search()` → `botanical-search` EF ha
     - Selected ring: `[class.ring-2]="selected()"` using `ring-primary-500`
   - Species detail panel lives in the parent (`library.ts`) — not inside the card — to avoid duplication across the grid
 
-- [ ] **Block D — Add to Greenhouse Integration** | Agent: `/visualizer`
+- [ ] **Block E — Add to Greenhouse Integration** | Agent: `/visualizer`
   - Modify `src/app/features/scheduler/plant-form-dialog/plant-form-dialog.ts`:
     - Add `botanicalPrefill = input<{ common_name: string; scientific_name: string | null; perenual_id: number | null } | null>(null)`
     - In the existing `effect()`: when `justOpened && !p && this.botanicalPrefill()`, apply prefill:
@@ -144,7 +155,23 @@ App running at: http://localhost:4200/library
 6. Open DevTools Console → confirm zero red errors.
 ```
 
-After Block C (Manual Browser Check):
+After Block C:
+
+```powershell
+bun run format
+bun run lint
+```
+
+DB verification — query the cache after searching for any plant in the Library:
+```sql
+SELECT scientific_name, watering, sunlight, cycle, is_ai_enriched
+FROM cached_botanical_records
+WHERE watering IS NOT NULL
+LIMIT 5;
+```
+Confirm at least some rows have non-null watering and cycle values.
+
+After Block D (Manual Browser Check):
 
 ```powershell
 bun run format
@@ -163,7 +190,7 @@ App running at: http://localhost:4200/library
 5. A card with is_toxic_to_pets = null → confirm no toxicity badge shown.
 ```
 
-After Block D (Manual Browser Check):
+After Block E (Manual Browser Check):
 
 ```powershell
 bun run format

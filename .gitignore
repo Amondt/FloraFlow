@@ -56,3 +56,6 @@ CLAUDE.md
 # Supabase local state
 supabase/.temp/
 supabase/config.toml
+
+# Design handoff assets
+FloraFlow-handoff.zip

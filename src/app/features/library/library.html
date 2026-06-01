@@ -247,7 +247,7 @@
                   <button
                     type="button"
                     class="inline-flex items-center justify-center cursor-pointer text-neutral-300 hover:text-neutral-500 dark:hover:text-neutral-300 outline-none focus-visible:ring-1 focus-visible:ring-primary-500 rounded-full"
-                    aria-label="About lifecycle: Annual completes in one season, Perennial returns yearly"
+                    aria-label="About lifecycle: Annual is one season, Biennial is two years, Biannual is twice a year, Perennial returns every year"
                     (click)="$event.stopPropagation()"
                   >
                     <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
@@ -256,7 +256,10 @@
                     aria-hidden="true"
                     class="absolute left-0 top-full mt-1.5 z-30 px-2.5 py-1.5 rounded-garden-sm bg-neutral-900 dark:bg-neutral-700 text-white text-xs font-display leading-snug w-44 shadow-lg invisible opacity-0 group-hover/hint:visible group-hover/hint:opacity-100 group-focus-within/hint:visible group-focus-within/hint:opacity-100 transition-opacity duration-150 pointer-events-none"
                   >
-                    Annual = one season Perennial = returns yearly
+                    <span class="block">Annual: 1 season</span>
+                    <span class="block">Biennial: 2 years</span>
+                    <span class="block">Biannual: twice a year</span>
+                    <span class="block">Perennial: returns every year</span>
                   </span>
                 </span>
                 @if (hasCycleFilter()) {
@@ -301,7 +304,7 @@
                   <button
                     type="button"
                     class="inline-flex items-center justify-center cursor-pointer text-neutral-300 hover:text-neutral-500 dark:hover:text-neutral-300 outline-none focus-visible:ring-1 focus-visible:ring-primary-500 rounded-full"
-                    aria-label="About soil pH: ideal acidity level, scale 0 (acid) to 14 (alkaline), most plants prefer 5.5 to 7"
+                    aria-label="About soil pH: ideal acidity level, scale 0 (acid) to 14 (alkaline)"
                     (click)="$event.stopPropagation()"
                   >
                     <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
@@ -310,7 +313,7 @@
                     aria-hidden="true"
                     class="absolute left-0 top-full mt-1.5 z-30 px-2.5 py-1.5 rounded-garden-sm bg-neutral-900 dark:bg-neutral-700 text-white text-xs font-display leading-snug w-48 shadow-lg invisible opacity-0 group-hover/hint:visible group-hover/hint:opacity-100 group-focus-within/hint:visible group-focus-within/hint:opacity-100 transition-opacity duration-150 pointer-events-none"
                   >
-                    Soil acidity scale 0 (very acid) to 14 (alkaline) most plants: 5.5-7
+                    Soil acidity scale 0 (very acid) to 14 (alkaline)
                   </span>
                 </span>
                 @if (hasPhFilter()) {

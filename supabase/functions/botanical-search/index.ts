@@ -43,12 +43,42 @@ Deno.serve(async (req: Request) => {
     const q = new URL(req.url).searchParams.get('q')?.trim() ?? '';
     if (q.length < 2) return json({ error: 'Query must be at least 2 characters' }, 400);
 
-    // Cache check — include is_perenual_enriched so we can skip details calls for already-enriched rows
+    // Cache check — include enrichment flags so we can identify stale records
     const { data: cached } = await supabase
       .from('cached_botanical_records')
-      .select('scientific_name, common_name, perenual_id, is_perenual_enriched')
+      .select(
+        'scientific_name, common_name, perenual_id, is_perenual_enriched, is_ai_enriched, watering, cycle',
+      )
       .or(`common_name.ilike.%${q}%,scientific_name.ilike.%${q}%`)
       .limit(8);
+
+    // Back-fill AI enrichment for cached records that still have NULL care fields.
+    // claude-enrichment's own is_ai_enriched guard prevents redundant Claude calls.
+    const needsAiEnrichment = (cached ?? []).filter(
+      (r) => !r.is_ai_enriched || !r.watering || !r.cycle,
+    );
+    if (needsAiEnrichment.length > 0) {
+      const enrichmentUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/claude-enrichment`;
+      const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const backfillCalls = needsAiEnrichment.map((record) =>
+        fetch(enrichmentUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${serviceRoleKey}`,
+          },
+          body: JSON.stringify({
+            scientificName: record.scientific_name,
+            commonName: record.common_name,
+          }),
+        }),
+      );
+      try {
+        EdgeRuntime.waitUntil(Promise.allSettled(backfillCalls));
+      } catch (waitErr) {
+        console.error('EdgeRuntime.waitUntil unavailable — backfill enrichment dropped:', waitErr);
+      }
+    }
 
     // 5+ hits means the cache is warm enough — skip the Perenual round-trip entirely
     if ((cached?.length ?? 0) >= 5) return json(cached);

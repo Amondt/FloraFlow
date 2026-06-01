@@ -23,7 +23,7 @@
 
 ## Blocks
 
-- [ ] **Block A — Extend JournalService with a read layer** | Agent: `/visualizer`
+- [x] **Block A — Extend JournalService with a read layer** | Agent: `/visualizer`
   - Add `JournalEntryWithPlant` type: `plant_journals` Row extended with `plants: { common_name: string }`.
   - Add signals: `entries` (`JournalEntryWithPlant[]`), `loadingEntries` (`boolean`), `entriesError` (`string | null`).
   - Add `loadEntries()`: queries `plant_journals` with `.select('*, plants(common_name)')`, ordered by `logged_at DESC`; sets `entries` signal.

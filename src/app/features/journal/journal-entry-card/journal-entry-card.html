@@ -1,43 +1,54 @@
 @let url = imageUrl();
 
 <article
-  class="bg-white dark:bg-neutral-800 rounded-garden-md border border-neutral-200 dark:border-neutral-700 p-4 flex flex-col gap-3"
+  class="bg-white dark:bg-neutral-800 rounded-garden-md border border-neutral-200 dark:border-neutral-700 p-3.5 flex gap-3.5"
   [attr.aria-label]="
-    entry().plants.common_name + ' — ' + categoryLabel() + ' on ' + formattedDate()
+    entry().plants.common_name + ' — ' + categoryLabel() + ' at ' + formattedTime()
   "
 >
-  <header class="flex items-center justify-between gap-2">
-    <span [class]="badgeClasses()">
-      {{ categoryLabel() }}
-    </span>
-    <time
-      [attr.datetime]="entry().logged_at"
-      class="text-xs text-neutral-400 dark:text-neutral-500 font-display shrink-0"
-    >
-      {{ formattedDate() }}
-    </time>
-  </header>
-
-  <a
-    routerLink="/scheduler"
-    class="text-sm font-semibold font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 self-start"
-    [attr.aria-label]="'View ' + entry().plants.common_name + ' in Scheduler'"
+  <!-- Category icon box -->
+  <div
+    class="w-[5.25rem] h-[5.25rem] rounded-garden-sm bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center shrink-0"
+    aria-hidden="true"
   >
-    {{ entry().plants.common_name }}
-  </a>
+    <i [class]="categoryIconClass()"></i>
+  </div>
 
-  @if (entry().notes) {
-    <p class="text-sm text-neutral-600 dark:text-neutral-300 font-display leading-snug">
-      {{ entry().notes }}
-    </p>
-  }
+  <!-- Entry body -->
+  <div class="flex flex-col gap-1.5 min-w-0 flex-1">
+    <!-- Meta: pill · plant name · sci name · time -->
+    <div class="flex items-center gap-2 flex-wrap">
+      <span [class]="badgeClasses()">{{ categoryLabel() }}</span>
+      <span class="text-sm font-semibold font-display text-neutral-900 dark:text-white">
+        {{ entry().plants.common_name }}
+      </span>
+      @if (entry().plants.scientific_name) {
+        <span class="text-xs font-display text-neutral-400 dark:text-neutral-500 italic">
+          {{ entry().plants.scientific_name }}
+        </span>
+      }
+      <span class="flex-1" aria-hidden="true"></span>
+      <time
+        [attr.datetime]="entry().logged_at"
+        class="text-[0.7rem] font-mono text-neutral-400 dark:text-neutral-500 shrink-0"
+      >
+        {{ formattedTime() }}
+      </time>
+    </div>
 
-  @if (url) {
-    <img
-      [src]="url"
-      [alt]="categoryLabel() + ' photo for ' + entry().plants.common_name"
-      class="w-full max-h-48 object-cover rounded-garden-sm"
-      loading="lazy"
-    />
-  }
+    @if (entry().notes) {
+      <p class="text-sm text-neutral-700 dark:text-neutral-200 font-display leading-snug">
+        {{ entry().notes }}
+      </p>
+    }
+
+    @if (url) {
+      <img
+        [src]="url"
+        [alt]="categoryLabel() + ' photo for ' + entry().plants.common_name"
+        class="w-full max-h-32 object-cover rounded-garden-sm"
+        loading="lazy"
+      />
+    }
+  </div>
 </article>

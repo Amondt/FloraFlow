@@ -51,9 +51,17 @@ All tokens live in `src/styles.input.css` under `@theme` and compile into `src/s
   --radius-garden-sm: 0.375rem;
   --radius-garden-md: 0.75rem;
   --radius-garden-lg: 1.25rem;
+
+  --height-control: 2.375rem;  /* h-control — standard interactive control height */
 }
 
 @variant dark (&:where(.dark, .dark *));
+
+/* --- Control height rule ---
+   h-control (2.375rem = 38px) is the ONLY approved height for ALL single-line interactive controls:
+   p-button, p-select, p-multiselect, pInputText, and standalone <button> elements.
+   Never use py-* to control height on these — use h-control so every control is pixel-perfect.
+   Exception: FloraTextareaPT uses min-h-24 + resize-y (variable height by design). */
 
 @keyframes flora-skeleton {
   0%, 100% { opacity: 1; }

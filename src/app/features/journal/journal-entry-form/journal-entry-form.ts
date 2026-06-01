@@ -1,4 +1,4 @@
-import { Component, computed, inject, model, signal } from '@angular/core';
+import { Component, computed, inject, model, output, signal } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
@@ -38,6 +38,7 @@ export class JournalEntryFormComponent {
   private readonly messageService = inject(MessageService);
 
   readonly visible = model<boolean>(false);
+  readonly entrySaved = output<void>();
 
   protected readonly FloraDialogPT = FloraDialogPT;
   protected readonly FloraSelectPT = FloraSelectPT;
@@ -138,6 +139,7 @@ export class JournalEntryFormComponent {
       });
 
       this.onVisibleChange(false);
+      this.entrySaved.emit();
     } catch (e) {
       this.messageService.add({
         severity: 'error',

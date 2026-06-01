@@ -6,7 +6,7 @@ import { FLORA_FOCUS, FLORA_DISABLED } from './states.pt';
 export const FloraInputTextPT = {
   root: {
     class: [
-      'w-full px-3 py-2 text-sm font-display',
+      'w-full px-3 h-control text-sm font-display',
       'bg-white dark:bg-neutral-800',
       'text-neutral-900 dark:text-neutral-100',
       'border border-neutral-300 dark:border-neutral-600 rounded-garden-sm',

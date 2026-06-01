@@ -1,32 +1,90 @@
 <main class="p-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen" aria-labelledby="journal-heading">
   <div class="max-w-5xl mx-auto">
+    <!-- Header -->
     <header class="mb-8">
-      <div class="flex items-start justify-between gap-4">
+      <p
+        class="text-xs font-semibold uppercase tracking-widest text-primary-600 dark:text-primary-400 font-display mb-1"
+      >
+        Botanical journal
+      </p>
+      <div class="flex items-end justify-between gap-4">
         <div>
-          <p
-            class="text-xs font-semibold uppercase tracking-widest text-primary-600 dark:text-primary-400 font-display mb-1"
-          >
-            Plant Care
-          </p>
           <h1
             id="journal-heading"
             class="text-3xl font-semibold font-display text-neutral-900 dark:text-white"
           >
-            Care Journal
+            Care log
           </h1>
+          @if (journalService.entries().length > 0) {
+            <p
+              class="text-sm text-neutral-500 dark:text-neutral-400 font-display mt-1"
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              {{ journalService.entries().length }}
+              {{ journalService.entries().length === 1 ? 'entry' : 'entries' }} across all plants
+            </p>
+          }
         </div>
+
         @if (hasPlants()) {
-          <p-button
-            label="Log Care Event"
-            [pt]="FloraButtonPT"
-            ariaLabel="Log a new care event for one of your plants"
-            (onClick)="openDialog()"
-          />
+          <div class="flex items-center gap-2 shrink-0">
+            <!-- Plant filter -->
+            <div class="w-44">
+              <p-select
+                [ngModel]="selectedPlant()"
+                (ngModelChange)="selectedPlant.set($event)"
+                [options]="plantSelectOptions()"
+                optionLabel="label"
+                optionValue="value"
+                [pt]="FloraSelectPT"
+                appendTo="body"
+                aria-label="Filter journal entries by plant"
+              />
+            </div>
+
+            <!-- New entry -->
+            <p-button
+              label="New entry"
+              icon="pi pi-plus"
+              [pt]="FloraButtonPT"
+              ariaLabel="Log a new care event for one of your plants"
+              (onClick)="openDialog()"
+            />
+          </div>
         }
       </div>
     </header>
 
-    <section aria-label="Journal entries">
+    <!-- Category tab bar -->
+    @if (hasPlants() && !loading()) {
+      <div
+        class="flex border-b border-neutral-200 dark:border-neutral-700 mb-4"
+        role="tablist"
+        aria-label="Filter journal entries by care category"
+      >
+        @for (opt of categoryFilterOptions; track opt.value ?? 'all') {
+          <button
+            type="button"
+            role="tab"
+            [class]="getTabClass(opt.value)"
+            [attr.aria-selected]="selectedCategory() === opt.value"
+            (click)="selectedCategory.set(opt.value)"
+          >
+            @if (opt.icon) {
+              <i [class]="opt.icon + ' text-xs'" aria-hidden="true"></i>
+            }
+            {{ opt.label }}
+            <span [class]="getTabCountClass(opt.value)" aria-hidden="true">
+              {{ getEntryCount(opt.value) }}
+            </span>
+          </button>
+        }
+      </div>
+    }
+
+    <!-- Feed -->
+    <section aria-label="Journal entries" [attr.aria-busy]="journalService.loadingEntries()">
       @if (loading()) {
         <p class="text-sm text-neutral-500 font-display" role="status" aria-live="polite">
           Loading…
@@ -38,17 +96,84 @@
           </p>
           <a
             href="/scheduler"
-            class="mt-4 inline-flex items-center gap-1.5 text-sm font-medium font-display text-primary-600 hover:text-primary-700 transition-colors duration-150"
+            class="mt-4 inline-flex items-center gap-1.5 text-sm font-medium font-display text-primary-600 hover:text-primary-700 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
             aria-label="Go to the Scheduler to add your first plant"
           >
             <i class="pi pi-arrow-right text-xs" aria-hidden="true"></i>
             Go to Scheduler
           </a>
         </div>
+      } @else if (journalService.loadingEntries()) {
+        <ul class="flex flex-col gap-4" aria-label="Loading journal entries">
+          @for (item of skeletonItems; track item) {
+            <li aria-hidden="true">
+              <p-skeleton height="5.5rem" [pt]="FloraSkeletonPT" />
+            </li>
+          }
+        </ul>
+      } @else if (journalService.entriesError()) {
+        <p-message severity="error" [pt]="FloraMessagePT">
+          {{ journalService.entriesError() }}
+        </p-message>
+      } @else if (journalService.entries().length === 0) {
+        <div class="flex flex-col items-center justify-center py-20 text-center" role="status">
+          <p class="text-neutral-500 dark:text-neutral-400 font-display text-base">
+            No care events logged yet — click New entry to record your first.
+          </p>
+        </div>
+      } @else if (filteredEntries().length === 0) {
+        <div class="flex flex-col items-center justify-center py-20 text-center" role="status">
+          <p class="text-neutral-500 dark:text-neutral-400 font-display text-base">
+            @if (selectedCategory() !== null && selectedPlant() !== null) {
+              No {{ selectedCategoryLabel() }} entries for this plant.
+            } @else if (selectedCategory() !== null) {
+              No {{ selectedCategoryLabel() }} entries found.
+            } @else {
+              No entries found for this plant.
+            }
+          </p>
+          <button
+            type="button"
+            class="mt-4 text-sm font-medium font-display text-primary-600 hover:text-primary-700 transition-colors duration-150 outline-none focus-visible:underline"
+            aria-label="Clear all filters to see all journal entries"
+            (click)="clearFilters()"
+          >
+            Clear filters
+          </button>
+        </div>
       } @else {
-        <p class="text-sm text-neutral-500 font-display">
-          No entries yet — click "Log Care Event" to record your first.
-        </p>
+        <!-- Date-grouped timeline -->
+        <div aria-label="Journal timeline">
+          @for (group of entriesByDay(); track group.dateKey; let first = $first) {
+            <div [class]="getDayGroupClass(first)">
+              <!-- Date column -->
+              <div class="w-20 shrink-0 pt-1" aria-hidden="true">
+                <span
+                  class="block text-2xl font-bold font-display text-neutral-900 dark:text-white leading-none"
+                >
+                  {{ group.dayNumber }}
+                </span>
+                <span
+                  class="block text-[0.6875rem] font-mono font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wide leading-tight mt-0.5"
+                >
+                  {{ group.monthYear }}
+                </span>
+              </div>
+
+              <!-- Entries for this day -->
+              <ul
+                class="flex flex-col gap-3 flex-1 min-w-0"
+                [attr.aria-label]="group.monthYear + ' ' + group.dayNumber + ' journal entries'"
+              >
+                @for (entry of group.entries; track entry.id) {
+                  <li>
+                    <app-journal-entry-card [entry]="entry" [imageUrl]="entry.imageUrl" />
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+        </div>
       }
     </section>
   </div>
@@ -56,4 +181,4 @@
 
 <p-toast [pt]="FloraToastPT" position="bottom-right" />
 
-<app-journal-entry-form [(visible)]="dialogVisible" />
+<app-journal-entry-form [(visible)]="dialogVisible" (entrySaved)="onEntrySaved()" />

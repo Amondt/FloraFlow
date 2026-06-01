@@ -31,6 +31,12 @@
   --radius-garden-sm: 0.375rem;
   --radius-garden-md: 0.75rem;
   --radius-garden-lg: 1.25rem;
+
+  /* Standard interactive control height — matches p-select's natural height
+     (PrimeNG injects font-size: 1rem on .p-select-label, making selects ~37.78px).
+     Use h-control on every p-button and button-like element to keep all controls
+     the same height without touching the dropdown. */
+  --height-control: 2.375rem;
 }
 
 /* Dark mode */

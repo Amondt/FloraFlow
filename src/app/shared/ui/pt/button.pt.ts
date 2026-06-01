@@ -14,8 +14,8 @@ export const FloraButtonPT = {
     };
   } = {}) => ({
     class: [
-      'inline-flex items-center justify-center gap-2 cursor-pointer',
-      'px-4 py-2 text-sm font-semibold font-display rounded-garden-sm',
+      'inline-flex items-center justify-center gap-2 cursor-pointer h-control',
+      'px-4 text-sm font-semibold font-display rounded-garden-sm',
       FLORA_FOCUS,
       FLORA_DISABLED,
       FLORA_HOVER,

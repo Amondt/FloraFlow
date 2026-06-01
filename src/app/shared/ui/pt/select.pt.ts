@@ -1,25 +1,30 @@
 import type { SelectPassThroughOptions } from 'primeng/select';
 import type { MultiSelectPassThroughOptions } from 'primeng/multiselect';
-import { FLORA_DISABLED, FLORA_HOVER } from './states.pt';
+import { FLORA_DISABLED, FLORA_FOCUS, FLORA_HOVER } from './states.pt';
 
 export const FloraSelectPT = {
   root: {
     class: [
-      'w-full flex items-center gap-2 px-3 py-2 text-sm font-display cursor-pointer',
+      // h-control locks height to the same token as p-button (2.375rem = 38px).
+      // justify-between pushes the chevron to the far right regardless of PrimeNG's
+      // flex: 1 1 auto / width: 1% injected on .p-select-label.
+      'w-full flex items-center justify-between px-3 h-control text-sm font-display cursor-pointer',
       'bg-white dark:bg-neutral-800',
       'text-neutral-900 dark:text-neutral-100',
       'border border-neutral-300 dark:border-neutral-600 rounded-garden-sm',
       'outline-none',
+      FLORA_FOCUS,
       FLORA_DISABLED,
       FLORA_HOVER,
     ].join(' '),
   },
   label: { class: 'flex-1 truncate outline-none' },
-  dropdown: { class: 'text-neutral-400 text-xs ml-auto' },
+  // pl-2 provides the gap between text and chevron; no ml-auto needed with justify-between
+  dropdown: { class: 'flex items-center shrink-0 pl-2 text-neutral-400' },
   pcOverlay: {
     root: {
       class:
-        'mt-1 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md shadow-xl z-50',
+        'mt-1 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md shadow-xl z-50 overflow-hidden',
     },
   },
   list: { class: 'py-1' },
@@ -41,18 +46,19 @@ export const FloraSelectPT = {
 export const FloraMultiSelectPT = {
   root: {
     class: [
-      'w-full flex items-center gap-2 px-3 py-2 text-sm font-display cursor-pointer',
+      'w-full flex items-center justify-between px-3 h-control text-sm font-display cursor-pointer',
       'bg-white dark:bg-neutral-800',
       'border border-neutral-300 dark:border-neutral-600 rounded-garden-sm',
       'outline-none',
+      FLORA_FOCUS,
       FLORA_DISABLED,
     ].join(' '),
   },
-  label: { class: 'flex-1 text-neutral-900 dark:text-neutral-100 truncate outline-none' },
-  dropdown: { class: 'text-neutral-400 text-xs ml-auto' },
+  label: { class: 'flex-1 truncate outline-none text-neutral-900 dark:text-neutral-100' },
+  dropdown: { class: 'flex items-center shrink-0 pl-2 text-neutral-400' },
   overlay: {
     class:
-      'mt-1 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md shadow-xl z-50',
+      'mt-1 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md shadow-xl z-50 overflow-hidden',
   },
   header: {
     class: 'px-3 py-2 border-b border-neutral-200 dark:border-neutral-700 flex items-center gap-2',

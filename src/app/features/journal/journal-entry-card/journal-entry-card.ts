@@ -1,6 +1,5 @@
 import { Component, computed, input } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { CATEGORY_LABEL, type LogCategoryType } from '../journal-categories';
+import { CATEGORY_ICON, CATEGORY_LABEL, type LogCategoryType } from '../journal-categories';
 import type { JournalEntryWithPlant } from '../journal.service';
 
 const BADGE_BASE =
@@ -15,10 +14,12 @@ const CATEGORY_COLOR: Record<LogCategoryType, string> = {
   PestTreatment: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
 };
 
+const ICON_BASE = 'text-xl text-primary-600 dark:text-primary-400';
+
 @Component({
   selector: 'app-journal-entry-card',
   standalone: true,
-  imports: [RouterLink],
+  imports: [],
   templateUrl: './journal-entry-card.html',
 })
 export class JournalEntryCardComponent {
@@ -31,11 +32,14 @@ export class JournalEntryCardComponent {
 
   protected readonly categoryLabel = computed(() => CATEGORY_LABEL[this.entry().category]);
 
-  protected readonly formattedDate = computed(() =>
-    new Date(this.entry().logged_at).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
+  protected readonly categoryIconClass = computed(
+    () => `${CATEGORY_ICON[this.entry().category]} ${ICON_BASE}`,
+  );
+
+  protected readonly formattedTime = computed(() =>
+    new Date(this.entry().logged_at).toLocaleTimeString('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit',
     }),
   );
 }

@@ -6,7 +6,7 @@ type JournalInsert = Database['public']['Tables']['plant_journals']['Insert'];
 type JournalRow = Database['public']['Tables']['plant_journals']['Row'];
 
 export type JournalEntryWithPlant = JournalRow & {
-  plants: { common_name: string };
+  plants: { common_name: string; scientific_name: string | null };
 };
 
 @Injectable({ providedIn: 'root' })
@@ -45,7 +45,7 @@ export class JournalService {
 
     const { data, error } = await this.supabase.client
       .from('plant_journals')
-      .select('*, plants(common_name)')
+      .select('*, plants(common_name, scientific_name)')
       .order('logged_at', { ascending: false });
 
     if (error) {

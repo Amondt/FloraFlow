@@ -28,7 +28,7 @@
     } @else if (record().is_toxic_to_pets === false) {
       <p-tag value="Pet-safe" severity="success" icon="pi pi-check-circle" [pt]="FloraTagPT" />
     }
-    @if (record().watering) {
+    @if (wateringLabel()) {
       <p-tag severity="secondary" [pt]="FloraTagPT">
         <svg
           class="w-2.5 h-2.5 shrink-0"
@@ -38,7 +38,7 @@
         >
           <path d="M12 3C12 3 4 11 4 16a8 8 0 0 0 16 0C20 11 12 3 12 3z" />
         </svg>
-        <span>{{ record().watering }}</span>
+        <span>{{ wateringLabel() }}</span>
       </p-tag>
     }
     @for (label of sunlightLabels(); track label) {

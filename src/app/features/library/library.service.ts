@@ -23,6 +23,20 @@ export const SUNLIGHT_OPTIONS = [
 ] as const;
 export const CYCLE_OPTIONS = ['Perennial', 'Annual', 'Biennial', 'Biannual'] as const;
 
+export const SUNLIGHT_LABEL: Record<string, string> = {
+  full_sun: 'Full sun',
+  part_shade: 'Part shade',
+  full_shade: 'Shade',
+  filtered_indirect: 'Indirect',
+};
+
+export const WATERING_LABEL: Record<string, string> = {
+  Frequent: 'Every 1–2 days',
+  Average: 'Every 3–7 days',
+  Minimum: 'Every 7–14 days',
+  None: 'Drought-tolerant',
+};
+
 @Injectable({ providedIn: 'root' })
 export class LibraryService {
   private readonly supabase = inject(SupabaseService);

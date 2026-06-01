@@ -371,6 +371,9 @@
   .mt-auto {
     margin-top: auto;
   }
+  .mr-1 {
+    margin-right: calc(var(--spacing) * 1);
+  }
   .mr-auto {
     margin-right: auto;
   }
@@ -1015,6 +1018,9 @@
   .text-xs {
     font-size: var(--text-xs);
     line-height: var(--tw-leading, var(--text-xs--line-height));
+  }
+  .text-\[10px\] {
+    font-size: 10px;
   }
   .leading-none {
     --tw-leading: 1;
@@ -1676,6 +1682,14 @@
   .dark\:bg-neutral-800 {
     &:where(.dark, .dark *) {
       background-color: var(--color-neutral-800);
+    }
+  }
+  .dark\:bg-neutral-800\/60 {
+    &:where(.dark, .dark *) {
+      background-color: color-mix(in srgb, #1e293b 60%, transparent);
+      @supports (color: color-mix(in lab, red, red)) {
+        background-color: color-mix(in oklab, var(--color-neutral-800) 60%, transparent);
+      }
     }
   }
   .dark\:bg-neutral-900 {

@@ -113,6 +113,12 @@
   - Grouped by plant, ordered by `logged_at DESC`; filterable by `log_category_type`.
   - Photo thumbnails resolved from `image_storage_path` via Supabase Storage public URL.
   - Each entry links back to the plant's scheduler card.
+- [ ] **2.10 Zone Detail View** | Agent: `/visualizer`
+  - New route `/dashboard/zones/:id` — shows all plants in a zone with per-plant soil check and species info dialogs.
+  - Zone card name becomes a navigation link; back link returns to `/dashboard`.
+  - Reuses `SoilCheckDialogComponent` (Block C) and the shared botanical detail dialog extracted during 2.8 (Block D).
+  - No new migrations — reads from existing `ZoneService` and `PlantService` signals.
+  - Plan: `docs/plans/PHASE_2_10_PLAN.md`
 
 ### 🔒 Phase 2 QA Criteria
 

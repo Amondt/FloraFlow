@@ -20,7 +20,9 @@ import {
   CYCLE_OPTIONS,
   LibraryFilters,
   LibraryService,
+  SUNLIGHT_LABEL,
   SUNLIGHT_OPTIONS,
+  WATERING_LABEL,
   WATERING_OPTIONS,
 } from './library.service';
 import {
@@ -73,6 +75,7 @@ export class LibraryComponent {
   protected readonly WATERING_OPTIONS = [...WATERING_OPTIONS];
   protected readonly SUNLIGHT_OPTIONS = [...SUNLIGHT_OPTIONS];
   protected readonly CYCLE_OPTIONS = [...CYCLE_OPTIONS];
+  protected readonly SUNLIGHT_LABEL = SUNLIGHT_LABEL;
   protected readonly TOXICITY_OPTIONS = TOXICITY_OPTIONS;
   protected readonly loadingPlaceholders = [1, 2, 3, 4, 5, 6];
 
@@ -91,7 +94,17 @@ export class LibraryComponent {
   } | null>(null);
 
   readonly detailVisible = computed(() => this.selectedRecord() !== null);
+  readonly selectedSunlightLabels = computed(() =>
+    (this.selectedRecord()?.sunlight ?? []).map((s) => SUNLIGHT_LABEL[s] ?? s),
+  );
+  readonly selectedWateringLabel = computed(() => {
+    const w = this.selectedRecord()?.watering;
+    return w ? (WATERING_LABEL[w] ?? w) : null;
+  });
   readonly hasActiveFilters = computed(() => Object.keys(this.filters()).length > 0);
+  readonly hasSearchCriteria = computed(
+    () => this.searchQuery().length >= 2 || this.hasActiveFilters(),
+  );
   readonly hasPhFilter = computed(() => this.phRange()[0] !== 0 || this.phRange()[1] !== 14);
   readonly hasWateringFilter = computed(() => !!this.filters().watering);
   readonly hasSunlightFilter = computed(() => !!this.filters().sunlight);
@@ -120,9 +133,16 @@ export class LibraryComponent {
     effect(() => {
       const q = this.searchQuery();
       const f = this.filters();
+      const hasCriteria = q.length >= 2 || Object.keys(f).length > 0;
 
       if (this._debounceTimer !== null) {
         clearTimeout(this._debounceTimer);
+      }
+
+      if (!hasCriteria) {
+        this.isLoading.set(false);
+        this.results.set([]);
+        return;
       }
 
       this.isLoading.set(true);

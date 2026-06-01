@@ -28,12 +28,11 @@
           >
         }
       </p>
-      <p class="text-xs text-neutral-400 dark:text-neutral-500 font-display mt-0.5 truncate">
-        @if (zoneName()) {
-          {{ zoneName() }} ·
-        }
-        {{ plant().container_vector }} · {{ plant().substrate_factor }}
-      </p>
+      @if (zoneName()) {
+        <p class="text-xs text-neutral-400 dark:text-neutral-500 font-display mt-0.5 truncate">
+          {{ zoneName() }}
+        </p>
+      }
     </div>
 
     <span [class]="badgeColor()">

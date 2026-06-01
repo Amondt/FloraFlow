@@ -1,4 +1,5 @@
 import { Component, computed, input, model, output, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { FloraDialogPT, FloraButtonPT } from '../../../shared/ui/pt/index';
@@ -31,7 +32,7 @@ type CheckStep = 'ask' | 'dry' | 'moist';
 @Component({
   selector: 'app-soil-check-dialog',
   standalone: true,
-  imports: [DialogModule, ButtonModule, LeafIconComponent],
+  imports: [RouterLink, DialogModule, ButtonModule, LeafIconComponent],
   templateUrl: './soil-check-dialog.html',
 })
 export class SoilCheckDialogComponent {

@@ -36,10 +36,18 @@ export class JournalEntryCardComponent {
     () => `${CATEGORY_ICON[this.entry().category]} ${ICON_BASE}`,
   );
 
-  protected readonly formattedTime = computed(() =>
-    new Date(this.entry().logged_at).toLocaleTimeString('en-GB', {
-      hour: '2-digit',
-      minute: '2-digit',
-    }),
-  );
+  protected readonly formattedWhen = computed(() => {
+    const d = new Date(this.entry().logged_at);
+    const todayStr = new Date().toDateString();
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (d.toDateString() === todayStr) {
+      return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    }
+    if (d.toDateString() === yesterday.toDateString()) {
+      return 'Yesterday';
+    }
+    return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+  });
 }

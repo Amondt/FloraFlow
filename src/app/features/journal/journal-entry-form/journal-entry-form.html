@@ -106,33 +106,25 @@
       }
     </div>
 
-    <!-- Photo -->
+    <!-- Date (optional) -->
     <div class="flex flex-col gap-1.5">
       <label
-        [for]="photoId"
+        [for]="dateId"
         class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
       >
-        Photo
-        <span class="text-neutral-400 font-normal text-xs ml-1">(optional)</span>
+        Date
+        <span class="text-neutral-400 font-normal text-xs ml-1">(optional — defaults to now)</span>
       </label>
       <input
-        type="file"
-        [id]="photoId"
-        accept="image/*"
-        (change)="onFileChange($event)"
-        class="w-full text-sm font-display text-neutral-700 dark:text-neutral-200 file:mr-3 file:py-1.5 file:px-3 file:rounded-garden-sm file:border file:border-neutral-300 file:text-xs file:font-medium file:font-display file:bg-neutral-50 file:text-neutral-600 hover:file:bg-neutral-100 cursor-pointer"
-        aria-label="Upload a photo of the plant"
+        pInputText
+        type="date"
+        [id]="dateId"
+        formControlName="logged_at"
+        [pt]="FloraInputTextPT"
+        [max]="todayIso"
+        class="h-control font-display"
+        aria-label="Date of care event — optional, defaults to the current time"
       />
-      @if (compressedLabel()) {
-        <p
-          class="inline-flex items-center gap-1.5 text-xs font-medium font-display text-primary-600"
-          role="status"
-          aria-live="polite"
-        >
-          <i class="pi pi-check-circle" aria-hidden="true"></i>
-          Compressed: {{ compressedLabel() }}
-        </p>
-      }
     </div>
   </form>
 

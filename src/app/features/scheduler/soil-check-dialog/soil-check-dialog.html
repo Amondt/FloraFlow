@@ -33,6 +33,14 @@
         }
         {{ lastCheckedLabel() }}
       </p>
+      <a
+        [routerLink]="['/journal']"
+        [queryParams]="{ plant: plant().id }"
+        class="inline-block text-xs font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors outline-none focus-visible:ring-1 focus-visible:ring-primary-500 rounded mt-0.5"
+        [attr.aria-label]="'View journal entries for ' + plant().common_name"
+      >
+        View journal &rarr;
+      </a>
     </div>
   </div>
 
@@ -113,8 +121,8 @@
       ></i>
       <p class="text-sm font-display text-neutral-700 dark:text-neutral-200 leading-relaxed">
         Logging a <strong>watering</strong> on {{ todayLabel() }}. Next check in
-        <strong>{{ plant().current_snooze_interval_days }} days</strong> based on
-        {{ plant().common_name }}'s baseline.
+        <strong>{{ plant().current_snooze_interval_days }} days</strong> based on this plant's
+        history.
       </p>
     </div>
 
@@ -148,7 +156,7 @@
       <p>
         <span class="text-neutral-500">Container:</span> {{ plant().container_vector }} ·
         <span class="text-neutral-500">Substrate:</span> {{ plant().substrate_factor }}<br />
-        Based on these factors, we recommend checking again in
+        Based on this plant's history, we suggest checking again in
         <strong class="text-neutral-800 dark:text-neutral-100">{{ recommendedDays() }} days</strong
         >.
       </p>

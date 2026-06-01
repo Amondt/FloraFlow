@@ -1,10 +1,6 @@
-@let url = imageUrl();
-
 <article
   class="bg-white dark:bg-neutral-800 rounded-garden-md border border-neutral-200 dark:border-neutral-700 p-3.5 flex gap-3.5"
-  [attr.aria-label]="
-    entry().plants.common_name + ' — ' + categoryLabel() + ' at ' + formattedTime()
-  "
+  [attr.aria-label]="entry().plants.common_name + ' — ' + categoryLabel() + ' — ' + formattedWhen()"
 >
   <!-- Category icon box -->
   <div
@@ -32,7 +28,7 @@
         [attr.datetime]="entry().logged_at"
         class="text-[0.7rem] font-mono text-neutral-400 dark:text-neutral-500 shrink-0"
       >
-        {{ formattedTime() }}
+        {{ formattedWhen() }}
       </time>
     </div>
 
@@ -40,15 +36,6 @@
       <p class="text-sm text-neutral-700 dark:text-neutral-200 font-display leading-snug">
         {{ entry().notes }}
       </p>
-    }
-
-    @if (url) {
-      <img
-        [src]="url"
-        [alt]="categoryLabel() + ' photo for ' + entry().plants.common_name"
-        class="w-full max-h-32 object-cover rounded-garden-sm"
-        loading="lazy"
-      />
     }
   </div>
 </article>

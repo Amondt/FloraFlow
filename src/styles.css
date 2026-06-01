@@ -445,6 +445,9 @@
   .inline {
     display: inline;
   }
+  .inline-block {
+    display: inline-block;
+  }
   .inline-flex {
     display: inline-flex;
   }
@@ -504,6 +507,9 @@
   }
   .max-h-60 {
     max-height: calc(var(--spacing) * 60);
+  }
+  .max-h-64 {
+    max-height: calc(var(--spacing) * 64);
   }
   .min-h-20 {
     min-height: calc(var(--spacing) * 20);

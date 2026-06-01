@@ -33,7 +33,7 @@
             <div class="w-44">
               <p-select
                 [ngModel]="selectedPlant()"
-                (ngModelChange)="selectedPlant.set($event)"
+                (ngModelChange)="onPlantFilterChange($event)"
                 [options]="plantSelectOptions()"
                 optionLabel="label"
                 optionValue="value"

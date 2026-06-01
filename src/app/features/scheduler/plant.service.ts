@@ -187,7 +187,7 @@ export class PlantService {
     await this.loadPlants();
   }
 
-  async createPlant(data: PlantFormData): Promise<void> {
+  async createPlant(data: PlantFormData): Promise<Plant | null> {
     if (!this.networkStatus.isOnline()) {
       const tempId = `offline-${crypto.randomUUID()}`;
       const now = new Date().toISOString();
@@ -223,7 +223,7 @@ export class PlantService {
         container_vector: data.container_vector,
         substrate_factor: data.substrate_factor,
       });
-      return;
+      return optimisticPlant;
     }
 
     this.loading.set(true);
@@ -236,7 +236,7 @@ export class PlantService {
     if (!user) {
       this.error.set('Not authenticated.');
       this.loading.set(false);
-      return;
+      return null;
     }
 
     const { data: inserted, error } = await this.supabase.client
@@ -247,13 +247,16 @@ export class PlantService {
       )
       .single();
 
+    let result: Plant | null = null;
     if (error) {
       this.error.set(error.message);
     } else if (inserted) {
-      this.plants.update((all) => [...all, inserted as Plant]);
+      result = inserted as Plant;
+      this.plants.update((all) => [...all, result!]);
     }
 
     this.loading.set(false);
+    return result;
   }
 
   async updatePlant(id: string, data: PlantFormData): Promise<void> {

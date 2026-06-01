@@ -37,6 +37,7 @@ import { BotanicalRecordCardComponent } from './botanical-record-card/botanical-
 import { PlantFormDialogComponent } from '../scheduler/plant-form-dialog/plant-form-dialog';
 import { PlantService } from '../scheduler/plant.service';
 import { PlantFormData } from '../scheduler/plant.model';
+import { plantAddedDetail } from '../../shared/utils/plant-message.util';
 
 const TOXICITY_OPTIONS = [
   { label: 'Pet-safe', value: false as boolean },
@@ -267,18 +268,21 @@ export class LibraryComponent {
   }
 
   protected async onPlantSaved(data: PlantFormData): Promise<void> {
-    await this.plantService.createPlant(data);
-    if (this.plantService.error()) {
+    const newPlant = await this.plantService.createPlant(data);
+    if (this.plantService.error() || !newPlant) {
       this.messageService.add({
         severity: 'error',
         summary: 'Add failed',
         detail: this.plantService.error()!,
       });
     } else {
+      this.showAddDialog.set(false);
+      this.selectedRecord.set(null);
+      this.prefillRecord.set(null);
       this.messageService.add({
         severity: 'success',
         summary: 'Plant added',
-        detail: `"${data.common_name}" added to your greenhouse.`,
+        detail: plantAddedDetail(data.common_name, newPlant.next_check_due_at),
       });
     }
   }

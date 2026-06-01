@@ -4,12 +4,14 @@ import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
 import { MessageService } from 'primeng/api';
 import {
   FloraDialogPT,
   FloraSelectPT,
   FloraTextareaPT,
   FloraButtonPT,
+  FloraInputTextPT,
   FLORA_ERROR,
 } from '../../../shared/ui/pt/index';
 import { blurActiveElement } from '../../../shared/utils/dom';
@@ -27,7 +29,14 @@ const CATEGORY_OPTIONS = (Object.keys(CATEGORY_LABEL) as LogCategoryType[]).map(
 @Component({
   selector: 'app-journal-entry-form',
   standalone: true,
-  imports: [ReactiveFormsModule, DialogModule, SelectModule, TextareaModule, ButtonModule],
+  imports: [
+    ReactiveFormsModule,
+    DialogModule,
+    SelectModule,
+    TextareaModule,
+    ButtonModule,
+    InputTextModule,
+  ],
   templateUrl: './journal-entry-form.html',
 })
 export class JournalEntryFormComponent {
@@ -44,12 +53,18 @@ export class JournalEntryFormComponent {
   protected readonly FloraSelectPT = FloraSelectPT;
   protected readonly FloraTextareaPT = FloraTextareaPT;
   protected readonly FloraButtonPT = FloraButtonPT;
+  protected readonly FloraInputTextPT = FloraInputTextPT;
   protected readonly FLORA_ERROR = FLORA_ERROR;
   protected readonly categoryOptions = CATEGORY_OPTIONS;
+  protected readonly todayIso = (() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  })();
 
   protected readonly plantId = `flora-journal-plant-${crypto.randomUUID().slice(0, 8)}`;
   protected readonly catId = `flora-journal-cat-${crypto.randomUUID().slice(0, 8)}`;
   protected readonly notesId = `flora-journal-notes-${crypto.randomUUID().slice(0, 8)}`;
+  protected readonly dateId = `flora-journal-date-${crypto.randomUUID().slice(0, 8)}`;
   protected readonly photoId = `flora-journal-photo-${crypto.randomUUID().slice(0, 8)}`;
 
   protected readonly plantOptions = computed(() =>
@@ -60,6 +75,7 @@ export class JournalEntryFormComponent {
     plant_id: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     category: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     notes: new FormControl<string | null>(null, { validators: [Validators.maxLength(1000)] }),
+    logged_at: new FormControl<string | null>(null),
   });
 
   readonly compressedBlob = signal<Blob | null>(null);
@@ -129,7 +145,9 @@ export class JournalEntryFormComponent {
         notes: raw.notes ?? null,
         user_id: user.id,
         image_storage_path: imagePath,
-        logged_at: new Date().toISOString(),
+        logged_at: raw.logged_at
+          ? new Date(raw.logged_at + 'T12:00:00').toISOString()
+          : new Date().toISOString(),
       });
 
       this.messageService.add({
@@ -156,7 +174,7 @@ export class JournalEntryFormComponent {
   }
 
   private resetForm(): void {
-    this.form.reset({ plant_id: '', category: '', notes: null });
+    this.form.reset({ plant_id: '', category: '', notes: null, logged_at: null });
     this.compressedBlob.set(null);
     this.compressedLabel.set(null);
     blurActiveElement();

@@ -20,6 +20,7 @@ import { ZoneService } from './zone.service';
 import { ZoneCardComponent } from './zone-card/zone-card';
 import { LeafIconComponent } from '../../shared/components/leaf-icon/leaf-icon';
 import { blurActiveElement } from '../../shared/utils/dom';
+import { plantAddedDetail } from '../../shared/utils/plant-message.util';
 import { ZoneFormComponent } from './zone-form/zone-form';
 import { Zone, ZoneFormData } from './zone.model';
 
@@ -284,8 +285,8 @@ export class DashboardComponent {
 
   // ── Plant actions ─────────────────────────────────────────────
   async onPlantSaved(formData: PlantFormData): Promise<void> {
-    await this.plantService.createPlant(formData);
-    if (this.plantService.error()) {
+    const newPlant = await this.plantService.createPlant(formData);
+    if (this.plantService.error() || !newPlant) {
       this.messageService.add({
         severity: 'error',
         summary: 'Add plant failed',
@@ -295,7 +296,7 @@ export class DashboardComponent {
       this.messageService.add({
         severity: 'success',
         summary: 'Plant added',
-        detail: `"${formData.common_name}" added to your greenhouse.`,
+        detail: plantAddedDetail(formData.common_name, newPlant.next_check_due_at),
       });
     }
   }

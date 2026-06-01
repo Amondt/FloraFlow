@@ -1,4 +1,5 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
@@ -69,6 +70,7 @@ const TAB_COUNT_INACTIVE =
 export class JournalComponent {
   private readonly plantService = inject(PlantService);
   private readonly messageService = inject(MessageService);
+  private readonly router = inject(Router);
   protected readonly journalService = inject(JournalService);
 
   protected readonly FloraButtonPT = FloraButtonPT;
@@ -79,9 +81,11 @@ export class JournalComponent {
   protected readonly categoryFilterOptions = CATEGORY_FILTER_OPTIONS;
   protected readonly skeletonItems = [1, 2, 3];
 
+  readonly plant = input<string | undefined>(undefined);
+
   readonly dialogVisible = signal(false);
   readonly selectedCategory = signal<LogCategoryType | null>(null);
-  readonly selectedPlant = signal<string | null>(null);
+  readonly selectedPlant = linkedSignal<string | null>(() => this.plant() ?? null);
 
   readonly hasPlants = computed(() => this.plantService.plants().length > 0);
   readonly loading = computed(() => this.plantService.loading());
@@ -159,9 +163,17 @@ export class JournalComponent {
     void this.journalService.loadEntries();
   }
 
+  protected onPlantFilterChange(id: string | null): void {
+    this.selectedPlant.set(id);
+    void this.router.navigate([], {
+      queryParams: { plant: id },
+      queryParamsHandling: 'merge',
+    });
+  }
+
   protected clearFilters(): void {
     this.selectedCategory.set(null);
-    this.selectedPlant.set(null);
+    this.onPlantFilterChange(null);
   }
 
   protected getEntryCount(value: LogCategoryType | null): number {

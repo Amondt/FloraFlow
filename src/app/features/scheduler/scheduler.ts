@@ -12,6 +12,7 @@ import { PlantFormDialogComponent } from './plant-form-dialog/plant-form-dialog'
 import { PlantService } from './plant.service';
 import { Plant, PlantFormData } from './plant.model';
 import { JournalService } from '../journal/journal.service';
+import { plantAddedDetail } from '../../shared/utils/plant-message.util';
 import { ZoneService } from '../dashboard/zone.service';
 import {
   FloraButtonPT,
@@ -80,10 +81,10 @@ export class SchedulerComponent {
       startOfToday.getMonth(),
       startOfToday.getDate() + 1,
     );
-    const startOfDay7 = new Date(
+    const endOfWeek = new Date(
       startOfToday.getFullYear(),
       startOfToday.getMonth(),
-      startOfToday.getDate() + 7,
+      startOfToday.getDate() + 8,
     );
 
     const active = this.plantService.plants().filter((p) => !this.pendingDeleteIds().has(p.id));
@@ -96,9 +97,9 @@ export class SchedulerComponent {
       }),
       soon: active.filter((p) => {
         const due = new Date(p.next_check_due_at);
-        return due >= startOfTomorrow && due < startOfDay7;
+        return due >= startOfTomorrow && due < endOfWeek;
       }),
-      upcoming: active.filter((p) => new Date(p.next_check_due_at) >= startOfDay7),
+      upcoming: active.filter((p) => new Date(p.next_check_due_at) >= endOfWeek),
     };
   });
 
@@ -268,8 +269,8 @@ export class SchedulerComponent {
         });
       }
     } else {
-      await this.plantService.createPlant(data);
-      if (this.plantService.error()) {
+      const newPlant = await this.plantService.createPlant(data);
+      if (this.plantService.error() || !newPlant) {
         this.messageService.add({
           severity: 'error',
           summary: 'Add failed',
@@ -279,7 +280,7 @@ export class SchedulerComponent {
         this.messageService.add({
           severity: 'success',
           summary: 'Plant added',
-          detail: `"${data.common_name}" added to your greenhouse.`,
+          detail: plantAddedDetail(data.common_name, newPlant.next_check_due_at),
         });
       }
     }

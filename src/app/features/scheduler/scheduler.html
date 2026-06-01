@@ -7,7 +7,7 @@
       <p
         class="text-xs font-semibold uppercase tracking-widest text-primary-600 dark:text-primary-400 font-display mb-1"
       >
-        Anti-Root-Rot Engine
+        Plant care tracker
       </p>
       <div class="flex items-end justify-between gap-4">
         <div>
@@ -22,11 +22,11 @@
               @let a = attentionCount();
               @let s = soonCount();
               @if (a > 0 && s > 0) {
-                {{ a }} need attention now · {{ s }} due in the next 3 days
+                {{ a }} need attention now · {{ s }} due this week
               } @else if (a > 0) {
                 {{ a }} need{{ a === 1 ? 's' : '' }} attention now
               } @else if (s > 0) {
-                {{ s }} due in the next 3 days
+                {{ s }} due this week
               } @else {
                 All plants are on schedule
               }
@@ -181,7 +181,7 @@
                 <h2
                   class="text-xs font-semibold uppercase tracking-widest font-display text-neutral-600 dark:text-neutral-400"
                 >
-                  Due in the next 3 days
+                  Due this week
                 </h2>
                 <span
                   class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium font-display bg-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300"
@@ -224,7 +224,7 @@
                 >
               </div>
               <p class="text-xs text-neutral-400 dark:text-neutral-500 font-display italic">
-                Soil still moist — well ahead of schedule
+                No action needed yet
               </p>
             </header>
             <ul class="flex flex-col gap-4" aria-label="Upcoming plant checks list">

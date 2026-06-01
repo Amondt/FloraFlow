@@ -1,0 +1,43 @@
+@let url = imageUrl();
+
+<article
+  class="bg-white dark:bg-neutral-800 rounded-garden-md border border-neutral-200 dark:border-neutral-700 p-4 flex flex-col gap-3"
+  [attr.aria-label]="
+    entry().plants.common_name + ' — ' + categoryLabel() + ' on ' + formattedDate()
+  "
+>
+  <header class="flex items-center justify-between gap-2">
+    <span [class]="badgeClasses()">
+      {{ categoryLabel() }}
+    </span>
+    <time
+      [attr.datetime]="entry().logged_at"
+      class="text-xs text-neutral-400 dark:text-neutral-500 font-display shrink-0"
+    >
+      {{ formattedDate() }}
+    </time>
+  </header>
+
+  <a
+    routerLink="/scheduler"
+    class="text-sm font-semibold font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 self-start"
+    [attr.aria-label]="'View ' + entry().plants.common_name + ' in Scheduler'"
+  >
+    {{ entry().plants.common_name }}
+  </a>
+
+  @if (entry().notes) {
+    <p class="text-sm text-neutral-600 dark:text-neutral-300 font-display leading-snug">
+      {{ entry().notes }}
+    </p>
+  }
+
+  @if (url) {
+    <img
+      [src]="url"
+      [alt]="categoryLabel() + ' photo for ' + entry().plants.common_name"
+      class="w-full max-h-48 object-cover rounded-garden-sm"
+      loading="lazy"
+    />
+  }
+</article>

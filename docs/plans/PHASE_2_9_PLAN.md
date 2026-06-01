@@ -30,7 +30,7 @@
   - Add `getPublicUrl(path: string): string`: calls `supabase.client.storage.from('plant-journal-images').getPublicUrl(path).data.publicUrl` and returns it.
   - Verification: `bun run format && bun run lint`
 
-- [ ] **Block B — JournalEntryCardComponent** | Agent: `/visualizer`
+- [x] **Block B — JournalEntryCardComponent** | Agent: `/visualizer`
   - New files: `src/app/features/journal/journal-entry-card/journal-entry-card.ts` + `.html`
   - Inputs: `entry` (`JournalEntryWithPlant`), `imageUrl` (`string | null`).
   - Template structure (`<article>`):

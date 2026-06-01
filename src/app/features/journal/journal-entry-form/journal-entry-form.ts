@@ -17,18 +17,12 @@ import { PlantService } from '../../scheduler/plant.service';
 import { JournalService } from '../journal.service';
 import { ImageCompressorService } from '../../../core/services/image-compressor.service';
 import { SupabaseService } from '../../../core/services/supabase.service';
-import type { Database } from '../../../../types/database.types';
+import { CATEGORY_LABEL, type LogCategoryType } from '../journal-categories';
 
-type LogCategory = Database['public']['Enums']['log_category_type'];
-
-const CATEGORY_OPTIONS: { label: string; value: LogCategory }[] = [
-  { label: 'Observation', value: 'Observation' },
-  { label: 'Watering', value: 'Watering' },
-  { label: 'Pruning', value: 'Pruning' },
-  { label: 'Repotting', value: 'Repotting' },
-  { label: 'Fertilization', value: 'Fertilization' },
-  { label: 'Pest treatment', value: 'PestTreatment' },
-];
+const CATEGORY_OPTIONS = (Object.keys(CATEGORY_LABEL) as LogCategoryType[]).map((value) => ({
+  label: CATEGORY_LABEL[value],
+  value,
+}));
 
 @Component({
   selector: 'app-journal-entry-form',
@@ -120,7 +114,7 @@ export class JournalEntryFormComponent {
       if (!user) throw new Error('Not authenticated');
 
       const raw = this.form.getRawValue();
-      const category = raw.category as LogCategory;
+      const category = raw.category as LogCategoryType;
       const blob = this.compressedBlob();
 
       let imagePath: string | null = null;

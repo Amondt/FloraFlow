@@ -98,7 +98,7 @@ Name search path: `BotanicalSearchService.search()` → `botanical-search` EF ha
   - Correct the `SUNLIGHT_OPTIONS` constant in `src/app/features/library/library.service.ts` to match the canonical snake_case format: `['full_sun', 'part_shade', 'full_shade', 'filtered_indirect']` (aligns with what Perenual writes; no Perenual ingest change needed).
   - Update `AI_PROMPT_MANIFEST.md` §1.2 to include `watering`, `sunlight`, `cycle` in the JSON schema definition.
 
-- [ ] **Block D — Botanical Record Card** | Agent: `/visualizer`
+- [x] **Block D — Botanical Record Card** | Agent: `/visualizer`
   - New file: `src/app/features/library/botanical-record-card/botanical-record-card.ts`
   - `record = input.required<CachedBotanicalRecord>()`
   - `selected = input<boolean>(false)`

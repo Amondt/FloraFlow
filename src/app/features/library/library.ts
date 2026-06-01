@@ -11,7 +11,6 @@ import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ButtonModule } from 'primeng/button';
-import { TagModule } from 'primeng/tag';
 import { DialogModule } from 'primeng/dialog';
 import { SliderModule, SliderSlideEndEvent } from 'primeng/slider';
 import {
@@ -28,8 +27,8 @@ import {
   FloraInputTextPT,
   FloraSkeletonPT,
   FloraSliderPT,
-  FloraTagPT,
 } from '../../shared/ui/pt/index';
+import { BotanicalRecordCardComponent } from './botanical-record-card/botanical-record-card';
 import { PlantFormDialogComponent } from '../scheduler/plant-form-dialog/plant-form-dialog';
 import { PlantService } from '../scheduler/plant.service';
 import { PlantFormData } from '../scheduler/plant.model';
@@ -47,10 +46,10 @@ const TOXICITY_OPTIONS = [
     InputTextModule,
     SkeletonModule,
     ButtonModule,
-    TagModule,
     DialogModule,
     SliderModule,
     PlantFormDialogComponent,
+    BotanicalRecordCardComponent,
   ],
   templateUrl: './library.html',
 })
@@ -61,7 +60,6 @@ export class LibraryComponent {
   protected readonly FloraInputTextPT = FloraInputTextPT;
   protected readonly FloraSkeletonPT = FloraSkeletonPT;
   protected readonly FloraButtonPT = FloraButtonPT;
-  protected readonly FloraTagPT = FloraTagPT;
   protected readonly FloraDetailDialogPT = FloraDetailDialogPT;
   protected readonly FloraSliderPT = FloraSliderPT;
 
@@ -229,11 +227,6 @@ export class LibraryComponent {
 
   protected onDetailClose(visible: boolean): void {
     if (!visible) this.selectedRecord.set(null);
-  }
-
-  protected onCardSpaceKey(event: Event, record: CachedBotanicalRecord): void {
-    event.preventDefault();
-    this.selectedRecord.set(record);
   }
 
   protected openAddDialog(record: CachedBotanicalRecord): void {

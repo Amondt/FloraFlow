@@ -1,0 +1,45 @@
+<article
+  role="button"
+  tabindex="0"
+  [attr.aria-selected]="selected()"
+  [attr.aria-label]="ariaLabel()"
+  class="p-4 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md cursor-pointer transition-all duration-150 hover:border-primary-500 dark:hover:border-primary-700 hover:shadow-md outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 h-full flex flex-col"
+  [class.ring-2]="selected()"
+  [class.ring-primary-500]="selected()"
+  (click)="cardSelect.emit()"
+  (keydown.enter)="cardSelect.emit()"
+  (keydown.space)="onSpaceKey($event)"
+>
+  @if (record().scientific_name) {
+    <h2
+      class="text-sm font-semibold italic font-display text-neutral-900 dark:text-neutral-100 mb-0.5 leading-snug"
+    >
+      {{ record().scientific_name }}
+    </h2>
+  }
+  @if (record().common_name) {
+    <p class="text-xs text-neutral-400 dark:text-neutral-500 font-display mb-3 leading-snug">
+      {{ record().common_name }}
+    </p>
+  }
+  <div class="flex flex-wrap gap-1.5 mt-auto">
+    @if (record().watering) {
+      <p-tag severity="secondary" [pt]="FloraTagPT">
+        <svg
+          class="w-2.5 h-2.5 shrink-0"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path d="M12 3C12 3 4 11 4 16a8 8 0 0 0 16 0C20 11 12 3 12 3z" />
+        </svg>
+        <span>{{ record().watering }}</span>
+      </p-tag>
+    }
+    @if (record().is_toxic_to_pets === true) {
+      <p-tag value="Toxic" severity="danger" icon="pi pi-exclamation-triangle" [pt]="FloraTagPT" />
+    } @else if (record().is_toxic_to_pets === false) {
+      <p-tag value="Pet-safe" severity="success" icon="pi pi-check-circle" [pt]="FloraTagPT" />
+    }
+  </div>
+</article>

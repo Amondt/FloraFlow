@@ -19,7 +19,12 @@ import { PlantService } from '../scheduler/plant.service';
 import { JournalService, type JournalEntryWithPlant } from './journal.service';
 import { JournalEntryFormComponent } from './journal-entry-form/journal-entry-form';
 import { JournalEntryCardComponent } from './journal-entry-card/journal-entry-card';
-import { CATEGORY_ICON, CATEGORY_LABEL, type LogCategoryType } from './journal-categories';
+import {
+  CATEGORY_ICON,
+  CATEGORY_LABEL,
+  CATEGORY_OPTIONS,
+  type LogCategoryType,
+} from './journal-categories';
 
 type ResolvedEntry = JournalEntryWithPlant & { imageUrl: string | null };
 
@@ -34,11 +39,7 @@ type FilterOption = { label: string; value: LogCategoryType | null; icon: string
 
 const CATEGORY_FILTER_OPTIONS: FilterOption[] = [
   { label: 'All', value: null, icon: null },
-  ...(Object.keys(CATEGORY_LABEL) as LogCategoryType[]).map((value) => ({
-    label: CATEGORY_LABEL[value],
-    value,
-    icon: CATEGORY_ICON[value],
-  })),
+  ...CATEGORY_OPTIONS.map((opt) => ({ ...opt, icon: CATEGORY_ICON[opt.value] })),
 ];
 
 const TAB_BASE = `inline-flex items-center gap-1.5 px-3.5 py-2.5 text-[0.8125rem] font-semibold font-display border-b-2 -mb-px shrink-0 whitespace-nowrap transition-colors duration-150 ${FLORA_FOCUS}`;

@@ -126,6 +126,31 @@
         aria-label="Date of care event — optional, defaults to the current time"
       />
     </div>
+
+    <!-- Photo (optional) -->
+    <div class="flex flex-col gap-1.5">
+      <label
+        [for]="photoId"
+        class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+      >
+        Photo
+        <span class="text-neutral-400 font-normal text-xs ml-1">(optional)</span>
+      </label>
+      <input
+        type="file"
+        [id]="photoId"
+        accept="image/*"
+        class="block w-full rounded-garden-sm border border-neutral-200 dark:border-neutral-600 text-sm text-neutral-600 dark:text-neutral-300 font-display outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 file:h-control file:cursor-pointer file:border-0 file:border-r file:border-neutral-200 dark:file:border-neutral-600 file:bg-neutral-50 dark:file:bg-neutral-700 file:mr-3 file:px-3 file:text-sm file:font-medium file:text-neutral-600 dark:file:text-neutral-200 file:font-display hover:file:bg-neutral-100 dark:hover:file:bg-neutral-600 file:transition-colors file:duration-150"
+        aria-label="Upload a photo for this care event — optional, will be compressed to under 300 KB"
+        (change)="onFileChange($event)"
+      />
+      @if (compressedLabel()) {
+        <p class="text-xs font-display text-success-500 flex items-center gap-1" role="status">
+          <i class="pi pi-check-circle" aria-hidden="true"></i>
+          Image ready — {{ compressedLabel() }}
+        </p>
+      }
+    </div>
   </form>
 
   <ng-template #footer>

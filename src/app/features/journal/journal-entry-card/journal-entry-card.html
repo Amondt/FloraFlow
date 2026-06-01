@@ -2,12 +2,17 @@
   class="bg-white dark:bg-neutral-800 rounded-garden-md border border-neutral-200 dark:border-neutral-700 p-3.5 flex gap-3.5"
   [attr.aria-label]="entry().plants.common_name + ' — ' + categoryLabel() + ' — ' + formattedWhen()"
 >
-  <!-- Category icon box -->
+  <!-- Category icon box / photo thumbnail -->
   <div
-    class="w-[5.25rem] h-[5.25rem] rounded-garden-sm bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center shrink-0"
+    class="w-[5.25rem] h-[5.25rem] rounded-garden-sm overflow-hidden shrink-0 flex items-center justify-center"
+    [class]="imageUrl() ? '' : 'bg-primary-50 dark:bg-primary-900/30'"
     aria-hidden="true"
   >
-    <i [class]="categoryIconClass()"></i>
+    @if (imageUrl()) {
+      <img [src]="imageUrl()" alt="" class="w-full h-full object-cover" />
+    } @else {
+      <i [class]="categoryIconClass()"></i>
+    }
   </div>
 
   <!-- Entry body -->
@@ -15,9 +20,12 @@
     <!-- Meta: pill · plant name · sci name · time -->
     <div class="flex items-center gap-2 flex-wrap">
       <span [class]="badgeClasses()">{{ categoryLabel() }}</span>
-      <span class="text-sm font-semibold font-display text-neutral-900 dark:text-white">
-        {{ entry().plants.common_name }}
-      </span>
+      <a
+        [routerLink]="'/scheduler'"
+        class="text-sm font-semibold font-display text-neutral-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
+        [attr.aria-label]="'Open soil-check dialog for ' + entry().plants.common_name"
+        >{{ entry().plants.common_name }}</a
+      >
       @if (entry().plants.scientific_name) {
         <span class="text-xs font-display text-neutral-400 dark:text-neutral-500 italic">
           {{ entry().plants.scientific_name }}

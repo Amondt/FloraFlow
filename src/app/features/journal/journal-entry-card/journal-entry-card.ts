@@ -1,4 +1,5 @@
 import { Component, computed, input } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { CATEGORY_ICON, CATEGORY_LABEL, type LogCategoryType } from '../journal-categories';
 import type { JournalEntryWithPlant } from '../journal.service';
 
@@ -19,7 +20,7 @@ const ICON_BASE = 'text-xl text-primary-600 dark:text-primary-400';
 @Component({
   selector: 'app-journal-entry-card',
   standalone: true,
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './journal-entry-card.html',
 })
 export class JournalEntryCardComponent {

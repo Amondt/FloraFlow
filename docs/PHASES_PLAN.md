@@ -108,7 +108,7 @@
   - Filters query `cached_botanical_records`; cache miss triggers Perenual fetch + AI Scribe (requires 2.4).
   - Species detail panel shows pH range, propagation methods, toxicity flags, watering/sunlight/cycle.
   - "Add to my greenhouse" action pre-fills Add Plant form with `common_name`, `scientific_name`, `perenual_id`.
-- [ ] **2.9 Journal Feed** | Agent: `/visualizer`
+- [x] **2.9 Journal Feed** | Agent: `/visualizer`
   - New `/journal` route listing all `plant_journals` entries for the authenticated user.
   - Grouped by plant, ordered by `logged_at DESC`; filterable by `log_category_type`.
   - Photo thumbnails resolved from `image_storage_path` via Supabase Storage public URL.

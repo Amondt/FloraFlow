@@ -19,12 +19,7 @@ import { PlantService } from '../../scheduler/plant.service';
 import { JournalService } from '../journal.service';
 import { ImageCompressorService } from '../../../core/services/image-compressor.service';
 import { SupabaseService } from '../../../core/services/supabase.service';
-import { CATEGORY_LABEL, type LogCategoryType } from '../journal-categories';
-
-const CATEGORY_OPTIONS = (Object.keys(CATEGORY_LABEL) as LogCategoryType[]).map((value) => ({
-  label: CATEGORY_LABEL[value],
-  value,
-}));
+import { CATEGORY_OPTIONS, type LogCategoryType } from '../journal-categories';
 
 @Component({
   selector: 'app-journal-entry-form',

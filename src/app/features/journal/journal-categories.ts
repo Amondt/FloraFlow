@@ -19,3 +19,7 @@ export const CATEGORY_ICON: Record<LogCategoryType, string> = {
   Fertilization: 'pi pi-bolt',
   PestTreatment: 'pi pi-shield',
 };
+
+export const CATEGORY_OPTIONS: { label: string; value: LogCategoryType }[] = (
+  Object.keys(CATEGORY_LABEL) as LogCategoryType[]
+).map((value) => ({ label: CATEGORY_LABEL[value], value }));

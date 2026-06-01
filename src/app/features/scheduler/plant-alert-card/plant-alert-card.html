@@ -1,11 +1,11 @@
 <article
-  class="flex items-stretch rounded-garden-md border overflow-hidden transition-colors duration-150 hover:border-primary-500 dark:hover:border-primary-400"
+  class="flex items-stretch rounded-garden-md border overflow-hidden transition-colors duration-150 hover:border-primary-500 dark:hover:border-primary-400 focus-within:border-primary-500 dark:focus-within:border-primary-400"
   [ngClass]="articleNgClass()"
   [attr.aria-labelledby]="headingId()"
 >
   <button
     type="button"
-    class="flex items-center gap-3 flex-1 min-w-0 px-4 py-3 text-left cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500"
+    class="flex items-center gap-3 flex-1 min-w-0 px-4 py-3 text-left cursor-pointer outline-none"
     [attr.aria-label]="'Check soil for ' + plant().common_name"
     (click)="checkNow.emit(plant())"
   >
@@ -47,7 +47,7 @@
 
   <button
     type="button"
-    class="px-3 py-3 flex items-center border-l cursor-pointer text-neutral-400 dark:text-neutral-500 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500"
+    class="px-3 py-3 flex items-center border-l cursor-pointer text-neutral-400 dark:text-neutral-500 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors outline-none"
     [ngClass]="editBorderNgClass()"
     [attr.aria-label]="'Edit ' + plant().common_name"
     (click)="edit.emit(plant())"

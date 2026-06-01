@@ -43,7 +43,7 @@
   - Category color map (client-side constant): Observation → neutral, Watering → primary, Pruning → warning, Repotting → success, Fertilization → success, PestTreatment → danger.
   - Verification: `bun run format && bun run lint` + Manual Browser Check
 
-- [ ] **Block C — Wire up JournalComponent feed** | Agent: `/visualizer`
+- [x] **Block C — Wire up JournalComponent feed** | Agent: `/visualizer`
   - Add `(entrySaved)` output to `JournalEntryFormComponent`; emit after a successful `createEntry()` call.
   - In `JournalComponent`:
     - Call `journalService.loadEntries()` on init (alongside the existing `plantService.loadPlants()`).

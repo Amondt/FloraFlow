@@ -80,12 +80,10 @@ export class PlantService {
     }
   }
 
-  async snoozeCheck(plantId: string): Promise<void> {
+  async snoozeCheck(plantId: string, snoozeDays: number): Promise<void> {
     this.error.set(null);
 
     if (!this.networkStatus.isOnline()) {
-      const plant = this.plants().find((p) => p.id === plantId);
-      const snoozeDays = plant?.current_snooze_interval_days ?? 3;
       const now = new Date().toISOString();
       const nextDue = new Date();
       nextDue.setDate(nextDue.getDate() + snoozeDays);
@@ -107,6 +105,7 @@ export class PlantService {
 
     const { error } = await this.supabase.client.rpc('snooze_plant_check', {
       p_plant_id: plantId,
+      p_snooze_days: snoozeDays,
     });
 
     if (error) {

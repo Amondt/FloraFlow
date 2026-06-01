@@ -8,21 +8,24 @@
 
 import { join } from 'node:path';
 
-const PROJECT_ROOT = join(import.meta.dir, '..');
-const SEED_PATH = join(PROJECT_ROOT, 'supabase', 'seed.sql');
+// import.meta.dir = supabase/scripts/ — one level up lands in supabase/
+const SEED_PATH = join(import.meta.dir, '..', 'seed.sql');
 
 async function findDbContainer(): Promise<string> {
-  const proc = Bun.spawn(['docker', 'ps', '--filter', 'name=supabase_db', '--format', '{{.Names}}'], {
-    stderr: 'inherit',
-  });
+  const proc = Bun.spawn(
+    ['docker', 'ps', '--filter', 'name=supabase_db', '--format', '{{.Names}}'],
+    {
+      stderr: 'inherit',
+    },
+  );
   const raw = await new Response(proc.stdout).text();
   await proc.exited;
 
   const container = raw
     .trim()
     .split('\n')
-    .map(l => l.trim())
-    .find(l => l.startsWith('supabase_db_'));
+    .map((l) => l.trim())
+    .find((l) => l.startsWith('supabase_db_'));
 
   if (!container) {
     throw new Error("Supabase DB container not found. Is 'bunx supabase start' running?");

@@ -58,6 +58,20 @@ export class JournalService {
     this.loadingEntries.set(false);
   }
 
+  async logWatering(plantId: string, notes: string): Promise<void> {
+    const {
+      data: { user },
+    } = await this.supabase.client.auth.getUser();
+    if (!user) return;
+    await this.createEntry({
+      plant_id: plantId,
+      user_id: user.id,
+      category: 'Watering',
+      notes: notes.trim() || null,
+      logged_at: new Date().toISOString(),
+    });
+  }
+
   getPublicUrl(path: string): string {
     return this.supabase.client.storage.from('plant-journal-images').getPublicUrl(path).data
       .publicUrl;

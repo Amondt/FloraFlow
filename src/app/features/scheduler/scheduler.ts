@@ -11,6 +11,7 @@ import { SoilCheckDialogComponent } from './soil-check-dialog/soil-check-dialog'
 import { PlantFormDialogComponent } from './plant-form-dialog/plant-form-dialog';
 import { PlantService } from './plant.service';
 import { Plant, PlantFormData } from './plant.model';
+import { JournalService } from '../journal/journal.service';
 import { ZoneService } from '../dashboard/zone.service';
 import {
   FloraButtonPT,
@@ -42,6 +43,7 @@ export class SchedulerComponent {
   protected readonly zoneService = inject(ZoneService);
   private readonly confirmService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
+  private readonly journalService = inject(JournalService);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly FloraButtonPT = FloraButtonPT;
   protected readonly FloraConfirmDialogPT = FloraConfirmDialogPT;
@@ -143,25 +145,30 @@ export class SchedulerComponent {
     this.dialogVisible.set(true);
   }
 
-  async onConfirmed(plant: Plant): Promise<void> {
-    await this.plantService.confirmCheck(plant.id);
+  async onConfirmed(payload: { plant: Plant; note: string }): Promise<void> {
+    await this.plantService.confirmCheck(payload.plant.id);
     if (this.plantService.error()) {
       this.messageService.add({
         severity: 'error',
         summary: 'Check failed',
         detail: this.plantService.error()!,
       });
-    } else {
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Check logged',
-        detail: `Soil check for "${plant.common_name}" recorded.`,
-      });
+      return;
     }
+    try {
+      await this.journalService.logWatering(payload.plant.id, payload.note);
+    } catch {
+      // journal write is non-critical — plant check is already confirmed
+    }
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Watering logged',
+      detail: `Watering for "${payload.plant.common_name}" added to your journal.`,
+    });
   }
 
-  async onSnoozed(plantId: string): Promise<void> {
-    await this.plantService.snoozeCheck(plantId);
+  async onSnoozed(payload: { id: string; days: number }): Promise<void> {
+    await this.plantService.snoozeCheck(payload.id, payload.days);
     if (this.plantService.error()) {
       this.messageService.add({
         severity: 'error',

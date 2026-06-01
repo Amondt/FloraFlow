@@ -38,8 +38,8 @@ export class SoilCheckDialogComponent {
   readonly plant = input.required<Plant>();
   readonly zoneName = input<string | null>(null);
   readonly visible = model<boolean>(false);
-  readonly confirmed = output<Plant>();
-  readonly snoozed = output<string>();
+  readonly confirmed = output<{ plant: Plant; note: string }>();
+  readonly snoozed = output<{ id: string; days: number }>();
 
   protected readonly FloraDialogPT = FloraDialogPT;
   protected readonly FloraButtonPT = FloraButtonPT;
@@ -101,12 +101,12 @@ export class SoilCheckDialogComponent {
   }
 
   onConfirm(): void {
-    this.confirmed.emit(this.plant());
+    this.confirmed.emit({ plant: this.plant(), note: this.note() });
     this.close();
   }
 
   onSnooze(): void {
-    this.snoozed.emit(this.plant().id);
+    this.snoozed.emit({ id: this.plant().id, days: this.snoozeDays() });
     this.close();
   }
 

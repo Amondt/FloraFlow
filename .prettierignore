@@ -3,3 +3,4 @@ dist/
 node_modules/
 src/styles.css
 src/types/database.types.ts
+supabase/seed.sql

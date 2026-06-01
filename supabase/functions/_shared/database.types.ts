@@ -327,7 +327,10 @@ export type Database = {
     };
     Functions: {
       confirm_plant_check: { Args: { p_plant_id: string }; Returns: undefined };
-      snooze_plant_check: { Args: { p_plant_id: string }; Returns: undefined };
+      snooze_plant_check: {
+        Args: { p_plant_id: string; p_snooze_days: number };
+        Returns: undefined;
+      };
     };
     Enums: {
       container_vector_type:

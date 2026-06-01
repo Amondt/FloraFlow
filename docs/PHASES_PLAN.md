@@ -103,7 +103,7 @@
   - Angular `PushNotificationService` requests browser push permission on first login and stores the subscription.
   - New `push_subscription JSONB` column on `profiles` (nullable) to persist the subscription endpoint.
   - Edge Function checks for overdue plants and sends push payloads to subscribed devices.
-- [ ] **2.8 Plant Browser & Botanical Wiki** | Agent: `/visualizer` → `/plumber`
+- [x] **2.8 Plant Browser & Botanical Wiki** | Agent: `/visualizer` → `/plumber`
   - New `/library` route with filter controls: watering frequency, sunlight, pet toxicity, lifecycle type.
   - Filters query `cached_botanical_records`; cache miss triggers Perenual fetch + AI Scribe (requires 2.4).
   - Species detail panel shows pH range, propagation methods, toxicity flags, watering/sunlight/cycle.

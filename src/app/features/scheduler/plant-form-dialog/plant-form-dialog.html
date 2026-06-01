@@ -24,28 +24,47 @@
         <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
         <span class="sr-only">(required)</span>
       </label>
-      <p-autocomplete
-        [inputId]="commonNameId"
-        [ngModel]="commonNameQuery"
-        (ngModelChange)="onCommonNameChange($event)"
-        [ngModelOptions]="{ standalone: true }"
-        [suggestions]="suggestions()"
-        optionLabel="common_name"
-        [delay]="300"
-        [minLength]="2"
-        [pt]="FloraAutoCompletePT"
-        [class]="nameCtrl.invalid && nameCtrl.touched ? FLORA_ERROR : ''"
-        [attr.aria-invalid]="nameCtrl.invalid && nameCtrl.touched"
-        [attr.aria-describedby]="
-          nameCtrl.invalid && nameCtrl.touched ? commonNameId + '-error' : null
-        "
-        aria-required="true"
-        placeholder="e.g. Monstera Deliciosa"
-        autocomplete="off"
-        styleClass="w-full"
-        appendTo="body"
-        (completeMethod)="onQuerySearch($event)"
-      />
+      @if (selectedPerenualId() !== null) {
+        <input
+          pInputText
+          [id]="commonNameId"
+          [ngModel]="commonNameQuery"
+          (ngModelChange)="onCommonNameChange($event)"
+          [ngModelOptions]="{ standalone: true }"
+          [pt]="FloraInputTextPT"
+          [class]="nameCtrl.invalid && nameCtrl.touched ? FLORA_ERROR : ''"
+          [attr.aria-invalid]="nameCtrl.invalid && nameCtrl.touched"
+          [attr.aria-describedby]="
+            nameCtrl.invalid && nameCtrl.touched ? commonNameId + '-error' : null
+          "
+          aria-required="true"
+          placeholder="e.g. Monstera Deliciosa"
+          autocomplete="off"
+        />
+      } @else {
+        <p-autocomplete
+          [inputId]="commonNameId"
+          [ngModel]="commonNameQuery"
+          (ngModelChange)="onCommonNameChange($event)"
+          [ngModelOptions]="{ standalone: true }"
+          [suggestions]="suggestions()"
+          optionLabel="common_name"
+          [delay]="300"
+          [minLength]="2"
+          [pt]="FloraAutoCompletePT"
+          [class]="nameCtrl.invalid && nameCtrl.touched ? FLORA_ERROR : ''"
+          [attr.aria-invalid]="nameCtrl.invalid && nameCtrl.touched"
+          [attr.aria-describedby]="
+            nameCtrl.invalid && nameCtrl.touched ? commonNameId + '-error' : null
+          "
+          aria-required="true"
+          placeholder="e.g. Monstera Deliciosa"
+          autocomplete="off"
+          styleClass="w-full"
+          appendTo="body"
+          (completeMethod)="onQuerySearch($event)"
+        />
+      }
       @if (nameCtrl.invalid && nameCtrl.touched) {
         <small
           [id]="commonNameId + '-error'"
@@ -53,6 +72,21 @@
           role="alert"
         >
           Plant name is required.
+        </small>
+      }
+      @if (lockedScientificName()) {
+        <small class="text-neutral-400 text-xs font-display" role="note">
+          <i class="pi pi-lock text-[10px] mr-1" aria-hidden="true"></i>
+          <em>{{ lockedScientificName() }}</em>
+          &nbsp;&middot;&nbsp;
+          <button
+            type="button"
+            class="text-primary-600 hover:text-primary-700 transition-colors outline-none focus-visible:ring-1 focus-visible:ring-primary-500 rounded cursor-pointer"
+            aria-label="Clear species selection and search for a different species"
+            (click)="clearLockedSpecies()"
+          >
+            Change species
+          </button>
         </small>
       }
     </div>

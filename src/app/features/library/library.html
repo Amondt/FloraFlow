@@ -597,5 +597,11 @@
     }
   </p-dialog>
 
-  <app-plant-form-dialog [(visible)]="showAddDialog" (saved)="onPlantSaved($event)" />
+  <app-plant-form-dialog
+    [(visible)]="showAddDialog"
+    [botanicalPrefill]="prefillRecord()"
+    (saved)="onPlantSaved($event)"
+  />
+
+  <p-toast position="bottom-right" [pt]="FloraToastPT" />
 </main>

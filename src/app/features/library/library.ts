@@ -13,6 +13,8 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { SliderModule, SliderSlideEndEvent } from 'primeng/slider';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 import {
   CachedBotanicalRecord,
   CYCLE_OPTIONS,
@@ -27,6 +29,7 @@ import {
   FloraInputTextPT,
   FloraSkeletonPT,
   FloraSliderPT,
+  FloraToastPT,
 } from '../../shared/ui/pt/index';
 import { BotanicalRecordCardComponent } from './botanical-record-card/botanical-record-card';
 import { PlantFormDialogComponent } from '../scheduler/plant-form-dialog/plant-form-dialog';
@@ -48,20 +51,24 @@ const TOXICITY_OPTIONS = [
     ButtonModule,
     DialogModule,
     SliderModule,
+    ToastModule,
     PlantFormDialogComponent,
     BotanicalRecordCardComponent,
   ],
+  providers: [MessageService],
   templateUrl: './library.html',
 })
 export class LibraryComponent {
   private readonly libraryService = inject(LibraryService);
   private readonly plantService = inject(PlantService);
+  private readonly messageService = inject(MessageService);
 
   protected readonly FloraInputTextPT = FloraInputTextPT;
   protected readonly FloraSkeletonPT = FloraSkeletonPT;
   protected readonly FloraButtonPT = FloraButtonPT;
   protected readonly FloraDetailDialogPT = FloraDetailDialogPT;
   protected readonly FloraSliderPT = FloraSliderPT;
+  protected readonly FloraToastPT = FloraToastPT;
 
   protected readonly WATERING_OPTIONS = [...WATERING_OPTIONS];
   protected readonly SUNLIGHT_OPTIONS = [...SUNLIGHT_OPTIONS];
@@ -241,6 +248,19 @@ export class LibraryComponent {
 
   protected async onPlantSaved(data: PlantFormData): Promise<void> {
     await this.plantService.createPlant(data);
+    if (this.plantService.error()) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Add failed',
+        detail: this.plantService.error()!,
+      });
+    } else {
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Plant added',
+        detail: `"${data.common_name}" added to your greenhouse.`,
+      });
+    }
   }
 
   private async _load(query: string, f: LibraryFilters): Promise<void> {

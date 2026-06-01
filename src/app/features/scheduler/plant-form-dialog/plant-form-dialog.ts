@@ -48,6 +48,11 @@ export class PlantFormDialogComponent {
   private readonly botanicalSearch = inject(BotanicalSearchService);
 
   readonly plant = input<Plant | null>(null);
+  readonly botanicalPrefill = input<{
+    common_name: string;
+    scientific_name: string | null;
+    perenual_id: number | null;
+  } | null>(null);
   readonly visible = model<boolean>(false);
   readonly saved = output<PlantFormData>();
   readonly deleteRequested = output<Plant>();
@@ -70,6 +75,7 @@ export class PlantFormDialogComponent {
 
   protected suggestions = signal<BotanicalSuggestion[]>([]);
   protected selectedPerenualId = signal<number | null>(null);
+  protected lockedScientificName = signal<string | null>(null);
   protected commonNameQuery = '';
 
   readonly form = new FormGroup({
@@ -110,6 +116,7 @@ export class PlantFormDialogComponent {
       if (p) {
         this.commonNameQuery = p.common_name;
         this.selectedPerenualId.set(p.perenual_id);
+        this.lockedScientificName.set(p.perenual_id ? p.scientific_name : null);
         this.form.patchValue({
           common_name: p.common_name,
           scientific_name: p.scientific_name,
@@ -118,8 +125,6 @@ export class PlantFormDialogComponent {
           substrate_factor: p.substrate_factor,
         });
       } else {
-        this.commonNameQuery = '';
-        this.selectedPerenualId.set(null);
         this.form.reset({
           common_name: '',
           scientific_name: null,
@@ -127,6 +132,21 @@ export class PlantFormDialogComponent {
           container_vector: 'Plastic',
           substrate_factor: 'Standard Potting',
         });
+
+        const prefill = this.botanicalPrefill();
+        if (prefill) {
+          this.commonNameQuery = prefill.common_name;
+          this.selectedPerenualId.set(prefill.perenual_id);
+          this.lockedScientificName.set(prefill.perenual_id ? prefill.scientific_name : null);
+          this.form.patchValue({
+            common_name: prefill.common_name,
+            scientific_name: prefill.scientific_name,
+          });
+        } else {
+          this.commonNameQuery = '';
+          this.selectedPerenualId.set(null);
+          this.lockedScientificName.set(null);
+        }
       }
     });
   }
@@ -137,6 +157,10 @@ export class PlantFormDialogComponent {
   }
 
   async onQuerySearch(event: AutoCompleteCompleteEvent): Promise<void> {
+    if (this.selectedPerenualId() !== null) {
+      this.suggestions.set([]);
+      return;
+    }
     this.suggestions.set(await this.botanicalSearch.search(event.query));
   }
 
@@ -144,13 +168,29 @@ export class PlantFormDialogComponent {
     if (!value || typeof value === 'string') {
       this.commonNameQuery = value ?? '';
       this.form.controls.common_name.setValue(value ?? '');
-      this.selectedPerenualId.set(null);
+      // Only clear the species lock when no species is currently selected.
+      // When locked, typing freely just renames the plant — lock stays until
+      // the user explicitly clicks "Change species".
+      if (this.selectedPerenualId() === null) {
+        this.lockedScientificName.set(null);
+      }
     } else {
       this.commonNameQuery = value.common_name;
       this.form.controls.common_name.setValue(value.common_name);
       this.form.controls.scientific_name.setValue(value.scientific_name);
       this.selectedPerenualId.set(value.perenual_id);
+      this.lockedScientificName.set(value.scientific_name);
+      this.suggestions.set([]);
     }
+  }
+
+  clearLockedSpecies(): void {
+    this.selectedPerenualId.set(null);
+    this.lockedScientificName.set(null);
+    this.commonNameQuery = '';
+    this.form.controls.common_name.setValue('');
+    this.form.controls.scientific_name.setValue(null);
+    this.suggestions.set([]);
   }
 
   onSubmit(): void {

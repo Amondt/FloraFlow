@@ -8,7 +8,7 @@
 
 ---
 
-- [ ] **Block A — Route + zone-card navigation link** | Agent: `/visualizer`
+- [x] **Block A — Route + zone-card navigation link** | Agent: `/visualizer`
   - In `app.routes.ts`: convert the flat `{ path: 'dashboard', loadComponent: DashboardComponent }` entry to a componentless parent with two children — `{ path: '' }` for the dashboard and `{ path: 'zones/:id' }` for the zone detail. The shell `<router-outlet>` renders both; no structural change to any component is needed.
   - Create `src/app/features/dashboard/zone-detail/zone-detail.ts` — stub only (zone name from route + back link).
   - Create `src/app/features/dashboard/zone-detail/zone-detail.html`.

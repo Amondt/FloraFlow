@@ -13,7 +13,6 @@ import {
   FloraToastPT,
   FloraSkeletonPT,
   FloraMessagePT,
-  FLORA_FOCUS,
 } from '../../shared/ui/pt/index';
 import { PlantService } from '../scheduler/plant.service';
 import { JournalService, type JournalEntryWithPlant } from './journal.service';
@@ -42,7 +41,8 @@ const CATEGORY_FILTER_OPTIONS: FilterOption[] = [
   ...CATEGORY_OPTIONS.map((opt) => ({ ...opt, icon: CATEGORY_ICON[opt.value] })),
 ];
 
-const TAB_BASE = `inline-flex items-center gap-1.5 px-3.5 py-2.5 text-[0.8125rem] font-semibold font-display border-b-2 -mb-px shrink-0 whitespace-nowrap transition-colors duration-150 ${FLORA_FOCUS}`;
+const TAB_BASE =
+  'inline-flex items-center gap-1.5 px-3.5 py-2.5 text-[0.8125rem] font-semibold font-display border-b-2 -mb-px shrink-0 whitespace-nowrap cursor-pointer transition-colors duration-150 outline-none focus-visible:!border-primary-500 dark:focus-visible:!border-primary-400';
 const TAB_ACTIVE = 'border-primary-500 text-primary-700 dark:text-primary-400';
 const TAB_INACTIVE =
   'border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200';

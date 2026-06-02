@@ -1,0 +1,35 @@
+<main
+  class="p-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen"
+  [attr.aria-labelledby]="zone() ? 'zone-detail-heading' : null"
+>
+  <div class="max-w-5xl mx-auto">
+    <nav aria-label="Breadcrumb">
+      <a
+        [routerLink]="['/dashboard']"
+        class="text-xs font-semibold uppercase tracking-widest font-display text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 rounded"
+        aria-label="Back to Dashboard"
+      >
+        ← Dashboard
+      </a>
+    </nav>
+
+    @if (zoneService.loading()) {
+      <div
+        class="mt-4 h-9 w-48 animate-[flora-skeleton_1.5s_ease-in-out_infinite] bg-neutral-200 dark:bg-neutral-700 rounded-garden-sm"
+        aria-busy="true"
+        aria-label="Loading zone name"
+      ></div>
+    } @else if (zone()) {
+      <h1
+        id="zone-detail-heading"
+        class="mt-4 text-3xl font-semibold font-display text-neutral-900 dark:text-white"
+      >
+        {{ zone()!.name }}
+      </h1>
+    } @else {
+      <p class="mt-4 text-neutral-500 dark:text-neutral-400 font-display text-base" role="status">
+        Zone not found.
+      </p>
+    }
+  </div>
+</main>

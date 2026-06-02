@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { FLORA_FOCUS, FLORA_HOVER } from '../../ui/pt/states.pt';
+import { FLORA_HOVER } from '../../ui/pt/states.pt';
 
 @Component({
   selector: 'app-nav',
@@ -15,7 +15,7 @@ export class NavComponent {
     'text-neutral-600 dark:text-neutral-300',
     'border-b-2 border-transparent',
     'hover:text-primary-600 dark:hover:text-primary-400',
-    FLORA_FOCUS,
+    'outline-none focus-visible:!border-primary-500 dark:focus-visible:!border-primary-400',
     FLORA_HOVER,
   ].join(' ');
 

@@ -13,8 +13,20 @@ export const routes: Routes = [
     children: [
       {
         path: 'dashboard',
-        loadComponent: () =>
-          import('./features/dashboard/dashboard').then((m) => m.DashboardComponent),
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./features/dashboard/dashboard').then((m) => m.DashboardComponent),
+          },
+          {
+            path: 'zones/:id',
+            loadComponent: () =>
+              import('./features/dashboard/zone-detail/zone-detail').then(
+                (m) => m.ZoneDetailComponent,
+              ),
+          },
+        ],
       },
       {
         path: 'scheduler',

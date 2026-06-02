@@ -1,4 +1,6 @@
 import { Component, computed, input, output } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { FLORA_FOCUS } from '../../../shared/ui/pt/states.pt';
 import { Zone } from '../zone.model';
 
 const COMPASS_ANGLES: Record<string, number> = {
@@ -16,7 +18,7 @@ const COMPASS_ANGLES: Record<string, number> = {
 @Component({
   selector: 'app-zone-card',
   standalone: true,
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './zone-card.html',
 })
 export class ZoneCardComponent {
@@ -29,6 +31,8 @@ export class ZoneCardComponent {
   readonly remove = output<string>();
 
   readonly headingId = computed(() => `zone-heading-${this.zone().id}`);
+
+  protected readonly cardLinkClass = `absolute inset-0 rounded-garden-md ${FLORA_FOCUS}`;
 
   readonly compassAngle = computed(() => COMPASS_ANGLES[this.zone().window_orientation] ?? 0);
 

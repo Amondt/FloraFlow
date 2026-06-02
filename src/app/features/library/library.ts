@@ -11,7 +11,6 @@ import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
 import { SliderModule, SliderSlideEndEvent } from 'primeng/slider';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
@@ -22,18 +21,17 @@ import {
   LibraryService,
   SUNLIGHT_LABEL,
   SUNLIGHT_OPTIONS,
-  WATERING_LABEL,
   WATERING_OPTIONS,
 } from './library.service';
 import {
   FloraButtonPT,
-  FloraDetailDialogPT,
   FloraInputTextPT,
   FloraSkeletonPT,
   FloraSliderPT,
   FloraToastPT,
 } from '../../shared/ui/pt/index';
 import { BotanicalRecordCardComponent } from './botanical-record-card/botanical-record-card';
+import { BotanicalDetailDialogComponent } from '../../shared/components/botanical-detail-dialog/botanical-detail-dialog';
 import { PlantFormDialogComponent } from '../scheduler/plant-form-dialog/plant-form-dialog';
 import { PlantService } from '../scheduler/plant.service';
 import { PlantFormData } from '../scheduler/plant.model';
@@ -52,11 +50,11 @@ const TOXICITY_OPTIONS = [
     InputTextModule,
     SkeletonModule,
     ButtonModule,
-    DialogModule,
     SliderModule,
     ToastModule,
-    PlantFormDialogComponent,
+    BotanicalDetailDialogComponent,
     BotanicalRecordCardComponent,
+    PlantFormDialogComponent,
   ],
   providers: [MessageService],
   templateUrl: './library.html',
@@ -69,7 +67,6 @@ export class LibraryComponent {
   protected readonly FloraInputTextPT = FloraInputTextPT;
   protected readonly FloraSkeletonPT = FloraSkeletonPT;
   protected readonly FloraButtonPT = FloraButtonPT;
-  protected readonly FloraDetailDialogPT = FloraDetailDialogPT;
   protected readonly FloraSliderPT = FloraSliderPT;
   protected readonly FloraToastPT = FloraToastPT;
 
@@ -95,13 +92,6 @@ export class LibraryComponent {
   } | null>(null);
 
   readonly detailVisible = computed(() => this.selectedRecord() !== null);
-  readonly selectedSunlightLabels = computed(() =>
-    (this.selectedRecord()?.sunlight ?? []).map((s) => SUNLIGHT_LABEL[s] ?? s),
-  );
-  readonly selectedWateringLabel = computed(() => {
-    const w = this.selectedRecord()?.watering;
-    return w ? (WATERING_LABEL[w] ?? w) : null;
-  });
   readonly hasActiveFilters = computed(() => Object.keys(this.filters()).length > 0);
   readonly hasSearchCriteria = computed(
     () => this.searchQuery().length >= 2 || this.hasActiveFilters(),

@@ -39,7 +39,7 @@
   - Add `ToastModule`, `MessageService` (local provider), `SoilCheckDialogComponent` to imports.
   - Verification: click "Check soil" → dialog opens with correct plant name and substrate depth text; confirm → status chip updates; snooze → status chip updates; toast appears for each action.
 
-- [ ] **Block D — Species info dialog** | Agent: `/visualizer`
+- [x] **Block D — Species info dialog** | Agent: `/visualizer`
   **Requires Phase 2.8 complete.** During 2.8, the botanical detail dialog must be extracted to a shared component at `src/app/shared/components/botanical-detail-dialog/botanical-detail-dialog.ts` so it can be reused here without duplicating template code.
 
   - Add `fetchByScientificName(name: string): Promise<CachedBotanicalRecord | null>` to `LibraryService` — single-row query: `.from('cached_botanical_records').select('*').eq('scientific_name', name).maybeSingle()`.

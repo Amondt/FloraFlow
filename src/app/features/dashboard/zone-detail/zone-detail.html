@@ -269,9 +269,20 @@
             @for (ep of enrichedPlants(); track ep.plant.id) {
               <li>
                 <article
-                  class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md shadow-sm"
+                  class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md shadow-sm relative transition-colors duration-150"
+                  [class.hover:border-primary-500]="!!ep.plant.scientific_name"
+                  [class.dark:hover:border-primary-700]="!!ep.plant.scientific_name"
                   [attr.aria-labelledby]="'plant-name-' + ep.plant.id"
                 >
+                  @if (ep.plant.scientific_name) {
+                    <button
+                      type="button"
+                      class="absolute inset-0 z-10 cursor-pointer rounded-garden-md outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset disabled:cursor-not-allowed"
+                      [attr.aria-label]="'View species info for ' + ep.plant.common_name"
+                      [disabled]="speciesLoading()"
+                      (click)="openSpeciesInfo(ep.plant)"
+                    ></button>
+                  }
                   <!-- Card body: leaf icon + name column + status chip -->
                   <div class="px-4 pt-4 pb-3 flex items-start gap-3">
                     <!-- Status-coloured leaf icon -->
@@ -367,7 +378,7 @@
                     <p class="text-xs font-display text-neutral-400 dark:text-neutral-500">
                       {{ ep.lastCheckedLabel }}
                     </p>
-                    <div class="flex items-center gap-1 flex-shrink-0">
+                    <div class="flex items-center gap-1 flex-shrink-0 relative z-20">
                       <button
                         type="button"
                         class="text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
@@ -427,6 +438,13 @@
       [defaultZoneId]="id()"
       (saved)="onPlantSaved($event)"
       (deleteRequested)="onDeleteRequested($event)"
+    />
+
+    <app-botanical-detail-dialog
+      [record]="activeSpeciesRecord()"
+      [visible]="activeSpeciesRecord() !== null"
+      [showAddButton]="false"
+      (visibleChange)="onSpeciesDialogClose($event)"
     />
 
     <p-confirmdialog [pt]="FloraConfirmDialogPT" />

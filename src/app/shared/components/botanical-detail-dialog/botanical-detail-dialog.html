@@ -1,0 +1,269 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="visibleChange.emit($event)"
+  [header]="record()?.scientific_name ?? ''"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [dismissableMask]="true"
+  [pt]="FloraDetailDialogPT"
+>
+  @if (record(); as rec) {
+    <div class="flex flex-col gap-5">
+      @if (rec.common_name) {
+        <p class="font-display -mt-2 text-sm italic text-neutral-400">
+          {{ rec.common_name }}
+        </p>
+      }
+
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        @if (rec.watering) {
+          <div
+            class="flex items-start gap-3 rounded-garden-md bg-neutral-50 p-3 dark:bg-neutral-800/60"
+          >
+            <svg
+              class="mt-0.5 h-4 w-4 shrink-0 text-primary-500"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path d="M12 3C12 3 4 11 4 16a8 8 0 0 0 16 0C20 11 12 3 12 3z" />
+            </svg>
+            <div class="min-w-0">
+              <p
+                class="font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
+              >
+                Watering
+              </p>
+              <p
+                class="font-display mt-0.5 text-sm font-medium text-neutral-700 dark:text-neutral-200"
+              >
+                {{ wateringLabel() }}
+              </p>
+            </div>
+          </div>
+        }
+        @if (rec.cycle) {
+          <div
+            class="flex items-start gap-3 rounded-garden-md bg-neutral-50 p-3 dark:bg-neutral-800/60"
+          >
+            <svg
+              class="mt-0.5 h-4 w-4 shrink-0 text-primary-500"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path
+                d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
+              />
+            </svg>
+            <div class="min-w-0">
+              <p
+                class="font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
+              >
+                Lifecycle
+              </p>
+              <p
+                class="font-display mt-0.5 text-sm font-medium text-neutral-700 dark:text-neutral-200"
+              >
+                {{ rec.cycle }}
+              </p>
+              <p class="font-display mt-0.5 text-xs text-neutral-400">
+                @switch (rec.cycle) {
+                  @case ('Annual') {
+                    Completes its life in one growing season
+                  }
+                  @case ('Perennial') {
+                    Returns year after year
+                  }
+                  @case ('Biennial') {
+                    Two-year life cycle
+                  }
+                  @default {
+                    Flowers twice a year
+                  }
+                }
+              </p>
+            </div>
+          </div>
+        }
+        @if (rec.sunlight && rec.sunlight.length > 0) {
+          <div
+            class="flex items-start gap-3 rounded-garden-md bg-neutral-50 p-3 sm:col-span-2 dark:bg-neutral-800/60"
+          >
+            <svg
+              class="mt-0.5 h-4 w-4 shrink-0 text-warning-500"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path
+                d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"
+              />
+            </svg>
+            <div class="min-w-0">
+              <p
+                class="font-display mb-1.5 text-xs font-semibold uppercase tracking-widest text-neutral-400"
+              >
+                Sunlight
+              </p>
+              <ul class="flex flex-wrap gap-1.5" aria-label="Sunlight requirements">
+                @for (label of sunlightLabels(); track label) {
+                  <li
+                    class="font-display inline-flex items-center rounded-full bg-primary-50 px-2.5 py-0.5 text-xs font-medium text-primary-700"
+                  >
+                    {{ label }}
+                  </li>
+                }
+              </ul>
+            </div>
+          </div>
+        }
+        @if (rec.is_toxic_to_pets !== null) {
+          <div
+            class="flex items-start gap-3 rounded-garden-md bg-neutral-50 p-3 dark:bg-neutral-800/60"
+          >
+            @if (rec.is_toxic_to_pets) {
+              <i
+                class="pi pi-exclamation-triangle mt-0.5 shrink-0 text-sm text-danger-500"
+                aria-hidden="true"
+              ></i>
+            } @else {
+              <i
+                class="pi pi-check-circle mt-0.5 shrink-0 text-sm text-success-500"
+                aria-hidden="true"
+              ></i>
+            }
+            <div class="min-w-0">
+              <p
+                class="font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
+              >
+                Pet Safety
+              </p>
+              @if (rec.is_toxic_to_pets) {
+                <p class="font-display mt-0.5 text-sm font-medium text-danger-500">Toxic to pets</p>
+                @if (rec.toxicity_notes) {
+                  <p class="font-display mt-0.5 text-xs text-neutral-500">
+                    {{ rec.toxicity_notes }}
+                  </p>
+                }
+              } @else {
+                <p class="font-display mt-0.5 text-sm font-medium text-success-500">
+                  Safe for cats and dogs
+                </p>
+              }
+            </div>
+          </div>
+        }
+        @if (rec.plant_type) {
+          <div
+            class="flex items-start gap-3 rounded-garden-md bg-neutral-50 p-3 dark:bg-neutral-800/60"
+          >
+            <i class="pi pi-tag mt-0.5 shrink-0 text-sm text-neutral-400" aria-hidden="true"></i>
+            <div class="min-w-0">
+              <p
+                class="font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
+              >
+                Plant Type
+              </p>
+              <p
+                class="font-display mt-0.5 text-sm font-medium text-neutral-700 dark:text-neutral-200"
+              >
+                {{ rec.plant_type }}
+              </p>
+            </div>
+          </div>
+        }
+        @if (rec.ideal_min_ph !== null || rec.ideal_max_ph !== null) {
+          <div
+            class="flex items-start gap-3 rounded-garden-md bg-neutral-50 p-3 dark:bg-neutral-800/60"
+          >
+            <i
+              class="pi pi-sliders-h mt-0.5 shrink-0 text-sm text-warning-500"
+              aria-hidden="true"
+            ></i>
+            <div class="min-w-0">
+              <p
+                class="font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
+              >
+                Soil pH
+              </p>
+              <p
+                class="font-display mt-0.5 text-sm font-medium text-neutral-700 dark:text-neutral-200"
+              >
+                @if (rec.ideal_min_ph !== null && rec.ideal_max_ph !== null) {
+                  {{ rec.ideal_min_ph }}–{{ rec.ideal_max_ph }}
+                } @else if (rec.ideal_min_ph !== null) {
+                  ≥ {{ rec.ideal_min_ph }}
+                } @else {
+                  ≤ {{ rec.ideal_max_ph }}
+                }
+              </p>
+              <p class="font-display mt-0.5 text-xs text-neutral-400">
+                Scale 0 (acid) to 14 (alkaline)
+              </p>
+            </div>
+          </div>
+        }
+      </div>
+
+      @if (rec.propagation_methods && rec.propagation_methods.length > 0) {
+        <div>
+          <p
+            class="font-display mb-1.5 text-xs font-semibold uppercase tracking-widest text-neutral-400"
+          >
+            Propagation
+          </p>
+          <ul class="flex flex-wrap gap-1.5" aria-label="Propagation methods">
+            @for (method of rec.propagation_methods; track method) {
+              <li>
+                <span
+                  class="font-display inline-flex items-center rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300"
+                >
+                  {{ method }}
+                </span>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+
+      <p
+        class="font-display border-t border-neutral-100 pt-3 text-xs text-neutral-400 dark:border-neutral-700"
+      >
+        Plant data from Perenual
+        @if (rec.is_ai_enriched) {
+          · some fields completed by AI — not scientifically verified
+        }
+      </p>
+    </div>
+
+    <div
+      class="mt-4 flex justify-end gap-3 border-t border-neutral-100 pt-4 dark:border-neutral-700"
+    >
+      <p-button
+        label="Close"
+        variant="outlined"
+        [pt]="FloraButtonPT"
+        ariaLabel="Close species details"
+        (onClick)="visibleChange.emit(false)"
+      />
+      @if (showAddButton()) {
+        <p-button
+          label="Add to my greenhouse"
+          [pt]="FloraButtonPT"
+          [ariaLabel]="'Add ' + rec.scientific_name + ' to my greenhouse'"
+          (onClick)="onAdd()"
+        />
+      }
+    </div>
+  }
+</p-dialog>

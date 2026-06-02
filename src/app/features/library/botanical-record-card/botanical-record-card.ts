@@ -1,6 +1,7 @@
 import { Component, computed, input, output } from '@angular/core';
 import { TagModule } from 'primeng/tag';
-import { CachedBotanicalRecord, SUNLIGHT_LABEL, WATERING_LABEL } from '../library.service';
+import { CachedBotanicalRecord } from '../library.service';
+import { getSunlightLabels, getWateringLabel } from '../../../shared/utils/botanical-label.util';
 import { FloraTagPT } from '../../../shared/ui/pt/index';
 
 @Component({
@@ -24,14 +25,9 @@ export class BotanicalRecordCardComponent {
     return r.common_name ?? r.scientific_name ?? 'Unknown species';
   });
 
-  protected readonly sunlightLabels = computed(() =>
-    (this.record().sunlight ?? []).map((s) => SUNLIGHT_LABEL[s] ?? s),
-  );
+  protected readonly sunlightLabels = computed(() => getSunlightLabels(this.record().sunlight));
 
-  protected readonly wateringLabel = computed(() => {
-    const w = this.record().watering;
-    return w ? (WATERING_LABEL[w] ?? w) : null;
-  });
+  protected readonly wateringLabel = computed(() => getWateringLabel(this.record().watering));
 
   protected onSpaceKey(event: Event): void {
     event.preventDefault();

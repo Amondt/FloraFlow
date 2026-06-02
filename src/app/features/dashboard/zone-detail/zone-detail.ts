@@ -16,7 +16,9 @@ import { JournalService } from '../../journal/journal.service';
 import { Plant, PlantFormData } from '../../scheduler/plant.model';
 import { PlantFormDialogComponent } from '../../scheduler/plant-form-dialog/plant-form-dialog';
 import { SoilCheckDialogComponent } from '../../scheduler/soil-check-dialog/soil-check-dialog';
+import { BotanicalDetailDialogComponent } from '../../../shared/components/botanical-detail-dialog/botanical-detail-dialog';
 import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-icon';
+import { LibraryService, CachedBotanicalRecord } from '../../library/library.service';
 import { plantAddedDetail } from '../../../shared/utils/plant-message.util';
 import { blurActiveElement } from '../../../shared/utils/dom';
 
@@ -43,6 +45,7 @@ interface EnrichedPlant {
     ZoneFormComponent,
     PlantFormDialogComponent,
     SoilCheckDialogComponent,
+    BotanicalDetailDialogComponent,
     LeafIconComponent,
   ],
   providers: [ConfirmationService, MessageService],
@@ -53,6 +56,7 @@ export class ZoneDetailComponent {
 
   protected readonly zoneService = inject(ZoneService);
   protected readonly plantService = inject(PlantService);
+  private readonly libraryService = inject(LibraryService);
   private readonly journalService = inject(JournalService);
   private readonly messageService = inject(MessageService);
   private readonly confirmService = inject(ConfirmationService);
@@ -155,6 +159,8 @@ export class ZoneDetailComponent {
   // ── Dialog state ──────────────────────────────────────────────
   readonly zoneFormVisible = signal(false);
   readonly activeSoilPlant = signal<Plant | null>(null);
+  readonly activeSpeciesRecord = signal<CachedBotanicalRecord | null>(null);
+  readonly speciesLoading = signal(false);
   readonly soilCheckVisible = signal(false);
   readonly plantFormVisible = signal(false);
   readonly editingPlant = signal<Plant | null>(null);
@@ -246,6 +252,27 @@ export class ZoneDetailComponent {
         detail: 'Next check rescheduled.',
       });
     }
+  }
+
+  // ── Species info actions ──────────────────────────────────────
+  async openSpeciesInfo(plant: Plant): Promise<void> {
+    if (!plant.scientific_name || this.speciesLoading()) return;
+    this.speciesLoading.set(true);
+    const record = await this.libraryService.fetchByScientificName(plant.scientific_name);
+    this.speciesLoading.set(false);
+    if (record) {
+      this.activeSpeciesRecord.set(record);
+    } else {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'No species data',
+        detail: `No botanical record found for "${plant.scientific_name}".`,
+      });
+    }
+  }
+
+  onSpeciesDialogClose(visible: boolean): void {
+    if (!visible) this.activeSpeciesRecord.set(null);
   }
 
   // ── Plant actions ─────────────────────────────────────────────

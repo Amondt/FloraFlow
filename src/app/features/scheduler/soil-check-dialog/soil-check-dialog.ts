@@ -6,6 +6,7 @@ import { FloraDialogPT, FloraButtonPT } from '../../../shared/ui/pt/index';
 import { Plant, SubstrateFactor } from '../plant.model';
 import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-icon';
 import { blurActiveElement } from '../../../shared/utils/dom';
+import { daysSince } from '../../../shared/utils/date.util';
 
 const SUBSTRATE_DEPTH_RULES: Record<SubstrateFactor, { depth: string; description: string }> = {
   'High-Drainage Aroid': {
@@ -59,7 +60,7 @@ export class SoilCheckDialogComponent {
   readonly lastCheckedLabel = computed(() => {
     const ts = this.plant().last_checked_at;
     if (!ts) return 'never checked';
-    const days = Math.round((Date.now() - new Date(ts).getTime()) / 86_400_000);
+    const days = daysSince(ts);
     if (days === 0) return 'last checked today';
     if (days === 1) return 'last checked yesterday';
     return `last checked ${days} days ago`;

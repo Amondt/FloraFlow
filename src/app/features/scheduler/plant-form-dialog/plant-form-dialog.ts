@@ -48,6 +48,7 @@ export class PlantFormDialogComponent {
   private readonly botanicalSearch = inject(BotanicalSearchService);
 
   readonly plant = input<Plant | null>(null);
+  readonly defaultZoneId = input<string | null>(null);
   readonly botanicalPrefill = input<{
     common_name: string;
     scientific_name: string | null;
@@ -108,6 +109,7 @@ export class PlantFormDialogComponent {
     effect(() => {
       const isVisible = this.visible();
       const p = this.plant();
+      const defaultZoneId = this.defaultZoneId();
       const justOpened = isVisible && !this._prevVisible;
       this._prevVisible = isVisible;
 
@@ -128,7 +130,7 @@ export class PlantFormDialogComponent {
         this.form.reset({
           common_name: '',
           scientific_name: null,
-          zone_id: this.zoneService.zones()[0]?.id ?? '',
+          zone_id: defaultZoneId ?? this.zoneService.zones()[0]?.id ?? '',
           container_vector: 'Plastic',
           substrate_factor: 'Standard Potting',
         });

@@ -16,7 +16,7 @@
   - Add `RouterLink` to `zone-card.ts` imports.
   - Verification: click a zone name on the dashboard → navigates to `/dashboard/zones/[id]`; click the back link → returns to `/dashboard`.
 
-- [ ] **Block B — Zone header + plant list** | Agent: `/visualizer`
+- [x] **Block B — Zone header + plant list** | Agent: `/visualizer`
   - `ZoneDetailComponent` receives `id = input<string>('id')` — auto-bound from the route param (`withComponentInputBinding()` is already configured in `app.config.ts`).
   - Call `zoneService.loadZones()` and `plantService.loadPlants()` in the constructor — both services guard against redundant re-fetches so this is safe for direct navigation.
   - `zone = computed(() => this.zoneService.zones().find(z => z.id === this.id()))` — when undefined (bad ID or still loading), show a "Zone not found" fallback.
@@ -29,7 +29,7 @@
     - Empty state: "No plants in this zone yet — add one from the Dashboard."
   - Verification: navigate to a zone with plants → all listed; empty zone → empty state; unknown zone ID → "Zone not found" message.
 
-- [ ] **Block C — Soil check integration** | Agent: `/visualizer`
+- [x] **Block C — Soil check integration** | Agent: `/visualizer`
   - `activeSoilPlant = signal<Plant | null>(null)`.
   - Per plant card: "Check soil" button (primary, full `FloraButtonPT`) → `activeSoilPlant.set(plant)`.
   - Render `<app-soil-check-dialog>` only when `activeSoilPlant()` is non-null. Bind `[visible]="true"` and `(visibleChange)="onSoilDialogClose($event)"`.

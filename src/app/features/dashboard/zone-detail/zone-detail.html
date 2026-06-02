@@ -3,6 +3,7 @@
   [attr.aria-labelledby]="zone() ? 'zone-detail-heading' : null"
 >
   <div class="max-w-5xl mx-auto">
+    <!-- ── Breadcrumb ─────────────────────────────────────────────── -->
     <nav aria-label="Breadcrumb">
       <a
         [routerLink]="['/dashboard']"
@@ -13,23 +14,442 @@
       </a>
     </nav>
 
+    @let z = zone();
+
     @if (zoneService.loading()) {
-      <div
-        class="mt-4 h-9 w-48 animate-[flora-skeleton_1.5s_ease-in-out_infinite] bg-neutral-200 dark:bg-neutral-700 rounded-garden-sm"
-        aria-busy="true"
-        aria-label="Loading zone name"
-      ></div>
-    } @else if (zone()) {
-      <h1
-        id="zone-detail-heading"
-        class="mt-4 text-3xl font-semibold font-display text-neutral-900 dark:text-white"
-      >
-        {{ zone()!.name }}
-      </h1>
+      <!-- ── Loading skeleton ───────────────────────────────────── -->
+      <div class="mt-6 mb-8" aria-busy="true" aria-label="Loading zone">
+        <div
+          class="h-9 w-56 animate-[flora-skeleton_1.5s_ease-in-out_infinite] bg-neutral-200 dark:bg-neutral-700 rounded-garden-sm"
+          aria-hidden="true"
+        ></div>
+        <div class="flex gap-2 mt-4">
+          @for (n of [1, 2, 3, 4]; track n) {
+            <div
+              class="h-7 w-24 animate-[flora-skeleton_1.5s_ease-in-out_infinite] bg-neutral-200 dark:bg-neutral-700 rounded-full"
+              aria-hidden="true"
+            ></div>
+          }
+        </div>
+      </div>
+      <ul class="flex flex-col gap-4" aria-label="Loading plants" aria-busy="true">
+        @for (n of loadingPlaceholders; track n) {
+          <li aria-hidden="true">
+            <p-skeleton height="7rem" [pt]="FloraSkeletonPT" />
+          </li>
+        }
+      </ul>
+    } @else if (z) {
+      <!-- ── Zone header ─────────────────────────────────────────── -->
+      <header class="mt-6 mb-8">
+        <div class="flex items-start justify-between gap-4">
+          <h1
+            id="zone-detail-heading"
+            class="text-3xl font-semibold font-display text-neutral-900 dark:text-white"
+          >
+            {{ z.name }}
+          </h1>
+          <button
+            type="button"
+            class="inline-flex items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1 flex-shrink-0 mt-1"
+            [attr.aria-label]="'Edit ' + z.name + ' zone settings'"
+            (click)="openEditZone()"
+          >
+            <i class="pi pi-pencil text-xs" aria-hidden="true"></i>
+            Edit zone
+          </button>
+        </div>
+
+        <!-- Microclimate badges -->
+        <div class="flex flex-wrap items-center gap-2 mt-4" aria-label="Zone microclimate settings">
+          <span
+            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium font-display bg-neutral-100 border border-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+            [attr.aria-label]="
+              'Window orientation: ' +
+              (z.window_orientation === 'None' ? 'No window' : z.window_orientation)
+            "
+          >
+            <i class="pi pi-compass text-xs" aria-hidden="true"></i>
+            {{ z.window_orientation === 'None' ? 'No window' : z.window_orientation }}
+          </span>
+
+          <span
+            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium font-display bg-neutral-100 border border-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+            [attr.aria-label]="'Humidity baseline: ' + z.humidity_baseline + ' percent'"
+          >
+            <i class="pi pi-tint text-xs" aria-hidden="true"></i>
+            {{ z.humidity_baseline }}% humidity
+          </span>
+
+          <span
+            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium font-display border transition-colors"
+            [class]="
+              z.has_grow_lights
+                ? 'bg-primary-50 border-primary-200 text-primary-700 dark:bg-primary-900/30 dark:border-primary-800 dark:text-primary-300'
+                : 'bg-neutral-100 border-neutral-200 text-neutral-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-400'
+            "
+            [attr.aria-label]="'Grow lights: ' + (z.has_grow_lights ? 'active' : 'inactive')"
+          >
+            <i class="pi pi-sun text-xs" aria-hidden="true"></i>
+            Grow lights {{ z.has_grow_lights ? 'on' : 'off' }}
+          </span>
+
+          <span
+            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium font-display border transition-colors"
+            [class]="
+              z.has_active_ventilation
+                ? 'bg-primary-50 border-primary-200 text-primary-700 dark:bg-primary-900/30 dark:border-primary-800 dark:text-primary-300'
+                : 'bg-neutral-100 border-neutral-200 text-neutral-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-400'
+            "
+            [attr.aria-label]="'Ventilation: ' + (z.has_active_ventilation ? 'active' : 'inactive')"
+          >
+            <i class="pi pi-send text-xs" aria-hidden="true"></i>
+            Ventilation {{ z.has_active_ventilation ? 'on' : 'off' }}
+          </span>
+        </div>
+      </header>
+
+      <!-- ── Plants section ──────────────────────────────────────── -->
+      <section aria-labelledby="plants-heading" [attr.aria-busy]="plantService.loading()">
+        <!-- Section header: count + New plant button -->
+        <header class="flex items-center justify-between mb-4">
+          <h2
+            id="plants-heading"
+            class="text-xs font-semibold uppercase tracking-widest font-display text-neutral-500 dark:text-neutral-400"
+          >
+            Plants
+            @if (!plantService.loading()) {
+              @if (searchQuery()) {
+                <span
+                  class="ml-2 text-neutral-400 dark:text-neutral-500 font-normal normal-case tracking-normal"
+                >
+                  ({{ enrichedPlants().length }} of {{ totalZonePlants() }})
+                </span>
+              } @else {
+                <span
+                  class="ml-2 text-neutral-400 dark:text-neutral-500 font-normal normal-case tracking-normal"
+                >
+                  ({{ totalZonePlants() }})
+                </span>
+              }
+            }
+          </h2>
+          <button
+            type="button"
+            class="inline-flex items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-1"
+            [attr.aria-label]="'Add a new plant to ' + z.name"
+            (click)="openAddPlant()"
+          >
+            <i class="pi pi-plus text-xs" aria-hidden="true"></i>
+            New plant
+          </button>
+        </header>
+
+        <!-- Search + sort toolbar (only when plants exist) -->
+        @if (!plantService.loading() && totalZonePlants() > 0) {
+          <div class="flex flex-col sm:flex-row gap-3 mb-5">
+            <!-- Search -->
+            <div class="relative flex-1">
+              <i
+                class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-xs text-neutral-400 dark:text-neutral-500 pointer-events-none"
+                aria-hidden="true"
+              ></i>
+              <input
+                type="text"
+                [value]="searchQuery()"
+                (input)="searchQuery.set($any($event.target).value)"
+                placeholder="Search by name or species…"
+                aria-label="Filter plants by name or scientific name"
+                class="w-full h-control pl-9 pr-8 text-sm font-display rounded-garden-sm border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 transition-colors"
+              />
+              @if (searchQuery()) {
+                <button
+                  type="button"
+                  class="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors outline-none focus-visible:ring-1 focus-visible:ring-primary-500 rounded cursor-pointer"
+                  aria-label="Clear search"
+                  (click)="searchQuery.set('')"
+                >
+                  <i class="pi pi-times text-xs" aria-hidden="true"></i>
+                </button>
+              }
+            </div>
+
+            <!-- Sort controls -->
+            <div class="flex items-center gap-2 flex-shrink-0">
+              <!-- Sort field: segmented pill group -->
+              <div
+                class="flex h-control rounded-garden-sm overflow-hidden border border-neutral-200 dark:border-neutral-700"
+                role="radiogroup"
+                aria-label="Sort plants by"
+              >
+                @for (opt of sortOptions; track opt.field) {
+                  <button
+                    type="button"
+                    role="radio"
+                    [attr.aria-checked]="sortField() === opt.field"
+                    [attr.aria-label]="'Sort by ' + opt.label"
+                    class="px-3 text-xs font-medium font-display border-r last:border-r-0 border-neutral-200 dark:border-neutral-700 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500"
+                    [class]="
+                      sortField() === opt.field
+                        ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300'
+                        : 'bg-white dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700'
+                    "
+                    (click)="sortField.set(opt.field)"
+                  >
+                    {{ opt.label }}
+                  </button>
+                }
+              </div>
+
+              <!-- Sort direction toggle -->
+              <button
+                type="button"
+                class="h-control px-3 inline-flex items-center justify-center rounded-garden-sm border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 hover:border-primary-300 dark:hover:border-primary-700 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                [attr.aria-label]="
+                  sortDir() === 'asc'
+                    ? 'Sorted ascending — click to reverse'
+                    : 'Sorted descending — click to reverse'
+                "
+                (click)="toggleSortDir()"
+              >
+                <i
+                  class="text-xs"
+                  [class]="sortDir() === 'asc' ? 'pi pi-arrow-up' : 'pi pi-arrow-down'"
+                  aria-hidden="true"
+                ></i>
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- Plant list states -->
+        @if (plantService.loading()) {
+          <ul class="flex flex-col gap-4" aria-label="Loading plants">
+            @for (n of loadingPlaceholders; track n) {
+              <li aria-hidden="true">
+                <p-skeleton height="7.5rem" [pt]="FloraSkeletonPT" />
+              </li>
+            }
+          </ul>
+        } @else if (totalZonePlants() === 0) {
+          <!-- Empty zone -->
+          <div class="flex flex-col items-center justify-center py-20 text-center" role="status">
+            <p class="text-neutral-500 dark:text-neutral-400 font-display text-base">
+              No plants in this zone yet.
+            </p>
+            <button
+              type="button"
+              class="mt-4 inline-flex items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
+              [attr.aria-label]="'Add your first plant to ' + z.name"
+              (click)="openAddPlant()"
+            >
+              <i class="pi pi-plus text-xs" aria-hidden="true"></i>
+              Add your first plant
+            </button>
+          </div>
+        } @else if (enrichedPlants().length === 0) {
+          <!-- No search results -->
+          <div class="py-16 text-center" role="status">
+            <p class="text-neutral-500 dark:text-neutral-400 font-display text-sm">
+              No plants match
+              <strong class="text-neutral-700 dark:text-neutral-200">"{{ searchQuery() }}"</strong>.
+            </p>
+            <button
+              type="button"
+              class="mt-3 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-0.5"
+              aria-label="Clear search filter"
+              (click)="searchQuery.set('')"
+            >
+              Clear search
+            </button>
+          </div>
+        } @else {
+          <!-- Plant cards -->
+          <ul class="flex flex-col gap-3" aria-label="Plants in this zone">
+            @for (ep of enrichedPlants(); track ep.plant.id) {
+              <li>
+                <article
+                  class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md shadow-sm"
+                  [attr.aria-labelledby]="'plant-name-' + ep.plant.id"
+                >
+                  <!-- Card body: leaf icon + name column + status chip -->
+                  <div class="px-4 pt-4 pb-3 flex items-start gap-3">
+                    <!-- Status-coloured leaf icon -->
+                    <div
+                      class="flex-shrink-0 w-10 h-10 rounded-garden-sm flex items-center justify-center mt-0.5"
+                      [class]="
+                        ep.status === 'overdue'
+                          ? 'bg-yellow-50 dark:bg-yellow-900/20'
+                          : ep.status === 'due-today'
+                            ? 'bg-primary-50 dark:bg-primary-900/20'
+                            : 'bg-green-50 dark:bg-green-900/20'
+                      "
+                      aria-hidden="true"
+                    >
+                      <app-leaf-icon
+                        [class]="
+                          ep.status === 'overdue'
+                            ? 'text-warning-500'
+                            : ep.status === 'due-today'
+                              ? 'text-primary-500'
+                              : 'text-success-500'
+                        "
+                      />
+                    </div>
+
+                    <!-- Name + badges + status chip -->
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-start justify-between gap-2">
+                        <!-- Common name + scientific name -->
+                        <div class="flex-1 min-w-0">
+                          <p
+                            [id]="'plant-name-' + ep.plant.id"
+                            class="text-base font-semibold font-display text-neutral-900 dark:text-white truncate"
+                          >
+                            {{ ep.plant.common_name }}
+                          </p>
+                          @if (ep.plant.scientific_name) {
+                            <p
+                              class="text-xs font-display text-neutral-400 dark:text-neutral-500 italic truncate mt-0.5"
+                            >
+                              {{ ep.plant.scientific_name }}
+                            </p>
+                          }
+                        </div>
+
+                        <!-- Soil check status chip -->
+                        <span
+                          class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium font-display flex-shrink-0"
+                          [class]="
+                            ep.status === 'overdue'
+                              ? 'bg-yellow-100 text-warning-500 dark:bg-yellow-900/30 dark:text-yellow-400'
+                              : ep.status === 'due-today'
+                                ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400'
+                                : 'bg-green-100 text-success-500 dark:bg-green-900/30 dark:text-green-400'
+                          "
+                          [attr.aria-label]="'Soil check status: ' + ep.nextCheckLabel"
+                        >
+                          <i
+                            class="text-xs"
+                            [class]="
+                              ep.status === 'overdue'
+                                ? 'pi pi-exclamation-triangle'
+                                : ep.status === 'due-today'
+                                  ? 'pi pi-clock'
+                                  : 'pi pi-check-circle'
+                            "
+                            aria-hidden="true"
+                          ></i>
+                          {{ ep.nextCheckLabel }}
+                        </span>
+                      </div>
+
+                      <!-- Container + substrate badges -->
+                      <div class="flex flex-wrap gap-1.5 mt-2.5" aria-label="Plant setup">
+                        <span
+                          class="inline-flex items-center px-2 py-0.5 rounded-garden-sm text-xs font-medium font-display bg-neutral-100 border border-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+                        >
+                          {{ ep.plant.container_vector }}
+                        </span>
+                        <span
+                          class="inline-flex items-center px-2 py-0.5 rounded-garden-sm text-xs font-medium font-display bg-neutral-100 border border-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+                        >
+                          {{ ep.plant.substrate_factor }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Card footer: last-checked label + actions -->
+                  <footer
+                    class="px-4 pb-3 pt-3 border-t border-neutral-100 dark:border-neutral-700 flex items-center justify-between gap-2"
+                  >
+                    <p class="text-xs font-display text-neutral-400 dark:text-neutral-500">
+                      {{ ep.lastCheckedLabel }}
+                    </p>
+                    <div class="flex items-center gap-1 flex-shrink-0">
+                      <button
+                        type="button"
+                        class="text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                        [attr.aria-label]="'Edit ' + ep.plant.common_name"
+                        (click)="openEditPlant(ep.plant)"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        class="inline-flex items-center gap-1.5 text-xs font-medium font-display text-neutral-600 dark:text-neutral-300 hover:text-primary-600 dark:hover:text-primary-400 border border-neutral-200 dark:border-neutral-600 hover:border-primary-300 dark:hover:border-primary-700 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors cursor-pointer px-2.5 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                        [attr.aria-label]="'Check soil for ' + ep.plant.common_name"
+                        (click)="openSoilCheck(ep.plant)"
+                      >
+                        <i class="pi pi-search text-[10px]" aria-hidden="true"></i>
+                        Check soil
+                      </button>
+                    </div>
+                  </footer>
+                </article>
+              </li>
+            }
+          </ul>
+        }
+      </section>
     } @else {
-      <p class="mt-4 text-neutral-500 dark:text-neutral-400 font-display text-base" role="status">
+      <!-- ── Zone not found ────────────────────────────────────────── -->
+      <p class="mt-6 text-neutral-500 dark:text-neutral-400 font-display text-base" role="status">
         Zone not found.
       </p>
     }
+
+    <!-- ── Dialogs ───────────────────────────────────────────────── -->
+
+    <app-zone-form
+      [visible]="zoneFormVisible()"
+      (visibleChange)="zoneFormVisible.set($event)"
+      [editZone]="zone() ?? null"
+      (saved)="onZoneSaved($event)"
+    />
+
+    @if (activeSoilPlant()) {
+      <app-soil-check-dialog
+        [plant]="activeSoilPlant()!"
+        [zoneName]="zone()?.name ?? null"
+        [visible]="soilCheckVisible()"
+        (visibleChange)="onSoilDialogVisibleChange($event)"
+        (confirmed)="onConfirmed($event)"
+        (snoozed)="onSnoozed($event)"
+      />
+    }
+
+    <app-plant-form-dialog
+      [visible]="plantFormVisible()"
+      (visibleChange)="plantFormVisible.set($event)"
+      [plant]="editingPlant()"
+      [defaultZoneId]="id()"
+      (saved)="onPlantSaved($event)"
+      (deleteRequested)="onDeleteRequested($event)"
+    />
+
+    <p-confirmdialog [pt]="FloraConfirmDialogPT" />
+
+    <p-toast position="bottom-right" [pt]="FloraToastPT">
+      <ng-template let-msg #message>
+        <div class="flex flex-col gap-0.5 flex-1">
+          <span class="font-semibold text-sm">{{ msg.summary }}</span>
+          @if (msg.detail) {
+            <span class="text-xs text-neutral-500 dark:text-neutral-400">{{ msg.detail }}</span>
+          }
+        </div>
+        @if (msg.data?.canUndo) {
+          <button
+            type="button"
+            class="text-xs font-semibold text-primary-600 flex-shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-0.5 hover:opacity-80 transition-colors"
+            (click)="undoDelete(msg.data.id)"
+            aria-label="Undo delete"
+          >
+            Undo
+          </button>
+        }
+      </ng-template>
+    </p-toast>
   </div>
 </main>

@@ -20,6 +20,7 @@ import { ZoneService } from './zone.service';
 import { ZoneCardComponent } from './zone-card/zone-card';
 import { LeafIconComponent } from '../../shared/components/leaf-icon/leaf-icon';
 import { blurActiveElement } from '../../shared/utils/dom';
+import { PendingDeleteManager } from '../../shared/utils/pending-delete';
 import { plantAddedDetail } from '../../shared/utils/plant-message.util';
 import { ZoneFormComponent } from './zone-form/zone-form';
 import { Zone, ZoneFormData } from './zone.model';
@@ -140,11 +141,10 @@ export class DashboardComponent {
   // ── Zone dialog ───────────────────────────────────────────────
   readonly zoneDialogVisible = signal(false);
   readonly editingZone = signal<Zone | null>(null);
-  readonly pendingDeleteZoneIds = signal<Set<string>>(new Set());
+  private readonly _deleteManager = new PendingDeleteManager();
   readonly displayedZones = computed(() =>
-    this.zoneService.zones().filter((z) => !this.pendingDeleteZoneIds().has(z.id)),
+    this.zoneService.zones().filter((z) => !this._deleteManager.pendingIds().has(z.id)),
   );
-  private readonly _deleteTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
   // ── Plant Add dialog (Dashboard entry point) ──────────────────
   readonly plantFormVisible = signal(false);
@@ -153,8 +153,7 @@ export class DashboardComponent {
     void this.zoneService.loadZones();
     void this.plantService.loadPlants();
     this.destroyRef.onDestroy(() => {
-      this._deleteTimers.forEach(clearTimeout);
-      this._deleteTimers.clear();
+      this._deleteManager.cancelAll();
     });
   }
 
@@ -240,7 +239,6 @@ export class DashboardComponent {
       acceptLabel: 'Delete',
       rejectLabel: 'Cancel',
       accept: () => {
-        this.pendingDeleteZoneIds.update((ids) => new Set([...ids, zoneId]));
         this.messageService.add({
           severity: 'warn',
           summary: 'Zone deleted',
@@ -248,13 +246,7 @@ export class DashboardComponent {
           life: 5000,
           data: { canUndo: true, id: zoneId },
         });
-        const timer = setTimeout(async () => {
-          this._deleteTimers.delete(zoneId);
-          this.pendingDeleteZoneIds.update((ids) => {
-            const next = new Set(ids);
-            next.delete(zoneId);
-            return next;
-          });
+        this._deleteManager.schedule(zoneId, 5000, async () => {
           await this.zoneService.deleteZone(zoneId);
           if (this.zoneService.error()) {
             this.messageService.add({
@@ -263,23 +255,13 @@ export class DashboardComponent {
               detail: this.zoneService.error()!,
             });
           }
-        }, 5000);
-        this._deleteTimers.set(zoneId, timer);
+        });
       },
     });
   }
 
   undoDelete(id: string): void {
-    const timer = this._deleteTimers.get(id);
-    if (timer !== undefined) {
-      clearTimeout(timer);
-      this._deleteTimers.delete(id);
-    }
-    this.pendingDeleteZoneIds.update((ids) => {
-      const next = new Set(ids);
-      next.delete(id);
-      return next;
-    });
+    this._deleteManager.undo(id);
     this.messageService.clear();
   }
 

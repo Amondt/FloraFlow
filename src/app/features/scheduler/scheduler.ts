@@ -13,6 +13,7 @@ import { PlantService } from './plant.service';
 import { Plant, PlantFormData } from './plant.model';
 import { JournalService } from '../journal/journal.service';
 import { plantAddedDetail } from '../../shared/utils/plant-message.util';
+import { PendingDeleteManager } from '../../shared/utils/pending-delete';
 import { ZoneService } from '../dashboard/zone.service';
 import {
   FloraButtonPT,
@@ -72,7 +73,9 @@ export class SchedulerComponent {
   readonly plantFormTarget = signal<Plant | null>(null);
   readonly plantToDelete = signal<Plant | null>(null);
 
-  readonly pendingDeleteIds = signal<Set<string>>(new Set());
+  private readonly _deleteManager = new PendingDeleteManager();
+  // Public alias so existing tests can still call component.pendingDeleteIds.set(...)
+  readonly pendingDeleteIds = this._deleteManager.pendingIds;
   readonly plantsGrouped = computed(() => {
     const now = new Date();
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -103,7 +106,6 @@ export class SchedulerComponent {
     };
   });
 
-  private readonly _deleteTimers = new Map<string, ReturnType<typeof setTimeout>>();
   private _autoOpenedPlantId: string | null = null;
 
   constructor() {
@@ -133,11 +135,7 @@ export class SchedulerComponent {
     });
 
     this.destroyRef.onDestroy(() => {
-      this._deleteTimers.forEach((timer, id) => {
-        clearTimeout(timer);
-        void this.plantService.deletePlant(id);
-      });
-      this._deleteTimers.clear();
+      this._deleteManager.flushAll((id) => this.plantService.deletePlant(id));
     });
   }
 
@@ -204,7 +202,6 @@ export class SchedulerComponent {
       acceptLabel: 'Delete',
       rejectLabel: 'Cancel',
       accept: () => {
-        this.pendingDeleteIds.update((ids) => new Set([...ids, plant.id]));
         this.plantToDelete.set(null);
         this.messageService.add({
           severity: 'warn',
@@ -213,13 +210,7 @@ export class SchedulerComponent {
           life: 5000,
           data: { canUndo: true, id: plant.id },
         });
-        const timer = setTimeout(async () => {
-          this._deleteTimers.delete(plant.id);
-          this.pendingDeleteIds.update((ids) => {
-            const next = new Set(ids);
-            next.delete(plant.id);
-            return next;
-          });
+        this._deleteManager.schedule(plant.id, 5000, async () => {
           await this.plantService.deletePlant(plant.id);
           if (this.plantService.error()) {
             this.messageService.add({
@@ -228,8 +219,7 @@ export class SchedulerComponent {
               detail: this.plantService.error()!,
             });
           }
-        }, 5000);
-        this._deleteTimers.set(plant.id, timer);
+        });
       },
       reject: () => {
         this.plantToDelete.set(null);
@@ -238,16 +228,7 @@ export class SchedulerComponent {
   }
 
   undoDelete(id: string): void {
-    const timer = this._deleteTimers.get(id);
-    if (timer !== undefined) {
-      clearTimeout(timer);
-      this._deleteTimers.delete(id);
-    }
-    this.pendingDeleteIds.update((ids) => {
-      const next = new Set(ids);
-      next.delete(id);
-      return next;
-    });
+    this._deleteManager.undo(id);
     this.messageService.clear();
   }
 

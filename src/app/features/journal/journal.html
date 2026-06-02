@@ -32,6 +32,7 @@
             <!-- Plant filter -->
             <div class="w-44">
               <p-select
+                inputId="journal-plant-filter"
                 [ngModel]="selectedPlant()"
                 (ngModelChange)="onPlantFilterChange($event)"
                 [options]="plantSelectOptions()"
@@ -39,7 +40,7 @@
                 optionValue="value"
                 [pt]="FloraSelectPT"
                 appendTo="body"
-                aria-label="Filter journal entries by plant"
+                ariaLabel="Filter journal entries by plant"
               />
             </div>
 

@@ -26,6 +26,7 @@ To maintain clean separation of concerns and isolate data fetching models from p
     │   │   └── guards/            # Auth Route Isolation Guards
     │   ├── features/              # Feature modules containing smart components
     │   │   ├── auth/              # Login component (magic-link / email+password)
+    │   │   ├── onboarding/        # One-time first-login wizard (Welcome → Zone → All Set)
     │   │   ├── dashboard/         # Greenhouse Zone Grid UI & Overview
     │   │   ├── scheduler/         # Soil-Check Alert Hub & Snooze Modals
     │   │   ├── journal/           # Multi-modal Care Tracking & Photo Feeds
@@ -65,7 +66,9 @@ To maintain clean separation of concerns and isolate data fetching models from p
 
 See `src/app/app.routes.ts` for the full route map. All routes except `login` use `canActivate: [authGuard]`.
 
-**Naming rules:** No `.component` suffix (`scheduler.ts` not `scheduler.component.ts`). Guard is functional `authGuard` (lowercase). Routes: `login`, `dashboard`, `scheduler`, `journal`, `library`, `vault`. Default redirects to `dashboard`.
+**Naming rules:** No `.component` suffix (`scheduler.ts` not `scheduler.component.ts`). Guards are functional and lowercase (`authGuard`, `onboardingGuard`). Routes: `login`, `onboarding`, `dashboard`, `scheduler`, `journal`, `library`, `vault`. Default redirects to `dashboard`.
+
+**Route security model:** `login` — public. `onboarding` — `authGuard` only (logged in, not yet completed). All shell routes — `authGuard` + `onboardingGuard` (logged in and onboarding complete).
 
 ---
 

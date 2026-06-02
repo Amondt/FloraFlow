@@ -82,14 +82,12 @@
                   Watering
                 </h2>
                 <span class="relative group/hint">
-                  <button
-                    type="button"
-                    class="inline-flex items-center justify-center cursor-pointer text-neutral-300 hover:text-neutral-500 dark:hover:text-neutral-300 outline-none focus-visible:ring-1 focus-visible:ring-primary-500 rounded-full"
-                    aria-label="About watering: how often the plant needs water"
-                    (click)="$event.stopPropagation()"
+                  <span
+                    class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500"
+                    aria-hidden="true"
                   >
-                    <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
-                  </button>
+                    <i class="pi pi-info-circle text-xs"></i>
+                  </span>
                   <span
                     aria-hidden="true"
                     class="absolute left-0 top-full mt-1.5 z-30 px-2.5 py-1.5 rounded-garden-sm bg-neutral-900 dark:bg-neutral-700 text-white text-xs font-display leading-snug w-44 shadow-lg invisible opacity-0 group-hover/hint:visible group-hover/hint:opacity-100 group-focus-within/hint:visible group-focus-within/hint:opacity-100 transition-opacity duration-150 pointer-events-none"
@@ -100,8 +98,7 @@
                 @if (hasWateringFilter()) {
                   <span
                     class="w-1.5 h-1.5 rounded-full bg-primary-500 ml-0.5"
-                    aria-label="Watering filter active"
-                    role="img"
+                    aria-hidden="true"
                   ></span>
                 }
               </div>
@@ -136,14 +133,12 @@
                   Sunlight
                 </h2>
                 <span class="relative group/hint">
-                  <button
-                    type="button"
-                    class="inline-flex items-center justify-center cursor-pointer text-neutral-300 hover:text-neutral-500 dark:hover:text-neutral-300 outline-none focus-visible:ring-1 focus-visible:ring-primary-500 rounded-full"
-                    aria-label="About sunlight: required daily light level for the plant"
-                    (click)="$event.stopPropagation()"
+                  <span
+                    class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500"
+                    aria-hidden="true"
                   >
-                    <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
-                  </button>
+                    <i class="pi pi-info-circle text-xs"></i>
+                  </span>
                   <span
                     aria-hidden="true"
                     class="absolute left-0 top-full mt-1.5 z-30 px-2.5 py-1.5 rounded-garden-sm bg-neutral-900 dark:bg-neutral-700 text-white text-xs font-display leading-snug w-44 shadow-lg invisible opacity-0 group-hover/hint:visible group-hover/hint:opacity-100 group-focus-within/hint:visible group-focus-within/hint:opacity-100 transition-opacity duration-150 pointer-events-none"
@@ -154,8 +149,7 @@
                 @if (hasSunlightFilter()) {
                   <span
                     class="w-1.5 h-1.5 rounded-full bg-primary-500 ml-0.5"
-                    aria-label="Sunlight filter active"
-                    role="img"
+                    aria-hidden="true"
                   ></span>
                 }
               </div>
@@ -190,14 +184,12 @@
                   Pet toxicity
                 </h2>
                 <span class="relative group/hint">
-                  <button
-                    type="button"
-                    class="inline-flex items-center justify-center cursor-pointer text-neutral-300 hover:text-neutral-500 dark:hover:text-neutral-300 outline-none focus-visible:ring-1 focus-visible:ring-primary-500 rounded-full"
-                    aria-label="About pet toxicity: whether the plant is safe for cats and dogs"
-                    (click)="$event.stopPropagation()"
+                  <span
+                    class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500"
+                    aria-hidden="true"
                   >
-                    <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
-                  </button>
+                    <i class="pi pi-info-circle text-xs"></i>
+                  </span>
                   <span
                     aria-hidden="true"
                     class="absolute left-0 top-full mt-1.5 z-30 px-2.5 py-1.5 rounded-garden-sm bg-neutral-900 dark:bg-neutral-700 text-white text-xs font-display leading-snug w-44 shadow-lg invisible opacity-0 group-hover/hint:visible group-hover/hint:opacity-100 group-focus-within/hint:visible group-focus-within/hint:opacity-100 transition-opacity duration-150 pointer-events-none"
@@ -208,8 +200,7 @@
                 @if (hasToxicityFilter()) {
                   <span
                     class="w-1.5 h-1.5 rounded-full bg-primary-500 ml-0.5"
-                    aria-label="Pet toxicity filter active"
-                    role="img"
+                    aria-hidden="true"
                   ></span>
                 }
               </div>
@@ -244,14 +235,12 @@
                   Lifecycle
                 </h2>
                 <span class="relative group/hint">
-                  <button
-                    type="button"
-                    class="inline-flex items-center justify-center cursor-pointer text-neutral-300 hover:text-neutral-500 dark:hover:text-neutral-300 outline-none focus-visible:ring-1 focus-visible:ring-primary-500 rounded-full"
-                    aria-label="About lifecycle: Annual is one season, Biennial is two years, Biannual is twice a year, Perennial returns every year"
-                    (click)="$event.stopPropagation()"
+                  <span
+                    class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500"
+                    aria-hidden="true"
                   >
-                    <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
-                  </button>
+                    <i class="pi pi-info-circle text-xs"></i>
+                  </span>
                   <span
                     aria-hidden="true"
                     class="absolute left-0 top-full mt-1.5 z-30 px-2.5 py-1.5 rounded-garden-sm bg-neutral-900 dark:bg-neutral-700 text-white text-xs font-display leading-snug w-44 shadow-lg invisible opacity-0 group-hover/hint:visible group-hover/hint:opacity-100 group-focus-within/hint:visible group-focus-within/hint:opacity-100 transition-opacity duration-150 pointer-events-none"
@@ -265,8 +254,7 @@
                 @if (hasCycleFilter()) {
                   <span
                     class="w-1.5 h-1.5 rounded-full bg-primary-500 ml-0.5"
-                    aria-label="Lifecycle filter active"
-                    role="img"
+                    aria-hidden="true"
                   ></span>
                 }
               </div>
@@ -301,14 +289,12 @@
                   Soil pH
                 </h2>
                 <span class="relative group/hint">
-                  <button
-                    type="button"
-                    class="inline-flex items-center justify-center cursor-pointer text-neutral-300 hover:text-neutral-500 dark:hover:text-neutral-300 outline-none focus-visible:ring-1 focus-visible:ring-primary-500 rounded-full"
-                    aria-label="About soil pH: ideal acidity level, scale 0 (acid) to 14 (alkaline)"
-                    (click)="$event.stopPropagation()"
+                  <span
+                    class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500"
+                    aria-hidden="true"
                   >
-                    <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
-                  </button>
+                    <i class="pi pi-info-circle text-xs"></i>
+                  </span>
                   <span
                     aria-hidden="true"
                     class="absolute left-0 top-full mt-1.5 z-30 px-2.5 py-1.5 rounded-garden-sm bg-neutral-900 dark:bg-neutral-700 text-white text-xs font-display leading-snug w-48 shadow-lg invisible opacity-0 group-hover/hint:visible group-hover/hint:opacity-100 group-focus-within/hint:visible group-focus-within/hint:opacity-100 transition-opacity duration-150 pointer-events-none"
@@ -319,28 +305,27 @@
                 @if (hasPhFilter()) {
                   <span
                     class="w-1.5 h-1.5 rounded-full bg-primary-500 ml-0.5"
-                    aria-label="Soil pH filter active"
-                    role="img"
+                    aria-hidden="true"
                   ></span>
                 }
               </div>
-              <div class="flex items-center gap-2">
-                @if (hasPhFilter()) {
-                  <button
-                    type="button"
-                    class="text-xs font-medium font-display text-primary-600 hover:text-primary-700 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded cursor-pointer"
-                    aria-label="Reset pH range filter"
-                    (click)="$event.stopPropagation(); clearPhFilter()"
-                  >
-                    Reset
-                  </button>
-                }
-                <i
-                  class="pi pi-chevron-down text-xs text-neutral-300 transition-transform duration-200 group-open:rotate-180"
-                  aria-hidden="true"
-                ></i>
-              </div>
+              <i
+                class="pi pi-chevron-down text-xs text-neutral-300 transition-transform duration-200 group-open:rotate-180"
+                aria-hidden="true"
+              ></i>
             </summary>
+            @if (hasPhFilter()) {
+              <div class="flex justify-end mb-1">
+                <button
+                  type="button"
+                  class="text-xs font-medium font-display text-primary-600 hover:text-primary-700 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded cursor-pointer"
+                  aria-label="Reset pH range filter"
+                  (click)="clearPhFilter()"
+                >
+                  Reset
+                </button>
+              </div>
+            }
             <div class="px-2 py-3" (mousedown)="onPhSliderMouseDown($event)">
               <p-slider
                 [ngModel]="phRange()"

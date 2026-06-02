@@ -110,6 +110,13 @@ export class LibraryComponent {
   private readonly _destroyRef = inject(DestroyRef);
 
   constructor() {
+    this._destroyRef.onDestroy(() => {
+      if (this._debounceTimer !== null) {
+        clearTimeout(this._debounceTimer);
+        this._debounceTimer = null;
+      }
+    });
+
     afterNextRender(() => {
       const searchArea = document.getElementById('library-search-area');
       if (!searchArea) return;

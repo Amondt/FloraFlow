@@ -36,9 +36,16 @@ export class PushNotificationService {
       applicationServerKey: urlBase64ToUint8Array(environment.vapidPublicKey),
     });
 
-    await this.supabase.client
+    const { error: updateError } = await this.supabase.client
       .from('profiles')
       .update({ push_subscription: subscription.toJSON() })
       .eq('id', session.user.id);
+
+    if (updateError) {
+      console.error(
+        'PushNotificationService: failed to persist push subscription',
+        updateError.message,
+      );
+    }
   }
 }

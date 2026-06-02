@@ -112,16 +112,17 @@
     </div>
 
     <div class="flex flex-col gap-1.5">
-      <label
-        [for]="zoneSelectId"
+      <span
+        [id]="zoneSelectId + '-label'"
         class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
       >
         Zone
         <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
         <span class="sr-only">(required)</span>
-      </label>
+      </span>
       <p-select
         [inputId]="zoneSelectId"
+        [ariaLabelledBy]="zoneSelectId + '-label'"
         formControlName="zone_id"
         [options]="zoneOptions()"
         optionLabel="label"
@@ -147,14 +148,15 @@
     </div>
 
     <div class="flex flex-col gap-1.5">
-      <label
-        [for]="containerId"
+      <span
+        [id]="containerId + '-label'"
         class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
       >
         Container type
-      </label>
+      </span>
       <p-select
         [inputId]="containerId"
+        [ariaLabelledBy]="containerId + '-label'"
         formControlName="container_vector"
         [options]="CONTAINER_VECTOR_OPTIONS"
         [pt]="FloraSelectPT"
@@ -163,14 +165,15 @@
     </div>
 
     <div class="flex flex-col gap-1.5">
-      <label
-        [for]="substrateId"
+      <span
+        [id]="substrateId + '-label'"
         class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
       >
         Substrate
-      </label>
+      </span>
       <p-select
         [inputId]="substrateId"
+        [ariaLabelledBy]="substrateId + '-label'"
         formControlName="substrate_factor"
         [options]="SUBSTRATE_FACTOR_OPTIONS"
         [pt]="FloraSelectPT"

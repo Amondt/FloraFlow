@@ -11,7 +11,7 @@
 BEGIN;
 
 SELECT
-  plan (24);
+  plan (25);
 
 -- ── SETUP ─────────────────────────────────────────────────────────────────
 -- Disable FK triggers so we can insert profiles without auth.users rows.
@@ -687,6 +687,55 @@ SELECT
     ),
     NULL::jsonb,
     'Bob cannot UPDATE Alice''s push_subscription — remains NULL'
+  );
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- Phase 2.1 — plant_journals cross-user plant_id injection guard
+-- ═══════════════════════════════════════════════════════════════════════════
+-- The WITH CHECK on plant_journals requires that plant_id also belongs to
+-- the authenticated user. Bob must not be able to attach a journal entry to
+-- Alice's plant, even though he supplies his own user_id.
+-- ── TEST 25: Bob cannot INSERT a journal entry for Alice's plant ─────────────
+SET
+  LOCAL ROLE authenticated;
+
+SELECT
+  set_config(
+    'request.jwt.claims',
+    '{"sub":"22222222-2222-2222-2222-222222222222","role":"authenticated"}',
+    TRUE
+  );
+
+DO $$
+BEGIN
+  INSERT INTO public.plant_journals (plant_id, user_id, notes)
+  VALUES (
+    'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', -- Alice's plant
+    '22222222-2222-2222-2222-222222222222', -- Bob's user_id
+    'Bob injecting into Alice plant'
+  );
+EXCEPTION WHEN others THEN
+  NULL;
+END;
+$$;
+
+RESET ROLE;
+
+SELECT
+  set_config('request.jwt.claims', '{}', TRUE);
+
+SELECT
+  IS (
+    (
+      SELECT
+        count(*)::int
+      FROM
+        public.plant_journals
+      WHERE
+        notes = 'Bob injecting into Alice plant'
+    ),
+    0,
+    'Bob cannot INSERT a journal entry for Alice''s plant — cross-user plant_id blocked'
   );
 
 SELECT

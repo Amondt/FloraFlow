@@ -1,6 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import type { QueryData } from 'npm:@supabase/supabase-js@2';
 import type { Database } from '../_shared/database.types.ts';
+import { verifyCronSecret } from '../_shared/cron-auth.ts';
 
 const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), {
@@ -24,6 +25,7 @@ function buildHtml(
   displayName: string,
   zoneMap: Map<string, DigestPlant[]>,
   total: number,
+  siteUrl: string,
 ): string {
   const zoneBlocks = [...zoneMap.entries()]
     .map(([zoneName, plants]) => {
@@ -76,7 +78,7 @@ function buildHtml(
         You have <strong style="color:#047857;">${total} ${plantWord}</strong> that ${needsWord} your attention this week.
       </p>
       ${zoneBlocks}
-      <a href="http://localhost:4200/scheduler"
+      <a href="${siteUrl}/scheduler"
          style="display:inline-block;background:#059669;color:#ffffff;padding:13px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px;margin-top:20px;letter-spacing:0.01em;">
         Open Scheduler &#8594;
       </a>
@@ -95,15 +97,12 @@ Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok');
 
   try {
-    // Server-to-server auth: caller must present the Supabase service role key
-    const authHeader = req.headers.get('Authorization') ?? '';
-    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
-    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
-    if (!token || token !== serviceRoleKey) {
-      return json({ error: 'Unauthorized' }, 401);
-    }
+    if (!verifyCronSecret(req)) return json({ error: 'Unauthorized' }, 401);
 
-    const supabase = createClient<Database>(Deno.env.get('SUPABASE_URL')!, serviceRoleKey);
+    const supabase = createClient<Database>(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+    );
 
     // Time boundaries for today in UTC
     const now = new Date();
@@ -171,6 +170,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const resendApiKey = Deno.env.get('RESEND_API_KEY') ?? '';
+    const siteUrl = (Deno.env.get('SITE_URL') ?? 'http://localhost:4200').replace(/\/$/, '');
     let sent = 0;
     let skipped = 0;
     let errors = 0;
@@ -186,7 +186,7 @@ Deno.serve(async (req: Request) => {
       const plantWord = total === 1 ? 'plant' : 'plants';
       const needsWord = total === 1 ? 'needs' : 'need';
       const subject = `Your FloraFlow plant digest — ${total} ${plantWord} ${needsWord} attention`;
-      const html = buildHtml(display_name, zones, total);
+      const html = buildHtml(display_name, zones, total, siteUrl);
 
       try {
         const resp = await fetch('https://api.resend.com/emails', {

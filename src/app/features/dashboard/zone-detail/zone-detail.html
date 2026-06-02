@@ -156,6 +156,8 @@
               ></i>
               <input
                 type="text"
+                id="zone-plant-search"
+                name="zone-plant-search"
                 [value]="searchQuery()"
                 (input)="searchQuery.set($any($event.target).value)"
                 placeholder="Search by name or species…"

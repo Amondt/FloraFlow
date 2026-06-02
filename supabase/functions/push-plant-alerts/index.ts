@@ -1,6 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import webPush from 'npm:web-push';
 import type { Database } from '../_shared/database.types.ts';
+import { verifyCronSecret } from '../_shared/cron-auth.ts';
 
 const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), {
@@ -21,13 +22,7 @@ Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok');
 
   try {
-    // Server-to-server auth: Kong strips the Authorization header before reaching Deno,
-    // so we use a custom header that the gateway passes through untouched.
-    const token = req.headers.get('x-cron-secret') ?? '';
-    const cronSecret = Deno.env.get('CRON_SECRET') ?? '';
-    if (!token || token !== cronSecret) {
-      return json({ error: 'Unauthorized' }, 401);
-    }
+    if (!verifyCronSecret(req)) return json({ error: 'Unauthorized' }, 401);
 
     const supabase = createClient<Database>(
       Deno.env.get('SUPABASE_URL')!,
@@ -50,25 +45,36 @@ Deno.serve(async (req: Request) => {
     if (!profiles || profiles.length === 0) return json({ sent: 0, skipped: 0, errors: 0 });
 
     const now = new Date().toISOString();
+
+    // Single query for all due/overdue plants across every subscribed user,
+    // replacing the previous one-query-per-user loop (N+1 pattern).
+    const { data: duePlants, error: plantsError } = await supabase
+      .from('plants')
+      .select('user_id')
+      .in(
+        'user_id',
+        profiles.map((p) => p.id),
+      )
+      .lte('next_check_due_at', now);
+
+    if (plantsError) {
+      console.error('Due-plant batch query failed:', plantsError);
+      return json({ error: 'Failed to query plants' }, 500);
+    }
+
+    // Group counts by user in memory
+    const duePlantCountByUser = new Map<string, number>();
+    for (const plant of duePlants ?? []) {
+      duePlantCountByUser.set(plant.user_id, (duePlantCountByUser.get(plant.user_id) ?? 0) + 1);
+    }
+
     let sent = 0;
     let skipped = 0;
     let errors = 0;
 
     for (const profile of profiles) {
-      // Count plants that are due or overdue for this user
-      const { count, error: countError } = await supabase
-        .from('plants')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', profile.id)
-        .lte('next_check_due_at', now);
-
-      if (countError) {
-        console.error(`Plant count failed for user ${profile.id}:`, countError);
-        errors++;
-        continue;
-      }
-
-      if (!count || count === 0) {
+      const count = duePlantCountByUser.get(profile.id) ?? 0;
+      if (count === 0) {
         skipped++;
         continue;
       }

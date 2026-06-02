@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { onboardingGuard } from './core/guards/onboarding.guard';
 
 export const routes: Routes = [
   {
@@ -7,9 +8,15 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/login').then((m) => m.LoginComponent),
   },
   {
+    path: 'onboarding',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/onboarding/onboarding').then((m) => m.OnboardingComponent),
+  },
+  {
     path: '',
     loadComponent: () => import('./shared/components/shell/shell').then((m) => m.ShellComponent),
-    canActivate: [authGuard],
+    canActivate: [authGuard, onboardingGuard],
     children: [
       {
         path: 'dashboard',

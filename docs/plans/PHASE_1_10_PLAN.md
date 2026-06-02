@@ -15,7 +15,7 @@ New users land on an empty dashboard after first login. This phase adds a single
 
 ## Blocks
 
-- [ ] **Block A — Migration + `ProfileService`** | Agent: `/plumber`
+- [x] **Block A — Migration + `ProfileService`** | Agent: `/plumber`
   - Migration SQL: `ALTER TABLE public.profiles ADD COLUMN has_completed_onboarding BOOLEAN DEFAULT FALSE NOT NULL;`
   - New migration file via `bunx supabase migration new add_onboarding_flag`, then `bunx supabase db push`
   - Run `bun run types` — confirm `has_completed_onboarding` appears in `database.types.ts`
@@ -24,7 +24,7 @@ New users land on an empty dashboard after first login. This phase adds a single
     - `completeOnboarding()` — Supabase UPDATE `has_completed_onboarding = true` where `id = auth.uid()`; updates the local signal after success
   - Update `docs/DB_SCHEMA_MATRIX.md §2.1` to list the new column
 
-- [ ] **Block B — `onboardingGuard` + routing** | Agent: `/visualizer`
+- [x] **Block B — `onboardingGuard` + routing** | Agent: `/visualizer`
   - `src/app/core/guards/onboarding.guard.ts` — async functional guard:
     - Injects `ProfileService`; awaits profile load if not yet ready
     - Returns `true` when `has_completed_onboarding` is true

@@ -51,6 +51,20 @@ export class LibraryService {
     }
   }
 
+  async refetchByScientificNames(names: string[]): Promise<CachedBotanicalRecord[]> {
+    if (names.length === 0) return [];
+    try {
+      const { data, error } = await this.supabase.client
+        .from('cached_botanical_records')
+        .select('*')
+        .in('scientific_name', names);
+      if (error) return [];
+      return data ?? [];
+    } catch {
+      return [];
+    }
+  }
+
   async fetchByScientificName(name: string): Promise<CachedBotanicalRecord | null> {
     try {
       const { data, error } = await this.supabase.client

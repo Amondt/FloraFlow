@@ -105,8 +105,13 @@ export class LibraryComponent {
   readonly isReloading = computed(() => this.isLoading() && this.results().length > 0);
 
   readonly headerVisible = signal(true);
+  readonly enrichingNames = signal<ReadonlySet<string>>(new Set());
+  readonly enrichingCount = computed(() => this.enrichingNames().size);
 
   private _debounceTimer: ReturnType<typeof setTimeout> | null = null;
+  private _pollTimer: ReturnType<typeof setInterval> | null = null;
+  private _pollAttempts = 0;
+  private readonly _MAX_POLL_ATTEMPTS = 15;
   private readonly _destroyRef = inject(DestroyRef);
 
   constructor() {
@@ -115,6 +120,7 @@ export class LibraryComponent {
         clearTimeout(this._debounceTimer);
         this._debounceTimer = null;
       }
+      this._stopEnrichmentPoll();
     });
 
     afterNextRender(() => {
@@ -140,6 +146,7 @@ export class LibraryComponent {
       if (!hasCriteria) {
         this.isLoading.set(false);
         this.results.set([]);
+        this._stopEnrichmentPoll();
         return;
       }
 
@@ -284,14 +291,70 @@ export class LibraryComponent {
     }
   }
 
+  private _stopEnrichmentPoll(): void {
+    if (this._pollTimer !== null) {
+      clearInterval(this._pollTimer);
+      this._pollTimer = null;
+    }
+    this._pollAttempts = 0;
+    this.enrichingNames.set(new Set());
+  }
+
+  private _startEnrichmentPoll(names: string[]): void {
+    this._stopEnrichmentPoll();
+    if (names.length === 0) return;
+
+    this.enrichingNames.set(new Set(names));
+
+    this._pollTimer = setInterval(() => {
+      this._pollAttempts++;
+      if (this._pollAttempts >= this._MAX_POLL_ATTEMPTS) {
+        this._stopEnrichmentPoll();
+        return;
+      }
+      void this._pollEnrichment();
+    }, 6000);
+  }
+
+  private async _pollEnrichment(): Promise<void> {
+    const pending = [...this.enrichingNames()];
+    if (pending.length === 0) {
+      this._stopEnrichmentPoll();
+      return;
+    }
+
+    const refreshed = await this.libraryService.refetchByScientificNames(pending);
+    if (refreshed.length === 0) return;
+    if (this.enrichingNames().size === 0) return;
+
+    const refreshedMap = new Map(refreshed.map((r) => [r.scientific_name, r]));
+
+    this.results.update((current) => current.map((r) => refreshedMap.get(r.scientific_name) ?? r));
+
+    const stillPending = new Set(
+      refreshed.filter((r) => !r.is_ai_enriched).map((r) => r.scientific_name),
+    );
+    this.enrichingNames.set(stillPending);
+
+    if (stillPending.size === 0) {
+      this._stopEnrichmentPoll();
+    }
+  }
+
   private async _load(query: string, f: LibraryFilters): Promise<void> {
+    this._stopEnrichmentPoll();
     this.isLoading.set(true);
     try {
+      let newResults: CachedBotanicalRecord[];
       if (query.length >= 2) {
-        this.results.set(await this.libraryService.search(query, f));
+        newResults = await this.libraryService.search(query, f);
       } else {
-        this.results.set(await this.libraryService.browse(f));
+        newResults = await this.libraryService.browse(f);
       }
+      this.results.set(newResults);
+
+      const toEnrich = newResults.filter((r) => !r.is_ai_enriched).map((r) => r.scientific_name);
+      this._startEnrichmentPoll(toEnrich);
     } finally {
       this.isLoading.set(false);
     }

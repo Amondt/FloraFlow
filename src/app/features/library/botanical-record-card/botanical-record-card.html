@@ -22,7 +22,7 @@
       {{ record().common_name }}
     </p>
   }
-  <div class="flex flex-wrap gap-1.5 mt-auto">
+  <div class="flex flex-wrap gap-1.5 mt-auto" [attr.aria-busy]="isEnriching()">
     @if (record().is_toxic_to_pets === true) {
       <p-tag value="Toxic" severity="danger" icon="pi pi-exclamation-triangle" [pt]="FloraTagPT" />
     } @else if (record().is_toxic_to_pets === false) {
@@ -78,6 +78,20 @@
         </svg>
         <span>{{ record().cycle }}</span>
       </p-tag>
+    }
+    @if (isEnriching() && !wateringLabel() && !sunlightLabels().length && !record().cycle) {
+      <span
+        class="h-5 w-14 rounded-full bg-neutral-200 dark:bg-neutral-700 animate-[flora-skeleton_1.5s_ease-in-out_infinite]"
+        aria-hidden="true"
+      ></span>
+      <span
+        class="h-5 w-10 rounded-full bg-neutral-200 dark:bg-neutral-700 animate-[flora-skeleton_1.5s_ease-in-out_infinite] [animation-delay:200ms]"
+        aria-hidden="true"
+      ></span>
+      <span
+        class="h-5 w-16 rounded-full bg-neutral-200 dark:bg-neutral-700 animate-[flora-skeleton_1.5s_ease-in-out_infinite] [animation-delay:400ms]"
+        aria-hidden="true"
+      ></span>
     }
   </div>
 </article>

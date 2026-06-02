@@ -418,13 +418,28 @@
               </div>
             }
             <p
-              class="text-xs text-neutral-400 font-display mb-3 transition-opacity duration-200"
+              class="text-xs text-neutral-400 font-display mb-2 transition-opacity duration-200"
               [class.opacity-0]="isReloading()"
               aria-live="polite"
               aria-atomic="true"
             >
               {{ results().length }} species found
             </p>
+            @if (enrichingCount() > 0) {
+              <div
+                class="mb-3 flex items-center gap-2 text-xs text-primary-600 dark:text-primary-400 font-display"
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+              >
+                <span
+                  class="w-3 h-3 border border-primary-500 border-t-transparent rounded-full animate-spin shrink-0"
+                  aria-hidden="true"
+                ></span>
+                AI is enriching care data for {{ enrichingCount() }}
+                {{ enrichingCount() === 1 ? 'species' : 'species' }}…
+              </div>
+            }
             <ul
               class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 transition-opacity duration-200"
               [class.opacity-40]="isReloading()"
@@ -435,6 +450,7 @@
                   <app-botanical-record-card
                     [record]="record"
                     [selected]="selectedRecord() === record"
+                    [isEnriching]="enrichingNames().has(record.scientific_name)"
                     (cardSelect)="selectedRecord.set(record)"
                   />
                 </li>

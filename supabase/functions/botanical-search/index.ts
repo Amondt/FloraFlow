@@ -3,6 +3,17 @@ import type { Database } from '../_shared/database.types.ts';
 
 declare const EdgeRuntime: { waitUntil: (promise: Promise<unknown>) => void };
 
+async function runBatched(
+  fns: Array<() => Promise<unknown>>,
+  batchSize: number,
+  delayMs = 1200,
+): Promise<void> {
+  for (let i = 0; i < fns.length; i += batchSize) {
+    await Promise.allSettled(fns.slice(i, i + batchSize).map((fn) => fn()));
+    if (i + batchSize < fns.length) await new Promise((r) => setTimeout(r, delayMs));
+  }
+}
+
 const cors = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -66,21 +77,22 @@ Deno.serve(async (req: Request) => {
     if (needsAiEnrichment.length > 0) {
       const enrichmentUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/claude-enrichment`;
       const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-      const backfillCalls = needsAiEnrichment.map((record) =>
-        fetch(enrichmentUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${serviceRoleKey}`,
-          },
-          body: JSON.stringify({
-            scientificName: record.scientific_name,
-            commonName: record.common_name,
+      const backfillFns = needsAiEnrichment.map(
+        (record) => () =>
+          fetch(enrichmentUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${serviceRoleKey}`,
+            },
+            body: JSON.stringify({
+              scientificName: record.scientific_name,
+              commonName: record.common_name,
+            }),
           }),
-        }),
       );
       try {
-        EdgeRuntime.waitUntil(Promise.allSettled(backfillCalls));
+        EdgeRuntime.waitUntil(runBatched(backfillFns, 2, 1200));
       } catch (waitErr) {
         console.error('EdgeRuntime.waitUntil unavailable — backfill enrichment dropped:', waitErr);
       }
@@ -185,22 +197,23 @@ Deno.serve(async (req: Request) => {
         const enrichmentUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/claude-enrichment`;
         const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
-        const enrichmentCalls = fresh.map((record) =>
-          fetch(enrichmentUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${serviceRoleKey}`,
-            },
-            body: JSON.stringify({
-              scientificName: record.scientific_name,
-              commonName: record.common_name,
+        const enrichmentFns = fresh.map(
+          (record) => () =>
+            fetch(enrichmentUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${serviceRoleKey}`,
+              },
+              body: JSON.stringify({
+                scientificName: record.scientific_name,
+                commonName: record.common_name,
+              }),
             }),
-          }),
         );
 
         try {
-          EdgeRuntime.waitUntil(Promise.allSettled(enrichmentCalls));
+          EdgeRuntime.waitUntil(runBatched(enrichmentFns, 2, 1200));
         } catch (waitErr) {
           console.error('EdgeRuntime.waitUntil unavailable — enrichment calls dropped:', waitErr);
         }

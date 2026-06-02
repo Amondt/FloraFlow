@@ -25,7 +25,8 @@ CRITICAL ACCURACY RULES:
 3. Never invent numbers. A null is always more accurate than a fabricated value.
 4. watering must be exactly one of: 'Frequent', 'Average', 'Minimum', 'None'. Return null if the species' watering needs are ambiguous or unknown.
 5. sunlight must be an array using only these exact values: 'full_sun', 'part_shade', 'full_shade', 'filtered_indirect'. Return null if the species' light requirements are unknown.
-6. cycle must be exactly one of: 'Perennial', 'Annual', 'Biennial', 'Biannual'. Return null if the species lifecycle is unclear.`;
+6. cycle must be exactly one of: 'Perennial', 'Annual', 'Biennial', 'Biannual'. Return null if the species lifecycle is unclear.
+7. propagation_methods must only contain values from this exact list: 'Stem Cuttings', 'Leaf Cuttings', 'Division', 'Seeds', 'Air Layering', 'Offset Separation'. Return an empty array [] if none of those methods apply or if the species' propagation methods are unknown. Never invent a variant.`;
 
 const EnrichmentSchema = z.object({
   scientific_name: z.string(),
@@ -34,16 +35,18 @@ const EnrichmentSchema = z.object({
   ideal_max_ph: z.number(),
   is_toxic_to_pets: z.boolean(),
   toxicity_notes: z.string().nullable(),
-  propagation_methods: z.array(
-    z.enum([
-      'Stem Cuttings',
-      'Leaf Cuttings',
-      'Division',
-      'Seeds',
-      'Air Layering',
-      'Offset Separation',
-    ]),
-  ),
+  propagation_methods: z
+    .array(
+      z.enum([
+        'Stem Cuttings',
+        'Leaf Cuttings',
+        'Division',
+        'Seeds',
+        'Air Layering',
+        'Offset Separation',
+      ]),
+    )
+    .catch([]),
   check_depth_description: z.string().nullable(),
   ideal_humidity_min: z.number().nullable(),
   ideal_humidity_max: z.number().nullable(),

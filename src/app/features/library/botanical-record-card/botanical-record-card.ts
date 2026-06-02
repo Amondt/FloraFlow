@@ -13,6 +13,7 @@ import { FloraTagPT } from '../../../shared/ui/pt/index';
 export class BotanicalRecordCardComponent {
   readonly record = input.required<CachedBotanicalRecord>();
   readonly selected = input<boolean>(false);
+  readonly isEnriching = input<boolean>(false);
   readonly cardSelect = output<void>();
 
   protected readonly FloraTagPT = FloraTagPT;

@@ -35,8 +35,10 @@ import {
   PlantFormData,
   ContainerVector,
   SubstrateFactor,
+  GrowthStage,
   CONTAINER_VECTOR_OPTIONS,
   SUBSTRATE_FACTOR_OPTIONS,
+  GROWTH_STAGE_OPTIONS,
 } from '../plant.model';
 
 @Component({
@@ -77,12 +79,14 @@ export class PlantFormDialogComponent {
 
   protected readonly CONTAINER_VECTOR_OPTIONS = CONTAINER_VECTOR_OPTIONS;
   protected readonly SUBSTRATE_FACTOR_OPTIONS = SUBSTRATE_FACTOR_OPTIONS;
+  protected readonly GROWTH_STAGE_OPTIONS = GROWTH_STAGE_OPTIONS;
 
   protected readonly commonNameId = `flora-plant-name-${crypto.randomUUID().slice(0, 8)}`;
   protected readonly scientificId = `flora-plant-sci-${crypto.randomUUID().slice(0, 8)}`;
   protected readonly zoneSelectId = `flora-plant-zone-${crypto.randomUUID().slice(0, 8)}`;
   protected readonly containerId = `flora-plant-ct-${crypto.randomUUID().slice(0, 8)}`;
   protected readonly substrateId = `flora-plant-sf-${crypto.randomUUID().slice(0, 8)}`;
+  protected readonly growthStageId = `flora-plant-gs-${crypto.randomUUID().slice(0, 8)}`;
 
   protected suggestions = signal<BotanicalSuggestion[]>([]);
   protected selectedPerenualId = signal<number | null>(null);
@@ -95,6 +99,7 @@ export class PlantFormDialogComponent {
     zone_id: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     container_vector: new FormControl<ContainerVector>('Plastic', { nonNullable: true }),
     substrate_factor: new FormControl<SubstrateFactor>('Standard Potting', { nonNullable: true }),
+    growth_stage: new FormControl<GrowthStage>('Mature', { nonNullable: true }),
   });
 
   readonly dialogTitle = computed(() => (this.plant() ? 'Edit Plant' : 'Add Plant'));
@@ -113,6 +118,7 @@ export class PlantFormDialogComponent {
   private readonly _zoneSelect = viewChild<Select>('zoneSelect');
   private readonly _containerSelect = viewChild<Select>('containerSelect');
   private readonly _substrateSelect = viewChild<Select>('substrateSelect');
+  private readonly _growthStageSelect = viewChild<Select>('growthStageSelect');
 
   private _prevVisible = false;
 
@@ -140,6 +146,7 @@ export class PlantFormDialogComponent {
           zone_id: p.zone_id,
           container_vector: p.container_vector,
           substrate_factor: p.substrate_factor,
+          growth_stage: p.growth_stage,
         });
       } else {
         this.form.reset({
@@ -148,6 +155,7 @@ export class PlantFormDialogComponent {
           zone_id: defaultZoneId ?? this.zoneService.zones()[0]?.id ?? '',
           container_vector: 'Plastic',
           substrate_factor: 'Standard Potting',
+          growth_stage: 'Mature',
         });
 
         const prefill = this.botanicalPrefill();
@@ -178,6 +186,7 @@ export class PlantFormDialogComponent {
     this._zoneSelect()?.hide();
     this._containerSelect()?.hide();
     this._substrateSelect()?.hide();
+    this._growthStageSelect()?.hide();
   }
 
   async onQuerySearch(event: AutoCompleteCompleteEvent): Promise<void> {
@@ -230,6 +239,7 @@ export class PlantFormDialogComponent {
       zone_id: this.form.controls.zone_id.value,
       container_vector: this.form.controls.container_vector.value,
       substrate_factor: this.form.controls.substrate_factor.value,
+      growth_stage: this.form.controls.growth_stage.value,
     };
 
     this.saved.emit(data);

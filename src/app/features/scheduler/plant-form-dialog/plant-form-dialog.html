@@ -205,6 +205,31 @@
         appendTo="body"
       />
     </div>
+
+    <div class="flex flex-col gap-1.5">
+      <span
+        [id]="growthStageId + '-label'"
+        class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+      >
+        Growth stage
+      </span>
+      <p-select
+        #growthStageSelect
+        [inputId]="growthStageId"
+        [ariaLabelledBy]="growthStageId + '-label'"
+        formControlName="growth_stage"
+        [options]="GROWTH_STAGE_OPTIONS"
+        [pt]="FloraSelectPT"
+        appendTo="body"
+      />
+      <small
+        [id]="growthStageId + '-hint'"
+        class="text-neutral-400 text-xs font-display"
+        role="note"
+      >
+        Seedling checks more often; Dormant less often.
+      </small>
+    </div>
   </form>
 
   <ng-template #footer>

@@ -9,8 +9,7 @@
 --
 -- GREATEST(1, ...) guarantees a minimum of 1 day regardless of rounding.
 -- Signature (p_plant_id UUID, p_snooze_days INT) is unchanged — no DROP needed.
-CREATE OR REPLACE FUNCTION public.snooze_plant_check(p_plant_id UUID, p_snooze_days INT)
-RETURNS VOID LANGUAGE plpgsql SECURITY DEFINER AS $$
+CREATE OR REPLACE FUNCTION public.snooze_plant_check (p_plant_id UUID, p_snooze_days INT) RETURNS VOID LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE
   v_stage          public.growth_stage_type;
   v_multiplier     NUMERIC;

@@ -47,7 +47,7 @@ Adds `growth_stage` to `plants`, updates the `snooze_plant_check` RPC to apply a
     bun run lint
     ```
 
-- [ ] **Block D — Plant form dialog: growth stage select** | Agent: `/visualizer`
+- [x] **Block D — Plant form dialog: growth stage select** | Agent: `/visualizer`
   - `plant-form-dialog.ts`:
     - Import `GrowthStage`, `GROWTH_STAGE_OPTIONS` from `../plant.model`.
     - Add `readonly growthStageId = \`flora-plant-gs-${crypto.randomUUID().slice(0, 8)}\`;`

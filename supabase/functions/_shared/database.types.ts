@@ -289,6 +289,7 @@ export type Database = {
           updated_at: string;
           user_id: string;
           window_orientation: Database['public']['Enums']['window_orientation_type'];
+          zone_type: string;
         };
         Insert: {
           created_at?: string;
@@ -301,6 +302,7 @@ export type Database = {
           updated_at?: string;
           user_id: string;
           window_orientation?: Database['public']['Enums']['window_orientation_type'];
+          zone_type?: string;
         };
         Update: {
           created_at?: string;
@@ -313,6 +315,7 @@ export type Database = {
           updated_at?: string;
           user_id?: string;
           window_orientation?: Database['public']['Enums']['window_orientation_type'];
+          zone_type?: string;
         };
         Relationships: [
           {

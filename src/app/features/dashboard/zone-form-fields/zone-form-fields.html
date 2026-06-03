@@ -1,5 +1,39 @@
-<!-- ng-container provides the ControlContainer so formControlName works within this view -->
 <ng-container [formGroup]="form()">
+  <!-- Zone type selector -->
+  <fieldset class="border-none p-0 m-0">
+    <legend class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display mb-2">
+      Where is this zone?
+    </legend>
+    <div class="grid grid-cols-2 gap-3">
+      <button
+        type="button"
+        [class]="zoneTypeBtnClass('indoor')"
+        [attr.aria-pressed]="zoneType() === 'indoor'"
+        aria-label="Indoor zone — living room, bedroom or similar"
+        (click)="selectZoneType('indoor')"
+      >
+        <i class="ri-home-line text-lg" aria-hidden="true"></i>
+        <span>Indoor</span>
+        <span class="text-xs font-normal text-neutral-400 dark:text-neutral-500">
+          Living room, bedroom…
+        </span>
+      </button>
+      <button
+        type="button"
+        [class]="zoneTypeBtnClass('outdoor')"
+        [attr.aria-pressed]="zoneType() === 'outdoor'"
+        aria-label="Outdoor zone — balcony, garden or similar"
+        (click)="selectZoneType('outdoor')"
+      >
+        <i class="ri-sun-line text-lg" aria-hidden="true"></i>
+        <span>Outdoor</span>
+        <span class="text-xs font-normal text-neutral-400 dark:text-neutral-500">
+          Balcony, garden…
+        </span>
+      </button>
+    </div>
+  </fieldset>
+
   <!-- Zone name -->
   <div class="flex flex-col gap-1.5">
     <label
@@ -29,13 +63,13 @@
     }
   </div>
 
-  <!-- Window orientation -->
+  <!-- Window orientation / Facing direction -->
   <div class="flex flex-col gap-1.5">
     <span
       [id]="orientationId + '-label'"
       class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
     >
-      Window orientation
+      {{ zoneType() === 'outdoor' ? 'Facing direction' : 'Window orientation' }}
     </span>
     <p-select
       #orientationSelect
@@ -49,55 +83,78 @@
     />
   </div>
 
-  <!-- Humidity baseline -->
-  <div class="flex flex-col gap-1.5">
-    <label
-      [for]="humidityId"
-      class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
-    >
-      Humidity baseline
-      <span class="text-neutral-400 font-normal text-xs ml-1">(0 – 100 %)</span>
-    </label>
-    <p-inputnumber
-      [inputId]="humidityId"
-      formControlName="humidity_baseline"
-      [min]="0"
-      [max]="100"
-      [showButtons]="true"
-      [pt]="FloraInputNumberPT"
-      [attr.aria-describedby]="
-        humidityCtrl().invalid && humidityCtrl().touched ? humidityId + '-error' : null
-      "
-      [attr.aria-invalid]="humidityCtrl().invalid && humidityCtrl().touched"
-    />
-    @if (humidityCtrl().invalid && humidityCtrl().touched) {
-      <small [id]="humidityId + '-error'" class="text-danger-500 text-xs font-display" role="alert">
-        Humidity must be between 0 and 100.
+  @if (zoneType() === 'indoor') {
+    <!-- Humidity baseline -->
+    <div class="flex flex-col gap-1.5">
+      <label
+        [for]="humidityId"
+        class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+      >
+        Humidity baseline
+        <span class="text-neutral-400 font-normal text-xs ml-1">(0 – 100 %)</span>
+      </label>
+      <p-inputnumber
+        [inputId]="humidityId"
+        formControlName="humidity_baseline"
+        [min]="0"
+        [max]="100"
+        [showButtons]="true"
+        [pt]="FloraInputNumberPT"
+        [attr.aria-describedby]="
+          humidityCtrl().invalid && humidityCtrl().touched
+            ? humidityId + '-error'
+            : humidityId + '-hint'
+        "
+        [attr.aria-invalid]="humidityCtrl().invalid && humidityCtrl().touched"
+      />
+      @if (humidityCtrl().invalid && humidityCtrl().touched) {
+        <small
+          [id]="humidityId + '-error'"
+          class="text-danger-500 text-xs font-display"
+          role="alert"
+        >
+          Humidity must be between 0 and 100.
+        </small>
+      }
+      <small [id]="humidityId + '-hint'" class="text-neutral-400 text-xs font-display" role="note">
+        Typical relative humidity in this space (40–60 % is common indoors)
       </small>
-    }
-  </div>
+    </div>
 
-  <!-- Active ventilation -->
-  <div class="flex items-center justify-between gap-4">
-    <span class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display">
-      Active ventilation
-    </span>
-    <p-toggleswitch
-      formControlName="has_active_ventilation"
-      [pt]="FloraToggleSwitchPT"
-      ariaLabel="Toggle active ventilation"
-    />
-  </div>
+    <!-- Active ventilation -->
+    <div class="flex items-start justify-between gap-4">
+      <div class="flex flex-col gap-1">
+        <span class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display">
+          Active ventilation
+        </span>
+        <small class="text-neutral-400 text-xs font-display" role="note">
+          e.g. a fan or extractor keeping air moving
+        </small>
+      </div>
+      <p-toggleswitch
+        formControlName="has_active_ventilation"
+        [pt]="FloraToggleSwitchPT"
+        ariaLabel="Toggle active ventilation"
+        class="flex-shrink-0"
+      />
+    </div>
 
-  <!-- Supplemental grow lights -->
-  <div class="flex items-center justify-between gap-4">
-    <span class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display">
-      Supplemental grow lights
-    </span>
-    <p-toggleswitch
-      formControlName="has_grow_lights"
-      [pt]="FloraToggleSwitchPT"
-      ariaLabel="Toggle supplemental grow lights"
-    />
-  </div>
+    <!-- Supplemental grow lights -->
+    <div class="flex items-start justify-between gap-4">
+      <div class="flex flex-col gap-1">
+        <span class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display">
+          Supplemental grow lights
+        </span>
+        <small class="text-neutral-400 text-xs font-display" role="note">
+          LED or fluorescent lights supplementing natural light
+        </small>
+      </div>
+      <p-toggleswitch
+        formControlName="has_grow_lights"
+        [pt]="FloraToggleSwitchPT"
+        ariaLabel="Toggle supplemental grow lights"
+        class="flex-shrink-0"
+      />
+    </div>
+  }
 </ng-container>

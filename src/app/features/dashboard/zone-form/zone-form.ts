@@ -50,6 +50,7 @@ export class ZoneFormComponent {
       this.form.patchValue({
         name: zone.name,
         icon: zone.icon,
+        zone_type: zone.zone_type,
         window_orientation: zone.window_orientation,
         has_active_ventilation: zone.has_active_ventilation,
         has_grow_lights: zone.has_grow_lights,
@@ -59,6 +60,7 @@ export class ZoneFormComponent {
       this.form.reset({
         name: '',
         icon: 'ri-plant-line',
+        zone_type: 'indoor',
         window_orientation: 'None',
         has_active_ventilation: false,
         has_grow_lights: false,

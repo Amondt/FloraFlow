@@ -11,7 +11,7 @@
 BEGIN;
 
 SELECT
-  plan (26);
+  plan (27);
 
 -- ── SETUP ─────────────────────────────────────────────────────────────────
 -- Disable FK triggers so we can insert profiles without auth.users rows.
@@ -759,6 +759,31 @@ SELECT
     ),
     FALSE,
     'has_completed_onboarding defaults to false on new profiles rows'
+  );
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- zones.zone_type column default
+-- ═══════════════════════════════════════════════════════════════════════════
+-- ── TEST 27: zone_type defaults to 'indoor' ──────────────────────────────────
+-- Alice's zone was inserted in setup without specifying zone_type.
+-- The DEFAULT 'indoor' constraint must apply.
+RESET ROLE;
+
+SELECT
+  set_config('request.jwt.claims', '{}', TRUE);
+
+SELECT
+  IS (
+    (
+      SELECT
+        zone_type
+      FROM
+        public.zones
+      WHERE
+        id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+    ),
+    'indoor',
+    'zone_type defaults to ''indoor'' on new zones rows'
   );
 
 SELECT

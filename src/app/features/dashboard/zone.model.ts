@@ -1,5 +1,7 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
+export type ZoneType = 'indoor' | 'outdoor';
+
 export type WindowOrientation =
   | 'North'
   | 'South'
@@ -31,6 +33,7 @@ export function createZoneFormGroup() {
       validators: [Validators.required, Validators.maxLength(80)],
     }),
     icon: new FormControl('ri-plant-line', { nonNullable: true }),
+    zone_type: new FormControl<ZoneType>('indoor', { nonNullable: true }),
     window_orientation: new FormControl<WindowOrientation>('None', { nonNullable: true }),
     has_active_ventilation: new FormControl(false, { nonNullable: true }),
     has_grow_lights: new FormControl(false, { nonNullable: true }),
@@ -49,6 +52,7 @@ export interface Zone {
   user_id: string;
   name: string;
   icon: string;
+  zone_type: ZoneType;
   window_orientation: WindowOrientation;
   has_active_ventilation: boolean;
   has_grow_lights: boolean;
@@ -60,6 +64,7 @@ export interface Zone {
 export interface ZoneFormData {
   name: string;
   icon: string;
+  zone_type: ZoneType;
   window_orientation: WindowOrientation;
   has_active_ventilation: boolean;
   has_grow_lights: boolean;

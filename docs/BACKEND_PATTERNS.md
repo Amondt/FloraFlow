@@ -15,6 +15,34 @@ Remove all `[debug]` lines before the block is marked done.
 
 ---
 
+## Local Development Commands
+
+These commands target the local Docker instance started with `bunx supabase start`. None of them require a remote project ref.
+
+```powershell
+# Apply pending migrations to the local DB
+bunx supabase migration up
+
+# Regenerate TypeScript types from the local schema
+bun run types
+
+# Copy types into the Edge Function shared folder (run after bun run types)
+Copy-Item src/types/database.types.ts supabase/functions/_shared/database.types.ts
+
+# Reset local DB (use the safe wrapper — preserves botanical seed data)
+bun run db-reset-safe
+
+# Run pgTAP RLS tests
+bunx supabase db test
+
+# Serve an Edge Function locally
+bunx supabase functions serve --no-verify-jwt --env-file supabase/functions/.env
+```
+
+> **Never use `bunx supabase db push`** — that command targets a remote hosted project and requires `--project-ref`. It will fail with "cannot find project ref" in a local-only dev setup.
+
+---
+
 ## Supabase Type Generation (run once per schema change)
 
 ```powershell

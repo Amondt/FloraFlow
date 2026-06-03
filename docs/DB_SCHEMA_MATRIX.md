@@ -38,6 +38,7 @@ Represents localized environmental habitats (e.g., Living Room, South Balcony).
         user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
         name TEXT NOT NULL,
         icon TEXT DEFAULT 'ri-plant-line',
+        zone_type TEXT NOT NULL DEFAULT 'indoor' CHECK (zone_type IN ('indoor', 'outdoor')),
         window_orientation window_orientation_type DEFAULT 'None'::window_orientation_type NOT NULL,
         has_active_ventilation BOOLEAN DEFAULT FALSE NOT NULL,
         has_grow_lights BOOLEAN DEFAULT FALSE NOT NULL,

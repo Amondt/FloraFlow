@@ -15,6 +15,7 @@ export interface QueuedAction {
   substrate_factor?: string;
   zone_name?: string;
   zone_icon?: string;
+  zone_type?: string;
   zone_window_orientation?: string;
   zone_has_active_ventilation?: boolean;
   zone_has_grow_lights?: boolean;

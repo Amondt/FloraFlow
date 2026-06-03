@@ -36,6 +36,7 @@ import { PlantFormDialogComponent } from '../scheduler/plant-form-dialog/plant-f
 import { PlantService } from '../scheduler/plant.service';
 import { PlantFormData } from '../scheduler/plant.model';
 import { plantAddedDetail } from '../../shared/utils/plant-message.util';
+import { EnrichmentPoll } from '../../shared/utils/enrichment-poll';
 
 const TOXICITY_OPTIONS = [
   { label: 'Pet-safe', value: false as boolean },
@@ -105,14 +106,12 @@ export class LibraryComponent {
   readonly isReloading = computed(() => this.isLoading() && this.results().length > 0);
 
   readonly headerVisible = signal(true);
-  readonly enrichingNames = signal<ReadonlySet<string>>(new Set());
-  readonly enrichingCount = computed(() => this.enrichingNames().size);
+
+  private readonly _poll = new EnrichmentPoll();
+  readonly enrichingNames = this._poll.enrichingNames;
+  readonly enrichingCount = this._poll.enrichingCount;
 
   private _debounceTimer: ReturnType<typeof setTimeout> | null = null;
-  private _pollTimer: ReturnType<typeof setInterval> | null = null;
-  private _pollAttempts = 0;
-  private _enrichmentController: AbortController | null = null;
-  private readonly _MAX_POLL_ATTEMPTS = 15;
   private readonly _destroyRef = inject(DestroyRef);
 
   constructor() {
@@ -121,7 +120,7 @@ export class LibraryComponent {
         clearTimeout(this._debounceTimer);
         this._debounceTimer = null;
       }
-      this._stopEnrichmentPoll();
+      this._poll.stop();
     });
 
     afterNextRender(() => {
@@ -147,7 +146,7 @@ export class LibraryComponent {
       if (!hasCriteria) {
         this.isLoading.set(false);
         this.results.set([]);
-        this._stopEnrichmentPoll();
+        this._poll.stop();
         return;
       }
 
@@ -292,60 +291,8 @@ export class LibraryComponent {
     }
   }
 
-  private _stopEnrichmentPoll(): void {
-    if (this._pollTimer !== null) {
-      clearInterval(this._pollTimer);
-      this._pollTimer = null;
-    }
-    this._pollAttempts = 0;
-    this.enrichingNames.set(new Set());
-    this._enrichmentController?.abort();
-    this._enrichmentController = null;
-  }
-
-  private _startEnrichmentPoll(names: string[]): void {
-    this._stopEnrichmentPoll();
-    if (names.length === 0) return;
-
-    this.enrichingNames.set(new Set(names));
-
-    this._pollTimer = setInterval(() => {
-      this._pollAttempts++;
-      if (this._pollAttempts >= this._MAX_POLL_ATTEMPTS) {
-        this._stopEnrichmentPoll();
-        return;
-      }
-      void this._pollEnrichment();
-    }, 6000);
-  }
-
-  private async _pollEnrichment(): Promise<void> {
-    const pending = [...this.enrichingNames()];
-    if (pending.length === 0) {
-      this._stopEnrichmentPoll();
-      return;
-    }
-
-    const refreshed = await this.libraryService.refetchByScientificNames(pending);
-    if (refreshed.length === 0) return;
-    if (this.enrichingNames().size === 0) return;
-
-    const refreshedMap = new Map(refreshed.map((r) => [r.scientific_name, r]));
-
-    this.results.update((current) => current.map((r) => refreshedMap.get(r.scientific_name) ?? r));
-
-    const stillPending = new Set(
-      refreshed.filter((r) => !r.is_ai_enriched).map((r) => r.scientific_name),
-    );
-    this.enrichingNames.set(stillPending);
-
-    if (stillPending.size === 0) {
-      this._stopEnrichmentPoll();
-    }
-  }
-
   private async _load(query: string, f: LibraryFilters): Promise<void> {
-    this._stopEnrichmentPoll();
+    this._poll.stop();
     this.isLoading.set(true);
     try {
       let newResults: CachedBotanicalRecord[];
@@ -357,9 +304,19 @@ export class LibraryComponent {
       this.results.set(newResults);
 
       const unenriched = newResults.filter((r) => !r.is_ai_enriched);
-      this._startEnrichmentPoll(unenriched.map((r) => r.scientific_name));
-      this._enrichmentController = new AbortController();
-      void this.libraryService.triggerEnrichment(unenriched, this._enrichmentController.signal);
+      this._poll.start(
+        unenriched.map((r) => r.scientific_name),
+        async (pending) => {
+          const refreshed = await this.libraryService.refetchByScientificNames(pending);
+          if (refreshed.length === 0) return new Set(pending);
+          const refreshedMap = new Map(refreshed.map((r) => [r.scientific_name, r]));
+          this.results.update((current) =>
+            current.map((r) => refreshedMap.get(r.scientific_name) ?? r),
+          );
+          return new Set(refreshed.filter((r) => !r.is_ai_enriched).map((r) => r.scientific_name));
+        },
+      );
+      void this.libraryService.triggerEnrichment(unenriched, this._poll.controller?.signal);
     } finally {
       this.isLoading.set(false);
     }

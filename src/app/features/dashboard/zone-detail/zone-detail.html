@@ -267,6 +267,20 @@
           </div>
         } @else {
           <!-- Plant cards -->
+          @if (enrichingCount() > 0) {
+            <div
+              class="mb-3 flex items-center gap-2 text-xs text-primary-600 dark:text-primary-400 font-display"
+              role="status"
+              aria-live="polite"
+            >
+              <span
+                class="w-3 h-3 border border-primary-500 border-t-transparent rounded-full animate-spin shrink-0"
+                aria-hidden="true"
+              ></span>
+              AI is enriching care data for {{ enrichingCount() }}
+              {{ enrichingCount() === 1 ? 'species' : 'species' }}…
+            </div>
+          }
           <ul class="flex flex-col gap-3" aria-label="Plants in this zone">
             @for (ep of enrichedPlants(); track ep.plant.id) {
               <li>
@@ -390,28 +404,30 @@
                         Edit
                       </button>
                       @if (
-                        ep.plant.scientific_name && botanicalRecordFor(ep.plant.scientific_name)
+                        ep.plant.scientific_name && enrichedRecordFor(ep.plant.scientific_name)
                       ) {
                         <button
                           type="button"
-                          class="text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-                          [attr.aria-label]="
-                            (expandedPlantId() === ep.plant.id
-                              ? 'Hide care tips for '
-                              : 'Show care tips for ') + ep.plant.common_name
-                          "
+                          class="inline-flex items-center gap-1 text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                          [attr.aria-label]="'Care tips for ' + ep.plant.common_name"
+                          [attr.aria-expanded]="expandedPlantId() === ep.plant.id"
                           (click)="toggleCarePanel(ep.plant.id)"
                         >
-                          {{ expandedPlantId() === ep.plant.id ? 'Hide tips' : 'Care tips' }}
+                          Care tips
+                          <i
+                            class="pi pi-chevron-down text-[10px] transition-transform duration-150"
+                            [class.rotate-180]="expandedPlantId() === ep.plant.id"
+                            aria-hidden="true"
+                          ></i>
                         </button>
                       }
                       <button
                         type="button"
-                        class="inline-flex items-center gap-1.5 text-xs font-medium font-display text-neutral-600 dark:text-neutral-300 hover:text-primary-600 dark:hover:text-primary-400 border border-neutral-200 dark:border-neutral-600 hover:border-primary-300 dark:hover:border-primary-700 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors cursor-pointer px-2.5 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                        class="inline-flex items-center text-xs font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 border border-primary-200 dark:border-primary-800 hover:border-primary-400 dark:hover:border-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors cursor-pointer px-2.5 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                         [attr.aria-label]="'Check soil for ' + ep.plant.common_name"
                         (click)="openSoilCheck(ep.plant)"
                       >
-                        <i class="pi pi-search text-[10px]" aria-hidden="true"></i>
+                        <i class="pi pi-tint text-[10px]" aria-hidden="true"></i>
                         Check soil
                       </button>
                     </div>
@@ -419,13 +435,13 @@
                   @if (
                     expandedPlantId() === ep.plant.id &&
                     ep.plant.scientific_name &&
-                    botanicalRecordFor(ep.plant.scientific_name)
+                    enrichedRecordFor(ep.plant.scientific_name)
                   ) {
                     <div
                       class="border-t border-neutral-100 dark:border-neutral-700 px-4 py-4 relative z-20"
                     >
                       <app-care-recommendations-panel
-                        [record]="botanicalRecordFor(ep.plant.scientific_name!)!"
+                        [record]="enrichedRecordFor(ep.plant.scientific_name!)!"
                         [zoneHumidity]="zone()?.humidity_baseline ?? null"
                       />
                     </div>

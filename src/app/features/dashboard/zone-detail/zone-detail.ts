@@ -1,4 +1,13 @@
-import { Component, DestroyRef, computed, effect, inject, input, signal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+  untracked,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -19,6 +28,7 @@ import { SoilCheckDialogComponent } from '../../scheduler/soil-check-dialog/soil
 import { BotanicalDetailDialogComponent } from '../../../shared/components/botanical-detail-dialog/botanical-detail-dialog';
 import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-icon';
 import { LibraryService, CachedBotanicalRecord } from '../../library/library.service';
+import { EnrichmentPoll } from '../../../shared/utils/enrichment-poll';
 import { CareRecommendationsPanelComponent } from '../../../shared/components/care-recommendations-panel/care-recommendations-panel';
 import { plantAddedDetail } from '../../../shared/utils/plant-message.util';
 import { blurActiveElement } from '../../../shared/utils/dom';
@@ -170,14 +180,22 @@ export class ZoneDetailComponent {
   // ── Care panel state ──────────────────────────────────────────
   readonly botanicalMap = signal<Map<string, CachedBotanicalRecord>>(new Map());
   readonly expandedPlantId = signal<string | null>(null);
-  readonly botanicalRecordFor = (scientificName: string): CachedBotanicalRecord | null =>
-    this.botanicalMap().get(scientificName) ?? null;
+
+  private readonly _poll = new EnrichmentPoll();
+  readonly enrichingNames = this._poll.enrichingNames;
+  readonly enrichingCount = this._poll.enrichingCount;
+
+  readonly enrichedRecordFor = (scientificName: string): CachedBotanicalRecord | null => {
+    const record = this.botanicalMap().get(scientificName);
+    return record?.is_ai_enriched ? record : null;
+  };
 
   constructor() {
     void this.zoneService.loadZones();
     void this.plantService.loadPlants();
     this.destroyRef.onDestroy(() => {
       this._deleteManager.flushAll((id) => this.plantService.deletePlant(id));
+      this._poll.stop();
     });
     effect(() => {
       if (this._rawZonePlants().length > 0) {
@@ -301,7 +319,7 @@ export class ZoneDetailComponent {
           .filter((n): n is string => n !== null),
       ),
     ];
-    const toFetch = names.filter((n) => !this.botanicalMap().has(n));
+    const toFetch = names.filter((n) => !untracked(() => this.botanicalMap()).has(n));
     if (toFetch.length === 0) return;
     const records = await this.libraryService.refetchByScientificNames(toFetch);
     this.botanicalMap.update((map) => {
@@ -311,6 +329,28 @@ export class ZoneDetailComponent {
       }
       return updated;
     });
+    const unenriched = records.filter((r) => !r.is_ai_enriched);
+    if (unenriched.length > 0) {
+      this._poll.start(
+        unenriched.map((r) => r.scientific_name),
+        async (pending) => {
+          const refreshed = await this.libraryService.refetchByScientificNames(pending);
+          if (refreshed.length === 0) return new Set(pending);
+          const newlyEnriched = refreshed.filter((r) => r.is_ai_enriched);
+          if (newlyEnriched.length > 0) {
+            this.botanicalMap.update((map) => {
+              const updated = new Map(map);
+              for (const record of newlyEnriched) {
+                updated.set(record.scientific_name, record);
+              }
+              return updated;
+            });
+          }
+          return new Set(refreshed.filter((r) => !r.is_ai_enriched).map((r) => r.scientific_name));
+        },
+      );
+      void this.libraryService.triggerEnrichment(unenriched, this._poll.controller?.signal);
+    }
   }
 
   // ── Plant actions ─────────────────────────────────────────────

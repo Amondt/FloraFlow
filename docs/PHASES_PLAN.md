@@ -148,7 +148,7 @@
   - Extended schema: also enriches `check_depth_description` (qualitative watering depth text per species), `ideal_humidity_min`, `ideal_humidity_max` (species-specific RH %), `care_difficulty` (Beginner / Intermediate / Advanced).
   - New columns added to `cached_botanical_records`; see `docs/DB_SCHEMA_MATRIX.md §2.4` and `docs/AI_PROMPT_MANIFEST.md §1`.
   - Once live, `check_depth_description` replaces the substrate-based approximation from Phase 2.3.
-- [ ] **3.2 Plant Growth Stage Field** | Agent: `/plumber` → `/visualizer`
+- [x] **3.2 Plant Growth Stage Field** | Agent: `/plumber` → `/visualizer`
   - Migration: `growth_stage_type` ENUM (`'Seedling'`, `'Juvenile'`, `'Mature'`, `'Dormant'`) + `growth_stage` column on `plants` (default `'Mature'`).
   - Modify `snooze_plant_check` RPC to apply a multiplier: Seedling × 0.5, Juvenile × 1.0, Mature × 1.0, Dormant × 2.0.
   - Plant form: add growth stage select field.

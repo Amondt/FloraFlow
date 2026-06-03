@@ -2,7 +2,7 @@ import { Injectable, inject, signal, effect } from '@angular/core';
 import { SupabaseService } from '../../core/services/supabase.service';
 import { NetworkStatusService } from '../../core/services/network-status.service';
 import { OfflineQueueService } from '../../core/services/offline-queue.service';
-import { Plant, PlantFormData, ContainerVector, SubstrateFactor } from './plant.model';
+import { Plant, PlantFormData, ContainerVector, SubstrateFactor, GrowthStage } from './plant.model';
 
 @Injectable({ providedIn: 'root' })
 export class PlantService {
@@ -34,7 +34,7 @@ export class PlantService {
     const { data, error } = await this.supabase.client
       .from('plants')
       .select(
-        'id, common_name, scientific_name, zone_id, next_check_due_at, last_checked_at, current_snooze_interval_days, container_vector, substrate_factor',
+        'id, common_name, scientific_name, zone_id, next_check_due_at, last_checked_at, current_snooze_interval_days, container_vector, substrate_factor, growth_stage',
       )
       .order('next_check_due_at', { ascending: true });
 
@@ -119,7 +119,7 @@ export class PlantService {
     const { data, error } = await this.supabase.client
       .from('plants')
       .select(
-        'id, common_name, scientific_name, zone_id, next_check_due_at, last_checked_at, current_snooze_interval_days, container_vector, substrate_factor',
+        'id, common_name, scientific_name, zone_id, next_check_due_at, last_checked_at, current_snooze_interval_days, container_vector, substrate_factor, growth_stage',
       )
       .eq('id', plantId)
       .single();
@@ -151,6 +151,7 @@ export class PlantService {
         } else if (item.action === 'snooze') {
           const { error } = await this.supabase.client.rpc('snooze_plant_check', {
             p_plant_id: item.plant_id,
+            p_snooze_days: item.snooze_days ?? 5,
           });
           rpcError = error;
         } else if (item.action === 'create') {
@@ -167,6 +168,7 @@ export class PlantService {
               zone_id: item.zone_id!,
               container_vector: item.container_vector as ContainerVector,
               substrate_factor: item.substrate_factor as SubstrateFactor,
+              growth_stage: (item.growth_stage as GrowthStage) ?? 'Mature',
               user_id: user.id,
             });
             rpcError = error;
@@ -203,6 +205,7 @@ export class PlantService {
         perenual_id: null,
         container_vector: data.container_vector,
         substrate_factor: data.substrate_factor,
+        growth_stage: data.growth_stage,
         last_checked_at: null,
         next_check_due_at: nextDue.toISOString(),
         current_snooze_interval_days: 3,
@@ -222,6 +225,7 @@ export class PlantService {
         zone_id: data.zone_id,
         container_vector: data.container_vector,
         substrate_factor: data.substrate_factor,
+        growth_stage: data.growth_stage,
       });
       return optimisticPlant;
     }
@@ -243,7 +247,7 @@ export class PlantService {
       .from('plants')
       .insert({ ...data, user_id: user.id })
       .select(
-        'id, common_name, scientific_name, next_check_due_at, container_vector, substrate_factor, zone_id',
+        'id, common_name, scientific_name, next_check_due_at, container_vector, substrate_factor, growth_stage, zone_id',
       )
       .single();
 

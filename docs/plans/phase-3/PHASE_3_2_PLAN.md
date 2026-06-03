@@ -27,8 +27,9 @@ Adds `growth_stage` to `plants`, updates the `snooze_plant_check` RPC to apply a
   - Verification: set a test plant's `growth_stage = 'Seedling'`, call RPC with `p_snooze_days = 6`, confirm `current_snooze_interval_days = 3` and `next_check_due_at ≈ NOW() + 3 days`.
   - Then: `bunx supabase db test`
 
-- [ ] **Block C — Type regen + Angular model/service** | Agent: `/plumber`
+- [x] **Block C — Type regen + Angular model/service** | Agent: `/plumber`
   - `bun run types` — confirm `database.types.ts` gains `growth_stage` on `plants` Row/Insert/Update and `growth_stage_type` in Enums.
+  - `Copy-Item src/types/database.types.ts supabase/functions/_shared/database.types.ts` — keep Edge Function shared types in sync.
   - `plant.model.ts`:
     - Add `export type GrowthStage = 'Seedling' | 'Juvenile' | 'Mature' | 'Dormant';`
     - Add `export const GROWTH_STAGE_OPTIONS: GrowthStage[] = ['Seedling', 'Juvenile', 'Mature', 'Dormant'];`

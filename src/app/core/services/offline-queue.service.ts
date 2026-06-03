@@ -13,6 +13,7 @@ export interface QueuedAction {
   zone_id?: string;
   container_vector?: string;
   substrate_factor?: string;
+  growth_stage?: string;
   zone_name?: string;
   zone_icon?: string;
   zone_type?: string;

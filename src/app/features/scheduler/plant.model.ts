@@ -30,6 +30,10 @@ export const SUBSTRATE_FACTOR_OPTIONS: SubstrateFactor[] = [
   'Sphagnum Moss Mix',
 ];
 
+export type GrowthStage = 'Seedling' | 'Juvenile' | 'Mature' | 'Dormant';
+
+export const GROWTH_STAGE_OPTIONS: GrowthStage[] = ['Seedling', 'Juvenile', 'Mature', 'Dormant'];
+
 export interface Plant {
   id: string;
   user_id: string;
@@ -39,6 +43,7 @@ export interface Plant {
   perenual_id: number | null;
   container_vector: ContainerVector;
   substrate_factor: SubstrateFactor;
+  growth_stage: GrowthStage;
   last_checked_at: string | null;
   next_check_due_at: string;
   current_snooze_interval_days: number;
@@ -53,4 +58,5 @@ export interface PlantFormData {
   zone_id: string;
   container_vector: ContainerVector;
   substrate_factor: SubstrateFactor;
+  growth_stage: GrowthStage;
 }

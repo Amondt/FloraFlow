@@ -160,6 +160,7 @@ export type Database = {
           container_vector: Database["public"]["Enums"]["container_vector_type"]
           created_at: string
           current_snooze_interval_days: number
+          growth_stage: Database["public"]["Enums"]["growth_stage_type"]
           id: string
           last_checked_at: string | null
           next_check_due_at: string
@@ -175,6 +176,7 @@ export type Database = {
           container_vector?: Database["public"]["Enums"]["container_vector_type"]
           created_at?: string
           current_snooze_interval_days?: number
+          growth_stage?: Database["public"]["Enums"]["growth_stage_type"]
           id?: string
           last_checked_at?: string | null
           next_check_due_at?: string
@@ -190,6 +192,7 @@ export type Database = {
           container_vector?: Database["public"]["Enums"]["container_vector_type"]
           created_at?: string
           current_snooze_interval_days?: number
+          growth_stage?: Database["public"]["Enums"]["growth_stage_type"]
           id?: string
           last_checked_at?: string | null
           next_check_due_at?: string
@@ -364,6 +367,7 @@ export type Database = {
         | "Fabric"
         | "Self-Watering"
         | "Ground"
+      growth_stage_type: "Seedling" | "Juvenile" | "Mature" | "Dormant"
       log_category_type:
         | "Observation"
         | "Watering"
@@ -525,6 +529,7 @@ export const Constants = {
         "Self-Watering",
         "Ground",
       ],
+      growth_stage_type: ["Seedling", "Juvenile", "Mature", "Dormant"],
       log_category_type: [
         "Observation",
         "Watering",

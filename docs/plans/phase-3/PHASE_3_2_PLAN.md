@@ -76,7 +76,7 @@ Adds `growth_stage` to `plants`, updates the `snooze_plant_check` RPC to apply a
     6. Open DevTools Console → zero red errors.
     ```
 
-- [ ] **Block E — Soil check dialog: growth stage context line** | Agent: `/visualizer`
+- [x] **Block E — Soil check dialog: growth stage context line** | Agent: `/visualizer`
   - `soil-check-dialog.html`: in the plant hero section, extend the context `<p>` (zone name + last-checked line) to also show the growth stage.
   - Append `· {{ plant().growth_stage }}` after the zone name segment, matching the existing separator style.
   - No TS changes — `plant()` carries `growth_stage` after Block C.

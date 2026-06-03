@@ -31,7 +31,7 @@
         @if (zoneName()) {
           {{ zoneName() }} ·
         }
-        {{ lastCheckedLabel() }}
+        {{ plant().growth_stage }} · {{ lastCheckedLabel() }}
       </p>
       <a
         [routerLink]="['/journal']"

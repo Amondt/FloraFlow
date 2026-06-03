@@ -1,4 +1,4 @@
-import { Component, DestroyRef, computed, inject, input, signal } from '@angular/core';
+import { Component, DestroyRef, computed, effect, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -19,6 +19,7 @@ import { SoilCheckDialogComponent } from '../../scheduler/soil-check-dialog/soil
 import { BotanicalDetailDialogComponent } from '../../../shared/components/botanical-detail-dialog/botanical-detail-dialog';
 import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-icon';
 import { LibraryService, CachedBotanicalRecord } from '../../library/library.service';
+import { CareRecommendationsPanelComponent } from '../../../shared/components/care-recommendations-panel/care-recommendations-panel';
 import { plantAddedDetail } from '../../../shared/utils/plant-message.util';
 import { blurActiveElement } from '../../../shared/utils/dom';
 
@@ -47,6 +48,7 @@ interface EnrichedPlant {
     SoilCheckDialogComponent,
     BotanicalDetailDialogComponent,
     LeafIconComponent,
+    CareRecommendationsPanelComponent,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './zone-detail.html',
@@ -165,11 +167,22 @@ export class ZoneDetailComponent {
   readonly plantFormVisible = signal(false);
   readonly editingPlant = signal<Plant | null>(null);
 
+  // ── Care panel state ──────────────────────────────────────────
+  readonly botanicalMap = signal<Map<string, CachedBotanicalRecord>>(new Map());
+  readonly expandedPlantId = signal<string | null>(null);
+  readonly botanicalRecordFor = (scientificName: string): CachedBotanicalRecord | null =>
+    this.botanicalMap().get(scientificName) ?? null;
+
   constructor() {
     void this.zoneService.loadZones();
     void this.plantService.loadPlants();
     this.destroyRef.onDestroy(() => {
       this._deleteManager.flushAll((id) => this.plantService.deletePlant(id));
+    });
+    effect(() => {
+      if (this._rawZonePlants().length > 0) {
+        void this._loadBotanicalRecords();
+      }
     });
   }
 
@@ -273,6 +286,31 @@ export class ZoneDetailComponent {
 
   onSpeciesDialogClose(visible: boolean): void {
     if (!visible) this.activeSpeciesRecord.set(null);
+  }
+
+  // ── Care panel actions ────────────────────────────────────────
+  toggleCarePanel(id: string): void {
+    this.expandedPlantId.update((current) => (current === id ? null : id));
+  }
+
+  private async _loadBotanicalRecords(): Promise<void> {
+    const names = [
+      ...new Set(
+        this._rawZonePlants()
+          .map((p) => p.scientific_name)
+          .filter((n): n is string => n !== null),
+      ),
+    ];
+    const toFetch = names.filter((n) => !this.botanicalMap().has(n));
+    if (toFetch.length === 0) return;
+    const records = await this.libraryService.refetchByScientificNames(toFetch);
+    this.botanicalMap.update((map) => {
+      const updated = new Map(map);
+      for (const record of records) {
+        updated.set(record.scientific_name, record);
+      }
+      return updated;
+    });
   }
 
   // ── Plant actions ─────────────────────────────────────────────

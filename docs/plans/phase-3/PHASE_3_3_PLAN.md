@@ -62,7 +62,7 @@ Surfaces AI-enriched botanical fields on plant profile cards and in the soil-che
     4. Open DevTools Console → zero red errors.
     ```
 
-- [ ] **Block C — Zone-detail: botanical batch fetch + care panel integration** | Agent: `/visualizer`
+- [x] **Block C — Zone-detail: botanical batch fetch + care panel integration** | Agent: `/visualizer`
   - `zone-detail.ts`:
     - Add `readonly botanicalMap = signal<Map<string, CachedBotanicalRecord>>(new Map())`.
     - Add private `async _loadBotanicalRecords(): Promise<void>` — collects all unique `scientific_name` values from `_rawZonePlants()`, filters to names not yet in `botanicalMap`, calls `libraryService.refetchByScientificNames(newNames)`, and merges results into `botanicalMap`.

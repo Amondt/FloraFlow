@@ -389,6 +389,22 @@
                       >
                         Edit
                       </button>
+                      @if (
+                        ep.plant.scientific_name && botanicalRecordFor(ep.plant.scientific_name)
+                      ) {
+                        <button
+                          type="button"
+                          class="text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                          [attr.aria-label]="
+                            (expandedPlantId() === ep.plant.id
+                              ? 'Hide care tips for '
+                              : 'Show care tips for ') + ep.plant.common_name
+                          "
+                          (click)="toggleCarePanel(ep.plant.id)"
+                        >
+                          {{ expandedPlantId() === ep.plant.id ? 'Hide tips' : 'Care tips' }}
+                        </button>
+                      }
                       <button
                         type="button"
                         class="inline-flex items-center gap-1.5 text-xs font-medium font-display text-neutral-600 dark:text-neutral-300 hover:text-primary-600 dark:hover:text-primary-400 border border-neutral-200 dark:border-neutral-600 hover:border-primary-300 dark:hover:border-primary-700 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors cursor-pointer px-2.5 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
@@ -400,6 +416,20 @@
                       </button>
                     </div>
                   </footer>
+                  @if (
+                    expandedPlantId() === ep.plant.id &&
+                    ep.plant.scientific_name &&
+                    botanicalRecordFor(ep.plant.scientific_name)
+                  ) {
+                    <div
+                      class="border-t border-neutral-100 dark:border-neutral-700 px-4 py-4 relative z-20"
+                    >
+                      <app-care-recommendations-panel
+                        [record]="botanicalRecordFor(ep.plant.scientific_name!)!"
+                        [zoneHumidity]="zone()?.humidity_baseline ?? null"
+                      />
+                    </div>
+                  }
                 </article>
               </li>
             }

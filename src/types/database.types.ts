@@ -37,8 +37,12 @@ export type Database = {
       cached_botanical_records: {
         Row: {
           cached_at: string
+          care_difficulty: string | null
+          check_depth_description: string | null
           common_name: string
           cycle: string | null
+          ideal_humidity_max: number | null
+          ideal_humidity_min: number | null
           ideal_max_ph: number | null
           ideal_min_ph: number | null
           is_ai_enriched: boolean
@@ -55,8 +59,12 @@ export type Database = {
         }
         Insert: {
           cached_at?: string
+          care_difficulty?: string | null
+          check_depth_description?: string | null
           common_name: string
           cycle?: string | null
+          ideal_humidity_max?: number | null
+          ideal_humidity_min?: number | null
           ideal_max_ph?: number | null
           ideal_min_ph?: number | null
           is_ai_enriched?: boolean
@@ -73,8 +81,12 @@ export type Database = {
         }
         Update: {
           cached_at?: string
+          care_difficulty?: string | null
+          check_depth_description?: string | null
           common_name?: string
           cycle?: string | null
+          ideal_humidity_max?: number | null
+          ideal_humidity_min?: number | null
           ideal_max_ph?: number | null
           ideal_min_ph?: number | null
           is_ai_enriched?: boolean

@@ -89,7 +89,7 @@ Deno.serve(async (req: Request) => {
     try {
       const msg = await anthropic.messages.parse({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 512,
+        max_tokens: 1024,
         system: SYSTEM_PROMPT,
         messages: [{ role: 'user', content: `${scientificName} / ${commonName}` }],
         output_config: { format: zodOutputFormat(EnrichmentSchema) },
@@ -131,6 +131,10 @@ Deno.serve(async (req: Request) => {
           is_toxic_to_pets: parsed.is_toxic_to_pets,
           toxicity_notes: parsed.toxicity_notes,
           propagation_methods: parsed.propagation_methods,
+          check_depth_description: parsed.check_depth_description,
+          ideal_humidity_min: parsed.ideal_humidity_min,
+          ideal_humidity_max: parsed.ideal_humidity_max,
+          care_difficulty: parsed.care_difficulty,
           is_ai_enriched: true,
           ...conditionalFields,
         },

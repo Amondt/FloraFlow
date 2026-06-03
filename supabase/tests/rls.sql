@@ -11,7 +11,7 @@
 BEGIN;
 
 SELECT
-  plan (27);
+  plan (32);
 
 -- ── SETUP ─────────────────────────────────────────────────────────────────
 -- Disable FK triggers so we can insert profiles without auth.users rows.
@@ -784,6 +784,107 @@ SELECT
     ),
     'indoor',
     'zone_type defaults to ''indoor'' on new zones rows'
+  );
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- Phase 3.1 — cached_botanical_records extended enrichment columns
+-- ═══════════════════════════════════════════════════════════════════════════
+-- Confirms all four new columns exist and default to NULL on new rows.
+-- The test row 'Testus planticus pgTAP' was inserted without these fields,
+-- so they must be NULL if the migration ran correctly.
+RESET ROLE;
+
+SELECT
+  set_config ('request.jwt.claims', '{}', TRUE);
+
+-- ── TEST 28: check_depth_description defaults to NULL ───────────────────────
+SELECT
+  IS (
+    (
+      SELECT
+        check_depth_description
+      FROM
+        public.cached_botanical_records
+      WHERE
+        scientific_name = 'Testus planticus pgTAP'
+    ),
+    NULL::text,
+    'check_depth_description is NULL by default on cached_botanical_records rows'
+  );
+
+-- ── TEST 29: ideal_humidity_min defaults to NULL ─────────────────────────────
+SELECT
+  IS (
+    (
+      SELECT
+        ideal_humidity_min
+      FROM
+        public.cached_botanical_records
+      WHERE
+        scientific_name = 'Testus planticus pgTAP'
+    ),
+    NULL::int,
+    'ideal_humidity_min is NULL by default on cached_botanical_records rows'
+  );
+
+-- ── TEST 30: ideal_humidity_max defaults to NULL ─────────────────────────────
+SELECT
+  IS (
+    (
+      SELECT
+        ideal_humidity_max
+      FROM
+        public.cached_botanical_records
+      WHERE
+        scientific_name = 'Testus planticus pgTAP'
+    ),
+    NULL::int,
+    'ideal_humidity_max is NULL by default on cached_botanical_records rows'
+  );
+
+-- ── TEST 31: care_difficulty defaults to NULL ────────────────────────────────
+SELECT
+  IS (
+    (
+      SELECT
+        care_difficulty
+      FROM
+        public.cached_botanical_records
+      WHERE
+        scientific_name = 'Testus planticus pgTAP'
+    ),
+    NULL::text,
+    'care_difficulty is NULL by default on cached_botanical_records rows'
+  );
+
+-- ── TEST 32: care_difficulty CHECK constraint rejects invalid values ─────────
+-- Attempts a superuser INSERT (bypasses RLS) with an invalid enum value.
+-- The column-level CHECK raises a constraint violation — caught by EXCEPTION.
+-- Verifies the row was never written.
+DO $$
+BEGIN
+  INSERT INTO
+    public.cached_botanical_records (scientific_name, common_name, care_difficulty)
+  VALUES
+    ('Testus constrainticus pgTAP', 'Constraint Test', 'Expert');
+EXCEPTION
+  WHEN others THEN
+    NULL;
+END;
+$$;
+
+SELECT
+  IS (
+    (
+      SELECT
+        count(*)::int
+      FROM
+        public.cached_botanical_records
+      WHERE
+        scientific_name = 'Testus constrainticus pgTAP'
+    ),
+    0,
+    'care_difficulty CHECK rejects invalid value — row with ''Expert'' was not inserted'
   );
 
 SELECT

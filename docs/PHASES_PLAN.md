@@ -143,7 +143,7 @@
 
 ### 📋 Phase 3 Tasks
 
-- [ ] **3.1** Claude Data Enrichment (AI Scribe) — Edge Function `claude-enrichment`
+- [x] **3.1** Claude Data Enrichment (AI Scribe) — Edge Function `claude-enrichment`
   - Fills missing Perenual fields: `ideal_min_ph`, `ideal_max_ph`, `is_toxic_to_pets`, `toxicity_notes`, `propagation_methods`.
   - Extended schema: also enriches `check_depth_description` (qualitative watering depth text per species), `ideal_humidity_min`, `ideal_humidity_max` (species-specific RH %), `care_difficulty` (Beginner / Intermediate / Advanced).
   - New columns added to `cached_botanical_records`; see `docs/DB_SCHEMA_MATRIX.md §2.4` and `docs/AI_PROMPT_MANIFEST.md §1`.

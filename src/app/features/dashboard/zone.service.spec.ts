@@ -13,6 +13,7 @@ const flushPromises = () => new Promise<void>((resolve) => setTimeout(resolve, 0
 const FORM_DATA: ZoneFormData = {
   name: 'Living Room',
   icon: '🪴',
+  zone_type: 'indoor',
   window_orientation: 'South',
   has_active_ventilation: false,
   has_grow_lights: true,

@@ -26,6 +26,7 @@ function makePlant(id: string, offsetDays: number): Plant {
     perenual_id: null,
     container_vector: 'Terracotta',
     substrate_factor: 'Standard Potting',
+    growth_stage: 'Mature',
     last_checked_at: null,
     next_check_due_at: localMidnight(offsetDays),
     current_snooze_interval_days: 7,
@@ -110,19 +111,19 @@ describe('SchedulerComponent — plantsGrouped()', () => {
     expect(g.upcoming).toHaveLength(0);
   });
 
-  it('places a plant due in 6 days in soon (last day before startOfDay7)', () => {
-    plantsSignal.set([makePlant('p-6days', 6)]);
-
-    const g = component.plantsGrouped();
-    expect(g.soon.map((p) => p.id)).toContain('p-6days');
-    expect(g.upcoming).toHaveLength(0);
-  });
-
-  it('places a plant due in exactly 7 days in upcoming', () => {
+  it('places a plant due in 7 days in soon (last day of the soon window)', () => {
     plantsSignal.set([makePlant('p-7days', 7)]);
 
     const g = component.plantsGrouped();
-    expect(g.upcoming.map((p) => p.id)).toContain('p-7days');
+    expect(g.soon.map((p) => p.id)).toContain('p-7days');
+    expect(g.upcoming).toHaveLength(0);
+  });
+
+  it('places a plant due in exactly 8 days in upcoming', () => {
+    plantsSignal.set([makePlant('p-8days', 8)]);
+
+    const g = component.plantsGrouped();
+    expect(g.upcoming.map((p) => p.id)).toContain('p-8days');
     expect(g.soon).toHaveLength(0);
   });
 
@@ -161,7 +162,7 @@ describe('SchedulerComponent — plantsGrouped()', () => {
 
   describe('soonCount', () => {
     it('equals the number of plants in the soon bucket', () => {
-      plantsSignal.set([makePlant('s1', 1), makePlant('s2', 3), makePlant('u1', 7)]);
+      plantsSignal.set([makePlant('s1', 1), makePlant('s2', 3), makePlant('u1', 8)]);
 
       expect(component.soonCount()).toBe(2);
     });

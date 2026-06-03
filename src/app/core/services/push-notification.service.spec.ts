@@ -117,9 +117,7 @@ describe('PushNotificationService', () => {
   });
 
   it('exits silently when there is no active session', async () => {
-    supabaseMock = makeSupabaseMock({ session: null });
-    TestBed.overrideProvider(SupabaseService, { useValue: supabaseMock });
-    service = TestBed.inject(PushNotificationService);
+    supabaseMock.getSession.mockResolvedValue(null);
 
     stubSwApis([makeMockRegistration()]);
 
@@ -129,11 +127,14 @@ describe('PushNotificationService', () => {
   });
 
   it('exits silently when the profile already has a push_subscription', async () => {
-    supabaseMock = makeSupabaseMock({
-      pushSubscription: { endpoint: 'https://existing.example.com' },
+    supabaseMock._spies.select.mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        single: vi.fn().mockResolvedValue({
+          data: { push_subscription: { endpoint: 'https://existing.example.com' } },
+          error: null,
+        }),
+      }),
     });
-    TestBed.overrideProvider(SupabaseService, { useValue: supabaseMock });
-    service = TestBed.inject(PushNotificationService);
 
     stubSwApis([makeMockRegistration()]);
     stubNotificationPermission('granted');

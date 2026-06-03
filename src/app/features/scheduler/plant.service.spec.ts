@@ -105,7 +105,10 @@ describe('PlantService — reconciliation loop', () => {
     TestBed.flushEffects();
     await flushPromises();
 
-    expect(mockRpc).toHaveBeenCalledWith('snooze_plant_check', { p_plant_id: 'plant-b' });
+    expect(mockRpc).toHaveBeenCalledWith('snooze_plant_check', {
+      p_plant_id: 'plant-b',
+      p_snooze_days: 5,
+    });
     expect(mockRemove).toHaveBeenCalledWith('snooze-1');
   });
 

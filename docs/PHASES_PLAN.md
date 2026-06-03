@@ -187,6 +187,9 @@
   - User selects genus profile (Epiphytic Aroid, Desert Succulent, Carnivorous Bog, etc.) and inputs pot volume in litres.
   - Pure client-side math outputs volumetric breakdown (e.g. 40% Orchid Bark, 30% Perlite, 30% Coco Coir).
   - Add `pot_diameter_cm INT` (nullable) to `plants` table — pre-fills pot volume when the user opens the wizard from their plant profile.
+  - After computing the breakdown, the wizard estimates the resulting **mix pH range** using documented component midpoints: fir/pine bark 4.0–6.5, sphagnum moss 3.5–4.5, peat 3.5–4.8, coco coir 6.0–6.8, perlite ~7.0 (sources: PT Horticulture, OrchidResourceCenter, KiS Organics). Simplified weighted mean — adequate for practical gardening guidance.
+  - When opened from a plant profile that has `ideal_min_ph`/`ideal_max_ph` in `cached_botanical_records`, the wizard compares the estimated mix pH against the plant's ideal range and surfaces either a "pH compatible" badge or a mismatch warning (e.g. "This mix sits at ~6.5–7.0 — too alkaline for a plant needing pH 4.5–5.5").
+  - A one-line caveat is shown alongside the estimate: "Estimated pH — not a lab measurement." No new DB migration needed — client-side computation only.
 - [ ] **3.9** AI Plant Identifier (Photo-to-Species) | Agent: `/plumber` → `/visualizer`
   - Upload / camera action inside the Add Plant form triggers `claude-plant-id` Edge Function.
   - Claude Sonnet multimodal call; system prompt and JSON schema from `docs/AI_PROMPT_MANIFEST.md §2`.

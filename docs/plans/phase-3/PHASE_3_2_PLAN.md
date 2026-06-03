@@ -6,7 +6,7 @@ Adds `growth_stage` to `plants`, updates the `snooze_plant_check` RPC to apply a
 
 ---
 
-- [ ] **Block A — Migration: growth_stage ENUM + column** | Agent: `/plumber`
+- [x] **Block A — Migration: growth_stage ENUM + column** | Agent: `/plumber`
   - New migration file (timestamp prefix, e.g. `20260604000001_growth_stage.sql`).
   - `CREATE TYPE public.growth_stage_type AS ENUM ('Seedling', 'Juvenile', 'Mature', 'Dormant');`
   - `ALTER TABLE public.plants ADD COLUMN growth_stage growth_stage_type DEFAULT 'Mature'::growth_stage_type NOT NULL;`

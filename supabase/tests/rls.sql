@@ -11,7 +11,7 @@
 BEGIN;
 
 SELECT
-  plan (32);
+  plan (33);
 
 -- ── SETUP ─────────────────────────────────────────────────────────────────
 -- Disable FK triggers so we can insert profiles without auth.users rows.
@@ -885,6 +885,32 @@ SELECT
     ),
     0,
     'care_difficulty CHECK rejects invalid value — row with ''Expert'' was not inserted'
+  );
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- Phase 3.2 — plants.growth_stage column default
+-- ═══════════════════════════════════════════════════════════════════════════
+-- Alice's plant was inserted in setup without specifying growth_stage.
+-- The DEFAULT 'Mature' constraint must apply.
+
+-- ── TEST 33: growth_stage defaults to 'Mature' ──────────────────────────────
+RESET ROLE;
+
+SELECT
+  set_config('request.jwt.claims', '{}', TRUE);
+
+SELECT
+  IS (
+    (
+      SELECT
+        growth_stage::text
+      FROM
+        public.plants
+      WHERE
+        id = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
+    ),
+    'Mature',
+    'growth_stage defaults to ''Mature'' on new plants rows'
   );
 
 SELECT

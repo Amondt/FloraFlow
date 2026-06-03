@@ -31,7 +31,7 @@ Surfaces AI-enriched botanical fields on plant profile cards and in the soil-che
     bun run lint
     ```
 
-- [ ] **Block B — Soil-check-dialog: AI `check_depth_description` override** | Agent: `/visualizer`
+- [x] **Block B — Soil-check-dialog: AI `check_depth_description` override** | Agent: `/visualizer`
   - `soil-check-dialog.ts`:
     - Inject `LibraryService` via `inject()`.
     - Add `private readonly _botanicalRecord = signal<CachedBotanicalRecord | null>(null)`.

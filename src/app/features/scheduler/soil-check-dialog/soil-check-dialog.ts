@@ -1,4 +1,4 @@
-import { Component, computed, input, model, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
@@ -7,6 +7,7 @@ import { Plant, SubstrateFactor } from '../plant.model';
 import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-icon';
 import { blurActiveElement } from '../../../shared/utils/dom';
 import { daysSince } from '../../../shared/utils/date.util';
+import { LibraryService, CachedBotanicalRecord } from '../../library/library.service';
 
 const SUBSTRATE_DEPTH_RULES: Record<SubstrateFactor, { depth: string; description: string }> = {
   'High-Drainage Aroid': {
@@ -37,6 +38,8 @@ type CheckStep = 'ask' | 'dry' | 'moist';
   templateUrl: './soil-check-dialog.html',
 })
 export class SoilCheckDialogComponent {
+  private readonly libraryService = inject(LibraryService);
+
   readonly plant = input.required<Plant>();
   readonly zoneName = input<string | null>(null);
   readonly visible = model<boolean>(false);
@@ -51,11 +54,38 @@ export class SoilCheckDialogComponent {
   readonly note = signal('');
   readonly snoozePresets = [2, 5, 7] as const;
 
-  readonly checkDepth = computed(() => SUBSTRATE_DEPTH_RULES[this.plant().substrate_factor].depth);
+  private readonly _botanicalRecord = signal<CachedBotanicalRecord | null>(null);
 
-  readonly checkDepthDescription = computed(
-    () => SUBSTRATE_DEPTH_RULES[this.plant().substrate_factor].description,
+  constructor() {
+    effect(() => {
+      if (this.visible()) {
+        const name = this.plant().scientific_name;
+        this._botanicalRecord.set(null);
+        if (name) {
+          void this.libraryService
+            .fetchByScientificName(name)
+            .then((r) => this._botanicalRecord.set(r));
+        }
+      }
+    });
+  }
+
+  readonly isAiEnriched = computed(
+    () =>
+      !!(
+        this._botanicalRecord()?.is_ai_enriched && this._botanicalRecord()?.check_depth_description
+      ),
   );
+
+  readonly checkDepth = computed((): string | null => {
+    if (this.isAiEnriched()) return null;
+    return SUBSTRATE_DEPTH_RULES[this.plant().substrate_factor].depth;
+  });
+
+  readonly checkDepthDescription = computed((): string => {
+    if (this.isAiEnriched()) return this._botanicalRecord()!.check_depth_description!;
+    return SUBSTRATE_DEPTH_RULES[this.plant().substrate_factor].description;
+  });
 
   readonly lastCheckedLabel = computed(() => {
     const ts = this.plant().last_checked_at;

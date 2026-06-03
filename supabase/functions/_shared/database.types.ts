@@ -204,6 +204,7 @@ export type Database = {
           avatar_url: string | null;
           created_at: string;
           display_name: string;
+          has_completed_onboarding: boolean;
           id: string;
           push_subscription: Json | null;
           updated_at: string;
@@ -212,6 +213,7 @@ export type Database = {
           avatar_url?: string | null;
           created_at?: string;
           display_name: string;
+          has_completed_onboarding?: boolean;
           id: string;
           push_subscription?: Json | null;
           updated_at?: string;
@@ -220,6 +222,7 @@ export type Database = {
           avatar_url?: string | null;
           created_at?: string;
           display_name?: string;
+          has_completed_onboarding?: boolean;
           id?: string;
           push_subscription?: Json | null;
           updated_at?: string;

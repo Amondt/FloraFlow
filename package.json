@@ -15,6 +15,7 @@
     "dev": "concurrently \"ng serve\" \"tailwindcss -i ./src/styles.input.css -o ./src/styles.css --watch\"",
     "types": "bunx supabase gen types typescript --local > src/types/database.types.ts",
     "export-seed": "bun run supabase/scripts/export-botanical-seed.ts",
+    "export-remote-backup": "bun run supabase/scripts/export-remote-backup.ts",
     "db-reset-safe": "bun run supabase/scripts/db-reset-safe.ts"
   },
   "private": true,

@@ -55,7 +55,7 @@
   - Offscreen HTML5 Canvas pipeline in journal upload component.
   - All uploads resized below **300KB** before hitting the network.
 
-- [ ] **1.10 Onboarding Wizard** | Agent: `/plumber` → `/visualizer`
+- [x] **1.10 Onboarding Wizard** | Agent: `/plumber` → `/visualizer`
   - Migration: `has_completed_onboarding BOOLEAN DEFAULT FALSE NOT NULL` on `profiles`.
   - New `ProfileService` singleton exposes the profile signal and `completeOnboarding()` PATCH.
   - New `onboardingGuard` redirects unauthenticated-onboarding users to `/onboarding`; applied to shell route.

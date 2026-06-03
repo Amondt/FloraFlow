@@ -1,0 +1,103 @@
+<!-- ng-container provides the ControlContainer so formControlName works within this view -->
+<ng-container [formGroup]="form()">
+  <!-- Zone name -->
+  <div class="flex flex-col gap-1.5">
+    <label
+      [for]="nameId"
+      class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+    >
+      Zone name
+      <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
+      <span class="sr-only">(required)</span>
+    </label>
+    <input
+      pInputText
+      [id]="nameId"
+      formControlName="name"
+      [pt]="FloraInputTextPT"
+      [class]="nameCtrl().invalid && nameCtrl().touched ? FLORA_ERROR : ''"
+      [attr.aria-describedby]="nameCtrl().invalid && nameCtrl().touched ? nameId + '-error' : null"
+      [attr.aria-invalid]="nameCtrl().invalid && nameCtrl().touched"
+      aria-required="true"
+      placeholder="e.g. Living Room, South Balcony"
+      autocomplete="off"
+    />
+    @if (nameCtrl().invalid && nameCtrl().touched) {
+      <small [id]="nameId + '-error'" class="text-danger-500 text-xs font-display" role="alert">
+        Zone name is required.
+      </small>
+    }
+  </div>
+
+  <!-- Window orientation -->
+  <div class="flex flex-col gap-1.5">
+    <span
+      [id]="orientationId + '-label'"
+      class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+    >
+      Window orientation
+    </span>
+    <p-select
+      #orientationSelect
+      [inputId]="orientationId"
+      [ariaLabelledBy]="orientationId + '-label'"
+      formControlName="window_orientation"
+      [options]="orientationOptions"
+      [pt]="FloraSelectPT"
+      placeholder="Select orientation"
+      appendTo="body"
+    />
+  </div>
+
+  <!-- Humidity baseline -->
+  <div class="flex flex-col gap-1.5">
+    <label
+      [for]="humidityId"
+      class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+    >
+      Humidity baseline
+      <span class="text-neutral-400 font-normal text-xs ml-1">(0 – 100 %)</span>
+    </label>
+    <p-inputnumber
+      [inputId]="humidityId"
+      formControlName="humidity_baseline"
+      [min]="0"
+      [max]="100"
+      [showButtons]="true"
+      [pt]="FloraInputNumberPT"
+      [attr.aria-describedby]="
+        humidityCtrl().invalid && humidityCtrl().touched ? humidityId + '-error' : null
+      "
+      [attr.aria-invalid]="humidityCtrl().invalid && humidityCtrl().touched"
+    />
+    @if (humidityCtrl().invalid && humidityCtrl().touched) {
+      <small [id]="humidityId + '-error'" class="text-danger-500 text-xs font-display" role="alert">
+        Humidity must be between 0 and 100.
+      </small>
+    }
+  </div>
+
+  <!-- Active ventilation -->
+  <div class="flex items-center justify-between gap-4">
+    <span class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display">
+      Active ventilation
+    </span>
+    <p-toggleswitch
+      formControlName="has_active_ventilation"
+      [pt]="FloraToggleSwitchPT"
+      ariaLabel="Toggle active ventilation"
+    />
+  </div>
+
+  <!-- Supplemental grow lights -->
+  <div class="flex items-center justify-between gap-4">
+    <span class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display">
+      Supplemental grow lights
+    </span>
+    <p-toggleswitch
+      formControlName="has_grow_lights"
+      [pt]="FloraToggleSwitchPT"
+      ariaLabel="Toggle supplemental grow lights"
+    />
+  </div>
+</ng-container>

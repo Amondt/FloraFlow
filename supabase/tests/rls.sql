@@ -11,7 +11,7 @@
 BEGIN;
 
 SELECT
-  plan (25);
+  plan (26);
 
 -- ── SETUP ─────────────────────────────────────────────────────────────────
 -- Disable FK triggers so we can insert profiles without auth.users rows.
@@ -736,6 +736,29 @@ SELECT
     ),
     0,
     'Bob cannot INSERT a journal entry for Alice''s plant — cross-user plant_id blocked'
+  );
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- Phase 1.10 — profiles.has_completed_onboarding column
+-- ═══════════════════════════════════════════════════════════════════════════
+-- ── TEST 26: has_completed_onboarding defaults to FALSE ─────────────────────
+RESET ROLE;
+
+SELECT
+  set_config('request.jwt.claims', '{}', TRUE);
+
+SELECT
+  IS (
+    (
+      SELECT
+        has_completed_onboarding
+      FROM
+        public.profiles
+      WHERE
+        id = '11111111-1111-1111-1111-111111111111'
+    ),
+    FALSE,
+    'has_completed_onboarding defaults to false on new profiles rows'
   );
 
 SELECT

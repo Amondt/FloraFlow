@@ -38,7 +38,7 @@ New users land on an empty dashboard after first login. This phase adds a single
     3. Navigate browser back to `/onboarding` → confirm immediate forward redirect to `/dashboard`
     4. Log out, log back in with the same account → confirm `/dashboard` loads directly (no onboarding)
 
-- [ ] **Block C — Onboarding wizard component** | Agent: `/visualizer`
+- [x] **Block C — Onboarding wizard component** | Agent: `/visualizer`
   - `src/app/features/onboarding/onboarding.ts`
   - Step state: `currentStep = signal<1 | 2 | 3>(1)` — drives `@switch` template
   - **Step 1 — Welcome**: headline, one-line value pitch, "Set up your first zone →" button

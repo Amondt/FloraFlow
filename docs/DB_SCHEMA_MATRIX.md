@@ -22,6 +22,7 @@ Extends the internal Supabase `auth.users` table to manage gardener metadata.
         id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
         display_name TEXT NOT NULL,
         avatar_url TEXT,
+        has_completed_onboarding BOOLEAN DEFAULT FALSE NOT NULL,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
     );

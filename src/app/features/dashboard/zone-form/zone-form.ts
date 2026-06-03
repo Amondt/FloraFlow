@@ -1,34 +1,24 @@
-import { Component, computed, effect, input, model, output, untracked } from '@angular/core';
-import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
-import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { SelectModule } from 'primeng/select';
-import { ToggleSwitchModule } from 'primeng/toggleswitch';
-import { ButtonModule } from 'primeng/button';
 import {
-  FloraDialogPT,
-  FloraInputTextPT,
-  FloraInputNumberPT,
-  FloraSelectPT,
-  FloraToggleSwitchPT,
-  FloraButtonPT,
-  FLORA_ERROR,
-} from '../../../shared/ui/pt/index';
-import { Zone, ZoneFormData, WindowOrientation, WINDOW_ORIENTATION_OPTIONS } from '../zone.model';
+  Component,
+  computed,
+  effect,
+  input,
+  model,
+  output,
+  untracked,
+  viewChild,
+} from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
+import { DialogModule } from 'primeng/dialog';
+import { ButtonModule } from 'primeng/button';
+import { FloraDialogPT, FloraButtonPT } from '../../../shared/ui/pt/index';
+import { createZoneFormGroup, Zone, ZoneFormData } from '../zone.model';
+import { ZoneFormFieldsComponent } from '../zone-form-fields/zone-form-fields';
 
 @Component({
   selector: 'app-zone-form',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    DialogModule,
-    InputTextModule,
-    InputNumberModule,
-    SelectModule,
-    ToggleSwitchModule,
-    ButtonModule,
-  ],
+  imports: [ReactiveFormsModule, DialogModule, ButtonModule, ZoneFormFieldsComponent],
   templateUrl: './zone-form.html',
 })
 export class ZoneFormComponent {
@@ -37,34 +27,11 @@ export class ZoneFormComponent {
   readonly saved = output<ZoneFormData>();
 
   protected readonly FloraDialogPT = FloraDialogPT;
-  protected readonly FloraInputTextPT = FloraInputTextPT;
-  protected readonly FloraInputNumberPT = FloraInputNumberPT;
-  protected readonly FloraSelectPT = FloraSelectPT;
-  protected readonly FloraToggleSwitchPT = FloraToggleSwitchPT;
   protected readonly FloraButtonPT = FloraButtonPT;
-  protected readonly FLORA_ERROR = FLORA_ERROR;
-  protected readonly orientationOptions = WINDOW_ORIENTATION_OPTIONS;
 
   readonly dialogTitle = computed(() => (this.editZone() ? 'Edit Zone' : 'Add Zone'));
 
-  protected readonly nameId = `flora-zone-name-${crypto.randomUUID().slice(0, 8)}`;
-  protected readonly humidityId = `flora-zone-humidity-${crypto.randomUUID().slice(0, 8)}`;
-  protected readonly orientationId = `flora-zone-orientation-${crypto.randomUUID().slice(0, 8)}`;
-
-  readonly form = new FormGroup({
-    name: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(80)],
-    }),
-    icon: new FormControl('ri-plant-line', { nonNullable: true }),
-    window_orientation: new FormControl<WindowOrientation>('None', { nonNullable: true }),
-    has_active_ventilation: new FormControl(false, { nonNullable: true }),
-    has_grow_lights: new FormControl(false, { nonNullable: true }),
-    humidity_baseline: new FormControl(40, {
-      nonNullable: true,
-      validators: [Validators.required, Validators.min(0), Validators.max(100)],
-    }),
-  });
+  readonly form = createZoneFormGroup();
 
   // Sync the form only when the dialog transitions from hidden → visible.
   // Using untracked() for editZone so the effect only re-runs on visible() changes,
@@ -100,13 +67,6 @@ export class ZoneFormComponent {
     }
   });
 
-  get nameCtrl() {
-    return this.form.controls.name;
-  }
-  get humidityCtrl() {
-    return this.form.controls.humidity_baseline;
-  }
-
   onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -118,5 +78,12 @@ export class ZoneFormComponent {
 
   onCancel(): void {
     this.visible.set(false);
+  }
+
+  private readonly fieldsComp = viewChild(ZoneFormFieldsComponent);
+
+  /** Close any open overlays (e.g. orientation select) when the dialog hides. */
+  onHide(): void {
+    this.fieldsComp()?.closeOverlays();
   }
 }

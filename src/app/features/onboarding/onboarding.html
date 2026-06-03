@@ -1,14 +1,166 @@
-<main class="min-h-screen flex items-center justify-center bg-neutral-50" aria-label="Onboarding">
-  <section class="flex flex-col gap-6 p-10 bg-white rounded-garden-lg shadow-sm max-w-md w-full">
-    <h1 class="text-2xl font-semibold text-neutral-900">Welcome to FloraFlow</h1>
-    <p class="text-neutral-600 text-sm">Setting up your greenhouse experience…</p>
-    <button
-      type="button"
-      class="h-control px-6 rounded-garden-md bg-primary-500 text-white text-sm font-medium hover:bg-primary-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-      aria-label="Complete onboarding and enter dashboard"
-      (click)="complete()"
+<main
+  class="min-h-screen bg-neutral-50 flex items-center justify-center px-4 py-12"
+  aria-labelledby="onboarding-heading"
+>
+  <article
+    class="w-full max-w-md bg-white rounded-garden-lg shadow-sm border border-neutral-200 p-8"
+  >
+    <!-- Step indicator -->
+    <ol
+      aria-label="Onboarding steps"
+      class="flex items-center justify-center list-none p-0 mb-8 gap-0"
     >
-      Complete Onboarding
-    </button>
-  </section>
+      <li class="flex items-center" [attr.aria-current]="currentStep() === 1 ? 'step' : null">
+        <span
+          class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold font-display transition-colors duration-200"
+          [class]="
+            currentStep() >= 1 ? 'bg-primary-500 text-white' : 'bg-neutral-200 text-neutral-500'
+          "
+        >
+          @if (currentStep() > 1) {
+            <i class="pi pi-check text-xs" aria-hidden="true"></i>
+          } @else {
+            1
+          }
+        </span>
+        <span class="text-xs font-display text-neutral-500 ml-1.5 hidden sm:block">Welcome</span>
+      </li>
+
+      <li aria-hidden="true" class="mx-3 h-px w-8 bg-neutral-200 self-center"></li>
+
+      <li class="flex items-center" [attr.aria-current]="currentStep() === 2 ? 'step' : null">
+        <span
+          class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold font-display transition-colors duration-200"
+          [class]="
+            currentStep() >= 2 ? 'bg-primary-500 text-white' : 'bg-neutral-200 text-neutral-500'
+          "
+        >
+          @if (currentStep() > 2) {
+            <i class="pi pi-check text-xs" aria-hidden="true"></i>
+          } @else {
+            2
+          }
+        </span>
+        <span class="text-xs font-display text-neutral-500 ml-1.5 hidden sm:block"
+          >Create zone</span
+        >
+      </li>
+
+      <li aria-hidden="true" class="mx-3 h-px w-8 bg-neutral-200 self-center"></li>
+
+      <li class="flex items-center" [attr.aria-current]="currentStep() === 3 ? 'step' : null">
+        <span
+          class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold font-display transition-colors duration-200"
+          [class]="
+            currentStep() >= 3 ? 'bg-primary-500 text-white' : 'bg-neutral-200 text-neutral-500'
+          "
+        >
+          3
+        </span>
+        <span class="text-xs font-display text-neutral-500 ml-1.5 hidden sm:block">All set</span>
+      </li>
+    </ol>
+
+    <!-- Step content -->
+    @switch (currentStep()) {
+      @case (1) {
+        <section aria-labelledby="onboarding-heading">
+          <header class="mb-6">
+            <h1
+              id="onboarding-heading"
+              class="text-2xl font-semibold font-display text-neutral-900"
+            >
+              Welcome to FloraFlow
+            </h1>
+            <p class="mt-2 text-sm text-neutral-500 font-display leading-relaxed">
+              Track every zone, every plant, every watering — so your greenhouse never misses a
+              beat.
+            </p>
+          </header>
+
+          <p-button
+            label="Set up your first zone"
+            [pt]="FloraButtonPT"
+            ariaLabel="Set up your first greenhouse zone"
+            class="w-full"
+            styleClass="w-full justify-center"
+            (onClick)="goToStep2()"
+          />
+        </section>
+      }
+
+      @case (2) {
+        <section aria-labelledby="onboarding-heading">
+          <header class="mb-6">
+            <h1
+              id="onboarding-heading"
+              class="text-2xl font-semibold font-display text-neutral-900"
+            >
+              Create your first zone
+            </h1>
+            <p class="mt-2 text-sm text-neutral-500 font-display">
+              A zone is a physical space — a windowsill, a grow tent, a shelf.
+            </p>
+          </header>
+
+          <form
+            [formGroup]="form"
+            (ngSubmit)="saveZone()"
+            novalidate
+            class="flex flex-col gap-5"
+            aria-label="New zone form"
+          >
+            <app-zone-form-fields [form]="form" />
+
+            @if (zoneService.error()) {
+              <p-message severity="error" [text]="zoneService.error()!" [pt]="FloraMessagePT" />
+            }
+
+            <p-button
+              type="submit"
+              label="Save &amp; continue"
+              [pt]="FloraButtonPT"
+              [loading]="zoneService.loading()"
+              [disabled]="zoneService.loading()"
+              ariaLabel="Save zone and continue to the next step"
+              class="w-full"
+              styleClass="w-full justify-center"
+            />
+          </form>
+        </section>
+      }
+
+      @case (3) {
+        <section aria-labelledby="onboarding-heading" class="text-center">
+          <div
+            class="w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center mx-auto mb-6"
+            aria-hidden="true"
+          >
+            <i class="pi pi-check-circle text-3xl text-primary-500"></i>
+          </div>
+
+          <header class="mb-6">
+            <h1
+              id="onboarding-heading"
+              class="text-2xl font-semibold font-display text-neutral-900"
+            >
+              You're all set!
+            </h1>
+            <p class="mt-2 text-sm text-neutral-500 font-display leading-relaxed">
+              Your first zone is ready. Start adding plants and tracking their care.
+            </p>
+          </header>
+
+          <p-button
+            label="Enter your greenhouse"
+            [pt]="FloraButtonPT"
+            ariaLabel="Enter your greenhouse and go to the dashboard"
+            class="w-full"
+            styleClass="w-full justify-center"
+            (onClick)="finish()"
+          />
+        </section>
+      }
+    }
+  </article>
 </main>

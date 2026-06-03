@@ -58,7 +58,7 @@ This is the normal flow for any new feature or phase task:
 Step 1 — Plan
   /mind <task description>
   → reads PHASES_PLAN.md, produces a numbered block plan
-  → saves the plan to docs/plans/PHASE_X_Y_PLAN.md
+  → saves the plan to docs/plans/phase-N/PHASE_X_Y_PLAN.md
   → you review and approve before any code is written
 
 Step 2 — Build (block by block)

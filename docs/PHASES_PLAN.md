@@ -61,7 +61,7 @@
   - New `onboardingGuard` redirects unauthenticated-onboarding users to `/onboarding`; applied to shell route.
   - `/onboarding` route outside the shell (no nav bar); three-step wizard: Welcome → Create Zone → All Set.
   - Completion writes the flag and navigates to `/dashboard`; back-navigation to `/onboarding` immediately forwards to `/dashboard`.
-  - Plan: `docs/plans/PHASE_1_10_PLAN.md`
+  - Plan: `docs/plans/phase-1/PHASE_1_10_PLAN.md`
 
 ### 🔒 Phase 1 QA Acceptance Criteria
 
@@ -121,13 +121,13 @@
   - Grouped by plant, ordered by `logged_at DESC`; filterable by `log_category_type`.
   - Photo thumbnails resolved from `image_storage_path` via Supabase Storage public URL.
   - Each entry links back to the plant's scheduler card.
-  - Plan: `docs/plans/PHASE_2_9_PLAN.md`
+  - Plan: `docs/plans/phase-2/PHASE_2_9_PLAN.md`
 - [x] **2.10 Zone Detail View** | Agent: `/visualizer`
   - New route `/dashboard/zones/:id` — shows all plants in a zone with per-plant soil check and species info dialogs.
   - Zone card name becomes a navigation link; back link returns to `/dashboard`.
   - Reuses `SoilCheckDialogComponent` (Block C) and the shared botanical detail dialog extracted during 2.8 (Block D).
   - No new migrations — reads from existing `ZoneService` and `PlantService` signals.
-  - Plan: `docs/plans/PHASE_2_10_PLAN.md`
+  - Plan: `docs/plans/phase-2/PHASE_2_10_PLAN.md`
 
 ### 🔒 Phase 2 QA Criteria
 
@@ -156,9 +156,10 @@
   - Note: `Seed` is excluded — seeds belong in the Seed Vault (Phase 3.5), not in `plants`.
 - [ ] **3.3 Care Recommendations Panel** | Agent: `/visualizer`
   - Surface AI-enriched fields on the plant profile card: `check_depth_description`, `ideal_humidity_min/max`, `sunlight` (from Perenual), `watering` frequency.
+  - Also surface Phase 3.10 fields when available: `description`, `preferred_soil_type`, `maintenance_level`, `native_region`.
   - Compare `ideal_humidity_min/max` against the zone's `humidity_baseline` and flag when the zone is outside the plant's tolerance.
   - The `check_depth_description` field from the enriched record overrides the substrate-approximation shown in Phase 2.3 when the species has been AI-enriched.
-  - No additional DB migration — all fields added in Phase 3.1.
+  - No additional DB migration — all fields added in Phase 3.1 and Phase 3.10.
 - [ ] **3.4** Multimodal Vision Diagnostics (AI Leaf Doctor) | Agent: `/plumber` → `/visualizer`
   - New `claude-vision` Edge Function receives a base64 image + plant context from the client.
   - Claude Sonnet multimodal call; system prompt and JSON schema from `docs/AI_PROMPT_MANIFEST.md §3`.
@@ -177,6 +178,7 @@
   - Dashboard warning bar appears when current or forecast temperature threatens outdoor zones.
   - Alert clears automatically when frost risk passes; no user action required.
   - New `latitude` / `longitude` columns on `profiles` (nullable) to store the user's location.
+  - **Phase 3.10 integration:** when botanical records are available, scope frost warnings to plants with `placement = 'Outdoor'` or `'Both'` only — indoor-exclusive plants are excluded from frost risk.
 - [ ] **3.7** Companion Planting & Allelopathy Lookup Engine | Agent: `/plumber` → `/visualizer`
   - `companion_planting_rules` table (DB stub) seeded with known beneficial / allelopathic / neutral pairs.
   - UI panel (Library or Dashboard): select two plants → relationship status returned from lookup.
@@ -190,6 +192,7 @@
   - After computing the breakdown, the wizard estimates the resulting **mix pH range** using documented component midpoints: fir/pine bark 4.0–6.5, sphagnum moss 3.5–4.5, peat 3.5–4.8, coco coir 6.0–6.8, perlite ~7.0 (sources: PT Horticulture, OrchidResourceCenter, KiS Organics). Simplified weighted mean — adequate for practical gardening guidance.
   - When opened from a plant profile that has `ideal_min_ph`/`ideal_max_ph` in `cached_botanical_records`, the wizard compares the estimated mix pH against the plant's ideal range and surfaces either a "pH compatible" badge or a mismatch warning (e.g. "This mix sits at ~6.5–7.0 — too alkaline for a plant needing pH 4.5–5.5").
   - A one-line caveat is shown alongside the estimate: "Estimated pH — not a lab measurement." No new DB migration needed — client-side computation only.
+  - **Phase 3.10 integration:** when `preferred_soil_type` is available from the botanical record, pre-select the genus profile that most closely matches those soil descriptors (e.g. `['Well-draining', 'Sandy']` → Desert Succulent profile).
 - [ ] **3.9** AI Plant Identifier (Photo-to-Species) | Agent: `/plumber` → `/visualizer`
   - Upload / camera action inside the Add Plant form triggers `claude-plant-id` Edge Function.
   - Claude Sonnet multimodal call; system prompt and JSON schema from `docs/AI_PROMPT_MANIFEST.md §2`.
@@ -197,6 +200,16 @@
   - On successful identification: checks `cached_botanical_records`; queues AI Scribe enrichment if the species is absent.
   - Pre-fills `common_name`, `scientific_name`, `perenual_id` in Add Plant form from the identified species.
   - Safety guard: `is_plant_image: false` shows error state — never hallucinates a species name.
+- [ ] **3.10 Extended Plant Profile — Schema, AI Enrichment & Multi-Surface UI** | Agent: `/plumber` → `/visualizer` → `/gatekeeper`
+  - Depends on 3.1 (AI Scribe must be deployed first).
+  - **Block A** — Migration: 16 new columns on `cached_botanical_records`.
+  - **Block B** — AI Scribe extended to fill all 16 new fields; `docs/AI_PROMPT_MANIFEST.md §1` updated.
+  - **Block C** — Botanical detail dialog: 4 tabs (Overview / Care / Growth & Seasons / Safety) + "Add to greenhouse" care advisory for Advanced plants.
+  - **Block D** — Library card: `description` subtitle + `care_difficulty` + `placement` badges.
+  - **Block E** — Zone detail plant card: `care_difficulty` + `placement` + `is_tropical` badges via batch botanical fetch.
+  - **Block F** — Library filters: 6 new filter dimensions (Placement, Care Difficulty, Maintenance, Tropical, Air-Purifying, Safe for Humans).
+  - **Block G** — Plant-zone compatibility warnings: amber inline alerts on zone detail cards when `placement` or tropical humidity needs conflict with the zone.
+  - Plan: `docs/plans/phase-3/PHASE_3_10_PLAN.md`
 
 ### 🔒 Phase 3 QA Criteria
 
@@ -225,11 +238,17 @@
   - Full string audit across all components and templates — no hardcoded UI text left after this phase.
   - Language switch applies in the same render cycle without page reload.
 - [ ] **4.3 Plant Species Thumbnails** | Agent: `/plumber` → `/visualizer`
-  - Migration: add `default_image_url TEXT` (nullable) to `cached_botanical_records`.
-  - Update `botanical-search` Edge Function: persist `default_image.regular_url` from Perenual response when populating the cache row.
-  - Update `PlantService.loadPlants()`: join `cached_botanical_records` via `perenual_id` to expose `default_image_url` on the returned plant shape.
-  - Replace the leaf-icon placeholder in `plant-alert-card` (scheduler rows), dashboard task cards, and the library detail panel with a real `<img>` when `default_image_url` is present; fall back to the leaf icon otherwise.
-  - No image is downloaded to Supabase Storage — Perenual CDN URL is linked directly (acceptable for free-tier training project).
+  - Migration: add two nullable columns to `cached_botanical_records`: `thumbnail_url TEXT` (Perenual `default_image.thumbnail`) and `regular_url TEXT` (Perenual `default_image.regular_url`).
+  - Update `botanical-search` Edge Function: persist both URLs from the Perenual response when populating the cache row.
+  - No image is downloaded to Supabase Storage — CDN URLs are linked directly. The canvas compressor is for user-uploaded journal photos only; CDN images are already appropriately sized by Perenual.
+  - Add `loading="lazy"` to every species `<img>`. While the image is loading (or absent), show the existing leaf icon (`ri-plant-line`) as placeholder — no skeleton animation, just the icon.
+  - Apply `thumbnail_url` on compact surfaces (all cards and list items); apply `regular_url` on the detail dialog Overview tab.
+  - Surfaces covered:
+    - Library search cards (`botanical-record-card`) — `thumbnail_url`
+    - Botanical detail dialog, Overview tab — `regular_url`
+    - Scheduler plant alert cards (`plant-alert-card`) — `thumbnail_url`
+    - Zone detail plant cards — `thumbnail_url`
+    - Dashboard zone task chips — `thumbnail_url`
 
 ### 🔒 Phase 4 QA Criteria
 

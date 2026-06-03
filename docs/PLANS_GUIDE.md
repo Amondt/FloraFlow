@@ -32,7 +32,7 @@ Only `/gatekeeper` marks block checkboxes — after lint, user-confirmed verific
 Include the plan file as an `@` reference when invoking an agent:
 
 ```
-/visualizer @docs/plans/PHASE_1_7_PLAN.md  Continue Block B
+/visualizer @docs/plans/phase-1/PHASE_1_7_PLAN.md  Continue Block B
 ```
 
 The agent receives the full file and reads this guide (triggered by the `docs/plans/` path in the Source-of-Truth table).

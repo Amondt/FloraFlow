@@ -32,7 +32,7 @@ Used consistently across Plant Identifier and Leaf Doctor schemas:
 - **Trigger Context:** Executed when the Perenual species details response is missing fields (pH range, toxicity notes, propagation methods). Also triggered when PlantNet identifies a species not found in Perenual. **Important:** PlantNet is an identification source only — it returns taxonomy (score, scientific name, family) but never care metrics. The Scribe always enriches from Perenual first; it fills remaining gaps when Perenual also returns nulls.
 - **Target Interface:** Supabase Deno Edge Function (`supabase/functions/claude-enrichment`)
 - **Model Class:** Anthropic Claude Haiku (`claude-haiku-4-5-20251001`) — fast, structured JSON output
-- **max_tokens:** `512` — JSON schema output is compact; no prose expected
+- **max_tokens:** `1024` — Phase 3.10 expands the schema to ~27 fields; 512 would truncate the JSON and cause a parse failure
 
 ### 🤖 1.1 System Prompt Definition
 

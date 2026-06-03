@@ -415,6 +415,43 @@ The following tables are required for Phase 3 features. They are documented here
         USING (auth.role() = 'authenticated');
 
 
+    ── Phase 3.10 ── Extended Plant Profile Columns (cached_botanical_records) ─
+
+    ALTER TABLE public.cached_botanical_records
+        ADD COLUMN IF NOT EXISTS description TEXT,
+        ADD COLUMN IF NOT EXISTS placement TEXT
+            CHECK (placement IN ('Indoor', 'Outdoor', 'Both')),
+        ADD COLUMN IF NOT EXISTS is_tropical BOOLEAN DEFAULT FALSE,
+        ADD COLUMN IF NOT EXISTS is_toxic_to_humans BOOLEAN DEFAULT FALSE,
+        ADD COLUMN IF NOT EXISTS human_toxicity_notes TEXT,
+        ADD COLUMN IF NOT EXISTS produces_fruit BOOLEAN DEFAULT FALSE,
+        ADD COLUMN IF NOT EXISTS fruit_season TEXT,
+        ADD COLUMN IF NOT EXISTS produces_flowers BOOLEAN DEFAULT FALSE,
+        ADD COLUMN IF NOT EXISTS flowering_season TEXT,
+        ADD COLUMN IF NOT EXISTS growth_rate TEXT
+            CHECK (growth_rate IN ('Slow', 'Moderate', 'Fast')),
+        ADD COLUMN IF NOT EXISTS maintenance_level TEXT
+            CHECK (maintenance_level IN ('Low', 'Medium', 'High')),
+        ADD COLUMN IF NOT EXISTS preferred_soil_type TEXT[],
+        ADD COLUMN IF NOT EXISTS native_region TEXT,
+        ADD COLUMN IF NOT EXISTS max_height_cm INT,
+        ADD COLUMN IF NOT EXISTS max_spread_cm INT,
+        ADD COLUMN IF NOT EXISTS air_purifying BOOLEAN DEFAULT FALSE;
+
+    -- description: 1–2 sentence plain-language plant description (AI Scribe).
+    -- placement: where the species thrives; used to match plant to zone type.
+    -- is_tropical: single flag implying humidity/warmth sensitivity.
+    -- is_toxic_to_humans: mirrors is_toxic_to_pets; human_toxicity_notes populated when true.
+    -- produces_fruit/produces_flowers: with season fields for seasonal planning.
+    -- growth_rate: Slow/Moderate/Fast — informs repotting and zone crowding expectations.
+    -- maintenance_level: time investment (Low/Medium/High) — distinct from care_difficulty (skill).
+    -- preferred_soil_type: array of soil descriptors, e.g. ['Well-draining', 'Sandy'].
+    -- native_region: geographic origin text, e.g. "Tropical West Africa".
+    -- max_height_cm / max_spread_cm: mature dimensions for zone space planning.
+    -- air_purifying: NASA Clean Air Study / common indoor plant reference.
+    -- All nullable: AI Scribe returns null rather than fabricating unknown values.
+
+
     ── Phase 3.6 ── Frost Date & Planting Window Cache ────────────────────────────
 
     CREATE TABLE public.frost_date_cache (

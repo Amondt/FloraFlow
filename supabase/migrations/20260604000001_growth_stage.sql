@@ -7,15 +7,7 @@
 --
 -- Existing plants default to 'Mature' — no back-fill migration needed.
 -- 'Seed' is intentionally excluded: seeds belong in seed_batches (Phase 3.5).
-
-CREATE TYPE public.growth_stage_type AS ENUM (
-  'Seedling',
-  'Juvenile',
-  'Mature',
-  'Dormant'
-);
+CREATE TYPE public.growth_stage_type AS ENUM('Seedling', 'Juvenile', 'Mature', 'Dormant');
 
 ALTER TABLE public.plants
-  ADD COLUMN growth_stage public.growth_stage_type
-    DEFAULT 'Mature'::public.growth_stage_type
-    NOT NULL;
+ADD COLUMN growth_stage public.growth_stage_type DEFAULT 'Mature'::public.growth_stage_type NOT NULL;

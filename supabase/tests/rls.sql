@@ -892,7 +892,6 @@ SELECT
 -- ═══════════════════════════════════════════════════════════════════════════
 -- Alice's plant was inserted in setup without specifying growth_stage.
 -- The DEFAULT 'Mature' constraint must apply.
-
 -- ── TEST 33: growth_stage defaults to 'Mature' ──────────────────────────────
 RESET ROLE;
 

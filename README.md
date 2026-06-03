@@ -43,36 +43,41 @@ bunx supabase start
 
 ### 3. Start the dev server
 
-Open **two terminals** and run one command in each:
-
 ```bash
-# Terminal 1 — Angular dev server
-bun run start
-
-# Terminal 2 — Tailwind CSS watcher (regenerates src/styles.css on source changes)
-bun run tw:watch
+bun run dev
 ```
 
-Open `http://localhost:4200` in your browser.
+This runs the Angular dev server and the Tailwind CSS watcher together. Open `http://localhost:4200`.
 
-> **Why two terminals?** Angular's build pipeline only re-processes CSS when CSS files change, not when `.ts` or `.html` files change. The Tailwind CLI watcher fills this gap: it watches all source files and regenerates `src/styles.css` whenever a new utility class is used.
+> Angular's build pipeline only re-processes CSS when CSS files change. The Tailwind watcher fills this gap — it regenerates `src/styles.css` whenever a new utility class appears in a `.ts` or `.html` file.
+
+### 4. Serve Edge Functions (when working on backend features)
+
+In a second terminal:
+
+```powershell
+bun run functions:serve
+```
+
+`--no-verify-jwt` lets the local gateway accept the `CRON_SECRET` token (which is not a valid JWT). `--env-file` injects secrets from `supabase/functions/.env` — without it, env changes made after `supabase start` are not picked up.
 
 ---
 
 ## Available Scripts
 
-| Command              | Description                                                         |
-|----------------------|---------------------------------------------------------------------|
-| `bun run start`      | Start the Angular dev server                                        |
-| `bun run tw`         | Generate `src/styles.css` once from `src/styles.input.css`         |
-| `bun run tw:watch`   | Watch source files and regenerate `src/styles.css` on changes       |
-| `bun run build`      | Production build to `dist/`                                        |
-| `bun run lint`       | Run ESLint across all TypeScript and HTML files                     |
-| `bun run test`       | Run Vitest unit and component tests                                 |
-| `bun run types`      | Generate TypeScript types from local Supabase schema                |
-| `bunx supabase start`            | Start local Supabase Docker stack                |
-| `bunx supabase stop`             | Stop local Supabase Docker stack                 |
-| `bunx supabase db test`          | Run RLS and schema integrity tests               |
+| Command                      | Description                                                              |
+|------------------------------|--------------------------------------------------------------------------|
+| `bun run dev`                | **Start Angular + Tailwind watcher together** — use this for day-to-day work |
+| `bun run functions:serve`    | Serve Edge Functions locally (JWT bypass + env file)                     |
+| `bun run build`              | Production build to `dist/`                                              |
+| `bun run lint`               | Run ESLint across all TypeScript and HTML files                          |
+| `bun run test`               | Run Vitest unit and component tests                                      |
+| `bun run types`              | Regenerate TypeScript types from the local Supabase schema               |
+| `bun run db-reset-safe`      | Reset local DB while preserving botanical seed data                      |
+| `bunx supabase start`        | Start local Supabase Docker stack                                        |
+| `bunx supabase stop`         | Stop local Supabase Docker stack                                         |
+| `bunx supabase migration up` | Apply pending migrations to the local DB                                 |
+| `bunx supabase db test`      | Run RLS and schema integrity tests                                       |
 
 ---
 

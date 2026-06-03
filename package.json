@@ -16,7 +16,8 @@
     "types": "bunx supabase gen types typescript --local > src/types/database.types.ts",
     "export-seed": "bun run supabase/scripts/export-botanical-seed.ts",
     "export-remote-backup": "bun run supabase/scripts/export-remote-backup.ts",
-    "db-reset-safe": "bun run supabase/scripts/db-reset-safe.ts"
+    "db-reset-safe": "bun run supabase/scripts/db-reset-safe.ts",
+    "functions:serve": "bunx supabase functions serve --no-verify-jwt --env-file supabase/functions/.env"
   },
   "private": true,
   "packageManager": "bun@1.3.13",

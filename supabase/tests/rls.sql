@@ -795,7 +795,7 @@ SELECT
 RESET ROLE;
 
 SELECT
-  set_config ('request.jwt.claims', '{}', TRUE);
+  set_config('request.jwt.claims', '{}', TRUE);
 
 -- ── TEST 28: check_depth_description defaults to NULL ───────────────────────
 SELECT

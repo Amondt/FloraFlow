@@ -154,6 +154,7 @@
   - Plant form: add growth stage select field.
   - Soil check dialog: show growth stage in the plant context line.
   - Note: `Seed` is excluded — seeds belong in the Seed Vault (Phase 3.5), not in `plants`.
+  - Plan: `docs/plans/phase-3/PHASE_3_2_PLAN.md`
 - [ ] **3.3 Care Recommendations Panel** | Agent: `/visualizer`
   - Surface AI-enriched fields on the plant profile card: `check_depth_description`, `ideal_humidity_min/max`, `sunlight` (from Perenual), `watering` frequency.
   - Also surface Phase 3.10 fields when available: `description`, `preferred_soil_type`, `maintenance_level`, `native_region`.

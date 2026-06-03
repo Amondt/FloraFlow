@@ -1,0 +1,121 @@
+<section aria-label="Care recommendations">
+  <p class="font-display mb-3 text-xs font-semibold uppercase tracking-widest text-neutral-400">
+    Care recommendations
+  </p>
+
+  <div class="flex flex-col gap-2">
+    <!-- Care difficulty + Watering (side by side when both present) -->
+    @if (record().care_difficulty || wateringLabel()) {
+      <div class="grid grid-cols-2 gap-2">
+        @if (record().care_difficulty) {
+          <div
+            class="flex flex-col gap-1.5 rounded-garden-sm bg-neutral-50 p-2.5 dark:bg-neutral-800/60"
+          >
+            <p
+              class="font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
+            >
+              Difficulty
+            </p>
+            <span
+              class="font-display inline-flex self-start items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
+              [class]="difficultyClass()"
+            >
+              {{ record().care_difficulty }}
+            </span>
+          </div>
+        }
+
+        @if (wateringLabel()) {
+          <div
+            class="flex flex-col gap-1.5 rounded-garden-sm bg-neutral-50 p-2.5 dark:bg-neutral-800/60"
+          >
+            <p
+              class="font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
+            >
+              Watering
+            </p>
+            <p class="font-display text-sm font-medium text-neutral-700 dark:text-neutral-200">
+              {{ wateringLabel() }}
+            </p>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Sunlight chips -->
+    @if (sunlightLabels().length > 0) {
+      <div
+        class="flex flex-col gap-1.5 rounded-garden-sm bg-neutral-50 p-2.5 dark:bg-neutral-800/60"
+      >
+        <p class="font-display text-xs font-semibold uppercase tracking-widest text-neutral-400">
+          Sunlight
+        </p>
+        <ul class="flex flex-wrap gap-1.5" aria-label="Sunlight requirements">
+          @for (label of sunlightLabels(); track label) {
+            <li
+              class="font-display inline-flex items-center rounded-full bg-primary-50 px-2.5 py-0.5 text-xs font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300"
+            >
+              {{ label }}
+            </li>
+          }
+        </ul>
+      </div>
+    }
+
+    <!-- Soil moisture guidance -->
+    @if (record().check_depth_description) {
+      <div
+        class="flex flex-col gap-1.5 rounded-garden-sm bg-neutral-50 p-2.5 dark:bg-neutral-800/60"
+      >
+        <p class="font-display text-xs font-semibold uppercase tracking-widest text-neutral-400">
+          Soil moisture
+        </p>
+        <p class="font-display text-sm leading-relaxed text-neutral-700 dark:text-neutral-200">
+          {{ record().check_depth_description }}
+        </p>
+      </div>
+    }
+
+    <!-- Humidity range + zone comparison -->
+    @if (record().ideal_humidity_min !== null || record().ideal_humidity_max !== null) {
+      <div
+        class="flex flex-col gap-2 rounded-garden-sm bg-neutral-50 p-2.5 dark:bg-neutral-800/60"
+        aria-label="Humidity requirements"
+      >
+        <div class="flex items-center justify-between gap-2">
+          <p class="font-display text-xs font-semibold uppercase tracking-widest text-neutral-400">
+            Humidity
+          </p>
+          <p
+            class="font-display text-sm font-medium text-neutral-700 dark:text-neutral-200"
+            aria-label="Ideal humidity range"
+          >
+            @if (record().ideal_humidity_min !== null && record().ideal_humidity_max !== null) {
+              {{ record().ideal_humidity_min }}–{{ record().ideal_humidity_max }}%
+            } @else if (record().ideal_humidity_min !== null) {
+              ≥{{ record().ideal_humidity_min }}%
+            } @else {
+              ≤{{ record().ideal_humidity_max }}%
+            }
+          </p>
+        </div>
+
+        @if (humidityStatus() === 'compatible') {
+          <p
+            class="font-display flex items-center gap-1 text-xs text-success-500 dark:text-green-400"
+            role="status"
+          >
+            <i class="pi pi-check-circle text-xs" aria-hidden="true"></i>
+            Zone humidity compatible
+          </p>
+        }
+
+        @if (humidityStatus() === 'low' || humidityStatus() === 'high') {
+          <p-message severity="warn" [pt]="FloraMessagePT">
+            {{ humidityWarningText() }}
+          </p-message>
+        }
+      </div>
+    }
+  </div>
+</section>

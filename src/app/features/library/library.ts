@@ -111,6 +111,7 @@ export class LibraryComponent {
   private _debounceTimer: ReturnType<typeof setTimeout> | null = null;
   private _pollTimer: ReturnType<typeof setInterval> | null = null;
   private _pollAttempts = 0;
+  private _enrichmentController: AbortController | null = null;
   private readonly _MAX_POLL_ATTEMPTS = 15;
   private readonly _destroyRef = inject(DestroyRef);
 
@@ -298,6 +299,8 @@ export class LibraryComponent {
     }
     this._pollAttempts = 0;
     this.enrichingNames.set(new Set());
+    this._enrichmentController?.abort();
+    this._enrichmentController = null;
   }
 
   private _startEnrichmentPoll(names: string[]): void {
@@ -353,8 +356,10 @@ export class LibraryComponent {
       }
       this.results.set(newResults);
 
-      const toEnrich = newResults.filter((r) => !r.is_ai_enriched).map((r) => r.scientific_name);
-      this._startEnrichmentPoll(toEnrich);
+      const unenriched = newResults.filter((r) => !r.is_ai_enriched);
+      this._startEnrichmentPoll(unenriched.map((r) => r.scientific_name));
+      this._enrichmentController = new AbortController();
+      void this.libraryService.triggerEnrichment(unenriched, this._enrichmentController.signal);
     } finally {
       this.isLoading.set(false);
     }

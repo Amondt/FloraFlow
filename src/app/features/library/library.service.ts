@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { SupabaseService } from '../../core/services/supabase.service';
 import type { Database } from '../../../types/database.types';
 import { BotanicalSearchService } from '../../core/services/botanical-search.service';
+import { environment } from '../../../environments/environment';
 
 export type CachedBotanicalRecord = Database['public']['Tables']['cached_botanical_records']['Row'];
 
@@ -76,6 +77,34 @@ export class LibraryService {
       return data;
     } catch {
       return null;
+    }
+  }
+
+  async triggerEnrichment(
+    records: Array<Pick<CachedBotanicalRecord, 'scientific_name' | 'common_name'>>,
+    signal?: AbortSignal,
+  ): Promise<void> {
+    if (records.length === 0) return;
+    const token = await this.supabase.getAuthToken();
+    if (!token) return;
+
+    const url = `${environment.supabaseUrl}/functions/v1/claude-enrichment`;
+    const BATCH = 3;
+    for (let i = 0; i < records.length; i += BATCH) {
+      if (signal?.aborted) return;
+      for (const r of records.slice(i, i + BATCH)) {
+        void fetch(url, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ scientificName: r.scientific_name, commonName: r.common_name }),
+        }).catch(() => {});
+      }
+      if (i + BATCH < records.length) {
+        await new Promise<void>((resolve) => setTimeout(resolve, 1000));
+      }
     }
   }
 

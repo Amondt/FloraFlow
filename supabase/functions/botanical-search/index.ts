@@ -1,19 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import type { Database } from '../_shared/database.types.ts';
 
-declare const EdgeRuntime: { waitUntil: (promise: Promise<unknown>) => void };
-
-async function runBatched(
-  fns: Array<() => Promise<unknown>>,
-  batchSize: number,
-  delayMs = 1200,
-): Promise<void> {
-  for (let i = 0; i < fns.length; i += batchSize) {
-    await Promise.allSettled(fns.slice(i, i + batchSize).map((fn) => fn()));
-    if (i + batchSize < fns.length) await new Promise((r) => setTimeout(r, delayMs));
-  }
-}
-
 const cors = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -69,35 +56,6 @@ Deno.serve(async (req: Request) => {
       .or(`common_name.ilike.%${safeQ}%,scientific_name.ilike.%${safeQ}%`)
       .limit(8);
 
-    // Back-fill AI enrichment for cached records that still have NULL care fields.
-    // claude-enrichment's own is_ai_enriched guard prevents redundant Claude calls.
-    const needsAiEnrichment = (cached ?? []).filter(
-      (r) => !r.is_ai_enriched || !r.watering || !r.cycle,
-    );
-    if (needsAiEnrichment.length > 0) {
-      const enrichmentUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/claude-enrichment`;
-      const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-      const backfillFns = needsAiEnrichment.map(
-        (record) => () =>
-          fetch(enrichmentUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${serviceRoleKey}`,
-            },
-            body: JSON.stringify({
-              scientificName: record.scientific_name,
-              commonName: record.common_name,
-            }),
-          }),
-      );
-      try {
-        EdgeRuntime.waitUntil(runBatched(backfillFns, 2, 1200));
-      } catch (waitErr) {
-        console.error('EdgeRuntime.waitUntil unavailable — backfill enrichment dropped:', waitErr);
-      }
-    }
-
     // 5+ hits means the cache is warm enough — skip the Perenual round-trip entirely
     if ((cached?.length ?? 0) >= 5) return json(cached);
 
@@ -108,6 +66,7 @@ Deno.serve(async (req: Request) => {
       const apiKey = Deno.env.get('PERENUAL_API_KEY') ?? '';
       const resp = await fetch(
         `https://perenual.com/api/v2/species-list?key=${apiKey}&q=${encodeURIComponent(q)}`,
+        { signal: AbortSignal.timeout(8000) },
       );
       if (!resp.ok) throw new Error(`Perenual responded ${resp.status}`);
 
@@ -158,6 +117,7 @@ Deno.serve(async (req: Request) => {
           try {
             const detailsResp = await fetch(
               `https://perenual.com/api/v2/species/details/${record.perenual_id}?key=${apiKey}`,
+              { signal: AbortSignal.timeout(8000) },
             );
             if (!detailsResp.ok)
               throw new Error(`Perenual details responded ${detailsResp.status}`);
@@ -190,34 +150,6 @@ Deno.serve(async (req: Request) => {
           }
         }),
       );
-
-      // Fire-and-forget AI enrichment for newly cached records.
-      // claude-enrichment has its own is_ai_enriched cache guard, so duplicate calls are safe.
-      if (fresh.length > 0) {
-        const enrichmentUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/claude-enrichment`;
-        const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-
-        const enrichmentFns = fresh.map(
-          (record) => () =>
-            fetch(enrichmentUrl, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${serviceRoleKey}`,
-              },
-              body: JSON.stringify({
-                scientificName: record.scientific_name,
-                commonName: record.common_name,
-              }),
-            }),
-        );
-
-        try {
-          EdgeRuntime.waitUntil(runBatched(enrichmentFns, 2, 1200));
-        } catch (waitErr) {
-          console.error('EdgeRuntime.waitUntil unavailable — enrichment calls dropped:', waitErr);
-        }
-      }
     } catch (err) {
       console.error('Perenual fetch failed — returning cached results only:', err);
     }

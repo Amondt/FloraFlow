@@ -28,6 +28,11 @@ export class SupabaseService {
     return data.session;
   }
 
+  async getAuthToken(): Promise<string | null> {
+    const session = await this.getSession();
+    return session?.access_token ?? null;
+  }
+
   async getUser(): Promise<User | null> {
     const { data } = await this.client.auth.getUser();
     return data.user;

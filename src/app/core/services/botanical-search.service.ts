@@ -16,8 +16,7 @@ export class BotanicalSearchService {
     if (q.length < 2) return [];
 
     try {
-      const session = await this.supabase.getSession();
-      const token = session?.access_token;
+      const token = await this.supabase.getAuthToken();
       if (!token) return [];
 
       const url = `${environment.supabaseUrl}/functions/v1/botanical-search?q=${encodeURIComponent(q)}`;

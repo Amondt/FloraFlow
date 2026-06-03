@@ -10,6 +10,7 @@ Single source of truth for all visual and accessibility decisions. **The Visuali
 | §4 | `## 4.` | WCAG / ARIA compliance checklist |
 | §5 | `## 5.` | Form anatomy — canonical HTML structure |
 | §6 | `## 6.` | Page & layout conventions |
+| §7 | `## 7.` | UX interaction principles — anticipation, feedback, forgiveness, consistency |
 
 ---
 
@@ -399,3 +400,43 @@ Three required elements:
 ```
 
 Use eyebrow pattern for real-time data state pages. Use standard pattern for CRUD management pages.
+
+---
+
+## 7. UX Interaction Principles
+
+These principles are non-negotiable in every component. Each has a concrete implementation rule — apply them proactively, not only when the spec mentions them.
+
+### 7.1 Anticipation
+Reduce friction by setting up the next action before the user asks:
+- Auto-focus the first input when a dialog opens (`afterNextRender(() => el.focus())`)
+- Pre-fill fields when the context already implies values (e.g., creating a plant from a search result fills name/genus/species)
+- When a form field change invalidates sibling fields, reset only those fields — never wipe unrelated inputs
+
+### 7.2 Perceived Performance
+The UI must always feel instant:
+- Show skeleton loaders immediately for any async fetch (§6.4)
+- For mutations (save, update, toggle): apply an **optimistic UI update** first, roll back on error with a `p-toast` error message
+- Disable the submit button and show a spinner for the full duration of the request
+- Never show a blank white flash between route transitions — use `@defer` with a `@placeholder` skeleton
+
+### 7.3 Clear Feedback
+Every user action needs a visible reaction within 100ms:
+- All successful mutations (create, update, delete) must show a `p-toast` success — specific text, e.g., "Zone saved" not "Success"
+- All failed mutations must show a `p-toast` error — specific text, e.g., "Failed to save zone — try again"
+- In-flight requests: set `[attr.aria-busy]="true"` on the loading container and disable the trigger button
+- All destructive actions must use `p-confirmdialog` before executing (§4 rule 3.3.4)
+
+### 7.4 Forgiveness
+Design for mistakes:
+- **Never wipe a form on submission failure** — preserve all field values, show an error banner above the submit button
+- Validation fires on `blur`, not on every keystroke — do not red-border a field the user is still typing in
+- Destructive confirm dialogs must have a clearly labeled Cancel path — button text "Cancel", Escape closes
+- Prefer reversible actions where possible (e.g., archive before delete)
+
+### 7.5 Consistency
+Identical affordances everywhere:
+- Edit always opens a dialog; delete always triggers `p-confirmdialog` — never swap these patterns per page
+- Confirm dialog button labels follow the verb-object pattern: "Delete zone" / "Cancel" — never "Yes" / "No"
+- Loading patterns (skeleton vs spinner) follow §6.4 exactly — never mix them within the same component
+- All icons come from the PrimeIcons set (`pi pi-*`) — never mix icon libraries

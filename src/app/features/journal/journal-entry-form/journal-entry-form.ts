@@ -1,4 +1,4 @@
-import { Component, computed, inject, model, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
@@ -42,6 +42,7 @@ export class JournalEntryFormComponent {
   private readonly messageService = inject(MessageService);
 
   readonly visible = model<boolean>(false);
+  readonly preselectedPlantId = input<string | null>(null);
   readonly entrySaved = output<void>();
 
   protected readonly FloraDialogPT = FloraDialogPT;
@@ -106,6 +107,15 @@ export class JournalEntryFormComponent {
         detail: 'Could not process the selected image.',
       });
     }
+  }
+
+  constructor() {
+    effect(() => {
+      if (this.visible()) {
+        const id = this.preselectedPlantId();
+        if (id) this.form.controls.plant_id.setValue(id);
+      }
+    });
   }
 
   onVisibleChange(v: boolean): void {

@@ -182,4 +182,8 @@
 
 <p-toast [pt]="FloraToastPT" position="bottom-right" />
 
-<app-journal-entry-form [(visible)]="dialogVisible" (entrySaved)="onEntrySaved()" />
+<app-journal-entry-form
+  [(visible)]="dialogVisible"
+  [preselectedPlantId]="selectedPlant()"
+  (entrySaved)="onEntrySaved()"
+/>

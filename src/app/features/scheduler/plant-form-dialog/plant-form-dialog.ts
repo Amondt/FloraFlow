@@ -1,10 +1,20 @@
-import { Component, effect, inject, input, model, output, computed, signal } from '@angular/core';
+import {
+  Component,
+  effect,
+  inject,
+  input,
+  model,
+  output,
+  computed,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { AutoCompleteModule, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
-import { SelectModule } from 'primeng/select';
+import { AutoComplete, AutoCompleteModule, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
+import { Select, SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
 import {
   FloraDialogPT,
@@ -99,6 +109,11 @@ export class PlantFormDialogComponent {
     return this.form.controls.zone_id;
   }
 
+  private readonly _plantNameAC = viewChild<AutoComplete>('plantNameAC');
+  private readonly _zoneSelect = viewChild<Select>('zoneSelect');
+  private readonly _containerSelect = viewChild<Select>('containerSelect');
+  private readonly _substrateSelect = viewChild<Select>('substrateSelect');
+
   private _prevVisible = false;
 
   constructor() {
@@ -156,6 +171,13 @@ export class PlantFormDialogComponent {
   onVisibleChange(v: boolean): void {
     if (!v) blurActiveElement();
     this.visible.set(v);
+  }
+
+  onHide(): void {
+    this._plantNameAC()?.hide();
+    this._zoneSelect()?.hide();
+    this._containerSelect()?.hide();
+    this._substrateSelect()?.hide();
   }
 
   async onQuerySearch(event: AutoCompleteCompleteEvent): Promise<void> {

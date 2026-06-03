@@ -62,3 +62,6 @@ FloraFlow-handoff.zip
 
 # Production backup files — copy to cloud storage; don't commit large JSONB blobs
 supabase/backups/
+
+# Personal data exports — not for public repo
+cached_botanical_records_rows.csv

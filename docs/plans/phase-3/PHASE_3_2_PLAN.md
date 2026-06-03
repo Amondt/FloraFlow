@@ -19,7 +19,7 @@ Adds `growth_stage` to `plants`, updates the `snooze_plant_check` RPC to apply a
     ```
   - Then: `bunx supabase db test`
 
-- [ ] **Block B — RPC update: growth-stage multiplier** | Agent: `/plumber`
+- [x] **Block B — RPC update: growth-stage multiplier** | Agent: `/plumber`
   - New migration file (e.g. `20260604000002_snooze_growth_multiplier.sql`).
   - `CREATE OR REPLACE FUNCTION public.snooze_plant_check(p_plant_id UUID, p_snooze_days INT)` — signature unchanged.
   - Inside the function: read `growth_stage` from the plant row, derive multiplier (Seedling 0.5, Juvenile 1.0, Mature 1.0, Dormant 2.0), compute `v_effective_days = GREATEST(1, ROUND(p_snooze_days * multiplier)::INT)`, use `v_effective_days` for all three SET columns.

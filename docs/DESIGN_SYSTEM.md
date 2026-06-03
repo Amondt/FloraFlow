@@ -403,6 +403,79 @@ Use eyebrow pattern for real-time data state pages. Use standard pattern for CRU
 
 ---
 
+## 8. Mobile Touch Target Standards
+
+### 8.1 The 44 px floor
+
+FloraFlow targets WCAG 2.5.5 (Level AAA): every interactive element must expose a tap area of **at least 44×44 CSS px** on touch devices.
+
+| Authority | Minimum |
+|---|---|
+| WCAG 2.5.8 (Level AA, WCAG 2.2) | 24×24 px |
+| WCAG 2.5.5 (Level AAA) — FloraFlow floor | **44×44 px** |
+| Apple HIG | 44×44 pt |
+| Material Design | 48×48 dp (touch) / 44×44 dp (pointer) |
+
+### 8.2 Why `h-control` (38 px) is fine on desktop
+
+`@media (pointer: fine)` identifies accurate-pointer devices (mouse, trackpad, stylus). On these, users have sub-pixel precision and 38 px controls are comfortable. The 44 px rule applies only to `@media (pointer: coarse)` (touchscreens). All Phase 5 touch-target fixes are scoped to coarse-pointer contexts — **no visual change on desktop**.
+
+### 8.3 Tailwind variants
+
+`pointer-coarse:` is built into Tailwind v4. `pointer-fine:` is defined in `src/styles.input.css`:
+
+```css
+@custom-variant pointer-fine {
+  @media (pointer: fine) { @slot; }
+}
+```
+
+Do not use the arbitrary syntax `[@media(pointer:fine)]:hidden` — the named variant is shorter and self-documenting.
+
+### 8.4 Strategy A — raise `min-h-11` on the PT root (default)
+
+When a control's parent layout allows it to grow taller, add `pointer-coarse:min-h-11` to its PT `root` slot. Keeps 38 px on desktop, expands to 44 px on touch.
+
+```ts
+// In a PT file
+root: { class: 'h-control pointer-coarse:min-h-11 ...' }
+```
+
+### 8.5 Strategy B — invisible tap-expander span (constrained layouts)
+
+Use when the visual control **cannot grow** — icon-only buttons in card headers, inline action icons — where a taller element would break the surrounding layout.
+
+**The parent must have `relative` positioning.**
+
+```html
+<button class="relative ..." aria-label="Delete plant">
+  <!-- Invisible 44 px tap surface, centered on the button — touch only -->
+  <span aria-hidden="true"
+        class="absolute top-1/2 left-1/2 size-11 -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"></span>
+  <i class="pi pi-trash" aria-hidden="true"></i>
+</button>
+```
+
+How it works:
+
+- `absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2` — centers the span precisely over the button's tap point
+- `size-11` — 2.75 rem = 44 px square; no background, visually invisible
+- `pointer-fine:hidden` — removed from paint on mouse/trackpad; present on touch devices
+- `aria-hidden="true"` — screen readers skip it entirely
+
+Use `size-12` (3 rem = 48 px) for bottom navigation tabs where extra space is available.
+
+### 8.6 When to use which strategy
+
+| Situation | Strategy |
+|---|---|
+| Standard form control or labeled button with layout room to grow | A — `pointer-coarse:min-h-11` on PT root |
+| Icon-only button in a card header or toolbar | B — invisible span, `size-11` |
+| Bottom navigation tab | B — invisible span, `size-12` |
+| Full-width clickable card | Neither — card is already ≥ 44 px tall |
+
+---
+
 ## 7. UX Interaction Principles
 
 These principles are non-negotiable in every component. Each has a concrete implementation rule — apply them proactively, not only when the spec mentions them.

@@ -12,7 +12,7 @@
             id="vault-heading"
             class="text-3xl font-semibold font-display text-neutral-900 dark:text-white"
           >
-            Seed Vault
+            Seed bank
           </h1>
           @if (!batchService.loading()) {
             <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1 font-display">
@@ -32,7 +32,7 @@
           label="New batch"
           icon="pi pi-plus"
           [pt]="FloraButtonPT"
-          ariaLabel="Add a new seed batch to the vault"
+          ariaLabel="Add a new seed batch to your seed bank"
           (onClick)="openCreateDialog()"
         />
       </div>
@@ -95,7 +95,7 @@
               variant="outlined"
               [pt]="FloraButtonPT"
               class="mt-4"
-              ariaLabel="Add your first seed batch to the vault"
+              ariaLabel="Add your first seed batch to your seed bank"
               (onClick)="openCreateDialog()"
             />
           } @else {

@@ -99,15 +99,15 @@
       } @else if (!hasPlants()) {
         <div class="flex flex-col items-center justify-center py-20 text-center" role="status">
           <p class="text-neutral-500 dark:text-neutral-400 font-display text-base">
-            You have no plants yet. Add one in the Scheduler first.
+            You have no plants yet. Add one in Tasks first.
           </p>
           <a
-            href="/scheduler"
+            href="/tasks"
             class="mt-4 inline-flex items-center gap-1.5 text-sm font-medium font-display text-primary-600 hover:text-primary-700 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
-            aria-label="Go to the Scheduler to add your first plant"
+            aria-label="Go to Tasks to add your first plant"
           >
             <i class="pi pi-arrow-right text-xs" aria-hidden="true"></i>
-            Go to Scheduler
+            Go to Tasks
           </a>
         </div>
       } @else if (journalService.loadingEntries()) {

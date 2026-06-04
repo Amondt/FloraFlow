@@ -140,7 +140,7 @@
             @for (chip of attentionChips(); track chip.plant.id) {
               <li>
                 <a
-                  [routerLink]="['/scheduler']"
+                  [routerLink]="['/tasks']"
                   [queryParams]="{ plant: chip.plant.id }"
                   class="flex items-center gap-3 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md px-4 py-3 hover:border-primary-500 dark:hover:border-primary-400 transition-colors w-full outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
                   [attr.aria-label]="chipAriaLabel(chip)"
@@ -180,11 +180,11 @@
 
           <!-- View all link -->
           <a
-            routerLink="/scheduler"
+            routerLink="/tasks"
             class="mt-3 inline-flex items-center gap-1 text-xs font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
-            aria-label="View all plants in the Scheduler"
+            aria-label="View all plants in Tasks"
           >
-            View all in Scheduler
+            View all in Tasks
             <i class="pi pi-arrow-right text-xs" aria-hidden="true"></i>
           </a>
         }

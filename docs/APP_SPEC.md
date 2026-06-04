@@ -66,7 +66,7 @@ To maintain clean separation of concerns and isolate data fetching models from p
 
 See `src/app/app.routes.ts` for the full route map. All routes except `login` use `canActivate: [authGuard]`.
 
-**Naming rules:** No `.component` suffix (`scheduler.ts` not `scheduler.component.ts`). Guards are functional and lowercase (`authGuard`, `onboardingGuard`). Routes: `login`, `onboarding`, `dashboard`, `scheduler`, `journal`, `library`, `vault`. Default redirects to `dashboard`.
+**Naming rules:** No `.component` suffix (`scheduler.ts` not `scheduler.component.ts`). Guards are functional and lowercase (`authGuard`, `onboardingGuard`). Routes: `login`, `onboarding`, `dashboard`, `tasks`, `journal`, `library`, `seeds`. Default redirects to `dashboard`.
 
 **Route security model:** `login` — public. `onboarding` — `authGuard` only (logged in, not yet completed). All shell routes — `authGuard` + `onboardingGuard` (logged in and onboarding complete).
 

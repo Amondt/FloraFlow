@@ -38,13 +38,12 @@ export class ShellComponent {
 
   protected readonly offlineMessage = computed(() => {
     const url = this.currentUrl() ?? '';
-    if (url.startsWith('/scheduler'))
-      return 'You are offline. Soil checks will sync when reconnected.';
+    if (url.startsWith('/tasks')) return 'You are offline. Soil checks will sync when reconnected.';
     if (url.startsWith('/dashboard'))
       return 'You are offline. Zone changes will sync when reconnected.';
     if (url.startsWith('/journal')) return 'You are offline. Journal is read-only.';
     if (url.startsWith('/library')) return 'You are offline. Plant library is unavailable.';
-    if (url.startsWith('/vault')) return 'You are offline. Vault is unavailable.';
+    if (url.startsWith('/seeds')) return 'You are offline. Seed Bank is unavailable.';
     return 'You are offline.';
   });
 

@@ -131,7 +131,7 @@ Stored → Sown Indoors → Germinated → Potted Up → Hardened Off → Transp
     bun run test
     ```
 
-- [ ] **Block C — Vault Page Shell + Seed Batch Card** | Agent: `/visualizer`
+- [x] **Block C — Vault Page Shell + Seed Batch Card** | Agent: `/visualizer`
   - Create `src/app/features/vault/seed-batch-card/seed-batch-card.ts` and `.html`:
     - Inputs: `batch = input.required<SeedBatch>()`.
     - Outputs: `advanceRequested = output<void>()`, `editRequested = output<void>()`, `deleteRequested = output<void>()`, `graduateRequested = output<void>()`.

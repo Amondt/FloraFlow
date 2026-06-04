@@ -1,0 +1,118 @@
+<article
+  class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700/50 rounded-garden-md overflow-hidden transition-colors duration-150 hover:border-primary-500 dark:hover:border-primary-400 focus-within:ring-2 focus-within:ring-primary-500 focus-within:ring-offset-2"
+  [attr.aria-labelledby]="headingId()"
+>
+  <div class="px-4 pt-4 pb-3">
+    <div class="flex items-start gap-2 mb-1">
+      <span [class]="stageBadgeClass()">{{ batch().current_stage }}</span>
+    </div>
+
+    <h3
+      [id]="headingId()"
+      class="text-sm font-semibold font-display text-neutral-900 dark:text-white leading-snug"
+    >
+      {{ batch().common_name }}
+    </h3>
+
+    @if (batch().scientific_name) {
+      <p class="text-xs italic text-neutral-400 dark:text-neutral-500 font-display mt-0.5">
+        {{ batch().scientific_name }}
+      </p>
+    }
+
+    @if (batch().brand || batch().packet_year) {
+      <p class="text-xs text-neutral-400 dark:text-neutral-500 font-display mt-2">
+        @if (batch().brand) {
+          <span>{{ batch().brand }}</span>
+        }
+        @if (batch().brand && batch().packet_year) {
+          <span aria-hidden="true"> · </span>
+        }
+        @if (batch().packet_year) {
+          <span>{{ batch().packet_year }}</span>
+        }
+      </p>
+    }
+
+    @if (batch().sown_at || batch().germinated_at) {
+      <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2">
+        @if (batch().sown_at) {
+          <p class="text-xs font-display text-neutral-400 dark:text-neutral-500">
+            <span class="font-medium text-neutral-500 dark:text-neutral-400">Sown</span>
+            {{ formatDate(batch().sown_at!) }}
+          </p>
+        }
+        @if (batch().germinated_at) {
+          <p class="text-xs font-display text-neutral-400 dark:text-neutral-500">
+            <span class="font-medium text-neutral-500 dark:text-neutral-400">Germinated</span>
+            {{ formatDate(batch().germinated_at!) }}
+          </p>
+        }
+      </div>
+    }
+
+    @if (batch().notes) {
+      <p
+        class="text-xs text-neutral-500 dark:text-neutral-400 font-display mt-2 line-clamp-2 leading-relaxed"
+      >
+        {{ batch().notes }}
+      </p>
+    }
+  </div>
+
+  <footer
+    class="px-4 py-2.5 bg-neutral-50 dark:bg-neutral-800/50 border-t border-neutral-100 dark:border-neutral-700/50 flex flex-wrap items-center gap-2"
+  >
+    @if (!isTerminalStage()) {
+      <button
+        type="button"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold font-display rounded-garden-sm bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+        [attr.aria-label]="'Advance ' + batch().common_name + ' to next growth stage'"
+        (click)="advanceRequested.emit()"
+      >
+        <i class="pi pi-arrow-right text-xs" aria-hidden="true"></i>
+        Advance Stage
+      </button>
+    }
+
+    @if (canGraduate()) {
+      <button
+        type="button"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold font-display rounded-garden-sm border border-primary-500 text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+        [attr.aria-label]="'Graduate ' + batch().common_name + ' to a tracked plant'"
+        (click)="graduateRequested.emit()"
+      >
+        <i class="pi pi-external-link text-xs" aria-hidden="true"></i>
+        Graduate to Plant
+      </button>
+    }
+
+    <div class="flex-1" aria-hidden="true"></div>
+
+    <button
+      type="button"
+      class="relative text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
+      [attr.aria-label]="'Edit ' + batch().common_name"
+      (click)="editRequested.emit()"
+    >
+      <span
+        aria-hidden="true"
+        class="absolute top-1/2 left-1/2 size-11 -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"
+      ></span>
+      Edit
+    </button>
+
+    <button
+      type="button"
+      class="relative text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-danger-500 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
+      [attr.aria-label]="'Delete ' + batch().common_name"
+      (click)="deleteRequested.emit()"
+    >
+      <span
+        aria-hidden="true"
+        class="absolute top-1/2 left-1/2 size-11 -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"
+      ></span>
+      Delete
+    </button>
+  </footer>
+</article>

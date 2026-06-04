@@ -1,0 +1,137 @@
+<main class="p-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen" aria-labelledby="vault-heading">
+  <div class="max-w-5xl mx-auto">
+    <header class="mb-8">
+      <div class="flex items-end justify-between gap-4">
+        <div>
+          <p
+            class="text-xs font-semibold uppercase tracking-widest text-primary-600 dark:text-primary-400 font-display mb-1"
+          >
+            Germination tracker
+          </p>
+          <h1
+            id="vault-heading"
+            class="text-3xl font-semibold font-display text-neutral-900 dark:text-white"
+          >
+            Seed Vault
+          </h1>
+          @if (!batchService.loading()) {
+            <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1 font-display">
+              @let total = totalCount();
+              @let active = activeCount();
+              @if (total === 0) {
+                Track your seeds from packet to garden
+              } @else if (active > 0) {
+                {{ total }} {{ total === 1 ? 'batch' : 'batches' }} · {{ active }} actively growing
+              } @else {
+                {{ total }} {{ total === 1 ? 'batch' : 'batches' }} in storage
+              }
+            </p>
+          }
+        </div>
+        <p-button
+          label="New batch"
+          icon="pi pi-plus"
+          [pt]="FloraButtonPT"
+          ariaLabel="Add a new seed batch to the vault"
+          (onClick)="openCreateDialog()"
+        />
+      </div>
+    </header>
+
+    @if (!batchService.loading()) {
+      <div
+        class="flex border-b border-neutral-200 dark:border-neutral-700 mb-4 overflow-x-auto overflow-y-hidden"
+        role="tablist"
+        aria-label="Filter batches by growth stage"
+      >
+        @for (stage of stageFilters; track stage) {
+          <button
+            type="button"
+            role="tab"
+            [class]="getStageTabClass(stage)"
+            [attr.aria-selected]="selectedStageFilter() === stage"
+            (click)="selectedStageFilter.set(stage)"
+          >
+            {{ stage }}
+            <span [class]="getStageTabCountClass(stage)" aria-hidden="true">
+              {{ getBatchCount(stage) }}
+            </span>
+          </button>
+        }
+      </div>
+    }
+
+    <span class="sr-only" aria-live="polite" aria-atomic="true">
+      @if (!batchService.loading()) {
+        @let count = filteredBatches().length;
+        {{ count }} {{ count === 1 ? 'batch' : 'batches' }}
+        @if (selectedStageFilter() !== 'All') {
+          in {{ selectedStageFilter() }} stage
+        }
+      }
+    </span>
+
+    <section aria-label="Seed batch list" [attr.aria-busy]="batchService.loading()">
+      @if (batchService.loading()) {
+        <ul class="flex flex-col gap-4" aria-label="Loading seed batches">
+          @for (_ of loadingPlaceholders; track $index) {
+            <li aria-hidden="true">
+              <p-skeleton height="8rem" [pt]="FloraSkeletonPT" />
+            </li>
+          }
+        </ul>
+      } @else if (batchService.error()) {
+        <p-message severity="error" [pt]="FloraMessagePT">
+          Failed to load seed batches — check your connection and refresh.
+        </p-message>
+      } @else if (filteredBatches().length === 0) {
+        <div class="flex flex-col items-center justify-center py-20 text-center" role="status">
+          @if (batchService.batches().length === 0) {
+            <p class="text-neutral-500 dark:text-neutral-400 font-display text-base">
+              No seed batches yet. Start tracking your seeds from packet to garden.
+            </p>
+            <p-button
+              label="Add your first seed batch"
+              variant="outlined"
+              [pt]="FloraButtonPT"
+              class="mt-4"
+              ariaLabel="Add your first seed batch to the vault"
+              (onClick)="openCreateDialog()"
+            />
+          } @else {
+            <p class="text-neutral-500 dark:text-neutral-400 font-display text-base">
+              No batches in the "{{ selectedStageFilter() }}" stage.
+            </p>
+          }
+        </div>
+      } @else {
+        <ul class="flex flex-col gap-4" aria-label="Seed batches">
+          @for (batch of filteredBatches(); track batch.id) {
+            <li>
+              <app-seed-batch-card
+                [batch]="batch"
+                (advanceRequested)="confirmAdvance(batch)"
+                (editRequested)="openEditDialog(batch)"
+                (deleteRequested)="confirmDelete(batch)"
+                (graduateRequested)="onGraduateRequested(batch)"
+              />
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    <p-confirmdialog [pt]="FloraConfirmDialogPT" />
+  </div>
+</main>
+
+<p-toast position="bottom-right" [pt]="FloraToastPT">
+  <ng-template let-msg #message>
+    <div class="flex flex-col gap-0.5 flex-1">
+      <span class="font-semibold text-sm">{{ msg.summary }}</span>
+      @if (msg.detail) {
+        <span class="text-xs text-neutral-500 dark:text-neutral-400">{{ msg.detail }}</span>
+      }
+    </div>
+  </ng-template>
+</p-toast>

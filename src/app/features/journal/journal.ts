@@ -24,6 +24,7 @@ import {
   CATEGORY_OPTIONS,
   type LogCategoryType,
 } from './journal-categories';
+import { tabClass, tabCountClass } from '../../shared/utils/tab-styles.util';
 
 type ResolvedEntry = JournalEntryWithPlant & { imageUrl: string | null };
 
@@ -40,17 +41,6 @@ const CATEGORY_FILTER_OPTIONS: FilterOption[] = [
   { label: 'All', value: null, icon: null },
   ...CATEGORY_OPTIONS.map((opt) => ({ ...opt, icon: CATEGORY_ICON[opt.value] })),
 ];
-
-const TAB_BASE =
-  'inline-flex items-center gap-1.5 px-3.5 py-2.5 text-[0.8125rem] font-semibold font-display border-b-2 -mb-px shrink-0 whitespace-nowrap cursor-pointer transition-colors duration-150 outline-none focus-visible:!border-primary-500 dark:focus-visible:!border-primary-400';
-const TAB_ACTIVE = 'border-primary-500 text-primary-700 dark:text-primary-400';
-const TAB_INACTIVE =
-  'border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200';
-
-const TAB_COUNT_ACTIVE =
-  'font-mono text-[0.7rem] px-1.5 py-px rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400';
-const TAB_COUNT_INACTIVE =
-  'font-mono text-[0.7rem] px-1.5 py-px rounded-full bg-neutral-100 dark:bg-neutral-700 text-neutral-400 dark:text-neutral-500';
 
 @Component({
   selector: 'app-journal',
@@ -188,11 +178,11 @@ export class JournalComponent {
   }
 
   protected getTabClass(value: LogCategoryType | null): string {
-    return `${TAB_BASE} ${this.selectedCategory() === value ? TAB_ACTIVE : TAB_INACTIVE}`;
+    return tabClass(this.selectedCategory() === value);
   }
 
   protected getTabCountClass(value: LogCategoryType | null): string {
-    return this.selectedCategory() === value ? TAB_COUNT_ACTIVE : TAB_COUNT_INACTIVE;
+    return tabCountClass(this.selectedCategory() === value);
   }
 
   protected getDayGroupClass(first: boolean): string {

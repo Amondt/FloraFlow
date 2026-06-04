@@ -22,6 +22,7 @@ export class PlantAlertCardComponent {
   readonly zoneName = input<string | null>(null);
   readonly checkNow = output<Plant>();
   readonly edit = output<Plant>();
+  readonly deleteRequested = output<Plant>();
 
   readonly headingId = computed(() => `plant-heading-${this.plant().id}`);
 

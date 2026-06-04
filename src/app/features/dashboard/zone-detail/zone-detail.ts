@@ -402,7 +402,6 @@ export class ZoneDetailComponent {
   }
 
   onDeleteRequested(plant: Plant): void {
-    this.plantFormVisible.set(false);
     this.confirmService.confirm({
       message: `Remove "${plant.common_name}"? You can undo this.`,
       header: 'Delete plant',

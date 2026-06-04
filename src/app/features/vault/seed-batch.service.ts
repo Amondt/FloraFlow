@@ -7,6 +7,7 @@ export class SeedBatchService {
   private readonly supabase = inject(SupabaseService);
 
   readonly batches = signal<SeedBatch[]>([]);
+  readonly archivedBatches = signal<SeedBatch[]>([]);
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
 
@@ -17,6 +18,7 @@ export class SeedBatchService {
     const { data, error } = await this.supabase.client
       .from('seed_batches')
       .select('*')
+      .is('archived_at', null)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -82,6 +84,84 @@ export class SeedBatchService {
     this.batches.update((all) => all.filter((b) => b.id !== id));
   }
 
+  /** Removes the batch from the appropriate signal immediately, with no DB call.
+   *  Call this before scheduling a deferred delete or archive so the UI reacts instantly. */
+  optimisticallyRemoveBatch(batch: SeedBatch): void {
+    if (batch.archived_at) {
+      this.archivedBatches.update((all) => all.filter((b) => b.id !== batch.id));
+    } else {
+      this.batches.update((all) => all.filter((b) => b.id !== batch.id));
+    }
+  }
+
+  /** Prepends a previously removed batch back to the correct signal.
+   *  Call this when the user clicks Undo on a delete or archive toast. */
+  restoreBatch(batch: SeedBatch): void {
+    if (batch.archived_at) {
+      this.archivedBatches.update((all) => [batch, ...all]);
+    } else {
+      this.batches.update((all) => [batch, ...all]);
+    }
+  }
+
+  async unarchiveBatch(id: string): Promise<void> {
+    this.error.set(null);
+
+    const { data, error } = await this.supabase.client
+      .from('seed_batches')
+      .update({ archived_at: null })
+      .eq('id', id)
+      .select('*')
+      .single();
+
+    if (error) {
+      this.error.set(error.message);
+      return;
+    }
+
+    this.archivedBatches.update((all) => all.filter((b) => b.id !== id));
+    if (data) {
+      this.batches.update((all) => [data as SeedBatch, ...all]);
+    }
+  }
+
+  async loadArchivedBatches(): Promise<void> {
+    this.error.set(null);
+
+    const { data, error } = await this.supabase.client
+      .from('seed_batches')
+      .select('*')
+      .not('archived_at', 'is', null)
+      .order('archived_at', { ascending: false });
+
+    if (error) {
+      this.error.set(error.message);
+    } else {
+      this.archivedBatches.set((data ?? []) as SeedBatch[]);
+    }
+  }
+
+  async archiveBatch(id: string): Promise<void> {
+    this.error.set(null);
+
+    const { data, error } = await this.supabase.client
+      .from('seed_batches')
+      .update({ archived_at: new Date().toISOString() })
+      .eq('id', id)
+      .select('*')
+      .single();
+
+    if (error) {
+      this.error.set(error.message);
+      return;
+    }
+
+    this.batches.update((all) => all.filter((b) => b.id !== id));
+    if (data) {
+      this.archivedBatches.update((all) => [data as SeedBatch, ...all]);
+    }
+  }
+
   async advanceStage(batch: SeedBatch): Promise<void> {
     const currentIndex = SEED_STAGE_OPTIONS.indexOf(batch.current_stage);
     if (currentIndex === SEED_STAGE_OPTIONS.length - 1) return;
@@ -108,6 +188,10 @@ export class SeedBatchService {
     }
 
     this.batches.update((all) => all.map((b) => (b.id === batch.id ? { ...b, ...payload } : b)));
+
+    if (nextStage === 'Transplanted Outside') {
+      await this.archiveBatch(batch.id);
+    }
   }
 
   private async _refreshBatch(id: string): Promise<void> {

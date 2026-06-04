@@ -1,10 +1,16 @@
 -- =====================================================================
--- FloraFlow Test Data Reset
+-- FloraFlow Test Data Reset — Full (all tables)
 -- User: 00000000-0000-0000-0000-000000000001 (FloraFlow Admin)
 --
 -- Preserves: cached_botanical_records (DO NOT TOUCH)
 -- Clears:    plant_journals, plants, zones, seed_batches
 -- Re-seeds:  4 zones, 12 plants, 9 journal entries, 8 seed batches
+--
+-- To repopulate a single table, run its dedicated snippet instead:
+--   reset_zones.sql          — no dependencies
+--   reset_plants.sql         — requires zones to exist
+--   reset_journals.sql       — requires plants to exist
+--   reset_seed_batches.sql   — no dependencies (safe to run standalone)
 --
 -- Coverage matrix:
 --   Urgency:    OVERDUE (3) | DUE TODAY (2) | DUE THIS WEEK (3) | UPCOMING (4)

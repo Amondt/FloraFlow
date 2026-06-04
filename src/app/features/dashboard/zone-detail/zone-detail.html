@@ -403,6 +403,15 @@
                       >
                         Edit
                       </button>
+
+                      <button
+                        type="button"
+                        class="text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-danger-500 transition-colors cursor-pointer px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-danger-500"
+                        [attr.aria-label]="'Delete ' + ep.plant.common_name"
+                        (click)="onDeleteRequested(ep.plant)"
+                      >
+                        Delete
+                      </button>
                       @if (
                         ep.plant.scientific_name && enrichedRecordFor(ep.plant.scientific_name)
                       ) {
@@ -485,7 +494,6 @@
       [plant]="editingPlant()"
       [defaultZoneId]="id()"
       (saved)="onPlantSaved($event)"
-      (deleteRequested)="onDeleteRequested($event)"
     />
 
     <app-botanical-detail-dialog

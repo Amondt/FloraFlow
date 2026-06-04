@@ -71,8 +71,6 @@ export class SchedulerComponent {
   readonly dialogVisible = signal(false);
   readonly plantFormVisible = signal(false);
   readonly plantFormTarget = signal<Plant | null>(null);
-  readonly plantToDelete = signal<Plant | null>(null);
-
   private readonly _deleteManager = new PendingDeleteManager();
   // Public alias so existing tests can still call component.pendingDeleteIds.set(...)
   readonly pendingDeleteIds = this._deleteManager.pendingIds;
@@ -194,15 +192,12 @@ export class SchedulerComponent {
   }
 
   onDeleteRequested(plant: Plant): void {
-    this.plantToDelete.set(plant);
-    this.plantFormVisible.set(false);
     this.confirmService.confirm({
       message: `Remove "${plant.common_name}"? You can undo this.`,
       header: 'Delete plant',
       acceptLabel: 'Delete',
       rejectLabel: 'Cancel',
       accept: () => {
-        this.plantToDelete.set(null);
         this.messageService.add({
           severity: 'warn',
           summary: 'Plant deleted',
@@ -221,9 +216,7 @@ export class SchedulerComponent {
           }
         });
       },
-      reject: () => {
-        this.plantToDelete.set(null);
-      },
+      reject: () => {},
     });
   }
 

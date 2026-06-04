@@ -68,7 +68,6 @@ export class PlantFormDialogComponent {
   } | null>(null);
   readonly visible = model<boolean>(false);
   readonly saved = output<PlantFormData>();
-  readonly deleteRequested = output<Plant>();
 
   protected readonly FloraDialogPT = FloraDialogPT;
   protected readonly FloraInputTextPT = FloraInputTextPT;
@@ -244,13 +243,6 @@ export class PlantFormDialogComponent {
 
     this.saved.emit(data);
     this.close();
-  }
-
-  onDelete(): void {
-    const p = this.plant();
-    if (p) {
-      this.deleteRequested.emit(p);
-    }
   }
 
   onCancel(): void {

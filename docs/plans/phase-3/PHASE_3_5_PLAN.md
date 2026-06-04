@@ -249,7 +249,7 @@ Stored → Sown Indoors → Germinated → Potted Up → Hardened Off → Transp
     8. Open DevTools Console → zero red errors.
     ```
 
-- [ ] **Block G — Archive End State** | Agent: `/plumber` → `/visualizer`
+- [x] **Block G — Archive End State** | Agent: `/plumber` → `/visualizer`
   - **Plumber:**
   - Create a new migration `<timestamp>_seed_batches_archive.sql`:
     ```sql

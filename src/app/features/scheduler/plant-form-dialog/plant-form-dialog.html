@@ -233,18 +233,6 @@
   </form>
 
   <ng-template #footer>
-    @let currentPlant = plant();
-    @if (currentPlant) {
-      <p-button
-        label="Delete plant"
-        severity="danger"
-        variant="text"
-        [pt]="FloraButtonPT"
-        [ariaLabel]="'Delete ' + currentPlant.common_name"
-        class="mr-auto"
-        (onClick)="onDelete()"
-      />
-    }
     <p-button
       label="Cancel"
       variant="text"

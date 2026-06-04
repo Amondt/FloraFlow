@@ -17,6 +17,7 @@ function makeBatch(overrides: Partial<SeedBatch> = {}): SeedBatch {
     sown_at: null,
     germinated_at: null,
     notes: null,
+    archived_at: null,
     created_at: now,
     updated_at: now,
     ...overrides,
@@ -29,7 +30,14 @@ describe('SeedBatchService — advanceStage()', () => {
   let mockEq: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
-    mockEq = vi.fn().mockResolvedValue({ error: null });
+    // archiveBatch chains .select('*').single() after .eq(); other update calls
+    // just await .eq() directly. Using Object.assign on a Promise gives us a
+    // thenable that also exposes .select so both code paths work.
+    const mockSingle = vi.fn().mockResolvedValue({ data: null, error: null });
+    const mockSelect = vi.fn().mockReturnValue({ single: mockSingle });
+    mockEq = vi
+      .fn()
+      .mockReturnValue(Object.assign(Promise.resolve({ error: null }), { select: mockSelect }));
     mockUpdate = vi.fn().mockReturnValue({ eq: mockEq });
 
     await TestBed.configureTestingModule({
@@ -85,6 +93,21 @@ describe('SeedBatchService — advanceStage()', () => {
     expect(payload['germinated_at']).toBeTruthy();
     expect(service.batches()[0].current_stage).toBe('Germinated');
     expect(service.batches()[0].germinated_at).toBeTruthy();
+  });
+
+  it('advances to Transplanted Outside, auto-archives, and removes the batch from the active list', async () => {
+    const batch = makeBatch({ current_stage: 'Hardened Off' });
+    service.batches.set([batch]);
+
+    await service.advanceStage(batch);
+
+    const advancePayload = mockUpdate.mock.calls[0][0] as Record<string, unknown>;
+    expect(advancePayload['current_stage']).toBe('Transplanted Outside');
+
+    const archivePayload = mockUpdate.mock.calls[1][0] as Record<string, unknown>;
+    expect(archivePayload['archived_at']).toBeTruthy();
+
+    expect(service.batches()).toHaveLength(0);
   });
 
   it('advances from Germinated to Potted Up without adding timestamp fields to the payload', async () => {

@@ -27,8 +27,20 @@ export class SeedBatchCardComponent {
   readonly editRequested = output<void>();
   readonly deleteRequested = output<void>();
   readonly graduateRequested = output<void>();
+  readonly archiveRequested = output<void>();
 
   readonly headingId = computed(() => `seed-batch-heading-${this.batch().id}`);
+
+  readonly isArchived = computed(() => !!this.batch().archived_at);
+
+  readonly articleClass = computed(() => {
+    const base =
+      'border border-neutral-200 dark:border-neutral-700/50 rounded-garden-md overflow-hidden';
+    if (this.isArchived()) {
+      return `bg-neutral-50 dark:bg-neutral-800/50 ${base}`;
+    }
+    return `bg-white dark:bg-neutral-800 ${base} transition-colors duration-150 hover:border-primary-500 dark:hover:border-primary-400 focus-within:ring-2 focus-within:ring-primary-500 focus-within:ring-offset-2`;
+  });
 
   readonly isTerminalStage = computed(() => {
     const idx = SEED_STAGE_OPTIONS.indexOf(this.batch().current_stage);

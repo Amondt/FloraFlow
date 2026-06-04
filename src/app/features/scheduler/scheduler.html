@@ -133,6 +133,7 @@
                     [zoneName]="zoneMap().get(plant.zone_id)?.name ?? null"
                     (checkNow)="onCheckNow($event)"
                     (edit)="openEditPlant($event)"
+                    (deleteRequested)="onDeleteRequested($event)"
                   />
                 </li>
               }
@@ -167,6 +168,7 @@
                     [zoneName]="zoneMap().get(plant.zone_id)?.name ?? null"
                     (checkNow)="onCheckNow($event)"
                     (edit)="openEditPlant($event)"
+                    (deleteRequested)="onDeleteRequested($event)"
                   />
                 </li>
               }
@@ -201,6 +203,7 @@
                     [zoneName]="zoneMap().get(plant.zone_id)?.name ?? null"
                     (checkNow)="onCheckNow($event)"
                     (edit)="openEditPlant($event)"
+                    (deleteRequested)="onDeleteRequested($event)"
                   />
                 </li>
               }
@@ -235,6 +238,7 @@
                     [zoneName]="zoneMap().get(plant.zone_id)?.name ?? null"
                     (checkNow)="onCheckNow($event)"
                     (edit)="openEditPlant($event)"
+                    (deleteRequested)="onDeleteRequested($event)"
                   />
                 </li>
               }
@@ -271,7 +275,6 @@
       [plant]="plantFormTarget()"
       [(visible)]="plantFormVisible"
       (saved)="onPlantSaved($event)"
-      (deleteRequested)="onDeleteRequested($event)"
     />
 
     <p-confirmdialog [pt]="FloraConfirmDialogPT" />

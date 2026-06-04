@@ -249,6 +249,7 @@ export type Database = {
       };
       seed_batches: {
         Row: {
+          archived_at: string | null;
           brand: string | null;
           common_name: string;
           created_at: string;
@@ -263,6 +264,7 @@ export type Database = {
           user_id: string;
         };
         Insert: {
+          archived_at?: string | null;
           brand?: string | null;
           common_name: string;
           created_at?: string;
@@ -277,6 +279,7 @@ export type Database = {
           user_id: string;
         };
         Update: {
+          archived_at?: string | null;
           brand?: string | null;
           common_name?: string;
           created_at?: string;

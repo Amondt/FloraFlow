@@ -65,7 +65,9 @@
       @if (!batchService.loading()) {
         @let count = filteredBatches().length;
         {{ count }} {{ count === 1 ? 'batch' : 'batches' }}
-        @if (selectedStageFilter() !== 'All') {
+        @if (selectedStageFilter() === 'Archived') {
+          archived
+        } @else if (selectedStageFilter() !== 'All') {
           in {{ selectedStageFilter() }} stage
         }
       }
@@ -86,7 +88,11 @@
         </p-message>
       } @else if (filteredBatches().length === 0) {
         <div class="flex flex-col items-center justify-center py-20 text-center" role="status">
-          @if (batchService.batches().length === 0) {
+          @if (selectedStageFilter() === 'Archived') {
+            <p class="text-neutral-500 dark:text-neutral-400 font-display text-base">
+              No batches have been archived yet.
+            </p>
+          } @else if (batchService.batches().length === 0) {
             <p class="text-neutral-500 dark:text-neutral-400 font-display text-base">
               No seed batches yet. Start tracking your seeds from packet to garden.
             </p>
@@ -112,8 +118,9 @@
                 [batch]="batch"
                 (advanceRequested)="confirmAdvance(batch)"
                 (editRequested)="openEditDialog(batch)"
-                (deleteRequested)="confirmDelete(batch)"
+                (deleteRequested)="onDeleteRequested(batch)"
                 (graduateRequested)="onGraduateRequested(batch)"
+                (archiveRequested)="confirmArchive(batch)"
               />
             </li>
           }
@@ -146,5 +153,15 @@
         <span class="text-xs text-neutral-500 dark:text-neutral-400">{{ msg.detail }}</span>
       }
     </div>
+    @if (msg.data?.canUndo) {
+      <button
+        type="button"
+        class="cursor-pointer text-xs font-semibold text-primary-600 flex-shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-0.5 hover:opacity-80 transition-colors"
+        (click)="undoDelete(msg.data.batch)"
+        aria-label="Undo delete"
+      >
+        Undo
+      </button>
+    }
   </ng-template>
 </p-toast>

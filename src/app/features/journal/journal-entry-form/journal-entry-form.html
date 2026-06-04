@@ -101,11 +101,20 @@
         placeholder="Describe what you observed or did…"
         rows="3"
       ></textarea>
-      @if (notesCtrl.invalid && notesCtrl.touched) {
-        <small [id]="notesId + '-error'" class="text-danger-500 text-xs font-display" role="alert">
-          Notes must be 1000 characters or fewer.
-        </small>
-      }
+      <div class="flex items-start gap-2">
+        @if (notesCtrl.invalid && notesCtrl.touched) {
+          <small
+            [id]="notesId + '-error'"
+            class="text-danger-500 text-xs font-display flex-1"
+            role="alert"
+          >
+            Notes must be 1000 characters or fewer.
+          </small>
+        }
+        <span class="text-xs font-display text-neutral-400 ml-auto shrink-0">
+          {{ notesCtrl.value?.length ?? 0 }}/1000
+        </span>
+      </div>
     </div>
 
     <!-- Date (optional) -->
@@ -115,7 +124,7 @@
         class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
       >
         Date
-        <span class="text-neutral-400 font-normal text-xs ml-1">(optional — defaults to now)</span>
+        <span class="text-neutral-400 font-normal text-xs ml-1">(optional)</span>
       </label>
       <input
         pInputText
@@ -127,6 +136,9 @@
         class="h-control font-display"
         aria-label="Date of care event — optional, defaults to the current time"
       />
+      <small class="text-neutral-400 text-xs font-display" role="note">
+        Leave empty to log now.
+      </small>
     </div>
 
     <!-- Photo (optional) -->
@@ -138,102 +150,44 @@
         Photo
         <span class="text-neutral-400 font-normal text-xs ml-1">(optional)</span>
       </label>
+
+      <!-- Hidden native input — receives the actual file selection -->
       <input
         type="file"
         [id]="photoId"
+        #photoInputRef
         accept="image/*"
-        class="block w-full rounded-garden-sm border border-neutral-200 dark:border-neutral-600 text-sm text-neutral-600 dark:text-neutral-300 font-display outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 file:h-control file:cursor-pointer file:border-0 file:border-r file:border-neutral-200 dark:file:border-neutral-600 file:bg-neutral-50 dark:file:bg-neutral-700 file:mr-3 file:px-3 file:text-sm file:font-medium file:text-neutral-600 dark:file:text-neutral-200 file:font-display hover:file:bg-neutral-100 dark:hover:file:bg-neutral-600 file:transition-colors file:duration-150"
+        class="sr-only"
         aria-label="Upload a photo for this care event — optional, will be compressed to under 300 KB"
         (change)="onFileChange($event)"
       />
-      @if (compressedLabel()) {
-        <p class="text-xs font-display text-success-500 flex items-center gap-1" role="status">
-          <i class="pi pi-check-circle" aria-hidden="true"></i>
-          Image ready — {{ compressedLabel() }}
-        </p>
-      }
 
-      @if (compressedLabel() && diagnosisState() === 'idle') {
-        <p-button
-          label="Analyze with Leaf Doctor"
-          variant="outlined"
-          icon="pi pi-eye"
-          [pt]="FloraButtonPT"
-          ariaLabel="Analyze this photo with Leaf Doctor AI diagnostics"
-          (onClick)="analyzePlant()"
-        />
-      }
+      <!-- Custom styled trigger — avoids browser-locale button labels -->
+      <button
+        type="button"
+        [class]="
+          FLORA_FOCUS +
+          ' flex w-full items-center gap-2 px-3 h-control text-sm font-medium font-display text-neutral-600 dark:text-neutral-200 bg-neutral-50 dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 rounded-garden-sm hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-150'
+        "
+        aria-label="Choose a photo for this care event"
+        (click)="triggerPhotoInput()"
+      >
+        <i class="pi pi-paperclip text-xs" aria-hidden="true"></i>
+        Choose photo
+      </button>
 
-      @if (diagnosisState() === 'loading') {
-        <p-button
-          label="Analyzing…"
-          variant="outlined"
-          icon="pi pi-eye"
-          [pt]="FloraButtonPT"
-          ariaLabel="Leaf Doctor is analyzing the photo, please wait"
-          [loading]="true"
-          [disabled]="true"
-        />
-      }
-
-      @if (diagnosisState() === 'success') {
-        @let result = diagnosisResult();
-        @if (result) {
-          <section
-            aria-label="Leaf Doctor diagnosis"
-            class="flex flex-col gap-2 rounded-garden-md border border-neutral-200 p-3"
-          >
-            <p class="text-sm font-semibold text-neutral-900 font-display">
-              {{ result.primary_condition }}
-            </p>
-            <div class="flex flex-wrap items-center gap-2">
-              <span
-                [class]="
-                  confidenceBadgeClass(result.confidence_score) +
-                  ' text-xs font-medium font-display px-2 py-0.5 rounded-garden-sm'
-                "
-                [attr.aria-label]="'Confidence: ' + confidenceBadgeLabel(result.confidence_score)"
-              >
-                {{ confidenceBadgeLabel(result.confidence_score) }}
-              </span>
-              <span
-                [class]="
-                  riskBadgeClass(result.systemic_risk_assessment) +
-                  ' text-xs font-medium font-display px-2 py-0.5 rounded-garden-sm'
-                "
-                [attr.aria-label]="'Risk level: ' + result.systemic_risk_assessment"
-              >
-                {{ result.systemic_risk_assessment }}
-              </span>
-            </div>
-            @if (result.immediate_remedial_actions.length) {
-              <ul
-                class="list-disc pl-4 space-y-0.5 text-xs font-display text-neutral-700"
-                aria-label="Recommended actions"
-              >
-                @for (action of result.immediate_remedial_actions; track action) {
-                  <li>{{ action }}</li>
-                }
-              </ul>
-            }
-          </section>
-        }
-      }
-
-      @if (diagnosisState() === 'not-botanical') {
-        <p-message
-          severity="warn"
-          text="This doesn't look like a plant photo. Try a clear close-up of a leaf or stem."
-          [pt]="FloraMessagePT"
-        />
-      }
-
-      @if (diagnosisState() === 'error') {
-        <p-message
-          severity="error"
-          text="Leaf Doctor is unavailable — your photo will still be saved."
-          [pt]="FloraMessagePT"
-        />
+      @if (compressedBlob()) {
+        <div class="flex items-center gap-3">
+          <img
+            [src]="previewObjectUrl()"
+            alt="Compressed photo preview"
+            class="w-16 h-16 rounded-garden-sm object-cover border border-neutral-200 dark:border-neutral-700"
+          />
+          <p class="text-xs font-display text-success-500 flex items-center gap-1" role="status">
+            <i class="pi pi-check-circle" aria-hidden="true"></i>
+            {{ compressedLabel() }} — ready to save
+          </p>
+        </div>
       }
     </div>
   </form>

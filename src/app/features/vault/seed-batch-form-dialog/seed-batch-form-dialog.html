@@ -7,6 +7,7 @@
   [resizable]="false"
   [dismissableMask]="true"
   [pt]="FloraDialogPT"
+  (onHide)="onHide()"
 >
   <form
     [formGroup]="form"
@@ -22,21 +23,62 @@
         Seed name
         <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
         <span class="sr-only">(required)</span>
+        <span class="text-neutral-400 font-normal text-xs ml-1">(common or scientific name)</span>
       </label>
-      <input
-        pInputText
-        [id]="commonNameId"
-        formControlName="common_name"
-        [pt]="FloraInputTextPT"
-        [class]="nameCtrl.invalid && nameCtrl.touched ? FLORA_ERROR : ''"
-        [attr.aria-invalid]="nameCtrl.invalid && nameCtrl.touched"
-        [attr.aria-describedby]="
-          nameCtrl.invalid && nameCtrl.touched ? commonNameId + '-error' : null
-        "
-        aria-required="true"
-        placeholder="e.g. Cherry Tomato, Sweet Basil"
-        autocomplete="off"
-      />
+      @if (selectedPerenualId() !== null) {
+        <input
+          pInputText
+          [id]="commonNameId"
+          [ngModel]="commonNameQuery"
+          (ngModelChange)="onCommonNameChange($event)"
+          [ngModelOptions]="{ standalone: true }"
+          [pt]="FloraInputTextPT"
+          [class]="nameCtrl.invalid && nameCtrl.touched ? FLORA_ERROR : ''"
+          [attr.aria-invalid]="nameCtrl.invalid && nameCtrl.touched"
+          [attr.aria-describedby]="
+            nameCtrl.invalid && nameCtrl.touched ? commonNameId + '-error' : null
+          "
+          aria-required="true"
+          placeholder="e.g. Cherry Tomato, Sweet Basil"
+          autocomplete="off"
+        />
+      } @else {
+        <p-autocomplete
+          #nameAC
+          [inputId]="commonNameId"
+          [ngModel]="commonNameQuery"
+          (ngModelChange)="onCommonNameChange($event)"
+          [ngModelOptions]="{ standalone: true }"
+          [suggestions]="suggestions()"
+          optionLabel="common_name"
+          [delay]="300"
+          [minLength]="2"
+          [pt]="FloraAutoCompletePT"
+          [class]="nameCtrl.invalid && nameCtrl.touched ? FLORA_ERROR : ''"
+          [attr.aria-invalid]="nameCtrl.invalid && nameCtrl.touched"
+          [attr.aria-describedby]="
+            nameCtrl.invalid && nameCtrl.touched ? commonNameId + '-error' : null
+          "
+          aria-required="true"
+          placeholder="e.g. Cherry Tomato, Sweet Basil"
+          autocomplete="off"
+          styleClass="w-full"
+          appendTo="body"
+          (completeMethod)="onQuerySearch($event)"
+        >
+          <ng-template #item let-s>
+            <div class="flex flex-col">
+              <span class="font-display leading-snug">{{ s.common_name }}</span>
+              @if (s.scientific_name) {
+                <span
+                  class="text-xs font-display italic text-neutral-400 dark:text-neutral-500 leading-snug"
+                  >{{ s.scientific_name }}</span
+                >
+              }
+            </div>
+          </ng-template>
+        </p-autocomplete>
+      }
       @if (nameCtrl.invalid && nameCtrl.touched) {
         <small
           [id]="commonNameId + '-error'"
@@ -44,6 +86,21 @@
           role="alert"
         >
           Seed name is required.
+        </small>
+      }
+      @if (lockedScientificName()) {
+        <small class="text-neutral-400 text-xs font-display" role="note">
+          <i class="pi pi-lock text-[10px] mr-1" aria-hidden="true"></i>
+          <em>{{ lockedScientificName() }}</em>
+          &nbsp;&middot;&nbsp;
+          <button
+            type="button"
+            class="text-primary-600 hover:text-primary-700 transition-colors outline-none focus-visible:ring-1 focus-visible:ring-primary-500 rounded cursor-pointer"
+            aria-label="Clear species selection and search for a different species"
+            (click)="clearLockedSpecies()"
+          >
+            Change species
+          </button>
         </small>
       }
     </div>
@@ -54,22 +111,25 @@
         class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
       >
         Latin name
+        <span class="text-neutral-400 font-normal text-xs ml-1"
+          >(optional — auto-filled on suggestion select)</span
+        >
       </label>
       <input
         pInputText
         [id]="scientificNameId"
         formControlName="scientific_name"
         [pt]="FloraInputTextPT"
+        [attr.readonly]="lockedScientificName() ? '' : null"
+        class="read-only:opacity-60 read-only:cursor-default"
         placeholder="e.g. Solanum lycopersicum"
         autocomplete="off"
       />
-      <small
-        [id]="scientificNameId + '-hint'"
-        class="text-neutral-400 text-xs font-display"
-        role="note"
-      >
-        Latin name (optional)
-      </small>
+      @if (lockedScientificName()) {
+        <small class="text-neutral-400 text-xs font-display" role="note">
+          Linked to selected species — use "Change species" above to update.
+        </small>
+      }
     </div>
 
     <div class="flex flex-col gap-1.5">

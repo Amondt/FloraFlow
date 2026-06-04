@@ -129,6 +129,12 @@
       [prefill]="prefillData()"
       (saved)="onFormSaved($event)"
     />
+
+    <app-plant-form-dialog
+      [(visible)]="plantFormVisible"
+      [botanicalPrefill]="graduatePrefill()"
+      (saved)="onPlantSaved($event)"
+    />
   </div>
 </main>
 

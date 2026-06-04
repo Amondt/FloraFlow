@@ -9,6 +9,9 @@ import { SeedBatchService } from './seed-batch.service';
 import { SeedBatchCardComponent } from './seed-batch-card/seed-batch-card';
 import { SeedBatch, SeedBatchFormData, SeedStage, SEED_STAGE_OPTIONS } from './seed-batch.model';
 import { SeedBatchFormDialogComponent } from './seed-batch-form-dialog/seed-batch-form-dialog';
+import { PlantFormDialogComponent } from '../scheduler/plant-form-dialog/plant-form-dialog';
+import { PlantFormData } from '../scheduler/plant.model';
+import { PlantService } from '../scheduler/plant.service';
 import {
   FloraButtonPT,
   FloraConfirmDialogPT,
@@ -29,12 +32,14 @@ import { tabClass, tabCountClass } from '../../shared/utils/tab-styles.util';
     Message,
     SeedBatchCardComponent,
     SeedBatchFormDialogComponent,
+    PlantFormDialogComponent,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './vault.html',
 })
 export class VaultComponent implements OnInit {
   protected readonly batchService = inject(SeedBatchService);
+  private readonly plantService = inject(PlantService);
   private readonly confirmService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
 
@@ -50,6 +55,13 @@ export class VaultComponent implements OnInit {
   protected readonly formDialogVisible = signal(false);
   protected readonly editTarget = signal<SeedBatch | null>(null);
   protected readonly prefillData = signal<SeedBatchFormData | null>(null);
+
+  protected readonly plantFormVisible = signal(false);
+  protected readonly graduatePrefill = signal<{
+    common_name: string;
+    scientific_name: string | null;
+    perenual_id: number | null;
+  } | null>(null);
 
   protected readonly filteredBatches = computed(() => {
     const filter = this.selectedStageFilter();
@@ -130,8 +142,31 @@ export class VaultComponent implements OnInit {
     });
   }
 
-  protected onGraduateRequested(_batch: SeedBatch): void {
-    // Graduate to Plant wiring — Phase 3.5
+  protected onGraduateRequested(batch: SeedBatch): void {
+    this.graduatePrefill.set({
+      common_name: batch.common_name,
+      scientific_name: batch.scientific_name,
+      perenual_id: null,
+    });
+    this.plantFormVisible.set(true);
+  }
+
+  protected async onPlantSaved(data: PlantFormData): Promise<void> {
+    this.plantFormVisible.set(false);
+    const newPlant = await this.plantService.createPlant(data);
+    if (this.plantService.error() || !newPlant) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Add plant failed',
+        detail: this.plantService.error() ?? 'Unexpected error — please try again.',
+      });
+    } else {
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Plant added to your greenhouse',
+        detail: `'${data.common_name}' is now in your care schedule.`,
+      });
+    }
   }
 
   private async _doAdvance(batch: SeedBatch, nextStage: string): Promise<void> {

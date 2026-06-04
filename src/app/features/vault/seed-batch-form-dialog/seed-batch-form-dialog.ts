@@ -1,30 +1,61 @@
-import { Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
-import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  model,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
+import {
+  ReactiveFormsModule,
+  FormsModule,
+  FormGroup,
+  FormControl,
+  Validators,
+} from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
+import { AutoComplete, AutoCompleteModule, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { TextareaModule } from 'primeng/textarea';
 import { ButtonModule } from 'primeng/button';
 import { MessageService } from 'primeng/api';
 import {
   FloraDialogPT,
   FloraInputTextPT,
+  FloraAutoCompletePT,
   FloraTextareaPT,
   FloraButtonPT,
   FLORA_ERROR,
 } from '../../../shared/ui/pt/index';
 import { blurActiveElement } from '../../../shared/utils/dom';
+import {
+  BotanicalSearchService,
+  BotanicalSuggestion,
+} from '../../../core/services/botanical-search.service';
 import { SeedBatchService } from '../seed-batch.service';
 import { SeedBatch, SeedBatchFormData } from '../seed-batch.model';
 
 @Component({
   selector: 'app-seed-batch-form-dialog',
   standalone: true,
-  imports: [ReactiveFormsModule, DialogModule, InputTextModule, TextareaModule, ButtonModule],
+  imports: [
+    ReactiveFormsModule,
+    FormsModule,
+    DialogModule,
+    InputTextModule,
+    AutoCompleteModule,
+    TextareaModule,
+    ButtonModule,
+  ],
   templateUrl: './seed-batch-form-dialog.html',
 })
 export class SeedBatchFormDialogComponent {
   private readonly batchService = inject(SeedBatchService);
   private readonly messageService = inject(MessageService);
+  private readonly botanicalSearch = inject(BotanicalSearchService);
 
   readonly visible = model<boolean>(false);
   readonly prefill = input<SeedBatchFormData | null>(null);
@@ -33,6 +64,7 @@ export class SeedBatchFormDialogComponent {
 
   protected readonly FloraDialogPT = FloraDialogPT;
   protected readonly FloraInputTextPT = FloraInputTextPT;
+  protected readonly FloraAutoCompletePT = FloraAutoCompletePT;
   protected readonly FloraTextareaPT = FloraTextareaPT;
   protected readonly FloraButtonPT = FloraButtonPT;
   protected readonly FLORA_ERROR = FLORA_ERROR;
@@ -45,6 +77,12 @@ export class SeedBatchFormDialogComponent {
   protected readonly notesId = `flora-batch-notes-${crypto.randomUUID().slice(0, 8)}`;
 
   protected readonly saving = signal(false);
+  protected suggestions = signal<BotanicalSuggestion[]>([]);
+  protected selectedPerenualId = signal<number | null>(null);
+  protected lockedScientificName = signal<string | null>(null);
+  protected commonNameQuery = '';
+
+  private readonly _nameAC = viewChild<AutoComplete>('nameAC');
 
   readonly form = new FormGroup({
     common_name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -80,8 +118,12 @@ export class SeedBatchFormDialogComponent {
 
       if (!justOpened) return;
 
+      this.selectedPerenualId.set(null);
+      this.lockedScientificName.set(null);
+
       const target = this.editTarget();
       if (target) {
+        this.commonNameQuery = target.common_name;
         this.form.reset({
           common_name: target.common_name,
           scientific_name: target.scientific_name,
@@ -91,6 +133,7 @@ export class SeedBatchFormDialogComponent {
         });
       } else {
         const pre = this.prefill();
+        this.commonNameQuery = pre?.common_name ?? '';
         this.form.reset({
           common_name: pre?.common_name ?? '',
           scientific_name: pre?.scientific_name ?? null,
@@ -102,6 +145,10 @@ export class SeedBatchFormDialogComponent {
     });
   }
 
+  onHide(): void {
+    this._nameAC()?.hide();
+  }
+
   onVisibleChange(v: boolean): void {
     if (!v) blurActiveElement();
     this.visible.set(v);
@@ -110,6 +157,40 @@ export class SeedBatchFormDialogComponent {
   onCancel(): void {
     blurActiveElement();
     this.visible.set(false);
+  }
+
+  async onQuerySearch(event: AutoCompleteCompleteEvent): Promise<void> {
+    if (this.selectedPerenualId() !== null) {
+      this.suggestions.set([]);
+      return;
+    }
+    this.suggestions.set(await this.botanicalSearch.search(event.query));
+  }
+
+  onCommonNameChange(value: string | BotanicalSuggestion | null): void {
+    if (!value || typeof value === 'string') {
+      this.commonNameQuery = value ?? '';
+      this.form.controls.common_name.setValue(value ?? '');
+      if (this.selectedPerenualId() === null) {
+        this.lockedScientificName.set(null);
+      }
+    } else {
+      this.commonNameQuery = value.common_name;
+      this.form.controls.common_name.setValue(value.common_name);
+      this.form.controls.scientific_name.setValue(value.scientific_name);
+      this.selectedPerenualId.set(value.perenual_id);
+      this.lockedScientificName.set(value.scientific_name);
+      this.suggestions.set([]);
+    }
+  }
+
+  clearLockedSpecies(): void {
+    this.selectedPerenualId.set(null);
+    this.lockedScientificName.set(null);
+    this.commonNameQuery = '';
+    this.form.controls.common_name.setValue('');
+    this.form.controls.scientific_name.setValue(null);
+    this.suggestions.set([]);
   }
 
   async onSubmit(): Promise<void> {

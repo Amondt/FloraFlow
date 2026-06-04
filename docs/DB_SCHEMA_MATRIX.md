@@ -386,10 +386,13 @@ The following tables are required for Phase 3 features. They are documented here
         current_stage   seed_stage_type DEFAULT 'Stored'::seed_stage_type NOT NULL,
         sown_at         TIMESTAMP WITH TIME ZONE,
         germinated_at   TIMESTAMP WITH TIME ZONE,
+        archived_at     TIMESTAMP WITH TIME ZONE,
         notes           TEXT,
         created_at      TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
         updated_at      TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
     );
+    -- archived_at: NULL = active batch; non-NULL = archived (set automatically on
+    -- advance to 'Transplanted Outside', or manually by the user at any stage).
 
     ALTER TABLE public.seed_batches ENABLE ROW LEVEL SECURITY;
     CREATE POLICY "Gardeners manage their own seed batches"

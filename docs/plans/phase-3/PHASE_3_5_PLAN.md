@@ -219,7 +219,7 @@ Stored → Sown Indoors → Germinated → Potted Up → Hardened Off → Transp
     6. Open DevTools Console → zero red errors.
     ```
 
-- [ ] **Block E — Stage Advance + Graduate to Plant CTA** | Agent: `/visualizer`
+- [x] **Block E — Stage Advance + Graduate to Plant CTA** | Agent: `/visualizer`
   - Wire the advance confirm flow in `vault.ts` (scaffolded in Block C):
     - `nextStageName(batch: SeedBatch): string` — pure helper using `SEED_STAGE_OPTIONS`.
     - `confirmAdvance(batch: SeedBatch)`: opens a `ConfirmationService` dialog with message `"Advance '${batch.common_name}' to ${nextStage}? This cannot be undone."`, accept label `"Advance"`, reject label `"Cancel"`.
@@ -247,6 +247,64 @@ Stored → Sown Indoors → Germinated → Potted Up → Hardened Off → Transp
     6. Navigate to /scheduler → the new plant appears.
     7. At "Transplanted Outside" → no "Advance Stage" button visible.
     8. Open DevTools Console → zero red errors.
+    ```
+
+- [ ] **Block G — Archive End State** | Agent: `/plumber` → `/visualizer`
+  - **Plumber:**
+  - Create a new migration `<timestamp>_seed_batches_archive.sql`:
+    ```sql
+    ALTER TABLE public.seed_batches
+        ADD COLUMN archived_at TIMESTAMP WITH TIME ZONE;
+    ```
+  - Apply locally: `bunx supabase migration up`
+  - Verify: `bunx supabase db execute --local "SELECT column_name FROM information_schema.columns WHERE table_name='seed_batches' AND column_name='archived_at';"`
+  - Regenerate types: `bun run types` then `Copy-Item src/types/database.types.ts supabase/functions/_shared/database.types.ts`
+  - In `seed-batch.model.ts`: add `archived_at: string | null` to the `SeedBatch` interface.
+  - In `seed-batch.service.ts`:
+    - `loadBatches()`: add `.is('archived_at', null)` filter — returns active batches only.
+    - Add `archivedBatches = signal<SeedBatch[]>([])`.
+    - Add `loadArchivedBatches(): Promise<void>` — queries `WHERE archived_at IS NOT NULL ORDER BY archived_at DESC`; populates `archivedBatches`.
+    - Add `archiveBatch(id: string): Promise<void>` — UPDATE `archived_at = new Date().toISOString()`; removes the row from `batches()` in-place.
+    - Update `advanceStage()`: after a successful advance to `'Transplanted Outside'`, immediately call `archiveBatch(batch.id)` to auto-archive.
+  - Verification: `bun run format && bun run lint && bun run test`
+  - **Visualizer:**
+  - In `seed-batch-card.ts`:
+    - Add `isArchived = computed(() => !!this.batch().archived_at)`.
+    - Add `archiveRequested = output<void>()`.
+    - When `isArchived()`: suppress advance, edit, and graduate outputs; keep delete.
+    - When not archived: show an "Archive" action button that emits `archiveRequested`.
+  - In `seed-batch-card.html`:
+    - When archived: apply muted card styling; show an "Archived" label in place of the stage badge; show the archived date in a small line. No Advance / Edit / Graduate buttons.
+    - When not archived: existing layout unchanged, plus Archive action in the footer alongside Edit and Delete.
+  - In `vault.ts`:
+    - Extend `stageFilters` array and `selectedStageFilter` signal type to include `'Archived'`.
+    - Add an `effect()` that calls `batchService.loadArchivedBatches()` when `selectedStageFilter() === 'Archived'`.
+    - Update `filteredBatches` computed: when filter is `'Archived'`, return `batchService.archivedBatches()`; otherwise existing logic unchanged.
+    - Update `getBatchCount()` to return `batchService.archivedBatches().length` when passed `'Archived'`.
+    - Add `confirmArchive(batch: SeedBatch)`: uses `ConfirmationService` with message `"Archive '${batch.common_name}'? It will move to your archive."`, accept label `"Archive"`.
+    - Add `_doArchive(batch: SeedBatch)`: calls `batchService.archiveBatch(batch.id)`; on success shows toast `"Batch archived"`.
+    - Update `_doAdvance` success toast when `nextStage === 'Transplanted Outside'`: `"'${batch.common_name}' is transplanted outside and has been archived."`.
+  - In `vault.html`: wire `(archiveRequested)="confirmArchive(batch)"` on `<app-seed-batch-card>`.
+  - Verification:
+    ```powershell
+    bun run format
+    bun run lint
+    ```
+  - Manual Browser Check — Archive End State:
+    ```
+    App running at: http://localhost:4200/vault
+
+    1. On any active batch card → an "Archive" button is visible in the footer.
+    2. Click "Archive" → confirm dialog appears with the batch name → confirm
+       → batch disappears from active view; success toast fires.
+    3. Click the "Archived" filter tab → the archived batch appears with muted styling,
+       an "Archived" label, and the archived date.
+    4. Advance a different batch all the way to "Transplanted Outside"
+       → batch disappears from the active list immediately after confirmation
+       → toast reads "is transplanted outside and has been archived".
+    5. Click "Archived" tab → that batch also appears there.
+    6. In "Archived" tab: no Advance / Edit / Graduate buttons; Delete is present and works.
+    7. Open DevTools Console → confirm zero red errors.
     ```
 
 - [ ] **Block F — Library Integration: "Save to Seed Vault"** | Agent: `/visualizer`

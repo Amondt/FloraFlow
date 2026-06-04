@@ -49,7 +49,15 @@
         </time>
       </div>
 
-      @if (entry().notes && !diagnostics()) {
+      @if (diagnostics(); as diag) {
+        <p class="text-sm text-neutral-700 dark:text-neutral-200 font-display leading-snug">
+          {{ diag.primary_condition }}
+        </p>
+        <app-leaf-doctor-badges
+          [confidenceScore]="diag.confidence_score"
+          [riskAssessment]="diag.systemic_risk_assessment"
+        />
+      } @else if (entry().notes) {
         <p class="text-sm text-neutral-700 dark:text-neutral-200 font-display leading-snug">
           {{ entry().notes }}
         </p>
@@ -70,7 +78,7 @@
       [attr.aria-controls]="'diag-' + entry().id"
     >
       <i class="pi pi-eye text-primary-500 dark:text-primary-400" aria-hidden="true"></i>
-      <span>Leaf Doctor</span>
+      <span>Action points</span>
       <span class="flex-1" aria-hidden="true"></span>
       @if (showDiagnostics()) {
         <i class="pi pi-chevron-up" aria-hidden="true"></i>
@@ -84,19 +92,12 @@
         [attr.id]="'diag-' + entry().id"
         class="flex flex-col gap-2 pt-2"
         role="region"
-        aria-label="Leaf Doctor diagnosis details"
+        aria-label="Leaf Doctor action points"
       >
-        <p class="text-sm font-semibold font-display text-neutral-900 dark:text-white">
-          {{ diag.primary_condition }}
-        </p>
-        <app-leaf-doctor-badges
-          [confidenceScore]="diag.confidence_score"
-          [riskAssessment]="diag.systemic_risk_assessment"
-        />
         @if (diag.immediate_remedial_actions.length) {
           <ul
             class="list-disc pl-4 space-y-0.5 text-xs font-display text-neutral-700 dark:text-neutral-300"
-            aria-label="Recommended actions"
+            aria-label="Action points"
           >
             @for (action of diag.immediate_remedial_actions; track $index) {
               <li>{{ action }}</li>

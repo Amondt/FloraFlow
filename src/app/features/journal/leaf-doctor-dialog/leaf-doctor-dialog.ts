@@ -90,7 +90,34 @@ export class LeafDoctorDialogComponent implements OnDestroy {
       !!this.selectedPlantId() && this.diagnosisState() === 'success' && !!this.compressedBlob(),
   );
 
-  protected readonly isAnalyzing = computed(() => this.diagnosisState() === 'loading');
+  protected readonly primaryActionLabel = computed(() => {
+    const state = this.diagnosisState();
+    if (state === 'loading') return 'Analyzing…';
+    if (state === 'success') return 'Save as Observation';
+    return 'Analyze';
+  });
+
+  protected readonly primaryActionIcon = computed(() =>
+    this.diagnosisState() === 'success' ? 'pi pi-check' : 'pi pi-eye',
+  );
+
+  protected readonly primaryActionDisabled = computed(() => {
+    const state = this.diagnosisState();
+    if (state === 'loading') return true;
+    if (state === 'success') return !this.canSave();
+    return !this.compressedBlob();
+  });
+
+  protected readonly primaryActionLoading = computed(
+    () => this.diagnosisState() === 'loading' || this.saving(),
+  );
+
+  protected readonly primaryActionAriaLabel = computed(() => {
+    const state = this.diagnosisState();
+    if (state === 'loading') return 'Leaf Doctor is analyzing the photo, please wait';
+    if (state === 'success') return 'Save Leaf Doctor diagnosis as a journal Observation entry';
+    return 'Analyze this photo with Leaf Doctor AI';
+  });
 
   constructor() {
     effect(() => {
@@ -134,6 +161,14 @@ export class LeafDoctorDialogComponent implements OnDestroy {
         summary: 'Image error',
         detail: 'Could not process the selected image.',
       });
+    }
+  }
+
+  protected primaryAction(): void {
+    if (this.diagnosisState() === 'success') {
+      void this.saveAsObservation();
+    } else {
+      void this.analyzePlant();
     }
   }
 

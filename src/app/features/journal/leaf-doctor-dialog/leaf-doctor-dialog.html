@@ -12,13 +12,13 @@
 >
   <div class="flex flex-col gap-5">
     <!-- Hint: result lands in care log -->
-    <p
-      class="text-xs text-neutral-500 dark:text-neutral-400 font-display flex items-center gap-1.5"
-    >
-      <i class="pi pi-info-circle text-primary-500 shrink-0" aria-hidden="true"></i>
-      The diagnosis will be saved as an
-      <strong class="font-semibold text-neutral-700 dark:text-neutral-200">Observation</strong> in
-      your plant's care log.
+    <p class="text-xs text-neutral-500 dark:text-neutral-400 font-display flex items-start gap-1.5">
+      <i class="pi pi-info-circle text-primary-500 shrink-0 mt-0.5" aria-hidden="true"></i>
+      <span>
+        The diagnosis will be saved as an
+        <strong class="font-semibold text-neutral-700 dark:text-neutral-200">Observation</strong>
+        in your plant's care log.
+      </span>
     </p>
 
     <!-- Plant selector -->
@@ -89,31 +89,6 @@
         </div>
       }
 
-      <!-- Analyze button — idle state with blob -->
-      @if (compressedBlob() && diagnosisState() === 'idle') {
-        <p-button
-          label="Analyze"
-          icon="pi pi-eye"
-          variant="outlined"
-          [pt]="FloraButtonPT"
-          ariaLabel="Analyze this photo with Leaf Doctor AI"
-          (onClick)="analyzePlant()"
-        />
-      }
-
-      <!-- Analyzing button — loading state -->
-      @if (isAnalyzing()) {
-        <p-button
-          label="Analyzing…"
-          icon="pi pi-eye"
-          variant="outlined"
-          [pt]="FloraButtonPT"
-          ariaLabel="Leaf Doctor is analyzing the photo, please wait"
-          [loading]="true"
-          [disabled]="true"
-        />
-      }
-
       <!-- Result panel — success state -->
       @if (diagnosisState() === 'success') {
         @if (diagnosisResult(); as result) {
@@ -139,6 +114,15 @@
               </ul>
             }
           </section>
+        }
+        @if (!selectedPlantId()) {
+          <p
+            class="text-xs text-neutral-500 dark:text-neutral-400 font-display flex items-start gap-1.5"
+            role="note"
+          >
+            <i class="pi pi-arrow-up text-primary-500 shrink-0 mt-0.5" aria-hidden="true"></i>
+            <span>Select a plant above to save this diagnosis to their care log.</span>
+          </p>
         }
       }
 
@@ -171,12 +155,13 @@
       (onClick)="onCancel()"
     />
     <p-button
-      label="Save as Observation"
+      [label]="primaryActionLabel()"
+      [icon]="primaryActionIcon()"
       [pt]="FloraButtonPT"
-      ariaLabel="Save Leaf Doctor diagnosis as a journal Observation entry"
-      [disabled]="!canSave()"
-      [loading]="saving()"
-      (onClick)="saveAsObservation()"
+      [ariaLabel]="primaryActionAriaLabel()"
+      [disabled]="primaryActionDisabled()"
+      [loading]="primaryActionLoading()"
+      (onClick)="primaryAction()"
     />
   </ng-template>
 </p-dialog>

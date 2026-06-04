@@ -16,7 +16,7 @@ Agent chain: `/plumber` (Blocks A–B) → `/visualizer` (Blocks C–D)
 
 ---
 
-- [ ] **Block A — Edge Function `claude-vision`** | Agent: `/plumber`
+- [x] **Block A — Edge Function `claude-vision`** | Agent: `/plumber`
   - Create `supabase/functions/claude-vision/index.ts`
   - Auth: extract `Authorization` header; return 401 if absent. Create a service-role Supabase client and call `supabase.auth.getUser(token)` — return 401 if the user cannot be resolved.
   - Body shape: `{ imageBase64: string, imageMediaType: 'image/jpeg' | 'image/png' | 'image/webp' }`. Return 400 if either field is missing.

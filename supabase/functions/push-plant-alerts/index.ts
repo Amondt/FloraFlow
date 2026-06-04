@@ -2,12 +2,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 import webPush from 'npm:web-push';
 import type { Database } from '../_shared/database.types.ts';
 import { verifyCronSecret } from '../_shared/cron-auth.ts';
-
-const json = (data: unknown, status = 200) =>
-  new Response(JSON.stringify(data), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  });
+import { json } from '../_shared/response.ts';
 
 // Minimal shape of a serialised browser PushSubscription stored in profiles.push_subscription
 interface StoredPushSubscription {

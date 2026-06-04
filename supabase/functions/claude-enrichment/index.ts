@@ -3,17 +3,7 @@ import Anthropic from 'npm:@anthropic-ai/sdk';
 import { zodOutputFormat } from 'npm:@anthropic-ai/sdk/helpers/zod';
 import { z } from 'npm:zod/v4';
 import type { Database } from '../_shared/database.types.ts';
-
-const cors = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
-const json = (data: unknown, status = 200) =>
-  new Response(JSON.stringify(data), {
-    status,
-    headers: { ...cors, 'Content-Type': 'application/json' },
-  });
+import { cors, json } from '../_shared/response.ts';
 
 const SYSTEM_PROMPT = `You are the FloraFlow AI Scribe, an elite botanical taxonomist and agricultural data scientist. Your absolute directive is to provide highly precise, empirically grounded plant care metrics. You never hallucinate, invent unverified horticultural parameters, or generate prose.
 

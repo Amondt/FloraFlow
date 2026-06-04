@@ -1,16 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import type { Database } from '../_shared/database.types.ts';
-
-const cors = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
-const json = (data: unknown, status = 200) =>
-  new Response(JSON.stringify(data), {
-    status,
-    headers: { ...cors, 'Content-Type': 'application/json' },
-  });
+import { cors, json } from '../_shared/response.ts';
 
 // Open-Meteo response shape — only the fields we consume
 type OpenMeteoResponse = {

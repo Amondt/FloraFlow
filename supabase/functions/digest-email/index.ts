@@ -2,12 +2,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 import type { QueryData } from 'npm:@supabase/supabase-js@2';
 import type { Database } from '../_shared/database.types.ts';
 import { verifyCronSecret } from '../_shared/cron-auth.ts';
-
-const json = (data: unknown, status = 200) =>
-  new Response(JSON.stringify(data), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  });
+import { json } from '../_shared/response.ts';
 
 const escapeHtml = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');

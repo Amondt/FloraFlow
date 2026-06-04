@@ -122,6 +122,13 @@
     </section>
 
     <p-confirmdialog [pt]="FloraConfirmDialogPT" />
+
+    <app-seed-batch-form-dialog
+      [(visible)]="formDialogVisible"
+      [editTarget]="editTarget()"
+      [prefill]="prefillData()"
+      (saved)="onFormSaved($event)"
+    />
   </div>
 </main>
 

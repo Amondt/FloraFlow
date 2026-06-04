@@ -1,0 +1,154 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="onVisibleChange($event)"
+  [header]="dialogTitle()"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [dismissableMask]="true"
+  [pt]="FloraDialogPT"
+>
+  <form
+    [formGroup]="form"
+    novalidate
+    class="flex flex-col gap-4"
+    aria-label="Seed batch details form"
+  >
+    <div class="flex flex-col gap-1.5">
+      <label
+        [for]="commonNameId"
+        class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+      >
+        Seed name
+        <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
+        <span class="sr-only">(required)</span>
+      </label>
+      <input
+        pInputText
+        [id]="commonNameId"
+        formControlName="common_name"
+        [pt]="FloraInputTextPT"
+        [class]="nameCtrl.invalid && nameCtrl.touched ? FLORA_ERROR : ''"
+        [attr.aria-invalid]="nameCtrl.invalid && nameCtrl.touched"
+        [attr.aria-describedby]="
+          nameCtrl.invalid && nameCtrl.touched ? commonNameId + '-error' : null
+        "
+        aria-required="true"
+        placeholder="e.g. Cherry Tomato, Sweet Basil"
+        autocomplete="off"
+      />
+      @if (nameCtrl.invalid && nameCtrl.touched) {
+        <small
+          [id]="commonNameId + '-error'"
+          class="text-danger-500 text-xs font-display"
+          role="alert"
+        >
+          Seed name is required.
+        </small>
+      }
+    </div>
+
+    <div class="flex flex-col gap-1.5">
+      <label
+        [for]="scientificNameId"
+        class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+      >
+        Latin name
+      </label>
+      <input
+        pInputText
+        [id]="scientificNameId"
+        formControlName="scientific_name"
+        [pt]="FloraInputTextPT"
+        placeholder="e.g. Solanum lycopersicum"
+        autocomplete="off"
+      />
+      <small
+        [id]="scientificNameId + '-hint'"
+        class="text-neutral-400 text-xs font-display"
+        role="note"
+      >
+        Latin name (optional)
+      </small>
+    </div>
+
+    <div class="flex flex-col gap-1.5">
+      <label
+        [for]="brandId"
+        class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+      >
+        Brand
+      </label>
+      <input
+        pInputText
+        [id]="brandId"
+        formControlName="brand"
+        [pt]="FloraInputTextPT"
+        placeholder="e.g. Thompson & Morgan"
+        autocomplete="off"
+      />
+      <small [id]="brandId + '-hint'" class="text-neutral-400 text-xs font-display" role="note">
+        Seed brand or supplier
+      </small>
+    </div>
+
+    <div class="flex flex-col gap-1.5">
+      <label
+        [for]="packetYearId"
+        class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+      >
+        Packet year
+      </label>
+      <input
+        pInputText
+        type="number"
+        [id]="packetYearId"
+        formControlName="packet_year"
+        [pt]="FloraInputTextPT"
+        min="2000"
+        [max]="currentYear"
+        placeholder="{{ currentYear }}"
+        autocomplete="off"
+      />
+    </div>
+
+    <div class="flex flex-col gap-1.5">
+      <label
+        [for]="notesId"
+        class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+      >
+        Notes
+      </label>
+      <textarea
+        pTextarea
+        [id]="notesId"
+        formControlName="notes"
+        [pt]="FloraTextareaPT"
+        rows="3"
+        placeholder="e.g. Good germination rate, planted near south window"
+        [attr.aria-describedby]="notesId + '-hint'"
+      ></textarea>
+      <small [id]="notesId + '-hint'" class="text-neutral-400 text-xs font-display" role="note">
+        Optional — any notes about this batch
+      </small>
+    </div>
+  </form>
+
+  <ng-template #footer>
+    <p-button
+      label="Cancel"
+      variant="text"
+      [pt]="FloraButtonPT"
+      ariaLabel="Cancel and close dialog"
+      (onClick)="onCancel()"
+    />
+    <p-button
+      [label]="submitLabel()"
+      [pt]="FloraButtonPT"
+      [ariaLabel]="submitAriaLabel()"
+      [loading]="saving()"
+      [disabled]="saving()"
+      (onClick)="onSubmit()"
+    />
+  </ng-template>
+</p-dialog>

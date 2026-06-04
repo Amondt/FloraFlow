@@ -7,7 +7,8 @@ import { Message } from 'primeng/message';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { SeedBatchService } from './seed-batch.service';
 import { SeedBatchCardComponent } from './seed-batch-card/seed-batch-card';
-import { SeedBatch, SeedStage, SEED_STAGE_OPTIONS } from './seed-batch.model';
+import { SeedBatch, SeedBatchFormData, SeedStage, SEED_STAGE_OPTIONS } from './seed-batch.model';
+import { SeedBatchFormDialogComponent } from './seed-batch-form-dialog/seed-batch-form-dialog';
 import {
   FloraButtonPT,
   FloraConfirmDialogPT,
@@ -27,6 +28,7 @@ import { tabClass, tabCountClass } from '../../shared/utils/tab-styles.util';
     ToastModule,
     Message,
     SeedBatchCardComponent,
+    SeedBatchFormDialogComponent,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './vault.html',
@@ -45,6 +47,9 @@ export class VaultComponent implements OnInit {
   protected readonly stageFilters: (SeedStage | 'All')[] = ['All', ...SEED_STAGE_OPTIONS];
 
   protected readonly selectedStageFilter = signal<SeedStage | 'All'>('All');
+  protected readonly formDialogVisible = signal(false);
+  protected readonly editTarget = signal<SeedBatch | null>(null);
+  protected readonly prefillData = signal<SeedBatchFormData | null>(null);
 
   protected readonly filteredBatches = computed(() => {
     const filter = this.selectedStageFilter();
@@ -102,16 +107,31 @@ export class VaultComponent implements OnInit {
     });
   }
 
-  protected openCreateDialog(): void {
-    // connected in the next block
+  protected openCreateDialog(prefill?: SeedBatchFormData): void {
+    this.editTarget.set(null);
+    this.prefillData.set(prefill ?? null);
+    this.formDialogVisible.set(true);
   }
 
-  protected openEditDialog(_batch: SeedBatch): void {
-    // connected in the next block
+  protected openEditDialog(batch: SeedBatch): void {
+    this.editTarget.set(batch);
+    this.prefillData.set(null);
+    this.formDialogVisible.set(true);
+  }
+
+  protected onFormSaved(batch: SeedBatch): void {
+    const isEdit = this.editTarget() !== null;
+    this.messageService.add({
+      severity: 'success',
+      summary: isEdit ? 'Batch updated' : 'Batch saved',
+      detail: isEdit
+        ? `'${batch.common_name}' has been updated.`
+        : `'${batch.common_name}' added to the vault.`,
+    });
   }
 
   protected onGraduateRequested(_batch: SeedBatch): void {
-    // connected in the next block
+    // Graduate to Plant wiring — Phase 3.5
   }
 
   private async _doAdvance(batch: SeedBatch, nextStage: string): Promise<void> {

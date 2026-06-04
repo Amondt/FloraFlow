@@ -176,7 +176,7 @@ Stored → Sown Indoors → Germinated → Potted Up → Hardened Off → Transp
     5. Open DevTools Console → zero red errors.
     ```
 
-- [ ] **Block D — Add/Edit Batch Dialog** | Agent: `/visualizer`
+- [x] **Block D — Add/Edit Batch Dialog** | Agent: `/visualizer`
   - Create `src/app/features/vault/seed-batch-form-dialog/seed-batch-form-dialog.ts` and `.html`:
     - `visible = model<boolean>(false)`.
     - `prefill = input<SeedBatchFormData | null>(null)` — pre-fills fields when set (Library integration + edit mode).

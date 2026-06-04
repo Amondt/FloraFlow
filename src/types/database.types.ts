@@ -107,6 +107,7 @@ export type Database = {
         Row: {
           category: Database["public"]["Enums"]["log_category_type"]
           created_at: string
+          diagnostics: Json | null
           id: string
           image_storage_path: string | null
           logged_at: string
@@ -118,6 +119,7 @@ export type Database = {
         Insert: {
           category?: Database["public"]["Enums"]["log_category_type"]
           created_at?: string
+          diagnostics?: Json | null
           id?: string
           image_storage_path?: string | null
           logged_at?: string
@@ -129,6 +131,7 @@ export type Database = {
         Update: {
           category?: Database["public"]["Enums"]["log_category_type"]
           created_at?: string
+          diagnostics?: Json | null
           id?: string
           image_storage_path?: string | null
           logged_at?: string

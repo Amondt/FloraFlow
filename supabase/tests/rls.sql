@@ -11,7 +11,7 @@
 BEGIN;
 
 SELECT
-  plan (33);
+  plan (34);
 
 -- ── SETUP ─────────────────────────────────────────────────────────────────
 -- Disable FK triggers so we can insert profiles without auth.users rows.
@@ -910,6 +910,31 @@ SELECT
     ),
     'Mature',
     'growth_stage defaults to ''Mature'' on new plants rows'
+  );
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- Phase 3.4 — plant_journals.diagnostics column default
+-- ═══════════════════════════════════════════════════════════════════════════
+-- Alice's journal row was inserted in setup without diagnostics.
+-- The column must default to NULL — catches any accidental DEFAULT '{}' regression.
+-- ── TEST 34: diagnostics defaults to NULL ───────────────────────────────────
+RESET ROLE;
+
+SELECT
+  set_config('request.jwt.claims', '{}', TRUE);
+
+SELECT
+  IS (
+    (
+      SELECT
+        diagnostics
+      FROM
+        public.plant_journals
+      WHERE
+        id = 'cccccccc-cccc-cccc-cccc-cccccccccccc'
+    ),
+    NULL::jsonb,
+    'diagnostics is NULL by default on new plant_journals rows'
   );
 
 SELECT

@@ -30,7 +30,7 @@ Agent chain: `/plumber` (Blocks A–B) → `/visualizer` (Blocks C–D)
   - No DB writes — this function is read-only.
   - Verification: serve with `bunx supabase functions serve --no-verify-jwt --env-file supabase/functions/.env`. Run a manual curl POST with a sample base64 image. Confirm the response matches the schema on both the botanical and non-botanical paths.
 
-- [ ] **Block B — DB Migration: `diagnostics` on `plant_journals`** | Agent: `/plumber`
+- [x] **Block B — DB Migration: `diagnostics` on `plant_journals`** | Agent: `/plumber`
   - New migration file: `ALTER TABLE public.plant_journals ADD COLUMN IF NOT EXISTS diagnostics JSONB;`
   - No RLS change needed — the existing `FOR ALL` policy on `plant_journals` covers the new column.
   - Apply locally: `bunx supabase migration up`

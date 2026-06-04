@@ -1,9 +1,9 @@
-import { Component, computed, input, signal } from '@angular/core';
+import { Component, ElementRef, computed, effect, input, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CATEGORY_ICON, CATEGORY_LABEL, type LogCategoryType } from '../journal-categories';
 import { type JournalEntryWithPlant, type LeafDoctorDiagnostics } from '../journal.service';
-import { confidenceBadgeClass, confidenceBadgeLabel, riskBadgeClass } from '../leaf-doctor.utils';
 import { FLORA_FOCUS } from '../../../shared/ui/pt/index';
+import { LeafDoctorBadgesComponent } from '../leaf-doctor-badges/leaf-doctor-badges';
 
 const BADGE_BASE =
   'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium font-display';
@@ -22,7 +22,7 @@ const ICON_BASE = 'text-xl text-primary-600 dark:text-primary-400';
 @Component({
   selector: 'app-journal-entry-card',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, LeafDoctorBadgesComponent],
   templateUrl: './journal-entry-card.html',
 })
 export class JournalEntryCardComponent {
@@ -30,14 +30,21 @@ export class JournalEntryCardComponent {
   readonly imageUrl = input.required<string | null>();
 
   protected readonly showDiagnostics = signal(false);
+  protected readonly showLightbox = signal(false);
+  private readonly lightboxEl = viewChild<ElementRef<HTMLDivElement>>('lightboxEl');
+
+  constructor() {
+    effect(() => {
+      if (this.showLightbox()) {
+        Promise.resolve().then(() => this.lightboxEl()?.nativeElement.focus());
+      }
+    });
+  }
   protected readonly diagnostics = computed(
     () => this.entry().diagnostics as LeafDoctorDiagnostics | null,
   );
 
   protected readonly FLORA_FOCUS = FLORA_FOCUS;
-  protected readonly confidenceBadgeClass = confidenceBadgeClass;
-  protected readonly confidenceBadgeLabel = confidenceBadgeLabel;
-  protected readonly riskBadgeClass = riskBadgeClass;
 
   protected toggleDiagnostics(): void {
     this.showDiagnostics.update((v) => !v);

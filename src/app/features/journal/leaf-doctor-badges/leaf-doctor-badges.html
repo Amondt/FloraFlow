@@ -1,0 +1,20 @@
+<div class="flex flex-wrap items-center gap-2">
+  <span
+    [class]="
+      confidenceBadgeClass(confidenceScore()) +
+      ' text-xs font-medium font-display px-2 py-0.5 rounded-garden-sm'
+    "
+    [attr.aria-label]="'Confidence: ' + confidenceBadgeLabel(confidenceScore())"
+  >
+    {{ confidenceBadgeLabel(confidenceScore()) }}
+  </span>
+  <span
+    [class]="
+      riskBadgeClass(riskAssessment()) +
+      ' text-xs font-medium font-display px-2 py-0.5 rounded-garden-sm'
+    "
+    [attr.aria-label]="'Risk: ' + riskBadgeLabel(riskAssessment())"
+  >
+    {{ riskBadgeLabel(riskAssessment()) }}
+  </span>
+</div>

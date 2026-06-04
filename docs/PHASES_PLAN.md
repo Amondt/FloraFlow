@@ -161,11 +161,12 @@
   - Compare `ideal_humidity_min/max` against the zone's `humidity_baseline` and flag when the zone is outside the plant's tolerance.
   - The `check_depth_description` field from the enriched record overrides the substrate-approximation shown in Phase 2.3 when the species has been AI-enriched.
   - No additional DB migration — all fields added in Phase 3.1 and Phase 3.10.
-- [ ] **3.4** Multimodal Vision Diagnostics (AI Leaf Doctor) | Agent: `/plumber` → `/visualizer`
-  - New `claude-vision` Edge Function receives a base64 image + plant context from the client.
+- [x] **3.4** Multimodal Vision Diagnostics (AI Leaf Doctor) | Agent: `/plumber` → `/visualizer`
+  - New `claude-vision` Edge Function receives a base64 image from the client.
   - Claude Sonnet multimodal call; system prompt and JSON schema from `docs/AI_PROMPT_MANIFEST.md §3`.
   - Returns: `is_botanical_image`, `primary_condition`, `confidence_score`, `immediate_remedial_actions`, `systemic_risk_assessment`.
-  - Angular: upload/camera trigger inside the Journal entry form; diagnostic result displayed as a card in the journal feed.
+  - Angular: dedicated "Diagnose a Plant" dialog on the journal page — diagnose first, then optionally save as an Observation entry pre-filled with the diagnostic result. The care log form ("Log Care Event") is not involved.
+  - Diagnostic results stored in `diagnostics JSONB` on `plant_journals`; displayed as a collapsible section on journal entry cards.
   - Safety guard: `is_botanical_image: false` shows a user-facing error state — never crashes or guesses.
 - [ ] **3.5** Intelligent Seed Vault Module (`/vault`) | Agent: `/plumber` → `/visualizer`
   - Migration: `seed_batches` table (stub in `docs/DB_SCHEMA_MATRIX.md §7`); `seed_stage_type` ENUM already defined.

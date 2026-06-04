@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
-import { SelectModule } from 'primeng/select';
+import { Select, SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -78,6 +78,8 @@ export class JournalEntryFormComponent implements OnDestroy {
   protected readonly photoId = `flora-journal-photo-${crypto.randomUUID().slice(0, 8)}`;
 
   readonly photoInputRef = viewChild<ElementRef<HTMLInputElement>>('photoInputRef');
+  private readonly _plantSelect = viewChild<Select>('plantSelectRef');
+  private readonly _categorySelect = viewChild<Select>('categorySelectRef');
 
   protected readonly plantOptions = computed(() =>
     this.plantService.plants().map((p) => ({ label: p.common_name, value: p.id })),
@@ -202,6 +204,13 @@ export class JournalEntryFormComponent implements OnDestroy {
     } finally {
       this.submitting.set(false);
     }
+  }
+
+  onHide(): void {
+    setTimeout(() => {
+      this._plantSelect()?.hide();
+      this._categorySelect()?.hide();
+    });
   }
 
   onCancel(): void {

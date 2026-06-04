@@ -1,0 +1,182 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="onVisibleChange($event)"
+  (onHide)="onHide()"
+  header="Diagnose a Plant"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [dismissableMask]="true"
+  [pt]="FloraDialogPT"
+  aria-labelledby="leaf-doctor-dialog-title"
+>
+  <div class="flex flex-col gap-5">
+    <!-- Hint: result lands in care log -->
+    <p
+      class="text-xs text-neutral-500 dark:text-neutral-400 font-display flex items-center gap-1.5"
+    >
+      <i class="pi pi-info-circle text-primary-500 shrink-0" aria-hidden="true"></i>
+      The diagnosis will be saved as an
+      <strong class="font-semibold text-neutral-700 dark:text-neutral-200">Observation</strong> in
+      your plant's care log.
+    </p>
+
+    <!-- Plant selector -->
+    <div class="flex flex-col gap-1.5">
+      <span
+        id="leaf-doctor-plant-label"
+        class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+      >
+        Plant
+        <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
+        <span class="sr-only">(required)</span>
+      </span>
+      <app-plant-select
+        #plantSelectRef
+        [value]="selectedPlantId()"
+        (valueChange)="selectedPlantId.set($event)"
+        [options]="plantOptions()"
+        [ariaLabelledBy]="'leaf-doctor-plant-label'"
+        [required]="true"
+        placeholder="Select a plant"
+      />
+    </div>
+
+    <!-- Photo + analysis -->
+    <div class="flex flex-col gap-2">
+      <span class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display">
+        Photo
+        <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
+        <span class="sr-only">(required)</span>
+      </span>
+
+      <!-- Hidden native file input -->
+      <input
+        type="file"
+        #photoInputRef
+        accept="image/*"
+        class="sr-only"
+        aria-label="Upload a plant photo for Leaf Doctor analysis"
+        (change)="onFileChange($event)"
+      />
+
+      <!-- Custom styled trigger -->
+      <button
+        type="button"
+        [class]="
+          FLORA_FOCUS +
+          ' flex w-full items-center gap-2 px-3 h-control text-sm font-medium font-display text-neutral-600 dark:text-neutral-200 bg-neutral-50 dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 rounded-garden-sm hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-150'
+        "
+        aria-label="Choose a plant photo to analyze"
+        (click)="triggerPhotoInput()"
+      >
+        <i class="pi pi-paperclip text-xs" aria-hidden="true"></i>
+        Choose photo
+      </button>
+
+      <!-- Thumbnail row -->
+      @if (compressedBlob()) {
+        <div class="flex items-center gap-3">
+          <img
+            [src]="previewObjectUrl()"
+            alt="Compressed photo preview"
+            class="w-16 h-16 rounded-garden-sm object-cover border border-neutral-200 dark:border-neutral-700"
+          />
+          <p class="text-xs font-display text-success-500 flex items-center gap-1" role="status">
+            <i class="pi pi-check-circle" aria-hidden="true"></i>
+            {{ compressedLabel() }} — ready to analyze
+          </p>
+        </div>
+      }
+
+      <!-- Analyze button — idle state with blob -->
+      @if (compressedBlob() && diagnosisState() === 'idle') {
+        <p-button
+          label="Analyze"
+          icon="pi pi-eye"
+          variant="outlined"
+          [pt]="FloraButtonPT"
+          ariaLabel="Analyze this photo with Leaf Doctor AI"
+          (onClick)="analyzePlant()"
+        />
+      }
+
+      <!-- Analyzing button — loading state -->
+      @if (isAnalyzing()) {
+        <p-button
+          label="Analyzing…"
+          icon="pi pi-eye"
+          variant="outlined"
+          [pt]="FloraButtonPT"
+          ariaLabel="Leaf Doctor is analyzing the photo, please wait"
+          [loading]="true"
+          [disabled]="true"
+        />
+      }
+
+      <!-- Result panel — success state -->
+      @if (diagnosisState() === 'success') {
+        @if (diagnosisResult(); as result) {
+          <section
+            aria-label="Leaf Doctor diagnosis"
+            class="flex flex-col gap-2 rounded-garden-md border border-neutral-200 dark:border-neutral-700 p-3"
+          >
+            <p class="text-sm font-semibold font-display text-neutral-900 dark:text-white">
+              {{ result.primary_condition }}
+            </p>
+            <app-leaf-doctor-badges
+              [confidenceScore]="result.confidence_score"
+              [riskAssessment]="result.systemic_risk_assessment"
+            />
+            @if (result.immediate_remedial_actions.length) {
+              <ul
+                class="list-disc pl-4 space-y-0.5 text-xs font-display text-neutral-700 dark:text-neutral-300"
+                aria-label="Recommended actions"
+              >
+                @for (action of result.immediate_remedial_actions; track $index) {
+                  <li>{{ action }}</li>
+                }
+              </ul>
+            }
+          </section>
+        }
+      }
+
+      <!-- Not a plant photo -->
+      @if (diagnosisState() === 'not-botanical') {
+        <p-message
+          severity="warn"
+          text="This doesn't look like a plant photo. Try a clear close-up of a leaf or stem."
+          [pt]="FloraMessagePT"
+        />
+      }
+
+      <!-- API error -->
+      @if (diagnosisState() === 'error') {
+        <p-message
+          severity="error"
+          text="Leaf Doctor is unavailable — try again in a moment."
+          [pt]="FloraMessagePT"
+        />
+      }
+    </div>
+  </div>
+
+  <ng-template #footer>
+    <p-button
+      label="Cancel"
+      variant="text"
+      [pt]="FloraButtonPT"
+      ariaLabel="Cancel and close dialog"
+      (onClick)="onCancel()"
+    />
+    <p-button
+      label="Save as Observation"
+      [pt]="FloraButtonPT"
+      ariaLabel="Save Leaf Doctor diagnosis as a journal Observation entry"
+      [disabled]="!canSave()"
+      [loading]="saving()"
+      (onClick)="saveAsObservation()"
+    />
+  </ng-template>
+</p-dialog>

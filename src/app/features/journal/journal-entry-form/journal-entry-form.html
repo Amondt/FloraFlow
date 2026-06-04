@@ -1,6 +1,7 @@
 <p-dialog
   [visible]="visible()"
   (visibleChange)="onVisibleChange($event)"
+  (onHide)="onHide()"
   header="Log Care Event"
   [modal]="true"
   [draggable]="false"
@@ -27,6 +28,7 @@
         <span class="sr-only">(required)</span>
       </span>
       <p-select
+        #plantSelectRef
         [inputId]="plantId"
         [ariaLabelledBy]="plantId + '-label'"
         formControlName="plant_id"
@@ -59,6 +61,7 @@
         <span class="sr-only">(required)</span>
       </span>
       <p-select
+        #categorySelectRef
         [inputId]="catId"
         [ariaLabelledBy]="catId + '-label'"
         formControlName="category"

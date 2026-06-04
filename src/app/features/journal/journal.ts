@@ -2,22 +2,22 @@ import { Component, computed, inject, input, linkedSignal, signal } from '@angul
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
-import { SelectModule } from 'primeng/select';
 import { ToastModule } from 'primeng/toast';
 import { SkeletonModule } from 'primeng/skeleton';
 import { MessageModule } from 'primeng/message';
 import { MessageService } from 'primeng/api';
 import {
   FloraButtonPT,
-  FloraSelectPT,
   FloraToastPT,
   FloraSkeletonPT,
   FloraMessagePT,
 } from '../../shared/ui/pt/index';
+import { PlantSelectComponent } from '../../shared/components/plant-select/plant-select';
 import { PlantService } from '../scheduler/plant.service';
 import { JournalService, type JournalEntryWithPlant } from './journal.service';
 import { JournalEntryFormComponent } from './journal-entry-form/journal-entry-form';
 import { JournalEntryCardComponent } from './journal-entry-card/journal-entry-card';
+import { LeafDoctorDialogComponent } from './leaf-doctor-dialog/leaf-doctor-dialog';
 import {
   CATEGORY_ICON,
   CATEGORY_LABEL,
@@ -58,12 +58,13 @@ const TAB_COUNT_INACTIVE =
   imports: [
     FormsModule,
     ButtonModule,
-    SelectModule,
     ToastModule,
     SkeletonModule,
+    PlantSelectComponent,
     MessageModule,
     JournalEntryFormComponent,
     JournalEntryCardComponent,
+    LeafDoctorDialogComponent,
   ],
   providers: [MessageService],
   templateUrl: './journal.html',
@@ -75,7 +76,7 @@ export class JournalComponent {
   protected readonly journalService = inject(JournalService);
 
   protected readonly FloraButtonPT = FloraButtonPT;
-  protected readonly FloraSelectPT = FloraSelectPT;
+
   protected readonly FloraToastPT = FloraToastPT;
   protected readonly FloraSkeletonPT = FloraSkeletonPT;
   protected readonly FloraMessagePT = FloraMessagePT;
@@ -85,20 +86,20 @@ export class JournalComponent {
   readonly plant = input<string | undefined>(undefined);
 
   readonly dialogVisible = signal(false);
+  readonly diagnosisDialogVisible = signal(false);
   readonly selectedCategory = signal<LogCategoryType | null>(null);
   readonly selectedPlant = linkedSignal<string | null>(() => this.plant() ?? null);
 
   readonly hasPlants = computed(() => this.plantService.plants().length > 0);
   readonly loading = computed(() => this.plantService.loading());
 
-  readonly plantFilterOptions = computed(() => {
-    const entryPlantIds = new Set(this.journalService.entries().map((e) => e.plant_id));
-    return this.plantService.plants().filter((p) => entryPlantIds.has(p.id));
-  });
-
   readonly plantSelectOptions = computed(() => [
-    { label: 'All plants', value: null as string | null },
-    ...this.plantFilterOptions().map((p) => ({ label: p.common_name, value: p.id })),
+    { label: 'All plants', value: null as string | null, scientificName: null as string | null },
+    ...this.plantService.plants().map((p) => ({
+      label: p.common_name,
+      value: p.id,
+      scientificName: p.scientific_name,
+    })),
   ]);
 
   private readonly entriesFilteredByPlant = computed(() => {
@@ -158,6 +159,10 @@ export class JournalComponent {
 
   openDialog(): void {
     this.dialogVisible.set(true);
+  }
+
+  openDiagnosisDialog(): void {
+    this.diagnosisDialogVisible.set(true);
   }
 
   onEntrySaved(): void {

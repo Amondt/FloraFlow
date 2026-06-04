@@ -105,7 +105,7 @@ The care log form ("Log Care Event") remains a clean, routine-only tool. It does
     5. Open DevTools Console → zero red errors.
     ```
 
-- [ ] **Block E — Standalone "Diagnose a Plant" dialog** | Agent: `/visualizer`
+- [x] **Block E — Standalone "Diagnose a Plant" dialog** | Agent: `/visualizer`
   - Create `src/app/features/journal/leaf-doctor-dialog/leaf-doctor-dialog.ts` and `leaf-doctor-dialog.html`.
   - In `leaf-doctor-dialog.ts`:
     - `visible = model<boolean>(false)`, `preselectedPlantId = input<string | null>(null)`, `entrySaved = output<void>()`.

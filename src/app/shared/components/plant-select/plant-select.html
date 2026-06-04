@@ -1,0 +1,28 @@
+<p-select
+  #innerSelectRef
+  [ngModel]="value()"
+  (ngModelChange)="value.set($event)"
+  [options]="options()"
+  optionLabel="label"
+  optionValue="value"
+  [pt]="FloraSelectPT"
+  [inputId]="inputId()"
+  [ariaLabel]="ariaLabel()"
+  [ariaLabelledBy]="ariaLabelledBy()"
+  [placeholder]="placeholder()"
+  [attr.aria-required]="required() ? true : null"
+  appendTo="body"
+>
+  <ng-template #item let-opt>
+    <div class="flex flex-col py-0.5">
+      <span class="font-display leading-snug">{{ opt.label }}</span>
+      @if (opt.scientificName) {
+        <span
+          class="text-xs font-display italic text-neutral-400 dark:text-neutral-500 leading-snug"
+        >
+          {{ opt.scientificName }}
+        </span>
+      }
+    </div>
+  </ng-template>
+</p-select>

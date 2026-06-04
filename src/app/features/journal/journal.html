@@ -31,18 +31,24 @@
           <div class="flex items-center gap-2 shrink-0">
             <!-- Plant filter -->
             <div class="w-44">
-              <p-select
+              <app-plant-select
                 inputId="journal-plant-filter"
-                [ngModel]="selectedPlant()"
-                (ngModelChange)="onPlantFilterChange($event)"
+                [value]="selectedPlant()"
+                (valueChange)="onPlantFilterChange($event)"
                 [options]="plantSelectOptions()"
-                optionLabel="label"
-                optionValue="value"
-                [pt]="FloraSelectPT"
-                appendTo="body"
-                ariaLabel="Filter journal entries by plant"
+                [ariaLabel]="'Filter journal entries by plant'"
               />
             </div>
+
+            <!-- Diagnose Plant -->
+            <p-button
+              label="Diagnose Plant"
+              icon="pi pi-eye"
+              variant="outlined"
+              [pt]="FloraButtonPT"
+              ariaLabel="Diagnose a plant with Leaf Doctor AI"
+              (onClick)="openDiagnosisDialog()"
+            />
 
             <!-- New entry -->
             <p-button
@@ -184,6 +190,12 @@
 
 <app-journal-entry-form
   [(visible)]="dialogVisible"
+  [preselectedPlantId]="selectedPlant()"
+  (entrySaved)="onEntrySaved()"
+/>
+
+<app-leaf-doctor-dialog
+  [(visible)]="diagnosisDialogVisible"
   [preselectedPlantId]="selectedPlant()"
   (entrySaved)="onEntrySaved()"
 />

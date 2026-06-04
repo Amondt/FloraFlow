@@ -71,7 +71,7 @@ The care log form ("Log Care Event") remains a clean, routine-only tool. It does
     6. Open DevTools Console → zero red errors.
     ```
 
-- [ ] **Block D — Journal feed: Leaf Doctor section in entry card** | Agent: `/visualizer`
+- [x] **Block D — Journal feed: Leaf Doctor section in entry card** | Agent: `/visualizer`
   - Create `src/app/features/journal/leaf-doctor.utils.ts` with three exported pure functions (thresholds from `docs/AI_PROMPT_MANIFEST.md §0.1`):
     ```ts
     export function confidenceBadgeClass(score: number): string { ... }

@@ -1,49 +1,118 @@
 <article
-  class="bg-white dark:bg-neutral-800 rounded-garden-md border border-neutral-200 dark:border-neutral-700 p-3.5 flex gap-3.5"
+  class="bg-white dark:bg-neutral-800 rounded-garden-md border border-neutral-200 dark:border-neutral-700 p-3.5 flex flex-col"
   [attr.aria-label]="entry().plants.common_name + ' — ' + categoryLabel() + ' — ' + formattedWhen()"
 >
-  <!-- Category icon box / photo thumbnail -->
-  <div
-    class="w-[5.25rem] h-[5.25rem] rounded-garden-sm overflow-hidden shrink-0 flex items-center justify-center"
-    [class]="imageUrl() ? '' : 'bg-primary-50 dark:bg-primary-900/30'"
-    aria-hidden="true"
-  >
-    @if (imageUrl()) {
-      <img [src]="imageUrl()" alt="" class="w-full h-full object-cover" />
-    } @else {
-      <i [class]="categoryIconClass()"></i>
-    }
-  </div>
-
-  <!-- Entry body -->
-  <div class="flex flex-col gap-1.5 min-w-0 flex-1">
-    <!-- Meta: pill · plant name · sci name · time -->
-    <div class="flex items-center gap-2 flex-wrap">
-      <span [class]="badgeClasses()">{{ categoryLabel() }}</span>
-      <a
-        [routerLink]="'/scheduler'"
-        class="text-sm font-semibold font-display text-neutral-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
-        [attr.aria-label]="'Open soil-check dialog for ' + entry().plants.common_name"
-        >{{ entry().plants.common_name }}</a
-      >
-      @if (entry().plants.scientific_name) {
-        <span class="text-xs font-display text-neutral-400 dark:text-neutral-500 italic">
-          {{ entry().plants.scientific_name }}
-        </span>
+  <!-- Top row: icon/photo + entry body -->
+  <div class="flex gap-3.5">
+    <!-- Category icon box / photo thumbnail -->
+    <div
+      class="w-[5.25rem] h-[5.25rem] rounded-garden-sm overflow-hidden shrink-0 flex items-center justify-center"
+      [class]="imageUrl() ? '' : 'bg-primary-50 dark:bg-primary-900/30'"
+      aria-hidden="true"
+    >
+      @if (imageUrl()) {
+        <img [src]="imageUrl()" alt="" class="w-full h-full object-cover" />
+      } @else {
+        <i [class]="categoryIconClass()"></i>
       }
-      <span class="flex-1" aria-hidden="true"></span>
-      <time
-        [attr.datetime]="entry().logged_at"
-        class="text-[0.7rem] font-mono text-neutral-400 dark:text-neutral-500 shrink-0"
-      >
-        {{ formattedWhen() }}
-      </time>
     </div>
 
-    @if (entry().notes) {
-      <p class="text-sm text-neutral-700 dark:text-neutral-200 font-display leading-snug">
-        {{ entry().notes }}
-      </p>
-    }
+    <!-- Entry body -->
+    <div class="flex flex-col gap-1.5 min-w-0 flex-1">
+      <!-- Meta: pill · plant name · sci name · time -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <span [class]="badgeClasses()">{{ categoryLabel() }}</span>
+        <a
+          [routerLink]="'/scheduler'"
+          class="text-sm font-semibold font-display text-neutral-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
+          [attr.aria-label]="'Open soil-check dialog for ' + entry().plants.common_name"
+          >{{ entry().plants.common_name }}</a
+        >
+        @if (entry().plants.scientific_name) {
+          <span class="text-xs font-display text-neutral-400 dark:text-neutral-500 italic">
+            {{ entry().plants.scientific_name }}
+          </span>
+        }
+        <span class="flex-1" aria-hidden="true"></span>
+        <time
+          [attr.datetime]="entry().logged_at"
+          class="text-[0.7rem] font-mono text-neutral-400 dark:text-neutral-500 shrink-0"
+        >
+          {{ formattedWhen() }}
+        </time>
+      </div>
+
+      @if (entry().notes) {
+        <p class="text-sm text-neutral-700 dark:text-neutral-200 font-display leading-snug">
+          {{ entry().notes }}
+        </p>
+      }
+    </div>
   </div>
+
+  <!-- Leaf Doctor section — only visible on entries with a diagnostics payload -->
+  @if (diagnostics(); as diag) {
+    <button
+      type="button"
+      [class]="
+        FLORA_FOCUS +
+        ' w-full flex items-center gap-2 pt-2 mt-1 border-t border-neutral-100 dark:border-neutral-700 text-xs font-semibold font-display text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-150'
+      "
+      (click)="toggleDiagnostics()"
+      [attr.aria-expanded]="showDiagnostics()"
+      [attr.aria-controls]="'diag-' + entry().id"
+    >
+      <i class="pi pi-eye text-primary-500 dark:text-primary-400" aria-hidden="true"></i>
+      <span>Leaf Doctor</span>
+      <span class="flex-1" aria-hidden="true"></span>
+      @if (showDiagnostics()) {
+        <i class="pi pi-chevron-up" aria-hidden="true"></i>
+      } @else {
+        <i class="pi pi-chevron-down" aria-hidden="true"></i>
+      }
+    </button>
+
+    @if (showDiagnostics()) {
+      <div
+        [attr.id]="'diag-' + entry().id"
+        class="flex flex-col gap-2 pt-2"
+        role="region"
+        aria-label="Leaf Doctor diagnosis details"
+      >
+        <p class="text-sm font-semibold font-display text-neutral-900 dark:text-white">
+          {{ diag.primary_condition }}
+        </p>
+        <div class="flex flex-wrap items-center gap-2">
+          <span
+            [class]="
+              confidenceBadgeClass(diag.confidence_score) +
+              ' text-xs font-medium font-display px-2 py-0.5 rounded-garden-sm'
+            "
+            [attr.aria-label]="'Confidence: ' + confidenceBadgeLabel(diag.confidence_score)"
+          >
+            {{ confidenceBadgeLabel(diag.confidence_score) }}
+          </span>
+          <span
+            [class]="
+              riskBadgeClass(diag.systemic_risk_assessment) +
+              ' text-xs font-medium font-display px-2 py-0.5 rounded-garden-sm'
+            "
+            [attr.aria-label]="'Risk level: ' + diag.systemic_risk_assessment"
+          >
+            {{ diag.systemic_risk_assessment }}
+          </span>
+        </div>
+        @if (diag.immediate_remedial_actions.length) {
+          <ul
+            class="list-disc pl-4 space-y-0.5 text-xs font-display text-neutral-700 dark:text-neutral-300"
+            aria-label="Recommended actions"
+          >
+            @for (action of diag.immediate_remedial_actions; track $index) {
+              <li>{{ action }}</li>
+            }
+          </ul>
+        }
+      </div>
+    }
+  }
 </article>

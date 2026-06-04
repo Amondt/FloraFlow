@@ -1,7 +1,9 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CATEGORY_ICON, CATEGORY_LABEL, type LogCategoryType } from '../journal-categories';
-import type { JournalEntryWithPlant } from '../journal.service';
+import { type JournalEntryWithPlant, type LeafDoctorDiagnostics } from '../journal.service';
+import { confidenceBadgeClass, confidenceBadgeLabel, riskBadgeClass } from '../leaf-doctor.utils';
+import { FLORA_FOCUS } from '../../../shared/ui/pt/index';
 
 const BADGE_BASE =
   'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium font-display';
@@ -26,6 +28,20 @@ const ICON_BASE = 'text-xl text-primary-600 dark:text-primary-400';
 export class JournalEntryCardComponent {
   readonly entry = input.required<JournalEntryWithPlant>();
   readonly imageUrl = input.required<string | null>();
+
+  protected readonly showDiagnostics = signal(false);
+  protected readonly diagnostics = computed(
+    () => this.entry().diagnostics as LeafDoctorDiagnostics | null,
+  );
+
+  protected readonly FLORA_FOCUS = FLORA_FOCUS;
+  protected readonly confidenceBadgeClass = confidenceBadgeClass;
+  protected readonly confidenceBadgeLabel = confidenceBadgeLabel;
+  protected readonly riskBadgeClass = riskBadgeClass;
+
+  protected toggleDiagnostics(): void {
+    this.showDiagnostics.update((v) => !v);
+  }
 
   protected readonly badgeClasses = computed(
     () => `${BADGE_BASE} ${CATEGORY_COLOR[this.entry().category]}`,

@@ -31,9 +31,25 @@ Depends on: Phase 3.1 (AI Scribe must be deployed before Block B).
 
 ---
 
+## Surface Map
+
+Four plant-display surfaces, four distinct user questions. Field selection follows from the question — not from data availability.
+
+| Surface | User's question | Phase 3.10 additions |
+|---|---|---|
+| `/tasks` scheduler card | "What needs watering and how urgently?" | None — task surface; botanical metadata is noise here |
+| Zone-detail plant card | "Which plants live here, and are any a poor fit?" | `care_difficulty` + `placement` + `is_tropical` badges (Block E); amber mismatch warnings (Block G) |
+| Zone-detail care panel ("Care tips") | "Quick care reference while managing this zone" | `preferred_soil_type` chips + `maintenance_level` pill (Block C) |
+| Library card | "Is this species right for me?" | `description` subtitle + `care_difficulty` + `placement` badges (Block D) |
+| Botanical detail dialog | "Tell me everything about this species" | 4-tab restructure with all 16 new fields (Block C) |
+
+`description` and `native_region` are discovery text — they belong in the dialog identity strip and Library card only. They must not appear in the care panel.
+
+---
+
 ## Information Architecture
 
-Three surfaces, three information densities.
+Five surfaces, five information densities.
 
 ### Botanical Detail Dialog — anatomy
 
@@ -65,18 +81,28 @@ Do not add: height, fruit, flowers, maintenance — too much for a scan card.
 
 ### Zone Detail Plant Card — contextual badges
 
-Show only when a `cached_botanical_records` row is linked (via `scientific_name` lookup):
+Show only when a `cached_botanical_records` row is linked and AI-enriched (via the existing `enrichedRecordFor(scientific_name)` helper):
 - `care_difficulty` badge
 - `placement` badge
 - `is_tropical` tag (tropical leaf icon, shown only when `true`)
 
-Requires: a single batch SELECT in `ZoneDetailComponent` — fetch all botanical records whose `scientific_name` matches any plant in the zone with a non-null `scientific_name`. Store as a `signal<Map<string, CachedBotanicalRecord>>` keyed by `scientific_name`.
+`ZoneDetailComponent` already owns a `botanicalMap: signal<Map<string, CachedBotanicalRecord>>` and `_loadBotanicalRecords()` from Phase 3.3 work — no new data layer is needed for Block E.
+
+### Zone Detail Care Panel ("Care tips") — extensions
+
+Inline `care-recommendations-panel` currently shows: `care_difficulty`, watering, sunlight, `check_depth_description`, humidity range.
+
+Phase 3.10 additions (handled in Block C):
+- `preferred_soil_type` chips (same chip style as sunlight)
+- `maintenance_level` pill (same pill style as `care_difficulty`)
+
+`description` and `native_region` stay out of this panel — they are discovery text, not actionable care guidance.
 
 ---
 
 ## Blocks
 
-- [ ] **Block A — DB Migration: Extended Profile Columns** | Agent: `/plumber`
+- [x] **Block A — DB Migration: Extended Profile Columns** | Agent: `/plumber`
   - New migration: 16 `ALTER TABLE ... ADD COLUMN IF NOT EXISTS` statements on `cached_botanical_records` per `docs/DB_SCHEMA_MATRIX.md §7 Phase 3.10 stub`.
   - Run `bunx supabase migration up` then `bun run types` — paste updated `database.types.ts` diff to confirm.
   - Verification: `SELECT column_name FROM information_schema.columns WHERE table_name = 'cached_botanical_records' ORDER BY ordinal_position;` — confirm all 16 new columns present.
@@ -88,12 +114,18 @@ Requires: a single batch SELECT in `ZoneDetailComponent` — fetch all botanical
   - Update `docs/AI_PROMPT_MANIFEST.md §1` to reflect the extended schema.
   - Verification: invoke the function locally against a known species (e.g. `Monstera deliciosa`) and paste the JSON response — confirm all new fields appear with expected types and the response is not truncated.
 
-- [ ] **Block C — Botanical Detail Dialog: Identity Strip + Tabbed Layout + Add Advisory** | Agent: `/visualizer`
+- [ ] **Block C — Botanical Detail Dialog: Restructure + Care Panel Extension** | Agent: `/visualizer`
   - Dialog `[header]` switches from `scientific_name` to `common_name`.
-  - Add an identity strip **above the tabs** (not inside any tab): image slot with leaf icon fallback + scientific name + description. The image `src` is empty until Phase 4.3 — the leaf icon fires immediately and looks intentional.
-  - Replace the flat grid with `<p-tabs [pt]="FloraTabsPT">` — 4 panels per the anatomy diagram above. All fields conditional; null fields absent from the DOM.
-  - When `showAddButton()` and `care_difficulty === 'Advanced'`, show a non-blocking warning above the footer buttons.
-  - Manual Browser Check: open from Library and from Zone Detail — confirm identity strip renders, leaf icon fallback shows, 4 tabs work, null fields absent, Advanced plant shows the advisory.
+  - Add an identity strip **above the tabs**: image slot (leaf icon fallback) + scientific name (italic) + description. Image `src` empty until Phase 4.3 — the leaf icon shows immediately and looks intentional.
+  - Replace the flat grid with `<p-tabs [pt]="FloraTabsPT">` — 4 panels. Redistribute all existing flat fields and the 16 new fields:
+    - **Overview:** `placement` · `is_tropical` · `growth_rate` · `maintenance_level` · `care_difficulty` · `native_region` · `max_height_cm` / `max_spread_cm` · `air_purifying`
+    - **Care:** `watering` · `check_depth_description` · `sunlight` · `preferred_soil_type` · `ideal_humidity_min/max` · `ideal_min_ph/max_ph`
+    - **Growth:** `cycle` · `plant_type` · `produces_flowers` + `flowering_season` · `produces_fruit` + `fruit_season` · `propagation_methods`
+    - **Safety:** `is_toxic_to_pets` + `toxicity_notes` · `is_toxic_to_humans` + `human_toxicity_notes`
+  - All fields conditional — null fields absent from DOM.
+  - When `showAddButton()` and `care_difficulty === 'Advanced'`, show a non-blocking advisory above the footer buttons. `showAddButton()` is `false` in zone-detail, so this advisory appears in the Library flow only.
+  - Extend `care-recommendations-panel`: add `preferred_soil_type` chips (same chip style as sunlight labels) and a `maintenance_level` pill (same pill style as `care_difficulty`) — both conditional on non-null. `description` and `native_region` must not appear here.
+  - Manual Browser Check: open from Library and from Zone Detail — confirm identity strip, leaf icon fallback, all 4 tabs, existing fields in correct tabs, null fields absent. Confirm Advanced advisory shows from Library but not from Zone Detail. Check "Care tips" on an enriched plant in zone-detail — confirm `preferred_soil_type` and `maintenance_level` appear.
 
 - [ ] **Block D — Library Card: Description & New Badges** | Agent: `/visualizer`
   - In `botanical-record-card.html`: add `description` as a single truncated line below the name block.
@@ -101,10 +133,9 @@ Requires: a single batch SELECT in `ZoneDetailComponent` — fetch all botanical
   - Keep existing tag order: toxicity → watering → sunlight → lifecycle → care difficulty → placement.
   - Manual Browser Check: open Library — confirm description line wraps correctly at narrow widths, badges are legible.
 
-- [ ] **Block E — Zone Detail Card: Contextual Botanical Badges** | Agent: `/plumber` → `/visualizer`
-  - `/plumber`: add `loadBotanicalRecordsForZone(scientificNames: string[])` to `BotanicalService` (or equivalent) — a single SELECT from `cached_botanical_records` WHERE `scientific_name = ANY(...)`. Expose result as a `signal<Map<string, CachedBotanicalRecord>>`.
-  - `/visualizer`: in `zone-detail.ts`, call the new method after plants load; pass a computed slice of the map into each plant card or look up inline via `botanicalMap().get(plant.scientific_name)`.
-  - In `zone-detail.html`: add `care_difficulty`, `placement`, and `is_tropical` badges to the plant card template (shown only when the botanical record exists).
+- [ ] **Block E — Zone Detail Card: Contextual Botanical Badges** | Agent: `/visualizer`
+  - `ZoneDetailComponent` already has `botanicalMap: signal<Map<string, CachedBotanicalRecord>>` and `enrichedRecordFor()` — no new service method or data-layer work needed. This block is template-only.
+  - In `zone-detail.html`: below the container/substrate badge row, read from `enrichedRecordFor(ep.plant.scientific_name)` and conditionally render `care_difficulty`, `placement`, and `is_tropical` badges — each guarded by `@if` on the field value so no DOM output when null.
   - Manual Browser Check: navigate to a zone with at least one enriched plant — confirm badges appear. Navigate to a zone with no enriched plants — confirm no empty space or broken layout.
 
 - [ ] **Block F — Library Filters: 6 New Dimensions** | Agent: `/visualizer`

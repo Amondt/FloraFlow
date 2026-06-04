@@ -36,20 +36,36 @@ export type Database = {
     Tables: {
       cached_botanical_records: {
         Row: {
+          air_purifying: boolean | null
           cached_at: string
           care_difficulty: string | null
           check_depth_description: string | null
           common_name: string
           cycle: string | null
+          description: string | null
+          flowering_season: string | null
+          fruit_season: string | null
+          growth_rate: string | null
+          human_toxicity_notes: string | null
           ideal_humidity_max: number | null
           ideal_humidity_min: number | null
           ideal_max_ph: number | null
           ideal_min_ph: number | null
           is_ai_enriched: boolean
           is_perenual_enriched: boolean
+          is_toxic_to_humans: boolean | null
           is_toxic_to_pets: boolean | null
+          is_tropical: boolean | null
+          maintenance_level: string | null
+          max_height_cm: number | null
+          max_spread_cm: number | null
+          native_region: string | null
           perenual_id: number | null
+          placement: string | null
           plant_type: string | null
+          preferred_soil_type: string[] | null
+          produces_flowers: boolean | null
+          produces_fruit: boolean | null
           propagation_methods: string[] | null
           raw_api_payload: Json | null
           scientific_name: string
@@ -58,20 +74,36 @@ export type Database = {
           watering: string | null
         }
         Insert: {
+          air_purifying?: boolean | null
           cached_at?: string
           care_difficulty?: string | null
           check_depth_description?: string | null
           common_name: string
           cycle?: string | null
+          description?: string | null
+          flowering_season?: string | null
+          fruit_season?: string | null
+          growth_rate?: string | null
+          human_toxicity_notes?: string | null
           ideal_humidity_max?: number | null
           ideal_humidity_min?: number | null
           ideal_max_ph?: number | null
           ideal_min_ph?: number | null
           is_ai_enriched?: boolean
           is_perenual_enriched?: boolean
+          is_toxic_to_humans?: boolean | null
           is_toxic_to_pets?: boolean | null
+          is_tropical?: boolean | null
+          maintenance_level?: string | null
+          max_height_cm?: number | null
+          max_spread_cm?: number | null
+          native_region?: string | null
           perenual_id?: number | null
+          placement?: string | null
           plant_type?: string | null
+          preferred_soil_type?: string[] | null
+          produces_flowers?: boolean | null
+          produces_fruit?: boolean | null
           propagation_methods?: string[] | null
           raw_api_payload?: Json | null
           scientific_name: string
@@ -80,20 +112,36 @@ export type Database = {
           watering?: string | null
         }
         Update: {
+          air_purifying?: boolean | null
           cached_at?: string
           care_difficulty?: string | null
           check_depth_description?: string | null
           common_name?: string
           cycle?: string | null
+          description?: string | null
+          flowering_season?: string | null
+          fruit_season?: string | null
+          growth_rate?: string | null
+          human_toxicity_notes?: string | null
           ideal_humidity_max?: number | null
           ideal_humidity_min?: number | null
           ideal_max_ph?: number | null
           ideal_min_ph?: number | null
           is_ai_enriched?: boolean
           is_perenual_enriched?: boolean
+          is_toxic_to_humans?: boolean | null
           is_toxic_to_pets?: boolean | null
+          is_tropical?: boolean | null
+          maintenance_level?: string | null
+          max_height_cm?: number | null
+          max_spread_cm?: number | null
+          native_region?: string | null
           perenual_id?: number | null
+          placement?: string | null
           plant_type?: string | null
+          preferred_soil_type?: string[] | null
+          produces_flowers?: boolean | null
+          produces_fruit?: boolean | null
           propagation_methods?: string[] | null
           raw_api_payload?: Json | null
           scientific_name?: string

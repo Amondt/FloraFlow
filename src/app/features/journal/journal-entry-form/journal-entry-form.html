@@ -152,6 +152,89 @@
           Image ready — {{ compressedLabel() }}
         </p>
       }
+
+      @if (compressedLabel() && diagnosisState() === 'idle') {
+        <p-button
+          label="Analyze with Leaf Doctor"
+          variant="outlined"
+          icon="pi pi-eye"
+          [pt]="FloraButtonPT"
+          ariaLabel="Analyze this photo with Leaf Doctor AI diagnostics"
+          (onClick)="analyzePlant()"
+        />
+      }
+
+      @if (diagnosisState() === 'loading') {
+        <p-button
+          label="Analyzing…"
+          variant="outlined"
+          icon="pi pi-eye"
+          [pt]="FloraButtonPT"
+          ariaLabel="Leaf Doctor is analyzing the photo, please wait"
+          [loading]="true"
+          [disabled]="true"
+        />
+      }
+
+      @if (diagnosisState() === 'success') {
+        @let result = diagnosisResult();
+        @if (result) {
+          <section
+            aria-label="Leaf Doctor diagnosis"
+            class="flex flex-col gap-2 rounded-garden-md border border-neutral-200 p-3"
+          >
+            <p class="text-sm font-semibold text-neutral-900 font-display">
+              {{ result.primary_condition }}
+            </p>
+            <div class="flex flex-wrap items-center gap-2">
+              <span
+                [class]="
+                  confidenceBadgeClass(result.confidence_score) +
+                  ' text-xs font-medium font-display px-2 py-0.5 rounded-garden-sm'
+                "
+                [attr.aria-label]="'Confidence: ' + confidenceBadgeLabel(result.confidence_score)"
+              >
+                {{ confidenceBadgeLabel(result.confidence_score) }}
+              </span>
+              <span
+                [class]="
+                  riskBadgeClass(result.systemic_risk_assessment) +
+                  ' text-xs font-medium font-display px-2 py-0.5 rounded-garden-sm'
+                "
+                [attr.aria-label]="'Risk level: ' + result.systemic_risk_assessment"
+              >
+                {{ result.systemic_risk_assessment }}
+              </span>
+            </div>
+            @if (result.immediate_remedial_actions.length) {
+              <ul
+                class="list-disc pl-4 space-y-0.5 text-xs font-display text-neutral-700"
+                aria-label="Recommended actions"
+              >
+                @for (action of result.immediate_remedial_actions; track action) {
+                  <li>{{ action }}</li>
+                }
+              </ul>
+            }
+          </section>
+        }
+      }
+
+      @if (diagnosisState() === 'not-botanical') {
+        <p-message
+          severity="warn"
+          text="This doesn't look like a plant photo. Try a clear close-up of a leaf or stem."
+          [pt]="FloraMessagePT"
+        />
+      }
+
+      @if (diagnosisState() === 'error') {
+        <p-message
+          severity="error"
+          text="Leaf Doctor is unavailable — your photo will still be saved."
+          [pt]="FloraMessagePT"
+        />
+      }
     </div>
   </form>
 

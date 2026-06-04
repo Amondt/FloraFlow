@@ -5,6 +5,19 @@ import type { Database } from '../../../types/database.types';
 type JournalInsert = Database['public']['Tables']['plant_journals']['Insert'];
 type JournalRow = Database['public']['Tables']['plant_journals']['Row'];
 
+export interface LeafDoctorDiagnostics {
+  primary_condition: string;
+  confidence_score: number;
+  immediate_remedial_actions: string[];
+  systemic_risk_assessment: 'Isolated' | 'ZoneContagious' | 'FatalThreat';
+}
+
+export interface LeafDoctorResult {
+  is_botanical_image: boolean;
+  error_message: string | null;
+  diagnostics: LeafDoctorDiagnostics | null;
+}
+
 export type JournalEntryWithPlant = JournalRow & {
   plants: { common_name: string; scientific_name: string | null };
 };

@@ -18,7 +18,8 @@ export const FloraDialogPT = {
     },
   },
   content: {
-    class: 'p-6 text-neutral-700 dark:text-neutral-200 text-base leading-relaxed font-display',
+    class:
+      'p-6 text-neutral-700 dark:text-neutral-200 text-base leading-relaxed font-display max-h-[60vh] overflow-y-auto',
   },
   footer: {
     class:

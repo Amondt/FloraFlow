@@ -38,7 +38,7 @@ Agent chain: `/plumber` (Blocks A–B) → `/visualizer` (Blocks C–D)
   - Copy to shared: `Copy-Item src/types/database.types.ts supabase/functions/_shared/database.types.ts`
   - Verification: `bunx supabase db test` — all existing tests pass. Confirm `diagnostics jsonb` appears in `\d public.plant_journals`.
 
-- [ ] **Block C — Journal Entry Form: Leaf Doctor trigger** | Agent: `/visualizer`
+- [x] **Block C — Journal Entry Form: Leaf Doctor trigger** | Agent: `/visualizer`
   - Define `LeafDoctorDiagnostics` and `LeafDoctorResult` interfaces in `journal.service.ts` (shared by form and card):
     ```ts
     export interface LeafDoctorDiagnostics {

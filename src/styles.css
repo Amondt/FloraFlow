@@ -551,6 +551,9 @@
   .max-h-60 {
     max-height: calc(var(--spacing) * 60);
   }
+  .max-h-\[60vh\] {
+    max-height: 60vh;
+  }
   .min-h-11 {
     min-height: calc(var(--spacing) * 11);
   }
@@ -799,6 +802,9 @@
   }
   .overflow-x-auto {
     overflow-x: auto;
+  }
+  .overflow-y-auto {
+    overflow-y: auto;
   }
   .rounded {
     border-radius: 0.25rem;

@@ -6,6 +6,7 @@ export interface WeatherData {
   temperature_celsius: number;
   relative_humidity_percent: number;
   precipitation_probability_percent: number | null;
+  min_temp_next_24h: number | null;
 }
 
 type WeatherProxySuccess = WeatherData & {
@@ -26,7 +27,7 @@ export class WeatherService {
   readonly weatherError = signal<string | null>(null);
 
   readonly hasFrostRisk = computed(
-    () => (this.weather()?.temperature_celsius ?? Infinity) <= this.FROST_THRESHOLD_CELSIUS,
+    () => (this.weather()?.min_temp_next_24h ?? Infinity) <= this.FROST_THRESHOLD_CELSIUS,
   );
 
   async loadWeather(lat: number, lon: number): Promise<void> {
@@ -56,6 +57,7 @@ export class WeatherService {
         temperature_celsius: result.temperature_celsius,
         relative_humidity_percent: result.relative_humidity_percent,
         precipitation_probability_percent: result.precipitation_probability_percent,
+        min_temp_next_24h: result.min_temp_next_24h,
       });
     } catch {
       this.weatherError.set('Could not load weather data — frost alerts may be unavailable.');

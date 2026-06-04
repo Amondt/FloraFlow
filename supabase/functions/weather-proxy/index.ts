@@ -12,6 +12,10 @@ type OpenMeteoResponse = {
     time: string[];
     precipitation_probability: number[];
   };
+  daily: {
+    time: string[];
+    temperature_2m_min: number[];
+  };
 };
 
 Deno.serve(async (req: Request) => {
@@ -63,11 +67,12 @@ Deno.serve(async (req: Request) => {
     const { data: cached } = await supabase
       .from('weather_cache')
       .select(
-        'latitude, longitude, temperature_celsius, relative_humidity_percent, precipitation_probability_percent, fetched_at',
+        'latitude, longitude, temperature_celsius, relative_humidity_percent, precipitation_probability_percent, min_temp_next_24h, fetched_at',
       )
       .eq('latitude', lat)
       .eq('longitude', lon)
       .gte('fetched_at', new Date(Date.now() - 30 * 60 * 1000).toISOString())
+      .not('min_temp_next_24h', 'is', null)
       .maybeSingle();
 
     if (cached) return json(cached);
@@ -79,7 +84,8 @@ Deno.serve(async (req: Request) => {
         `?latitude=${lat}&longitude=${lon}` +
         `&current=temperature_2m,relative_humidity_2m` +
         `&hourly=precipitation_probability` +
-        `&forecast_days=1&timezone=UTC`;
+        `&daily=temperature_2m_min` +
+        `&forecast_days=2&timezone=UTC`;
 
       const resp = await fetch(meteoUrl);
       if (!resp.ok) throw new Error(`Open-Meteo responded ${resp.status}`);
@@ -94,12 +100,17 @@ Deno.serve(async (req: Request) => {
       const precipProbability =
         hourIndex >= 0 ? (meteo.hourly.precipitation_probability[hourIndex] ?? null) : null;
 
+      const min0 = meteo.daily.temperature_2m_min[0] ?? Infinity;
+      const min1 = meteo.daily.temperature_2m_min[1] ?? Infinity;
+      const rawMin = Math.min(min0, min1);
+
       const record = {
         latitude: lat,
         longitude: lon,
         temperature_celsius: meteo.current.temperature_2m,
         relative_humidity_percent: meteo.current.relative_humidity_2m,
         precipitation_probability_percent: precipProbability,
+        min_temp_next_24h: Number.isFinite(rawMin) ? rawMin : null,
         fetched_at: new Date().toISOString(),
       };
 

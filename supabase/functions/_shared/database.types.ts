@@ -366,6 +366,7 @@ export type Database = {
           id: string;
           latitude: number;
           longitude: number;
+          min_temp_next_24h: number | null;
           precipitation_probability_percent: number | null;
           relative_humidity_percent: number | null;
           temperature_celsius: number | null;
@@ -375,6 +376,7 @@ export type Database = {
           id?: string;
           latitude: number;
           longitude: number;
+          min_temp_next_24h?: number | null;
           precipitation_probability_percent?: number | null;
           relative_humidity_percent?: number | null;
           temperature_celsius?: number | null;
@@ -384,6 +386,7 @@ export type Database = {
           id?: string;
           latitude?: number;
           longitude?: number;
+          min_temp_next_24h?: number | null;
           precipitation_probability_percent?: number | null;
           relative_humidity_percent?: number | null;
           temperature_celsius?: number | null;

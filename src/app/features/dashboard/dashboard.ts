@@ -128,6 +128,12 @@ export class DashboardComponent {
     this.zoneService.zones().filter((z) => z.zone_type === 'outdoor'),
   );
 
+  protected readonly outdoorZoneNames = computed(() =>
+    this.outdoorZones()
+      .map((z) => z.name)
+      .join(', '),
+  );
+
   readonly locationDialogVisible = signal(false);
 
   // ── Zone stats for zone-card inputs ──────────────────────────

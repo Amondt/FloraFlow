@@ -104,18 +104,20 @@
           aria-hidden="true"
         ></i>
         <div class="flex-1">
-          <p class="text-sm font-semibold font-display text-warning-500">Frost risk detected</p>
+          <p class="text-sm font-semibold font-display text-warning-500">
+            Frost risk — next 24 hours
+          </p>
           <p class="text-sm font-display text-neutral-600 mt-0.5">
-            Current temperature: {{ weatherService.weather()?.temperature_celsius }}°C near
-            {{ profileService.profile()?.location_name ?? 'your location' }}. Plants in your outdoor
-            zones may be at frost risk — consider covering or bringing them inside.
+            Low of {{ weatherService.weather()?.min_temp_next_24h }}°C near
+            {{ profileService.profile()?.location_name ?? 'your location' }}. Protect plants in
+            {{ outdoorZoneNames() }}.
           </p>
         </div>
       </section>
     }
 
     @if (outdoorZones().length > 0 && !hasLocation()) {
-      <p class="text-sm text-neutral-500 font-display mb-6">
+      <p class="text-xs text-neutral-500 font-display mb-6">
         <button
           type="button"
           (click)="openLocationDialog()"

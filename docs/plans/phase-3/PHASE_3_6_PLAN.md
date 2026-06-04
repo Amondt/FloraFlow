@@ -310,7 +310,7 @@ When `cached_botanical_records.placement` is available (Phase 3.10), the alert c
     10. Open DevTools Console → zero red errors.
     ```
 
-- [ ] **Block E — 24h forecast minimum temperature** | Agent: `/plumber` → `/visualizer`
+- [x] **Block E — 24h forecast minimum temperature** | Agent: `/plumber` → `/visualizer`
 
   **Why:** Frost risk from the *current* temperature misses overnight lows. A gardener needs the alert during the day, before going to bed. Open-Meteo's `daily=temperature_2m_min&forecast_days=2` gives today's and tomorrow's forecast low — the minimum of both is the correct risk signal.
 

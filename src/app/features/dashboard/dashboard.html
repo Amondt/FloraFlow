@@ -31,6 +31,17 @@
               {{ totalZoneCount() }} {{ totalZoneCount() === 1 ? 'zone' : 'zones' }}
             }
           </p>
+          @if (hasLocation()) {
+            <button
+              type="button"
+              (click)="openLocationDialog()"
+              class="cursor-pointer inline-flex items-center gap-1.5 text-xs font-medium font-display text-neutral-500 hover:text-primary-600 transition-colors duration-150 mt-1 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
+              aria-label="Edit frost alert location"
+            >
+              <i class="pi pi-map-marker text-xs" aria-hidden="true"></i>
+              {{ profileService.profile()?.location_name ?? 'Location set' }}
+            </button>
+          }
         </div>
 
         <!-- Action buttons -->
@@ -79,6 +90,43 @@
         </div>
       </div>
     </header>
+
+    <!-- ── Frost alert / Location prompt ────────────────────────────── -->
+    @if (outdoorZones().length > 0 && weatherService.hasFrostRisk()) {
+      <section
+        role="alert"
+        aria-live="assertive"
+        aria-label="Frost risk warning"
+        class="flex items-start gap-3 bg-amber-50 border border-warning-500 rounded-garden-md p-4 mb-6"
+      >
+        <i
+          class="pi pi-exclamation-triangle text-warning-500 mt-0.5 flex-shrink-0"
+          aria-hidden="true"
+        ></i>
+        <div class="flex-1">
+          <p class="text-sm font-semibold font-display text-warning-500">Frost risk detected</p>
+          <p class="text-sm font-display text-neutral-600 mt-0.5">
+            Current temperature: {{ weatherService.weather()?.temperature_celsius }}°C near
+            {{ profileService.profile()?.location_name ?? 'your location' }}. Plants in your outdoor
+            zones may be at frost risk — consider covering or bringing them inside.
+          </p>
+        </div>
+      </section>
+    }
+
+    @if (outdoorZones().length > 0 && !hasLocation()) {
+      <p class="text-sm text-neutral-500 font-display mb-6">
+        <button
+          type="button"
+          (click)="openLocationDialog()"
+          class="cursor-pointer text-primary-600 underline hover:text-primary-700 font-medium outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
+          aria-label="Set your location to enable frost alerts"
+        >
+          Set your location
+        </button>
+        to enable frost alerts for your outdoor zones.
+      </p>
+    }
 
     <!-- ── Error banners ─────────────────────────────────────────────── -->
     @if (zoneService.error()) {
@@ -277,6 +325,16 @@
 
     <!-- Delete confirmation dialog -->
     <p-confirmdialog [pt]="FloraConfirmDialogPT" />
+
+    <!-- Location dialog -->
+    <app-location-dialog
+      [(visible)]="locationDialogVisible"
+      [currentLat]="profileService.profile()?.latitude ?? null"
+      [currentLon]="profileService.profile()?.longitude ?? null"
+      [currentName]="profileService.profile()?.location_name ?? null"
+      (locationSaved)="onLocationSaved($event)"
+      (locationCleared)="onLocationCleared()"
+    />
 
     <!-- Action feedback toast -->
     <p-toast position="bottom-right" [pt]="FloraToastPT">

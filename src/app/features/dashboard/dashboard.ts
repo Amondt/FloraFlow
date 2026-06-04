@@ -1,4 +1,4 @@
-import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ConfirmDialog } from 'primeng/confirmdialog';
@@ -24,6 +24,9 @@ import { PendingDeleteManager } from '../../shared/utils/pending-delete';
 import { plantAddedDetail } from '../../shared/utils/plant-message.util';
 import { ZoneFormComponent } from './zone-form/zone-form';
 import { Zone, ZoneFormData } from './zone.model';
+import { ProfileService } from '../../core/services/profile.service';
+import { WeatherService } from '../../core/services/weather.service';
+import { LocationDialogComponent } from './location-dialog/location-dialog';
 
 interface AttentionChip {
   plant: Plant;
@@ -45,6 +48,7 @@ interface AttentionChip {
     ZoneFormComponent,
     PlantFormDialogComponent,
     LeafIconComponent,
+    LocationDialogComponent,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './dashboard.html',
@@ -52,6 +56,8 @@ interface AttentionChip {
 export class DashboardComponent {
   protected readonly zoneService = inject(ZoneService);
   protected readonly plantService = inject(PlantService);
+  protected readonly profileService = inject(ProfileService);
+  protected readonly weatherService = inject(WeatherService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
   private readonly destroyRef = inject(DestroyRef);
@@ -115,6 +121,15 @@ export class DashboardComponent {
     () => this.attentionChips().filter((c) => c.isOverdue).length,
   );
 
+  // ── Frost alert ───────────────────────────────────────────────
+  protected readonly hasLocation = computed(() => this.profileService.profile()?.latitude != null);
+
+  protected readonly outdoorZones = computed(() =>
+    this.zoneService.zones().filter((z) => z.zone_type === 'outdoor'),
+  );
+
+  readonly locationDialogVisible = signal(false);
+
   // ── Zone stats for zone-card inputs ──────────────────────────
   readonly zoneStats = computed(() => {
     const plants = this.plantService.plants();
@@ -155,6 +170,16 @@ export class DashboardComponent {
     this.destroyRef.onDestroy(() => {
       this._deleteManager.cancelAll();
     });
+
+    // Load weather whenever the profile gains a location
+    effect(() => {
+      const profile = this.profileService.profile();
+      const lat = profile?.latitude;
+      const lon = profile?.longitude;
+      if (lat != null && lon != null) {
+        void untracked(() => this.weatherService.loadWeather(lat, lon));
+      }
+    });
   }
 
   // ── Chip class helpers (return full class strings for Tailwind scanning) ──
@@ -182,6 +207,39 @@ export class DashboardComponent {
   openAddPlantDialog(): void {
     blurActiveElement();
     this.plantFormVisible.set(true);
+  }
+
+  // ── Location dialog ───────────────────────────────────────────
+  openLocationDialog(): void {
+    blurActiveElement();
+    this.locationDialogVisible.set(true);
+  }
+
+  async onLocationSaved(coords: { lat: number; lon: number; locationName: string }): Promise<void> {
+    try {
+      await this.profileService.setLocation(coords.lat, coords.lon, coords.locationName);
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Location saved',
+        detail: 'Location saved — frost alerts are now active',
+      });
+    } catch {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Location error',
+        detail: 'Failed to save location — try again',
+      });
+    }
+  }
+
+  async onLocationCleared(): Promise<void> {
+    await this.profileService.clearLocation();
+    this.weatherService.weather.set(null);
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Location cleared',
+      detail: 'Location cleared — frost alerts disabled',
+    });
   }
 
   // ── Zone actions ──────────────────────────────────────────────

@@ -9,6 +9,7 @@ Agent chain: `/plumber` (Blocks A–B) → `/visualizer` (Blocks C–D)
 Frost alerts protect outdoor plants. The feature is passive: the user sets their location once, and the dashboard automatically surfaces a warning whenever the current temperature threatens outdoor zones.
 
 Two technical building blocks already exist:
+
 1. `weather-proxy` Edge Function (Phase 2.5) — calls Open-Meteo and caches results in `weather_cache` (30-min TTL).
 2. `zone_type` column on `zones` (Phase 3.5) — distinguishes outdoor from indoor zones.
 
@@ -17,6 +18,7 @@ Phase 3.6 adds the location layer on top: the user's lat/lon is stored on their 
 ### Location UX — two-tier strategy
 
 Raw lat/lon inputs are not usable. The location dialog uses a two-tier approach:
+
 - **Tier 1 — Auto-detect**: `navigator.geolocation.getCurrentPosition()` — one tap, no manual input.
 - **Tier 2 — City search**: Open-Meteo geocoding API (`geocoding-api.open-meteo.com/v1/search`) — user types a city or region name and picks from a dropdown. No API key required; called directly from Angular. Returns `latitude`, `longitude`, `name`, `admin1`, `country` per result.
 
@@ -35,20 +37,23 @@ When `cached_botanical_records.placement` is available (Phase 3.10), the alert c
 ## Files
 
 **New:**
+
 - `supabase/migrations/<timestamp>_frost_alerts.sql`
 - `src/app/core/services/weather.service.ts`
 - `src/app/features/dashboard/location-dialog/location-dialog.ts`
 - `src/app/features/dashboard/location-dialog/location-dialog.html`
 
 **Modified:**
+
 - `src/app/core/services/profile.service.ts`
 - `src/app/features/dashboard/dashboard.ts`
 - `src/app/features/dashboard/dashboard.html`
 
 ---
 
-- [ ] **Block A — Migration: `profiles` location columns + `frost_date_cache`** | Agent: `/plumber`
+- [x] **Block A — Migration: `profiles` location columns + `frost_date_cache`** | Agent: `/plumber`
   - Create `supabase/migrations/<timestamp>_frost_alerts.sql`:
+
     ```sql
     -- Location columns on profiles (nullable — user opts in)
     ALTER TABLE public.profiles
@@ -74,6 +79,7 @@ When `cached_botanical_records.placement` is available (Phase 3.10), the alert c
         ON public.frost_date_cache FOR SELECT
         USING (auth.role() = 'authenticated');
     ```
+
   - Apply locally:
     ```powershell
     bunx supabase migration up
@@ -90,7 +96,7 @@ When `cached_botanical_records.placement` is available (Phase 3.10), the alert c
     ```
   - Confirm `latitude`, `longitude`, `location_name` appear in the `profiles` Row type in `src/types/database.types.ts`.
 
-- [ ] **Block B — `ProfileService` location methods + `WeatherService`** | Agent: `/plumber`
+- [x] **Block B — `ProfileService` location methods + `WeatherService`** | Agent: `/plumber`
   - In `src/app/core/services/profile.service.ts`, add two methods:
     - `setLocation(lat: number, lon: number, locationName: string): Promise<void>`:
       - PATCHes `{ latitude: lat, longitude: lon, location_name: locationName }` on the current user's profile row.
@@ -116,7 +122,7 @@ When `cached_botanical_records.placement` is available (Phase 3.10), the alert c
     bun run lint
     ```
 
-- [ ] **Block C — Location Dialog (geo-detect + city-search)** | Agent: `/visualizer`
+- [x] **Block C — Location Dialog (geo-detect + city-search)** | Agent: `/visualizer`
   - Before writing, fetch Open-Meteo geocoding API docs via context7 to confirm the `geocoding-api.open-meteo.com/v1/search` response shape (fields: `id`, `name`, `latitude`, `longitude`, `admin1`, `country`). If context7 has no entry for this, call it with `open-meteo` and check the results; if unavailable, use the known shape from the Open-Meteo public docs.
   - Create `src/app/features/dashboard/location-dialog/location-dialog.ts` and `.html`:
     - `visible = model<boolean>(false)`.
@@ -153,10 +159,15 @@ When `cached_botanical_records.placement` is available (Phase 3.10), the alert c
     - Template (`<p-dialog>` with `FloraDialogPT`, header `"Set location for frost alerts"`):
       - **Detect button row**:
         ```html
-        <p-button label="Detect my current location" icon="pi pi-map-marker"
-          [loading]="geoDetecting()" (onClick)="detectLocation()"
-          variant="outlined" [pt]="FloraButtonPT"
-          ariaLabel="Detect my current location using the browser" />
+        <p-button
+          label="Detect my current location"
+          icon="pi pi-map-marker"
+          [loading]="geoDetecting()"
+          (onClick)="detectLocation()"
+          variant="outlined"
+          [pt]="FloraButtonPT"
+          ariaLabel="Detect my current location using the browser"
+        />
         ```
       - `@if (geoError())` — inline error message using `<p-message severity="warn">`.
       - **Divider** — `<div class="flex items-center gap-3 my-4"><hr class="flex-1 border-neutral-200">or search<hr class="flex-1 border-neutral-200"></div>`.
@@ -183,6 +194,7 @@ When `cached_botanical_records.placement` is available (Phase 3.10), the alert c
     bun run lint
     ```
   - Manual Browser Check — Location Dialog:
+
     ```
     App running at: http://localhost:4200/dashboard
 
@@ -198,7 +210,7 @@ When `cached_botanical_records.placement` is available (Phase 3.10), the alert c
     8. Open DevTools Console → zero red errors.
     ```
 
-- [ ] **Block D — Dashboard Frost Alert Banner + Location Wiring** | Agent: `/visualizer`
+- [x] **Block D — Dashboard Frost Alert Banner + Location Wiring** | Agent: `/visualizer`
   - In `dashboard.ts`:
     - Inject `ProfileService` and `WeatherService`.
     - Computed: `hasLocation = computed(() => this.profileService.profile()?.latitude != null)`.
@@ -218,15 +230,22 @@ When `cached_botanical_records.placement` is available (Phase 3.10), the alert c
   - In `dashboard.html`:
     - **Frost alert banner** — placed directly below the page `<header>`, shown `@if (outdoorZones().length > 0 && weatherService.hasFrostRisk())`:
       ```html
-      <section role="alert" aria-live="assertive" aria-label="Frost risk warning"
-        class="flex items-start gap-3 bg-amber-50 border border-warning-500 rounded-garden-md p-4 mb-6">
-        <i class="pi pi-exclamation-triangle text-warning-500 mt-0.5 flex-shrink-0" aria-hidden="true"></i>
+      <section
+        role="alert"
+        aria-live="assertive"
+        aria-label="Frost risk warning"
+        class="flex items-start gap-3 bg-amber-50 border border-warning-500 rounded-garden-md p-4 mb-6"
+      >
+        <i
+          class="pi pi-exclamation-triangle text-warning-500 mt-0.5 flex-shrink-0"
+          aria-hidden="true"
+        ></i>
         <div class="flex-1">
           <p class="text-sm font-semibold font-display text-warning-500">Frost risk detected</p>
           <p class="text-sm font-display text-neutral-600 mt-0.5">
-            Current temperature: {{ weatherService.weather()?.temperature_celsius }}°C near
-            {{ profileService.profile()?.location_name ?? 'your location' }}.
-            Your outdoor zones may be at risk.
+            Current temperature: {{ weatherService.weather()?.temperature_celsius }}°C near {{
+            profileService.profile()?.location_name ?? 'your location' }}. Your outdoor zones may be
+            at risk.
           </p>
         </div>
       </section>
@@ -234,9 +253,12 @@ When `cached_botanical_records.placement` is available (Phase 3.10), the alert c
     - **Location prompt** — shown `@if (outdoorZones().length > 0 && !hasLocation())`, placed in the same position:
       ```html
       <p class="text-sm text-neutral-500 font-display mb-6">
-        <button type="button" (click)="openLocationDialog()"
+        <button
+          type="button"
+          (click)="openLocationDialog()"
           class="text-primary-600 underline hover:text-primary-700 font-medium"
-          ariaLabel="Set your location to enable frost alerts">
+          ariaLabel="Set your location to enable frost alerts"
+        >
           Set your location
         </button>
         to enable frost alerts for your outdoor zones.
@@ -244,9 +266,12 @@ When `cached_botanical_records.placement` is available (Phase 3.10), the alert c
       ```
     - **Location edit button** — shown `@if (hasLocation())`, inside the dashboard `<header>` as a small secondary action:
       ```html
-      <button type="button" (click)="openLocationDialog()"
+      <button
+        type="button"
+        (click)="openLocationDialog()"
         class="inline-flex items-center gap-1.5 text-xs font-medium font-display text-neutral-500 hover:text-primary-600 transition-colors duration-150"
-        aria-label="Edit frost alert location">
+        aria-label="Edit frost alert location"
+      >
         <i class="pi pi-map-marker text-xs" aria-hidden="true"></i>
         {{ profileService.profile()?.location_name ?? 'Location set' }}
       </button>
@@ -259,7 +284,8 @@ When `cached_botanical_records.placement` is available (Phase 3.10), the alert c
         [currentLon]="profileService.profile()?.longitude ?? null"
         [currentName]="profileService.profile()?.location_name ?? null"
         (locationSaved)="onLocationSaved($event)"
-        (locationCleared)="onLocationCleared()" />
+        (locationCleared)="onLocationCleared()"
+      />
       ```
   - Verification:
     ```powershell
@@ -267,6 +293,7 @@ When `cached_botanical_records.placement` is available (Phase 3.10), the alert c
     bun run lint
     ```
   - Manual Browser Check — Dashboard Frost Alert:
+
     ```
     App running at: http://localhost:4200/dashboard
 
@@ -282,3 +309,67 @@ When `cached_botanical_records.placement` is available (Phase 3.10), the alert c
     9. Click "Clear location" → confirmation, location label disappears, prompt returns, no frost banner.
     10. Open DevTools Console → zero red errors.
     ```
+
+- [ ] **Block E — 24h forecast minimum temperature** | Agent: `/plumber` → `/visualizer`
+
+  **Why:** Frost risk from the *current* temperature misses overnight lows. A gardener needs the alert during the day, before going to bed. Open-Meteo's `daily=temperature_2m_min&forecast_days=2` gives today's and tomorrow's forecast low — the minimum of both is the correct risk signal.
+
+  **`/plumber` — migration + Edge Function + service:**
+
+  1. New migration `<timestamp>_weather_cache_min_temp.sql`:
+     ```sql
+     ALTER TABLE public.weather_cache
+       ADD COLUMN min_temp_next_24h NUMERIC(5,2);
+     ```
+     Apply: `bunx supabase migration up`
+     Regen types: `bun run types` + `Copy-Item src/types/database.types.ts supabase/functions/_shared/database.types.ts`
+
+  2. In `supabase/functions/weather-proxy/index.ts`:
+     - Extend `OpenMeteoResponse` type:
+       ```ts
+       daily: { time: string[]; temperature_2m_min: number[] };
+       ```
+     - Change `forecast_days=1` → `forecast_days=2` and append `&daily=temperature_2m_min` to the URL.
+     - Add `min_temp_next_24h` to the cache `.select()` string.
+     - After parsing `meteo`, compute:
+       ```ts
+       const min0 = meteo.daily.temperature_2m_min[0] ?? Infinity;
+       const min1 = meteo.daily.temperature_2m_min[1] ?? Infinity;
+       const minTempNext24h = Math.min(min0, min1);
+       ```
+     - Add to `record`: `min_temp_next_24h: Number.isFinite(minTempNext24h) ? minTempNext24h : null`.
+
+  3. In `src/app/core/services/weather.service.ts`:
+     - Add `min_temp_next_24h: number | null` to `WeatherData` and `WeatherProxySuccess`.
+     - Pivot `hasFrostRisk`:
+       ```ts
+       readonly hasFrostRisk = computed(
+         () => (this.weather()?.min_temp_next_24h ?? Infinity) <= this.FROST_THRESHOLD_CELSIUS,
+       );
+       ```
+     - Map `min_temp_next_24h` in the `loadWeather` signal set.
+
+  **`/visualizer` — dashboard copy:**
+
+  4. In `dashboard.html`, update the frost alert body text:
+     ```
+     Forecast low: {{ weatherService.weather()?.min_temp_next_24h }}°C near
+     {{ profileService.profile()?.location_name ?? 'your location' }}. Plants in your outdoor
+     zones may be at frost risk — consider covering or bringing them inside.
+     ```
+
+  **Verification:**
+  ```powershell
+  bun run format
+  bun run lint
+  ```
+  Manual Browser Check — 24h Forecast Alert:
+  ```
+  App running at: http://localhost:4200/dashboard
+
+  1. Temporarily set FROST_THRESHOLD_CELSIUS = 30 in weather.service.ts.
+  2. Set a location → frost banner appears showing "Forecast low: X°C near <city>".
+  3. Banner copy says "Forecast low" (not "Current temperature").
+  4. Restore FROST_THRESHOLD_CELSIUS = 4.
+  5. Open DevTools Console → zero red errors.
+  ```

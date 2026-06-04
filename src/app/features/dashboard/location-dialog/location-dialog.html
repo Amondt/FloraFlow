@@ -1,0 +1,160 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="onVisibleChange($event)"
+  header="Frost alerts"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [dismissableMask]="true"
+  [pt]="FloraDialogPT"
+  (onShow)="onDialogShow()"
+>
+  <div class="flex flex-col gap-4">
+    <!-- Active location reminder -->
+    @if (currentLat() !== null) {
+      <div
+        class="flex items-center gap-2.5 p-3 bg-primary-50 border border-primary-100 rounded-garden-sm"
+        role="status"
+        aria-label="Active frost alert location"
+      >
+        <i class="pi pi-map-marker text-primary-500 flex-shrink-0 text-sm" aria-hidden="true"></i>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-display font-medium text-primary-500">Active location</p>
+          <p class="text-sm font-semibold font-display text-primary-800 truncate">
+            {{ currentName() ?? 'Location set' }}
+          </p>
+        </div>
+      </div>
+      <p class="text-xs font-display text-neutral-400 -mt-2">
+        Search below to change it, or use "Clear location" to remove it.
+      </p>
+    }
+
+    <!-- Geo-detect tier -->
+    <p-button
+      label="Detect my current location"
+      icon="pi pi-map-marker"
+      [loading]="geoDetecting()"
+      variant="outlined"
+      [pt]="FloraButtonPT"
+      ariaLabel="Detect my current location using the browser"
+      (onClick)="detectLocation()"
+    />
+
+    @if (geoError()) {
+      <p-message severity="warn" [text]="geoError() ?? ''" [pt]="FloraMessagePT" />
+    }
+
+    <!-- Divider -->
+    <div class="flex items-center gap-3" role="separator" aria-hidden="true">
+      <hr class="flex-1 border-neutral-200" />
+      <span class="text-xs text-neutral-400 font-display">or search</span>
+      <hr class="flex-1 border-neutral-200" />
+    </div>
+
+    <!-- City search -->
+    <div class="flex flex-col gap-1.5">
+      <label [for]="searchInputId" class="text-sm font-medium text-neutral-700 font-display">
+        City or region
+      </label>
+      <div class="relative">
+        <i
+          class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 text-sm pointer-events-none"
+          aria-hidden="true"
+        ></i>
+        <input
+          #searchInput
+          pInputText
+          [id]="searchInputId"
+          [pt]="FloraInputTextPT"
+          [value]="searchQuery()"
+          (input)="onSearchInput($event)"
+          (blur)="onSearchBlur()"
+          placeholder="City or region..."
+          autocomplete="off"
+          class="!pl-9"
+          aria-label="Search for a city or region"
+          aria-autocomplete="list"
+          [attr.aria-controls]="suggestions().length > 0 ? 'location-suggestions' : null"
+          [attr.aria-busy]="searchLoading()"
+        />
+        @if (searchLoading()) {
+          <i
+            class="pi pi-spinner animate-spin absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 text-sm"
+            aria-hidden="true"
+          ></i>
+        }
+      </div>
+
+      @if (suggestions().length > 0) {
+        <ul
+          id="location-suggestions"
+          role="listbox"
+          aria-label="Location suggestions"
+          class="w-full bg-white border border-neutral-200 rounded-garden-md shadow-lg max-h-48 overflow-y-auto"
+        >
+          @for (r of suggestions(); track r.id) {
+            <li role="option">
+              <button
+                type="button"
+                class="cursor-pointer w-full text-left px-3 py-2 text-sm hover:bg-primary-50 font-display outline-none focus-visible:bg-primary-50 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500"
+                (click)="onResultSelected(r)"
+                [attr.aria-label]="formatLabel(r)"
+              >
+                {{ formatLabel(r) }}
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+
+    <!-- Selected result confirmation -->
+    @if (selectedResult()) {
+      <div
+        class="flex items-center gap-2 p-3 bg-primary-50 rounded-garden-sm"
+        role="status"
+        aria-live="polite"
+        aria-label="Selected location"
+      >
+        <i class="pi pi-check-circle text-primary-600" aria-hidden="true"></i>
+        <span class="text-sm font-medium font-display text-primary-700">
+          {{ formatLabel(selectedResult()!) }}
+        </span>
+      </div>
+    }
+
+    <!-- Privacy note -->
+    <p role="note" class="text-xs text-neutral-400 font-display">
+      Coordinates are stored privately on your account and are never shared.
+    </p>
+  </div>
+
+  <ng-template #footer>
+    @if (currentLat() !== null) {
+      <p-button
+        label="Clear location"
+        variant="text"
+        severity="danger"
+        [pt]="FloraButtonPT"
+        ariaLabel="Clear saved location and disable frost alerts"
+        (onClick)="onClear()"
+      />
+    }
+    <p-button
+      label="Cancel"
+      variant="text"
+      [pt]="FloraButtonPT"
+      ariaLabel="Cancel and close dialog"
+      (onClick)="onCancel()"
+    />
+    <p-button
+      label="Save location"
+      [pt]="FloraButtonPT"
+      ariaLabel="Save location for frost alerts"
+      [loading]="saving()"
+      [disabled]="!selectedResult()"
+      (onClick)="onSave()"
+    />
+  </ng-template>
+</p-dialog>

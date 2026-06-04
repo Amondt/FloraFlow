@@ -103,6 +103,36 @@ export type Database = {
         }
         Relationships: []
       }
+      frost_date_cache: {
+        Row: {
+          fetched_at: string
+          first_fall_frost: string | null
+          hardiness_zone: string | null
+          id: string
+          last_spring_frost: string | null
+          latitude: number
+          longitude: number
+        }
+        Insert: {
+          fetched_at?: string
+          first_fall_frost?: string | null
+          hardiness_zone?: string | null
+          id?: string
+          last_spring_frost?: string | null
+          latitude: number
+          longitude: number
+        }
+        Update: {
+          fetched_at?: string
+          first_fall_frost?: string | null
+          hardiness_zone?: string | null
+          id?: string
+          last_spring_frost?: string | null
+          latitude?: number
+          longitude?: number
+        }
+        Relationships: []
+      }
       plant_journals: {
         Row: {
           category: Database["public"]["Enums"]["log_category_type"]
@@ -230,6 +260,9 @@ export type Database = {
           display_name: string
           has_completed_onboarding: boolean
           id: string
+          latitude: number | null
+          location_name: string | null
+          longitude: number | null
           push_subscription: Json | null
           updated_at: string
         }
@@ -239,6 +272,9 @@ export type Database = {
           display_name: string
           has_completed_onboarding?: boolean
           id: string
+          latitude?: number | null
+          location_name?: string | null
+          longitude?: number | null
           push_subscription?: Json | null
           updated_at?: string
         }
@@ -248,6 +284,9 @@ export type Database = {
           display_name?: string
           has_completed_onboarding?: boolean
           id?: string
+          latitude?: number | null
+          location_name?: string | null
+          longitude?: number | null
           push_subscription?: Json | null
           updated_at?: string
         }

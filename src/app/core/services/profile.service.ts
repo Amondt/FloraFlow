@@ -35,6 +35,46 @@ export class ProfileService {
     });
   }
 
+  async setLocation(lat: number, lon: number, locationName: string): Promise<void> {
+    const userId = this.supabase.session()?.user.id;
+    if (!userId) return;
+
+    const { error } = await this.supabase.client
+      .from('profiles')
+      .update({ latitude: lat, longitude: lon, location_name: locationName })
+      .eq('id', userId);
+
+    if (error) throw error;
+
+    const { data } = await this.supabase.client
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (data) this._profile.set(data);
+  }
+
+  async clearLocation(): Promise<void> {
+    const userId = this.supabase.session()?.user.id;
+    if (!userId) return;
+
+    const { error } = await this.supabase.client
+      .from('profiles')
+      .update({ latitude: null, longitude: null, location_name: null })
+      .eq('id', userId);
+
+    if (error) throw error;
+
+    const { data } = await this.supabase.client
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (data) this._profile.set(data);
+  }
+
   async completeOnboarding(): Promise<void> {
     const userId = this.supabase.session()?.user.id;
     if (!userId) return;

@@ -171,6 +171,11 @@ export class LibraryComponent {
     return this.filters()[key] === value;
   }
 
+  protected onSearchQueryChange(value: string): void {
+    this.searchQuery.set(value);
+    this._syncLoadingState();
+  }
+
   protected toggleFilter(key: 'watering' | 'sunlight' | 'cycle', value: string): void {
     this.filters.update((f) => {
       const next: LibraryFilters = { ...f };
@@ -178,6 +183,7 @@ export class LibraryComponent {
       else next[key] = value;
       return next;
     });
+    this._syncLoadingState();
   }
 
   protected toggleToxFilter(value: boolean): void {
@@ -187,6 +193,7 @@ export class LibraryComponent {
       else next.is_toxic_to_pets = value;
       return next;
     });
+    this._syncLoadingState();
   }
 
   private _activeHandle: 0 | 1 | null = null;
@@ -238,6 +245,13 @@ export class LibraryComponent {
       }
       return next;
     });
+    this._syncLoadingState();
+  }
+
+  private _syncLoadingState(): void {
+    if (this.searchQuery().length >= 2 || Object.keys(this.filters()).length > 0) {
+      this.isLoading.set(true);
+    }
   }
 
   protected clearPhFilter(): void {

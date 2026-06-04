@@ -33,7 +33,7 @@
           [pt]="FloraInputTextPT"
           class="pl-10"
           [ngModel]="searchQuery()"
-          (ngModelChange)="searchQuery.set($event)"
+          (ngModelChange)="onSearchQueryChange($event)"
           placeholder="Search by common or scientific name..."
           autocomplete="off"
           aria-label="Search botanical registry"

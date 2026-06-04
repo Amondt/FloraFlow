@@ -101,7 +101,7 @@ Stored → Sown Indoors → Germinated → Potted Up → Hardened Off → Transp
     ```
   - Confirm `seed_batches` and `seed_stage_type` appear in `src/types/database.types.ts`.
 
-- [ ] **Block B — Model & Service** | Agent: `/plumber`
+- [x] **Block B — Model & Service** | Agent: `/plumber`
   - Create `src/app/features/vault/seed-batch.model.ts`:
     - `SeedStage` union type mirroring the ENUM values.
     - `SEED_STAGE_OPTIONS: SeedStage[]` — ordered progression array (used for advance logic).

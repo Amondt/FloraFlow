@@ -40,12 +40,12 @@
         [attr.aria-describedby]="plantCtrl.invalid && plantCtrl.touched ? plantId + '-error' : null"
         [attr.aria-invalid]="plantCtrl.invalid && plantCtrl.touched"
         aria-required="true"
-        placeholder="Select a plant"
+        placeholder="Select one of your plants"
         appendTo="body"
       />
       @if (plantCtrl.invalid && plantCtrl.touched) {
         <small [id]="plantId + '-error'" class="text-danger-500 text-xs font-display" role="alert">
-          Please select a plant.
+          Please select one of your plants.
         </small>
       }
     </div>

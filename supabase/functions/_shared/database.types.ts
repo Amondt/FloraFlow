@@ -247,6 +247,59 @@ export type Database = {
         };
         Relationships: [];
       };
+      seed_batches: {
+        Row: {
+          brand: string | null;
+          common_name: string;
+          created_at: string;
+          current_stage: Database['public']['Enums']['seed_stage_type'];
+          germinated_at: string | null;
+          id: string;
+          notes: string | null;
+          packet_year: number | null;
+          scientific_name: string | null;
+          sown_at: string | null;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          brand?: string | null;
+          common_name: string;
+          created_at?: string;
+          current_stage?: Database['public']['Enums']['seed_stage_type'];
+          germinated_at?: string | null;
+          id?: string;
+          notes?: string | null;
+          packet_year?: number | null;
+          scientific_name?: string | null;
+          sown_at?: string | null;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          brand?: string | null;
+          common_name?: string;
+          created_at?: string;
+          current_stage?: Database['public']['Enums']['seed_stage_type'];
+          germinated_at?: string | null;
+          id?: string;
+          notes?: string | null;
+          packet_year?: number | null;
+          scientific_name?: string | null;
+          sown_at?: string | null;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'seed_batches_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       snooze_interval_rules: {
         Row: {
           container_vector: Database['public']['Enums']['container_vector_type'];
@@ -372,6 +425,13 @@ export type Database = {
         | 'Repotting'
         | 'Fertilization'
         | 'PestTreatment';
+      seed_stage_type:
+        | 'Stored'
+        | 'Sown Indoors'
+        | 'Germinated'
+        | 'Potted Up'
+        | 'Hardened Off'
+        | 'Transplanted Outside';
       substrate_factor_type:
         | 'High-Drainage Aroid'
         | 'Heavy Peat'
@@ -532,6 +592,14 @@ export const Constants = {
         'Repotting',
         'Fertilization',
         'PestTreatment',
+      ],
+      seed_stage_type: [
+        'Stored',
+        'Sown Indoors',
+        'Germinated',
+        'Potted Up',
+        'Hardened Off',
+        'Transplanted Outside',
       ],
       substrate_factor_type: [
         'High-Drainage Aroid',

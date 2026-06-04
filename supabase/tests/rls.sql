@@ -11,7 +11,7 @@
 BEGIN;
 
 SELECT
-  plan (34);
+  plan (40);
 
 -- ── SETUP ─────────────────────────────────────────────────────────────────
 -- Disable FK triggers so we can insert profiles without auth.users rows.
@@ -69,6 +69,15 @@ VALUES
     'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
     '11111111-1111-1111-1111-111111111111',
     'Looking healthy'
+  );
+
+INSERT INTO
+  public.seed_batches (id, user_id, common_name)
+VALUES
+  (
+    'dddddddd-dddd-dddd-dddd-dddddddddddd',
+    '11111111-1111-1111-1111-111111111111',
+    'Alice Tomato'
   );
 
 -- Synthetic test row for Phase 2.1 RLS tests — fake species name avoids PK
@@ -936,6 +945,155 @@ SELECT
     NULL::jsonb,
     'diagnostics is NULL by default on new plant_journals rows'
   );
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- Phase 3.5 — seed_batches table and RLS
+-- ═══════════════════════════════════════════════════════════════════════════
+-- ── TEST 35: current_stage defaults to 'Stored' ─────────────────────────────
+-- Alice's batch was inserted in setup without specifying current_stage.
+-- Verifies the DEFAULT 'Stored'::seed_stage_type constraint is active.
+RESET ROLE;
+
+SELECT
+  set_config('request.jwt.claims', '{}', TRUE);
+
+SELECT
+  IS (
+    (
+      SELECT
+        current_stage::text
+      FROM
+        public.seed_batches
+      WHERE
+        id = 'dddddddd-dddd-dddd-dddd-dddddddddddd'
+    ),
+    'Stored',
+    'current_stage defaults to ''Stored'' on new seed_batches rows'
+  );
+
+-- ── TEST 36: Alice sees her own seed batch ───────────────────────────────────
+SET
+  LOCAL ROLE authenticated;
+
+SELECT
+  set_config(
+    'request.jwt.claims',
+    '{"sub":"11111111-1111-1111-1111-111111111111","role":"authenticated"}',
+    TRUE
+  );
+
+SELECT
+  IS (
+    (
+      SELECT
+        count(*)::int
+      FROM
+        public.seed_batches
+    ),
+    1,
+    'Alice sees her own seed batch'
+  );
+
+-- ── TEST 37: Bob cannot see Alice's seed batches ─────────────────────────────
+SELECT
+  set_config(
+    'request.jwt.claims',
+    '{"sub":"22222222-2222-2222-2222-222222222222","role":"authenticated"}',
+    TRUE
+  );
+
+SELECT
+  IS (
+    (
+      SELECT
+        count(*)::int
+      FROM
+        public.seed_batches
+    ),
+    0,
+    'Bob cannot see Alice''s seed batches'
+  );
+
+-- ── TEST 38: Bob's UPDATE on Alice's batch is blocked ────────────────────────
+UPDATE public.seed_batches
+SET
+  common_name = 'Hacked by Bob'
+WHERE
+  id = 'dddddddd-dddd-dddd-dddd-dddddddddddd';
+
+RESET ROLE;
+
+SELECT
+  set_config('request.jwt.claims', '{}', TRUE);
+
+SELECT
+  IS (
+    (
+      SELECT
+        common_name
+      FROM
+        public.seed_batches
+      WHERE
+        id = 'dddddddd-dddd-dddd-dddd-dddddddddddd'
+    ),
+    'Alice Tomato',
+    'Bob''s UPDATE on Alice''s seed batch was blocked — name unchanged'
+  );
+
+-- ── TEST 39: Bob's DELETE on Alice's batch is blocked ────────────────────────
+SET
+  LOCAL ROLE authenticated;
+
+SELECT
+  set_config(
+    'request.jwt.claims',
+    '{"sub":"22222222-2222-2222-2222-222222222222","role":"authenticated"}',
+    TRUE
+  );
+
+DELETE FROM public.seed_batches
+WHERE
+  id = 'dddddddd-dddd-dddd-dddd-dddddddddddd';
+
+RESET ROLE;
+
+SELECT
+  set_config('request.jwt.claims', '{}', TRUE);
+
+SELECT
+  IS (
+    (
+      SELECT
+        count(*)::int
+      FROM
+        public.seed_batches
+      WHERE
+        id = 'dddddddd-dddd-dddd-dddd-dddddddddddd'
+    ),
+    1,
+    'Bob''s DELETE on Alice''s seed batch was blocked — row still exists'
+  );
+
+-- ── TEST 40: Anon cannot see seed_batches ────────────────────────────────────
+SET
+  LOCAL ROLE anon;
+
+SELECT
+  set_config('request.jwt.claims', '{}', TRUE);
+
+SELECT
+  IS (
+    (
+      SELECT
+        count(*)::int
+      FROM
+        public.seed_batches
+    ),
+    0,
+    'Anon role cannot see any seed batches'
+  );
+
+RESET ROLE;
 
 SELECT
   *

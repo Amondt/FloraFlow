@@ -50,7 +50,7 @@ Stored → Sown Indoors → Germinated → Potted Up → Hardened Off → Transp
 
 ---
 
-- [ ] **Block A — Migration: `seed_batches`** | Agent: `/plumber`
+- [x] **Block A — Migration: `seed_batches`** | Agent: `/plumber`
   - Create a new migration file in `supabase/migrations/` named `<timestamp>_seed_batches.sql`.
   - Define the ENUM and table per the `docs/DB_SCHEMA_MATRIX.md §7` stub:
     ```sql

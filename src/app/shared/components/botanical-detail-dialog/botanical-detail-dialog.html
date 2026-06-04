@@ -258,6 +258,14 @@
       />
       @if (showAddButton()) {
         <p-button
+          label="Track seeds"
+          variant="outlined"
+          icon="pi pi-bookmark"
+          [pt]="FloraButtonPT"
+          ariaLabel="Track seeds for this species in your seed bank"
+          (onClick)="onSaveToVault()"
+        />
+        <p-button
           label="Add to my greenhouse"
           [pt]="FloraButtonPT"
           [ariaLabel]="'Add ' + rec.scientific_name + ' to my greenhouse'"

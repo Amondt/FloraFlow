@@ -307,7 +307,7 @@ Stored → Sown Indoors → Germinated → Potted Up → Hardened Off → Transp
     7. Open DevTools Console → confirm zero red errors.
     ```
 
-- [ ] **Block F — Library Integration: "Save to Seed Vault"** | Agent: `/visualizer`
+- [x] **Block F — Library Integration: "Save to Seed Vault"** | Agent: `/visualizer`
   - In `src/app/shared/components/botanical-detail-dialog/botanical-detail-dialog.ts`:
     - Add `vaultRequested = output<CachedBotanicalRecord>()`.
     - Add `onSaveToVault()`: emits `vaultRequested` with the current `record()`.

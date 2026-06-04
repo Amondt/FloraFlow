@@ -1,4 +1,5 @@
 import { Component, DestroyRef, OnInit, computed, effect, inject, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -44,6 +45,8 @@ export class VaultComponent implements OnInit {
   private readonly confirmService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   private readonly _deleteManager = new PendingDeleteManager();
 
@@ -99,6 +102,20 @@ export class VaultComponent implements OnInit {
   ngOnInit(): void {
     void this.batchService.loadBatches();
     void this.batchService.loadArchivedBatches();
+
+    const params = this.route.snapshot.queryParamMap;
+    const name = params.get('name');
+    if (name) {
+      const scientific = params.get('scientific');
+      this.openCreateDialog({
+        common_name: name,
+        scientific_name: scientific ?? null,
+        brand: null,
+        packet_year: null,
+        notes: null,
+      });
+      void this.router.navigate([], { queryParams: {}, replaceUrl: true });
+    }
   }
 
   protected getStageTabClass(stage: SeedStage | 'All' | 'Archived'): string {
@@ -198,7 +215,7 @@ export class VaultComponent implements OnInit {
       summary: isEdit ? 'Batch updated' : 'Batch saved',
       detail: isEdit
         ? `'${batch.common_name}' has been updated.`
-        : `'${batch.common_name}' added to the vault.`,
+        : `'${batch.common_name}' added to your seed bank.`,
     });
   }
 

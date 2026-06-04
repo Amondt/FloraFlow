@@ -168,7 +168,7 @@
   - Angular: dedicated "Diagnose a Plant" dialog on the journal page — diagnose first, then optionally save as an Observation entry pre-filled with the diagnostic result. The care log form ("Log Care Event") is not involved.
   - Diagnostic results stored in `diagnostics JSONB` on `plant_journals`; displayed as a collapsible section on journal entry cards.
   - Safety guard: `is_botanical_image: false` shows a user-facing error state — never crashes or guesses.
-- [ ] **3.5** Intelligent Seed Vault Module (`/vault`) | Agent: `/plumber` → `/visualizer`
+- [x] **3.5** Intelligent Seed Vault Module (`/vault`) | Agent: `/plumber` → `/visualizer`
   - Migration: `seed_batches` table (stub in `docs/DB_SCHEMA_MATRIX.md §7`); `seed_stage_type` ENUM already defined.
   - Stage progression: Stored → Sown Indoors → Germinated → Potted Up → Hardened Off → Transplanted Outside.
   - New `/vault` route: seed batch list with add / edit / delete CRUD and stage transition UI.

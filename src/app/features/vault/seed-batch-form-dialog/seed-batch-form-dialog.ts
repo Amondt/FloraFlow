@@ -101,7 +101,7 @@ export class SeedBatchFormDialogComponent {
   );
 
   protected readonly submitAriaLabel = computed(() =>
-    this.editTarget() ? 'Save changes to this seed batch' : 'Save new seed batch to the vault',
+    this.editTarget() ? 'Save changes to this seed batch' : 'Add seeds to your seed bank',
   );
 
   get nameCtrl() {

@@ -382,7 +382,7 @@
               </li>
             }
           </ul>
-        } @else if (!results().length) {
+        } @else if (hasNoResults()) {
           <div class="flex flex-col items-center justify-center py-16 text-center" role="status">
             <i
               class="pi pi-leaf text-4xl text-neutral-300 dark:text-neutral-600 mb-4"
@@ -467,6 +467,7 @@
     [visible]="detailVisible()"
     (visibleChange)="onDetailClose($event)"
     (addRequested)="openAddDialog($event)"
+    (vaultRequested)="onVaultRequested($event)"
   />
 
   <app-plant-form-dialog

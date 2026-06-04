@@ -1,4 +1,4 @@
-<main class="p-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen" aria-labelledby="vault-heading">
+<main class="p-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen" aria-labelledby="seeds-heading">
   <div class="max-w-5xl mx-auto">
     <header class="mb-8">
       <div class="flex items-end justify-between gap-4">
@@ -9,7 +9,7 @@
             Germination tracker
           </p>
           <h1
-            id="vault-heading"
+            id="seeds-heading"
             class="text-3xl font-semibold font-display text-neutral-900 dark:text-white"
           >
             Seed bank
@@ -97,11 +97,11 @@
               No seed batches yet. Start tracking your seeds from packet to garden.
             </p>
             <p-button
-              label="Add your first seed batch"
+              label="Start tracking seeds"
               variant="outlined"
               [pt]="FloraButtonPT"
               class="mt-4"
-              ariaLabel="Add your first seed batch to your seed bank"
+              ariaLabel="Start tracking your first seeds in the seed bank"
               (onClick)="openCreateDialog()"
             />
           } @else {

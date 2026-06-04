@@ -7,6 +7,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { SkeletonModule } from 'primeng/skeleton';
@@ -64,6 +65,7 @@ export class LibraryComponent {
   private readonly libraryService = inject(LibraryService);
   private readonly plantService = inject(PlantService);
   private readonly messageService = inject(MessageService);
+  private readonly router = inject(Router);
 
   protected readonly FloraInputTextPT = FloraInputTextPT;
   protected readonly FloraSkeletonPT = FloraSkeletonPT;
@@ -102,7 +104,17 @@ export class LibraryComponent {
   readonly hasSunlightFilter = computed(() => !!this.filters().sunlight);
   readonly hasToxicityFilter = computed(() => this.filters().is_toxic_to_pets !== undefined);
   readonly hasCycleFilter = computed(() => !!this.filters().cycle);
-  readonly isInitialLoad = computed(() => this.isLoading() && this.results().length === 0);
+  // Tracks whether the most recent query has received a response (success or error).
+  // Starts false so skeletons appear as soon as criteria is met — no dependency on
+  // isLoading() timing, which eliminates the signal-write race on first search.
+  protected readonly searchCompleted = signal(false);
+
+  readonly isInitialLoad = computed(
+    () => this.hasSearchCriteria() && !this.searchCompleted() && this.results().length === 0,
+  );
+  readonly hasNoResults = computed(
+    () => this.hasSearchCriteria() && this.searchCompleted() && this.results().length === 0,
+  );
   readonly isReloading = computed(() => this.isLoading() && this.results().length > 0);
 
   readonly headerVisible = signal(true);
@@ -146,10 +158,12 @@ export class LibraryComponent {
       if (!hasCriteria) {
         this.isLoading.set(false);
         this.results.set([]);
+        this.searchCompleted.set(false);
         this._poll.stop();
         return;
       }
 
+      this.searchCompleted.set(false);
       this.isLoading.set(true);
 
       this._debounceTimer = setTimeout(() => {
@@ -275,6 +289,16 @@ export class LibraryComponent {
     if (!visible) this.selectedRecord.set(null);
   }
 
+  protected onVaultRequested(rec: CachedBotanicalRecord): void {
+    this.selectedRecord.set(null);
+    void this.router.navigate(['/seeds'], {
+      queryParams: {
+        name: rec.common_name,
+        scientific: rec.scientific_name ?? null,
+      },
+    });
+  }
+
   protected openAddDialog(record: CachedBotanicalRecord): void {
     this.prefillRecord.set({
       common_name: record.common_name,
@@ -333,6 +357,7 @@ export class LibraryComponent {
       void this.libraryService.triggerEnrichment(unenriched, this._poll.controller?.signal);
     } finally {
       this.isLoading.set(false);
+      this.searchCompleted.set(true);
     }
   }
 }

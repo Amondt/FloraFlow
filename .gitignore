@@ -57,6 +57,9 @@ CLAUDE.md
 supabase/.temp/
 supabase/config.toml
 
+# Supabase auto-saved query snippets
+supabase/snippets/[Uu]ntitled*
+
 # Design handoff assets
 FloraFlow-handoff.zip
 

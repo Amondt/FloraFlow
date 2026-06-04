@@ -107,7 +107,7 @@ Phase 3.10 additions (handled in Block C):
   - Run `bunx supabase migration up` then `bun run types` — paste updated `database.types.ts` diff to confirm.
   - Verification: `SELECT column_name FROM information_schema.columns WHERE table_name = 'cached_botanical_records' ORDER BY ordinal_position;` — confirm all 16 new columns present.
 
-- [ ] **Block B — AI Scribe Extension** | Agent: `/plumber`
+- [x] **Block B — AI Scribe Extension** | Agent: `/plumber`
   - Extend `supabase/functions/claude-enrichment/index.ts` system prompt to request the 16 new fields.
   - Extend the JSON schema (`AI_PROMPT_MANIFEST.md §1.2`) with new property definitions and add all 16 to `required`.
   - Set `max_tokens: 1024` — the expanded schema (~27 fields) will exceed the old 512 limit and produce truncated, unparseable JSON. This is already updated in `docs/AI_PROMPT_MANIFEST.md §1`.

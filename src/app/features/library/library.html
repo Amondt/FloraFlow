@@ -372,10 +372,7 @@
             </p>
           </div>
         } @else if (isInitialLoad()) {
-          <ul
-            class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4"
-            aria-label="Loading botanical records"
-          >
+          <ul class="grid grid-cols-1 lg:grid-cols-2 gap-4" aria-label="Loading botanical records">
             @for (_ of loadingPlaceholders; track $index) {
               <li aria-hidden="true">
                 <p-skeleton height="7rem" [pt]="FloraSkeletonPT" />
@@ -441,7 +438,7 @@
               </div>
             }
             <ul
-              class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 transition-opacity duration-200"
+              class="grid grid-cols-1 lg:grid-cols-2 gap-4 transition-opacity duration-200"
               [class.opacity-40]="isReloading()"
               aria-label="Botanical records"
             >

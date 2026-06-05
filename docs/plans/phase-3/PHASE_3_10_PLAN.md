@@ -127,7 +127,7 @@ Phase 3.10 additions (handled in Block C):
   - Extend `care-recommendations-panel`: add `preferred_soil_type` chips (same chip style as sunlight labels) and a `maintenance_level` pill (same pill style as `care_difficulty`) — both conditional on non-null. `description` and `native_region` must not appear here.
   - Manual Browser Check: open from Library and from Zone Detail — confirm identity strip, leaf icon fallback, all 4 tabs, existing fields in correct tabs, null fields absent. Confirm Advanced advisory shows from Library but not from Zone Detail. Check "Care tips" on an enriched plant in zone-detail — confirm `preferred_soil_type` and `maintenance_level` appear.
 
-- [ ] **Block D — Library Card: Description & New Badges** | Agent: `/visualizer`
+- [x] **Block D — Library Card: Description & New Badges** | Agent: `/visualizer`
   - In `botanical-record-card.html`: add `description` as a single truncated line below the name block.
   - Add `care_difficulty` badge and `placement` badge after the existing tag row.
   - Keep existing tag order: toxicity → watering → sunlight → lifecycle → care difficulty → placement.

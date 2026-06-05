@@ -1,8 +1,9 @@
 import { Component, computed, input, output } from '@angular/core';
 import { TagModule } from 'primeng/tag';
 import { CachedBotanicalRecord } from '../library.service';
-import { getSunlightLabels, getWateringLabel } from '../../../shared/utils/botanical-label.util';
 import { FloraTagPT } from '../../../shared/ui/pt/index';
+
+type TagState = { label: string; severity: 'success' | 'warn' | 'danger' };
 
 @Component({
   selector: 'app-botanical-record-card',
@@ -26,9 +27,31 @@ export class BotanicalRecordCardComponent {
     return r.common_name ?? r.scientific_name ?? 'Unknown species';
   });
 
-  protected readonly sunlightLabels = computed(() => getSunlightLabels(this.record().sunlight));
+  protected readonly difficultyTag = computed((): TagState | null => {
+    switch (this.record().care_difficulty) {
+      case 'Beginner':
+        return { label: 'Easy care', severity: 'success' };
+      case 'Intermediate':
+        return { label: 'Moderate care', severity: 'warn' };
+      case 'Advanced':
+        return { label: 'Expert care', severity: 'danger' };
+      default:
+        return null;
+    }
+  });
 
-  protected readonly wateringLabel = computed(() => getWateringLabel(this.record().watering));
+  protected readonly maintenanceTag = computed((): TagState | null => {
+    switch (this.record().maintenance_level) {
+      case 'Low':
+        return { label: 'Easy upkeep', severity: 'success' };
+      case 'Medium':
+        return { label: 'Moderate upkeep', severity: 'warn' };
+      case 'High':
+        return { label: 'High upkeep', severity: 'danger' };
+      default:
+        return null;
+    }
+  });
 
   protected onSpaceKey(event: Event): void {
     event.preventDefault();

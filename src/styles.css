@@ -12,6 +12,7 @@
     --color-red-200: oklch(88.5% 0.062 18.334);
     --color-red-300: oklch(80.8% 0.114 19.571);
     --color-red-700: oklch(50.5% 0.213 27.518);
+    --color-red-800: oklch(44.4% 0.177 26.899);
     --color-red-900: oklch(39.6% 0.141 25.723);
     --color-amber-50: oklch(98.7% 0.022 95.277);
     --color-amber-200: oklch(92.4% 0.12 95.746);
@@ -35,6 +36,7 @@
     --color-green-400: oklch(79.2% 0.209 151.711);
     --color-green-600: oklch(62.7% 0.194 149.214);
     --color-green-700: oklch(52.7% 0.154 150.069);
+    --color-green-800: oklch(44.8% 0.119 151.328);
     --color-green-900: oklch(39.3% 0.095 152.535);
     --color-neutral-50: #f8fafc;
     --color-neutral-100: #f1f5f9;
@@ -949,6 +951,9 @@
   .border-danger-500 {
     border-color: var(--color-danger-500);
   }
+  .border-green-200 {
+    border-color: var(--color-green-200);
+  }
   .border-neutral-100 {
     border-color: var(--color-neutral-100);
   }
@@ -972,6 +977,9 @@
   }
   .border-primary-500 {
     border-color: var(--color-primary-500);
+  }
+  .border-red-200 {
+    border-color: var(--color-red-200);
   }
   .border-success-500 {
     border-color: var(--color-success-500);
@@ -1972,6 +1980,11 @@
       }
     }
   }
+  .dark\:border-green-800 {
+    &:where(.dark, .dark *) {
+      border-color: var(--color-green-800);
+    }
+  }
   .dark\:border-neutral-600 {
     &:where(.dark, .dark *) {
       border-color: var(--color-neutral-600);
@@ -1998,6 +2011,11 @@
   .dark\:border-primary-700 {
     &:where(.dark, .dark *) {
       border-color: var(--color-primary-700);
+    }
+  }
+  .dark\:border-red-800 {
+    &:where(.dark, .dark *) {
+      border-color: var(--color-red-800);
     }
   }
   .dark\:border-yellow-800 {

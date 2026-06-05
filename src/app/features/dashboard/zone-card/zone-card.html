@@ -36,8 +36,8 @@
 
   <!-- ── Body: compass + info ──────────────────────────────────────── -->
   <div class="p-4 flex items-center gap-4">
-    <!-- Compass (unchanged) -->
-    <div class="flex-shrink-0" aria-hidden="true">
+    <!-- Compass — aria-hidden + pointer-events-none so clicks reach the stretched link -->
+    <div class="flex-shrink-0 pointer-events-none" aria-hidden="true">
       <div class="relative w-24 h-24">
         <svg viewBox="0 0 80 80" class="w-full h-full" aria-hidden="true">
           <!-- Outer dashed ring -->

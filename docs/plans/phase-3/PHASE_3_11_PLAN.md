@@ -43,7 +43,7 @@ Scheduler card and dashboard chip thumbnails are not in scope — those surfaces
 
 ## Blocks
 
-- [ ] **Block A — DB Migration: Image URL Columns** | Agent: `/plumber`
+- [x] **Block A — DB Migration: Image URL Columns** | Agent: `/plumber`
   - New migration: `ADD COLUMN IF NOT EXISTS thumbnail_url TEXT` and `ADD COLUMN IF NOT EXISTS regular_url TEXT` on `cached_botanical_records`.
   - Run `bunx supabase migration up` then `bun run types`.
   - Copy types: `Copy-Item src/types/database.types.ts supabase/functions/_shared/database.types.ts`.

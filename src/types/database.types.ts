@@ -68,8 +68,10 @@ export type Database = {
           produces_fruit: boolean | null
           propagation_methods: string[] | null
           raw_api_payload: Json | null
+          regular_url: string | null
           scientific_name: string
           sunlight: string[] | null
+          thumbnail_url: string | null
           toxicity_notes: string | null
           watering: string | null
         }
@@ -106,8 +108,10 @@ export type Database = {
           produces_fruit?: boolean | null
           propagation_methods?: string[] | null
           raw_api_payload?: Json | null
+          regular_url?: string | null
           scientific_name: string
           sunlight?: string[] | null
+          thumbnail_url?: string | null
           toxicity_notes?: string | null
           watering?: string | null
         }
@@ -144,8 +148,10 @@ export type Database = {
           produces_fruit?: boolean | null
           propagation_methods?: string[] | null
           raw_api_payload?: Json | null
+          regular_url?: string | null
           scientific_name?: string
           sunlight?: string[] | null
+          thumbnail_url?: string | null
           toxicity_notes?: string | null
           watering?: string | null
         }

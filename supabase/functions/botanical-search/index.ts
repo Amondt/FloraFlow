@@ -1,6 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import type { Database } from '../_shared/database.types.ts';
 import { cors, json } from '../_shared/response.ts';
+import { toSentenceCase } from '../_shared/text.ts';
 
 type BotanicalResult = {
   scientific_name: string;
@@ -68,7 +69,9 @@ Deno.serve(async (req: Request) => {
         const scientificName = names?.[0];
         if (!scientificName) continue;
 
-        const commonName = (plant['common_name'] as string | null) ?? scientificName;
+        const commonName = toSentenceCase(
+          (plant['common_name'] as string | null) ?? scientificName,
+        );
         const perenualId = plant['id'] as number;
 
         // Persist only the basic search fields + raw payload now.

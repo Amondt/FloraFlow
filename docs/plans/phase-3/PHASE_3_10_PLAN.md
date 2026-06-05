@@ -114,7 +114,7 @@ Phase 3.10 additions (handled in Block C):
   - Update `docs/AI_PROMPT_MANIFEST.md §1` to reflect the extended schema.
   - Verification: invoke the function locally against a known species (e.g. `Monstera deliciosa`) and paste the JSON response — confirm all new fields appear with expected types and the response is not truncated.
 
-- [ ] **Block C — Botanical Detail Dialog: Restructure + Care Panel Extension** | Agent: `/visualizer`
+- [x] **Block C — Botanical Detail Dialog: Restructure + Care Panel Extension** | Agent: `/visualizer`
   - Dialog `[header]` switches from `scientific_name` to `common_name`.
   - Add an identity strip **above the tabs**: image slot (leaf icon fallback) + scientific name (italic) + description. Image `src` empty until Phase 4.3 — the leaf icon shows immediately and looks intentional.
   - Replace the flat grid with `<p-tabs [pt]="FloraTabsPT">` — 4 panels. Redistribute all existing flat fields and the 16 new fields:

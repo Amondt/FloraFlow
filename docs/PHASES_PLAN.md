@@ -174,7 +174,7 @@
   - New `/vault` route: seed batch list with add / edit / delete CRUD and stage transition UI.
   - Tracks brand, packet year, sown date, germination date, and free-text notes per batch.
   - Stage transitions are forward-only and timestamp-stamped; no regression allowed.
-- [ ] **3.6** Real-Time Frost Line Alerts | Agent: `/plumber` → `/visualizer`
+- [x] **3.6** Real-Time Frost Line Alerts | Agent: `/plumber` → `/visualizer`
   - User configures coordinates (lat/lon) on their profile or outdoor zone.
   - Reads from `weather-proxy` Edge Function (Phase 2.5); caches result in `frost_date_cache` table (DB stub).
   - Dashboard warning bar appears when current or forecast temperature threatens outdoor zones.
@@ -212,6 +212,12 @@
   - **Block F** — Library filters: 6 new filter dimensions (Placement, Care Difficulty, Maintenance, Tropical, Air-Purifying, Safe for Humans).
   - **Block G** — Plant-zone compatibility warnings: amber inline alerts on zone detail cards when `placement` or tropical humidity needs conflict with the zone.
   - Plan: `docs/plans/phase-3/PHASE_3_10_PLAN.md`
+- [ ] **3.11 Plant Species Thumbnails (iNaturalist)** | Agent: `/plumber` → `/visualizer` → `/gatekeeper`
+  - Depends on 3.10 Block C (identity strip image slot).
+  - **Block A** — Migration: `thumbnail_url TEXT` + `regular_url TEXT` on `cached_botanical_records`.
+  - **Block B** — AI Scribe: parallel Claude + iNaturalist fetch; cache sentinel + client filter extended with `thumbnail_url != null`.
+  - **Block C** — UI wiring: identity strip (`regular_url`), library card (`thumbnail_url`), zone detail card (`thumbnail_url`). Leaf icon fallback on all surfaces. `loading="lazy"` on every `<img>`.
+  - Plan: `docs/plans/phase-3/PHASE_3_11_PLAN.md`
 
 ### 🔒 Phase 3 QA Criteria
 
@@ -239,19 +245,6 @@
   - `LanguageSwitcherComponent` added to the nav bar; selection persisted to localStorage (requires 1.7).
   - Full string audit across all components and templates — no hardcoded UI text left after this phase.
   - Language switch applies in the same render cycle without page reload.
-- [ ] **4.3 Plant Species Thumbnails** | Agent: `/plumber` → `/visualizer`
-  - Migration: add two nullable columns to `cached_botanical_records`: `thumbnail_url TEXT` (Perenual `default_image.thumbnail`) and `regular_url TEXT` (Perenual `default_image.regular_url`).
-  - Update `botanical-search` Edge Function: persist both URLs from the Perenual response when populating the cache row.
-  - No image is downloaded to Supabase Storage — CDN URLs are linked directly. The canvas compressor is for user-uploaded journal photos only; CDN images are already appropriately sized by Perenual.
-  - Add `loading="lazy"` to every species `<img>`. While the image is loading (or absent), show the existing leaf icon (`ri-plant-line`) as placeholder — no skeleton animation, just the icon.
-  - Apply `thumbnail_url` on compact surfaces (all cards and list items); apply `regular_url` on the detail dialog Overview tab.
-  - Surfaces covered:
-    - Library search cards (`botanical-record-card`) — `thumbnail_url`
-    - Botanical detail dialog, Overview tab — `regular_url`
-    - Scheduler plant alert cards (`plant-alert-card`) — `thumbnail_url`
-    - Zone detail plant cards — `thumbnail_url`
-    - Dashboard zone task chips — `thumbnail_url`
-
 ### 🔒 Phase 4 QA Criteria
 
 1. No `flora-theme` key in localStorage + browser set to dark → `.dark` on `<html>` on first paint.

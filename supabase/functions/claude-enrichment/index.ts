@@ -4,6 +4,7 @@ import { zodOutputFormat } from 'npm:@anthropic-ai/sdk/helpers/zod';
 import { z } from 'npm:zod/v4';
 import type { Database } from '../_shared/database.types.ts';
 import { cors, json } from '../_shared/response.ts';
+import { toSentenceCase } from '../_shared/text.ts';
 
 const SYSTEM_PROMPT = `You are the FloraFlow AI Scribe, an elite botanical taxonomist and agricultural data scientist. Your absolute directive is to provide highly precise, empirically grounded plant care metrics. You never hallucinate, invent unverified horticultural parameters, or generate prose.
 
@@ -169,7 +170,7 @@ Deno.serve(async (req: Request) => {
       .upsert(
         {
           scientific_name: scientificName,
-          common_name: commonName,
+          common_name: toSentenceCase(commonName),
           ideal_min_ph: parsed.ideal_min_ph,
           ideal_max_ph: parsed.ideal_max_ph,
           is_toxic_to_pets: parsed.is_toxic_to_pets,

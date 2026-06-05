@@ -20,6 +20,10 @@ import { Component, computed, input } from '@angular/core';
   `,
 })
 export class LeafIconComponent {
-  readonly size = input<'sm' | 'md'>('sm');
-  protected readonly svgClass = computed(() => (this.size() === 'md' ? 'w-5 h-5' : 'w-4 h-4'));
+  readonly size = input<'sm' | 'md' | 'lg'>('sm');
+  protected readonly svgClass = computed(() => {
+    if (this.size() === 'lg') return 'w-10 h-10';
+    if (this.size() === 'md') return 'w-5 h-5';
+    return 'w-4 h-4';
+  });
 }

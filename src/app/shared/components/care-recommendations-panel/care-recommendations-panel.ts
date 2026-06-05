@@ -18,6 +18,7 @@ export class CareRecommendationsPanelComponent {
 
   protected readonly wateringLabel = computed(() => getWateringLabel(this.record().watering));
   protected readonly sunlightLabels = computed(() => getSunlightLabels(this.record().sunlight));
+  protected readonly preferredSoilTypes = computed(() => this.record().preferred_soil_type ?? []);
 
   protected readonly difficultyClass = computed(() => {
     switch (this.record().care_difficulty) {
@@ -26,6 +27,19 @@ export class CareRecommendationsPanelComponent {
       case 'Intermediate':
         return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300';
       case 'Advanced':
+        return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300';
+      default:
+        return 'bg-neutral-100 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300';
+    }
+  });
+
+  protected readonly maintenanceLevelClass = computed(() => {
+    switch (this.record().maintenance_level) {
+      case 'Low':
+        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300';
+      case 'Medium':
+        return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300';
+      case 'High':
         return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300';
       default:
         return 'bg-neutral-100 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300';

@@ -341,9 +341,10 @@ export class LibraryComponent {
       }
       this.results.set(newResults);
 
-      const unenriched = newResults.filter((r) => !r.is_ai_enriched);
+      // Include records missing Phase 3.10 data (is_ai_enriched but description null)
+      const needsEnrichment = newResults.filter((r) => !r.is_ai_enriched || r.description == null);
       this._poll.start(
-        unenriched.map((r) => r.scientific_name),
+        needsEnrichment.map((r) => r.scientific_name),
         async (pending) => {
           const refreshed = await this.libraryService.refetchByScientificNames(pending);
           if (refreshed.length === 0) return new Set(pending);
@@ -351,10 +352,20 @@ export class LibraryComponent {
           this.results.update((current) =>
             current.map((r) => refreshedMap.get(r.scientific_name) ?? r),
           );
-          return new Set(refreshed.filter((r) => !r.is_ai_enriched).map((r) => r.scientific_name));
+          // Push updated data to the open detail dialog when its record finishes enriching
+          const openRec = this.selectedRecord();
+          if (openRec) {
+            const refreshedRec = refreshedMap.get(openRec.scientific_name);
+            if (refreshedRec?.description != null) this.selectedRecord.set(refreshedRec);
+          }
+          return new Set(
+            refreshed
+              .filter((r) => !r.is_ai_enriched || r.description == null)
+              .map((r) => r.scientific_name),
+          );
         },
       );
-      void this.libraryService.triggerEnrichment(unenriched, this._poll.controller?.signal);
+      void this.libraryService.triggerEnrichment(needsEnrichment, this._poll.controller?.signal);
     } finally {
       this.isLoading.set(false);
       this.searchCompleted.set(true);

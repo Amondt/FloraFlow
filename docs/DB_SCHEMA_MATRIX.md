@@ -455,6 +455,18 @@ The following tables are required for Phase 3 features. They are documented here
     -- All nullable: AI Scribe returns null rather than fabricating unknown values.
 
 
+    ── Phase 3.11 ── Species Thumbnail Columns (cached_botanical_records) ──────────
+
+    ALTER TABLE public.cached_botanical_records
+        ADD COLUMN IF NOT EXISTS thumbnail_url TEXT,
+        ADD COLUMN IF NOT EXISTS regular_url TEXT;
+
+    -- thumbnail_url: 75×75 square crop from iNaturalist default_photo.url.
+    -- regular_url: ~500px version from iNaturalist default_photo.medium_url.
+    -- Both populated by AI Scribe enrichment pass; null when no iNaturalist match found.
+    -- Never store Perenual image URLs — free tier returns a paywall placeholder for all.
+
+
     ── Phase 3.6 ── Frost Date & Planting Window Cache ────────────────────────────
 
     CREATE TABLE public.frost_date_cache (

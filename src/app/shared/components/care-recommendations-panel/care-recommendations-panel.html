@@ -4,8 +4,8 @@
   </p>
 
   <div class="flex flex-col gap-2">
-    <!-- Care difficulty + Watering (side by side when both present) -->
-    @if (record().care_difficulty || wateringLabel()) {
+    <!-- Difficulty + Watering + Maintenance -->
+    @if (record().care_difficulty || wateringLabel() || record().maintenance_level) {
       <div class="grid grid-cols-2 gap-2">
         @if (record().care_difficulty) {
           <div
@@ -39,6 +39,24 @@
             </p>
           </div>
         }
+
+        @if (record().maintenance_level) {
+          <div
+            class="flex flex-col gap-1.5 rounded-garden-sm bg-neutral-50 p-2.5 dark:bg-neutral-800/60"
+          >
+            <p
+              class="font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
+            >
+              Maintenance
+            </p>
+            <span
+              class="font-display inline-flex self-start items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
+              [class]="maintenanceLevelClass()"
+            >
+              {{ record().maintenance_level }}
+            </span>
+          </div>
+        }
       </div>
     }
 
@@ -56,6 +74,26 @@
               class="font-display inline-flex items-center rounded-full bg-primary-50 px-2.5 py-0.5 text-xs font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300"
             >
               {{ label }}
+            </li>
+          }
+        </ul>
+      </div>
+    }
+
+    <!-- Preferred soil chips -->
+    @if (preferredSoilTypes().length > 0) {
+      <div
+        class="flex flex-col gap-1.5 rounded-garden-sm bg-neutral-50 p-2.5 dark:bg-neutral-800/60"
+      >
+        <p class="font-display text-xs font-semibold uppercase tracking-widest text-neutral-400">
+          Preferred soil
+        </p>
+        <ul class="flex flex-wrap gap-1.5" aria-label="Preferred soil types">
+          @for (soil of preferredSoilTypes(); track soil) {
+            <li
+              class="font-display inline-flex items-center rounded-full bg-primary-50 px-2.5 py-0.5 text-xs font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300"
+            >
+              {{ soil }}
             </li>
           }
         </ul>

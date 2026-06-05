@@ -31,7 +31,7 @@ export const FloraDialogPT = {
 export const FloraDetailDialogPT = {
   root: {
     class:
-      'max-w-xl w-full bg-white dark:bg-neutral-900 rounded-garden-lg shadow-2xl overflow-hidden',
+      'max-w-2xl w-full bg-white dark:bg-neutral-900 rounded-garden-lg shadow-2xl overflow-hidden',
   },
   header: {
     class:

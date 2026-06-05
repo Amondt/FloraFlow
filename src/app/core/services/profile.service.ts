@@ -46,13 +46,7 @@ export class ProfileService {
 
     if (error) throw error;
 
-    const { data } = await this.supabase.client
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-
-    if (data) this._profile.set(data);
+    await this._refreshProfile(userId);
   }
 
   async clearLocation(): Promise<void> {
@@ -66,13 +60,7 @@ export class ProfileService {
 
     if (error) throw error;
 
-    const { data } = await this.supabase.client
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-
-    if (data) this._profile.set(data);
+    await this._refreshProfile(userId);
   }
 
   async completeOnboarding(): Promise<void> {
@@ -86,15 +74,7 @@ export class ProfileService {
 
     if (error) throw error;
 
-    // Re-fetch so the signal is accurate even when the profile was never
-    // pre-loaded (e.g. fresh login after clearing local storage).
-    const { data } = await this.supabase.client
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-
-    if (data) this._profile.set(data);
+    await this._refreshProfile(userId);
   }
 
   // Load the profile for the currently authenticated user if it has not
@@ -116,5 +96,14 @@ export class ProfileService {
     } else {
       this._profile.set(data);
     }
+  }
+
+  private async _refreshProfile(userId: string): Promise<void> {
+    const { data } = await this.supabase.client
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+    if (data) this._profile.set(data);
   }
 }

@@ -11,7 +11,7 @@
 BEGIN;
 
 SELECT
-  plan (40);
+  plan (48);
 
 -- ── SETUP ─────────────────────────────────────────────────────────────────
 -- Disable FK triggers so we can insert profiles without auth.users rows.
@@ -1091,6 +1091,210 @@ SELECT
     ),
     0,
     'Anon role cannot see any seed batches'
+  );
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- Phase 3.6 — profiles location columns, weather_cache.min_temp_next_24h,
+--             frost_date_cache RLS
+-- ═══════════════════════════════════════════════════════════════════════════
+-- ── TEST 41: latitude defaults to NULL ──────────────────────────────────────
+RESET ROLE;
+
+SELECT
+  set_config('request.jwt.claims', '{}', TRUE);
+
+SELECT
+  IS (
+    (
+      SELECT
+        latitude
+      FROM
+        public.profiles
+      WHERE
+        id = '11111111-1111-1111-1111-111111111111'
+    ),
+    NULL::numeric,
+    'latitude is NULL by default on new profiles rows'
+  );
+
+-- ── TEST 42: longitude defaults to NULL ─────────────────────────────────────
+SELECT
+  IS (
+    (
+      SELECT
+        longitude
+      FROM
+        public.profiles
+      WHERE
+        id = '11111111-1111-1111-1111-111111111111'
+    ),
+    NULL::numeric,
+    'longitude is NULL by default on new profiles rows'
+  );
+
+-- ── TEST 43: location_name defaults to NULL ──────────────────────────────────
+SELECT
+  IS (
+    (
+      SELECT
+        location_name
+      FROM
+        public.profiles
+      WHERE
+        id = '11111111-1111-1111-1111-111111111111'
+    ),
+    NULL::text,
+    'location_name is NULL by default on new profiles rows'
+  );
+
+-- ── TEST 44: Bob cannot UPDATE Alice's location ──────────────────────────────
+SET
+  LOCAL ROLE authenticated;
+
+SELECT
+  set_config(
+    'request.jwt.claims',
+    '{"sub":"22222222-2222-2222-2222-222222222222","role":"authenticated"}',
+    TRUE
+  );
+
+UPDATE public.profiles
+SET
+  latitude = 99.9,
+  longitude = 99.9,
+  location_name = 'Bob Hacked'
+WHERE
+  id = '11111111-1111-1111-1111-111111111111';
+
+RESET ROLE;
+
+SELECT
+  set_config('request.jwt.claims', '{}', TRUE);
+
+SELECT
+  IS (
+    (
+      SELECT
+        latitude
+      FROM
+        public.profiles
+      WHERE
+        id = '11111111-1111-1111-1111-111111111111'
+    ),
+    NULL::numeric,
+    'Bob cannot UPDATE Alice''s location — latitude remains NULL'
+  );
+
+-- ── TEST 45: min_temp_next_24h defaults to NULL on weather_cache ─────────────
+-- The setup seed row (50.85, 4.35) was inserted without min_temp_next_24h.
+SELECT
+  IS (
+    (
+      SELECT
+        min_temp_next_24h
+      FROM
+        public.weather_cache
+      WHERE
+        latitude = 50.85
+        AND longitude = 4.35
+    ),
+    NULL::numeric,
+    'min_temp_next_24h is NULL by default on weather_cache rows'
+  );
+
+-- ── TEST 46: Authenticated SELECT on frost_date_cache succeeds ──────────────
+-- Seed a test row as superuser; frost_date_cache is a public climate cache
+-- (no user_id) so any authenticated user may read it.
+INSERT INTO
+  public.frost_date_cache (latitude, longitude)
+VALUES
+  (50.85, 4.35);
+
+SET
+  LOCAL ROLE authenticated;
+
+SELECT
+  set_config(
+    'request.jwt.claims',
+    '{"sub":"11111111-1111-1111-1111-111111111111","role":"authenticated"}',
+    TRUE
+  );
+
+SELECT
+  IS (
+    (
+      SELECT
+        count(*)::int
+      FROM
+        public.frost_date_cache
+      WHERE
+        latitude = 50.85
+        AND longitude = 4.35
+    ),
+    1,
+    'Authenticated user can SELECT from frost_date_cache'
+  );
+
+-- ── TEST 47: Anon SELECT on frost_date_cache is blocked ─────────────────────
+SET
+  LOCAL ROLE anon;
+
+SELECT
+  set_config('request.jwt.claims', '{}', TRUE);
+
+SELECT
+  IS (
+    (
+      SELECT
+        count(*)::int
+      FROM
+        public.frost_date_cache
+    ),
+    0,
+    'Anon role cannot SELECT from frost_date_cache'
+  );
+
+-- ── TEST 48: Authenticated INSERT on frost_date_cache is blocked ─────────────
+SET
+  LOCAL ROLE authenticated;
+
+SELECT
+  set_config(
+    'request.jwt.claims',
+    '{"sub":"11111111-1111-1111-1111-111111111111","role":"authenticated"}',
+    TRUE
+  );
+
+DO $$
+BEGIN
+  INSERT INTO
+    public.frost_date_cache (latitude, longitude)
+  VALUES
+    (51.50, 0.12);
+EXCEPTION
+  WHEN others THEN
+    NULL;
+END;
+$$;
+
+RESET ROLE;
+
+SELECT
+  set_config('request.jwt.claims', '{}', TRUE);
+
+SELECT
+  IS (
+    (
+      SELECT
+        count(*)::int
+      FROM
+        public.frost_date_cache
+      WHERE
+        latitude = 51.50
+        AND longitude = 0.12
+    ),
+    0,
+    'Authenticated INSERT into frost_date_cache was blocked by RLS'
   );
 
 RESET ROLE;

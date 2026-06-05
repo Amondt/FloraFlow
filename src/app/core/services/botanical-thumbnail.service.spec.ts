@@ -74,7 +74,9 @@ describe('BotanicalThumbnailService', () => {
     });
 
     it('returns the thumbnail_url for a known record', async () => {
-      refetchSpy.mockResolvedValue([makeRecord('Monstera deliciosa', 'https://cdn.example/img.jpg')]);
+      refetchSpy.mockResolvedValue([
+        makeRecord('Monstera deliciosa', 'https://cdn.example/img.jpg'),
+      ]);
       await service.loadFor([{ scientific_name: 'Monstera deliciosa' }]);
       expect(service.thumbnailFor('Monstera deliciosa')).toBe('https://cdn.example/img.jpg');
     });

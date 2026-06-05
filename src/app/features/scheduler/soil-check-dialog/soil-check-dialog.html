@@ -12,7 +12,7 @@
   <div class="flex items-start gap-3 mb-5">
     @if (thumbnailUrl()) {
       <img
-        class="w-14 h-14 rounded-garden-sm flex-shrink-0 object-cover"
+        class="w-20 h-20 rounded-garden-sm flex-shrink-0 object-cover"
         loading="lazy"
         [src]="thumbnailUrl()"
         [alt]="plant().common_name"
@@ -20,7 +20,7 @@
       />
     } @else {
       <div
-        class="flora-plant-thumb w-14 h-14 rounded-garden-sm flex-shrink-0 flex items-center justify-center"
+        class="flora-plant-thumb w-20 h-20 rounded-garden-sm flex-shrink-0 flex items-center justify-center"
         aria-hidden="true"
       >
         <app-leaf-icon size="md" class="text-primary-700 dark:text-primary-400" />

@@ -251,12 +251,26 @@
   - `LanguageSwitcherComponent` added to the nav bar; selection persisted to localStorage (requires 1.7).
   - Full string audit across all components and templates — no hardcoded UI text left after this phase.
   - Language switch applies in the same render cycle without page reload.
+- [ ] **4.3 Logout Button** | Agent: `/visualizer`
+  - "Sign out" button in the top nav, pushed to the far right with `ml-auto`.
+  - Calls `SupabaseService.signOut()` then navigates to `/login` unconditionally (Supabase clears the local session immediately regardless of network state).
+  - Spinner replaces icon while the call is in-flight; button disabled during that window.
+  - Plan: `docs/plans/phase-4/PHASE_4_3_PLAN.md`
+- [ ] **4.4 Create Account (Sign-up)** | Agent: `/plumber` → `/visualizer`
+  - New `SupabaseService.signUp()` method returning `{ error, needsEmailConfirmation }`.
+  - New `/register` route (public, no guard) with email + password + confirm-password form.
+  - On success: shows "Check your inbox" state when email confirmation is required, or redirects to `/login` when auto-confirmed (local dev).
+  - "Don't have an account? Create one" link added to the bottom of the login page.
+  - "Already have an account? Sign in" link on the register page.
+  - Plan: `docs/plans/phase-4/PHASE_4_4_PLAN.md`
 
 ### 🔒 Phase 4 QA Criteria
 
 1. No `flora-theme` key in localStorage + browser set to dark → `.dark` on `<html>` on first paint.
 2. Language switch updates all strings on current route within same render cycle, zero page reload.
-3. `bun run lint` — zero errors after all Phase 4 code.
+3. Clicking "Sign out" in the nav clears the Supabase session and redirects to `/login`; navigating to `/dashboard` after signing out redirects back to `/login`.
+4. Submitting `/register` with valid unique credentials produces either the confirmation-pending state or a redirect to `/login`; submitting with mismatched passwords shows a field-level error.
+5. `bun run lint` — zero errors after all Phase 4 code.
 
 ---
 

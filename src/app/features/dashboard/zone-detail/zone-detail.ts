@@ -13,8 +13,14 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { SkeletonModule } from 'primeng/skeleton';
+import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
-import { FloraConfirmDialogPT, FloraSkeletonPT, FloraToastPT } from '../../../shared/ui/pt/index';
+import {
+  FloraConfirmDialogPT,
+  FloraSkeletonPT,
+  FloraTagPT,
+  FloraToastPT,
+} from '../../../shared/ui/pt/index';
 import { PendingDeleteManager } from '../../../shared/utils/pending-delete';
 import { daysSince } from '../../../shared/utils/date.util';
 import { ZoneService } from '../zone.service';
@@ -59,6 +65,7 @@ interface EnrichedPlant {
     BotanicalDetailDialogComponent,
     LeafIconComponent,
     CareRecommendationsPanelComponent,
+    TagModule,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './zone-detail.html',
@@ -76,6 +83,7 @@ export class ZoneDetailComponent {
 
   protected readonly FloraConfirmDialogPT = FloraConfirmDialogPT;
   protected readonly FloraSkeletonPT = FloraSkeletonPT;
+  protected readonly FloraTagPT = FloraTagPT;
   protected readonly FloraToastPT = FloraToastPT;
   protected readonly loadingPlaceholders = [1, 2, 3, 4];
 
@@ -329,27 +337,28 @@ export class ZoneDetailComponent {
       }
       return updated;
     });
-    const unenriched = records.filter((r) => !r.is_ai_enriched);
-    if (unenriched.length > 0) {
+    const needsEnrichment = records.filter((r) => !r.is_ai_enriched || r.description == null);
+    if (needsEnrichment.length > 0) {
       this._poll.start(
-        unenriched.map((r) => r.scientific_name),
+        needsEnrichment.map((r) => r.scientific_name),
         async (pending) => {
           const refreshed = await this.libraryService.refetchByScientificNames(pending);
           if (refreshed.length === 0) return new Set(pending);
-          const newlyEnriched = refreshed.filter((r) => r.is_ai_enriched);
-          if (newlyEnriched.length > 0) {
-            this.botanicalMap.update((map) => {
-              const updated = new Map(map);
-              for (const record of newlyEnriched) {
-                updated.set(record.scientific_name, record);
-              }
-              return updated;
-            });
-          }
-          return new Set(refreshed.filter((r) => !r.is_ai_enriched).map((r) => r.scientific_name));
+          this.botanicalMap.update((map) => {
+            const updated = new Map(map);
+            for (const record of refreshed) {
+              updated.set(record.scientific_name, record);
+            }
+            return updated;
+          });
+          return new Set(
+            refreshed
+              .filter((r) => !r.is_ai_enriched || r.description == null)
+              .map((r) => r.scientific_name),
+          );
         },
       );
-      void this.libraryService.triggerEnrichment(unenriched, this._poll.controller?.signal);
+      void this.libraryService.triggerEnrichment(needsEnrichment, this._poll.controller?.signal);
     }
   }
 

@@ -34,6 +34,12 @@
     </p>
   }
   <div class="flex flex-wrap gap-1.5 mt-auto" [attr.aria-busy]="isEnriching()">
+    @if (record().placement === 'Indoor' || record().placement === 'Both') {
+      <p-tag value="Indoor" severity="secondary" [pt]="FloraTagPT" />
+    }
+    @if (record().placement === 'Outdoor' || record().placement === 'Both') {
+      <p-tag value="Outdoor" severity="secondary" [pt]="FloraTagPT" />
+    }
     @if (record().is_toxic_to_pets === true) {
       <p-tag
         value="Toxic (pets)"
@@ -53,12 +59,6 @@
       />
     } @else if (record().is_toxic_to_humans === false) {
       <p-tag value="Child-safe" severity="success" icon="pi pi-check-circle" [pt]="FloraTagPT" />
-    }
-    @if (record().placement === 'Indoor' || record().placement === 'Both') {
-      <p-tag value="Indoor" [pt]="FloraTagPT" />
-    }
-    @if (record().placement === 'Outdoor' || record().placement === 'Both') {
-      <p-tag value="Outdoor" severity="success" [pt]="FloraTagPT" />
     }
     @if (difficultyTag(); as tag) {
       <p-tag [value]="tag.label" [severity]="tag.severity" [pt]="FloraTagPT" />

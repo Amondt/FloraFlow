@@ -133,7 +133,7 @@ Phase 3.10 additions (handled in Block C):
   - Keep existing tag order: toxicity → watering → sunlight → lifecycle → care difficulty → placement.
   - Manual Browser Check: open Library — confirm description line wraps correctly at narrow widths, badges are legible.
 
-- [ ] **Block E — Zone Detail Card: Contextual Botanical Badges** | Agent: `/visualizer`
+- [x] **Block E — Zone Detail Card: Contextual Botanical Badges** | Agent: `/visualizer`
   - `ZoneDetailComponent` already has `botanicalMap: signal<Map<string, CachedBotanicalRecord>>` and `enrichedRecordFor()` — no new service method or data-layer work needed. This block is template-only.
   - In `zone-detail.html`: below the container/substrate badge row, read from `enrichedRecordFor(ep.plant.scientific_name)` and conditionally render `care_difficulty`, `placement`, and `is_tropical` badges — each guarded by `@if` on the field value so no DOM output when null.
   - Manual Browser Check: navigate to a zone with at least one enriched plant — confirm badges appear. Navigate to a zone with no enriched plants — confirm no empty space or broken layout.

@@ -384,6 +384,41 @@
                           {{ ep.plant.substrate_factor }}
                         </span>
                       </div>
+                      @if (ep.plant.scientific_name) {
+                        @let botanical = enrichedRecordFor(ep.plant.scientific_name);
+                        @if (botanical) {
+                          <div
+                            class="flex flex-wrap gap-1.5 mt-2"
+                            aria-label="Species characteristics"
+                          >
+                            @if (
+                              botanical.placement === 'Indoor' || botanical.placement === 'Both'
+                            ) {
+                              <p-tag value="Indoor" severity="secondary" [pt]="FloraTagPT" />
+                            }
+                            @if (
+                              botanical.placement === 'Outdoor' || botanical.placement === 'Both'
+                            ) {
+                              <p-tag value="Outdoor" severity="secondary" [pt]="FloraTagPT" />
+                            }
+                            @if (botanical.is_tropical === true) {
+                              <p-tag
+                                value="Tropical"
+                                severity="secondary"
+                                icon="pi pi-sun"
+                                [pt]="FloraTagPT"
+                              />
+                            }
+                            @if (botanical.care_difficulty === 'Beginner') {
+                              <p-tag value="Easy care" severity="success" [pt]="FloraTagPT" />
+                            } @else if (botanical.care_difficulty === 'Intermediate') {
+                              <p-tag value="Moderate care" severity="warn" [pt]="FloraTagPT" />
+                            } @else if (botanical.care_difficulty === 'Advanced') {
+                              <p-tag value="Expert care" severity="danger" [pt]="FloraTagPT" />
+                            }
+                          </div>
+                        }
+                      }
                     </div>
                   </div>
 

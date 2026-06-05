@@ -138,7 +138,7 @@ Phase 3.10 additions (handled in Block C):
   - In `zone-detail.html`: below the container/substrate badge row, read from `enrichedRecordFor(ep.plant.scientific_name)` and conditionally render `care_difficulty`, `placement`, and `is_tropical` badges — each guarded by `@if` on the field value so no DOM output when null.
   - Manual Browser Check: navigate to a zone with at least one enriched plant — confirm badges appear. Navigate to a zone with no enriched plants — confirm no empty space or broken layout.
 
-- [ ] **Block F — Library Filters: 6 New Dimensions** | Agent: `/visualizer`
+- [x] **Block F — Library Filters: 6 New Dimensions** | Agent: `/visualizer`
   - Add 6 new filter sections to the library sidebar filter panel (and future Phase 5.4 bottom sheet — no extra work needed, the sheet already renders the same filter component):
     - **Placement** — radio group: Any / Indoor / Outdoor / Both
     - **Care Difficulty** — checkbox group: Beginner / Intermediate / Advanced

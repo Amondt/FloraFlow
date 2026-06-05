@@ -2,13 +2,14 @@ import { Component, computed, input, output } from '@angular/core';
 import { TagModule } from 'primeng/tag';
 import { CachedBotanicalRecord } from '../library.service';
 import { FloraTagPT } from '../../../shared/ui/pt/index';
+import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-icon';
 
 type TagState = { label: string; severity: 'success' | 'warn' | 'danger' };
 
 @Component({
   selector: 'app-botanical-record-card',
   standalone: true,
-  imports: [TagModule],
+  imports: [TagModule, LeafIconComponent],
   templateUrl: './botanical-record-card.html',
 })
 export class BotanicalRecordCardComponent {

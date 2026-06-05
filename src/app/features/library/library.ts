@@ -14,12 +14,17 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { ButtonModule } from 'primeng/button';
 import { SliderModule, SliderSlideEndEvent } from 'primeng/slider';
 import { ToastModule } from 'primeng/toast';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { MessageService } from 'primeng/api';
 import {
+  CARE_DIFFICULTY_OPTIONS,
   CachedBotanicalRecord,
   CYCLE_OPTIONS,
   LibraryFilters,
   LibraryService,
+  MAINTENANCE_OPTIONS,
+  PAGE_SIZE,
+  PLACEMENT_OPTIONS,
   SUNLIGHT_LABEL,
   SUNLIGHT_OPTIONS,
   WATERING_OPTIONS,
@@ -30,6 +35,7 @@ import {
   FloraSkeletonPT,
   FloraSliderPT,
   FloraToastPT,
+  FloraToggleSwitchPT,
 } from '../../shared/ui/pt/index';
 import { BotanicalRecordCardComponent } from './botanical-record-card/botanical-record-card';
 import { BotanicalDetailDialogComponent } from '../../shared/components/botanical-detail-dialog/botanical-detail-dialog';
@@ -38,11 +44,6 @@ import { PlantService } from '../scheduler/plant.service';
 import { PlantFormData } from '../scheduler/plant.model';
 import { plantAddedDetail } from '../../shared/utils/plant-message.util';
 import { EnrichmentPoll } from '../../shared/utils/enrichment-poll';
-
-const TOXICITY_OPTIONS = [
-  { label: 'Pet-safe', value: false as boolean },
-  { label: 'Toxic', value: true as boolean },
-];
 
 @Component({
   selector: 'app-library',
@@ -54,6 +55,7 @@ const TOXICITY_OPTIONS = [
     ButtonModule,
     SliderModule,
     ToastModule,
+    ToggleSwitchModule,
     BotanicalDetailDialogComponent,
     BotanicalRecordCardComponent,
     PlantFormDialogComponent,
@@ -72,13 +74,21 @@ export class LibraryComponent {
   protected readonly FloraButtonPT = FloraButtonPT;
   protected readonly FloraSliderPT = FloraSliderPT;
   protected readonly FloraToastPT = FloraToastPT;
+  protected readonly FloraToggleSwitchPT = FloraToggleSwitchPT;
 
   protected readonly WATERING_OPTIONS = [...WATERING_OPTIONS];
   protected readonly SUNLIGHT_OPTIONS = [...SUNLIGHT_OPTIONS];
   protected readonly CYCLE_OPTIONS = [...CYCLE_OPTIONS];
+  protected readonly PLACEMENT_OPTIONS = [...PLACEMENT_OPTIONS];
+  protected readonly CARE_DIFFICULTY_OPTIONS = [...CARE_DIFFICULTY_OPTIONS];
+  protected readonly MAINTENANCE_OPTIONS = [...MAINTENANCE_OPTIONS];
   protected readonly SUNLIGHT_LABEL = SUNLIGHT_LABEL;
-  protected readonly TOXICITY_OPTIONS = TOXICITY_OPTIONS;
   protected readonly loadingPlaceholders = [1, 2, 3, 4, 5, 6];
+  protected readonly lifecycleTooltip =
+    'Annual: 1 season\nBiennial: 2 years\nBiannual: twice a year\nPerennial: returns every year';
+
+  readonly tooltipText = signal('');
+  readonly tooltipPos = signal<{ x: number; y: number } | null>(null);
 
   readonly filters = signal<LibraryFilters>({});
   readonly searchQuery = signal('');
@@ -88,6 +98,8 @@ export class LibraryComponent {
   readonly showAddDialog = signal(false);
   readonly phRange = signal<number[]>([0, 14]);
   readonly phDisplay = signal<number[]>([0, 14]);
+  readonly currentPage = signal(0);
+  readonly totalCount = signal(0);
   readonly prefillRecord = signal<{
     common_name: string;
     scientific_name: string | null;
@@ -102,8 +114,28 @@ export class LibraryComponent {
   readonly hasPhFilter = computed(() => this.phRange()[0] !== 0 || this.phRange()[1] !== 14);
   readonly hasWateringFilter = computed(() => !!this.filters().watering);
   readonly hasSunlightFilter = computed(() => !!this.filters().sunlight);
-  readonly hasToxicityFilter = computed(() => this.filters().is_toxic_to_pets !== undefined);
   readonly hasCycleFilter = computed(() => !!this.filters().cycle);
+  readonly hasPlacementFilter = computed(() => this.filters().placement != null);
+  readonly hasDifficultyFilter = computed(() => (this.filters().careDifficulty?.length ?? 0) > 0);
+  readonly hasMaintenanceFilter = computed(
+    () => (this.filters().maintenanceLevel?.length ?? 0) > 0,
+  );
+  readonly hasTraitFilters = computed(
+    () =>
+      this.filters().isTropical === true ||
+      this.filters().airPurifying === true ||
+      this.filters().isSafeForHumans === true ||
+      this.filters().isPetSafe === true,
+  );
+  readonly isTropicalFilter = computed(() => this.filters().isTropical === true);
+  readonly airPurifyingFilter = computed(() => this.filters().airPurifying === true);
+  readonly isSafeForHumansFilter = computed(() => this.filters().isSafeForHumans === true);
+  readonly isPetSafeFilter = computed(() => this.filters().isPetSafe === true);
+
+  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.totalCount() / PAGE_SIZE)));
+  readonly hasPrevPage = computed(() => this.currentPage() > 0);
+  readonly hasNextPage = computed(() => this.currentPage() < this.totalPages() - 1);
+
   // Tracks whether the most recent query has received a response (success or error).
   // Starts false so skeletons appear as soon as criteria is met — no dependency on
   // isLoading() timing, which eliminates the signal-write race on first search.
@@ -136,14 +168,13 @@ export class LibraryComponent {
     });
 
     afterNextRender(() => {
-      const searchArea = document.getElementById('library-search-area');
-      if (!searchArea) return;
-      const observer = new IntersectionObserver(
-        ([entry]) => this.headerVisible.set(entry.isIntersecting),
-        { threshold: 0 },
-      );
-      observer.observe(searchArea);
-      this._destroyRef.onDestroy(() => observer.disconnect());
+      const updateHeaderVisible = () => {
+        const el = document.getElementById('library-search-area');
+        this.headerVisible.set(!el || el.getBoundingClientRect().bottom > 0);
+      };
+      updateHeaderVisible();
+      window.addEventListener('scroll', updateHeaderVisible, { passive: true });
+      this._destroyRef.onDestroy(() => window.removeEventListener('scroll', updateHeaderVisible));
     });
 
     effect(() => {
@@ -158,6 +189,8 @@ export class LibraryComponent {
       if (!hasCriteria) {
         this.isLoading.set(false);
         this.results.set([]);
+        this.totalCount.set(0);
+        this.currentPage.set(0);
         this.searchCompleted.set(false);
         this._poll.stop();
         return;
@@ -168,9 +201,21 @@ export class LibraryComponent {
 
       this._debounceTimer = setTimeout(() => {
         this._debounceTimer = null;
-        void this._load(q, f);
+        this.currentPage.set(0);
+        void this._load(q, f, 0);
       }, 300);
     });
+  }
+
+  protected showTooltip(event: MouseEvent, text: string): void {
+    const el = event.currentTarget as HTMLElement;
+    const rect = el.getBoundingClientRect();
+    this.tooltipText.set(text);
+    this.tooltipPos.set({ x: rect.right + 8, y: rect.top + rect.height / 2 });
+  }
+
+  protected hideTooltip(): void {
+    this.tooltipPos.set(null);
   }
 
   protected filterBtnClass(active: boolean): string {
@@ -179,6 +224,20 @@ export class LibraryComponent {
     if (active)
       return `${base} bg-primary-50 text-primary-700 border-primary-200 font-medium dark:bg-primary-900/30 dark:text-primary-300 dark:border-primary-700`;
     return `${base} text-neutral-600 dark:text-neutral-400 border-transparent hover:bg-neutral-50 dark:hover:bg-neutral-800`;
+  }
+
+  protected multiSelectBtnClass(active: boolean): string {
+    const base =
+      'w-full text-left px-3 py-1.5 text-sm font-display rounded-garden-sm transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 border cursor-pointer flex items-center gap-2';
+    if (active)
+      return `${base} bg-primary-50 text-primary-700 border-primary-200 font-medium dark:bg-primary-900/30 dark:text-primary-300 dark:border-primary-700`;
+    return `${base} text-neutral-600 dark:text-neutral-400 border-transparent hover:bg-neutral-50 dark:hover:bg-neutral-800`;
+  }
+
+  protected checkboxIndicatorClass(active: boolean): string {
+    if (active)
+      return 'w-3.5 h-3.5 rounded-sm flex-shrink-0 bg-primary-500 border border-primary-500';
+    return 'w-3.5 h-3.5 rounded-sm flex-shrink-0 border border-neutral-300 dark:border-neutral-600';
   }
 
   protected isFilterActive(key: 'watering' | 'sunlight' | 'cycle', value: string): boolean {
@@ -200,14 +259,81 @@ export class LibraryComponent {
     this._syncLoadingState();
   }
 
-  protected toggleToxFilter(value: boolean): void {
+  protected togglePlacementFilter(value: string): void {
     this.filters.update((f) => {
       const next: LibraryFilters = { ...f };
-      if (f.is_toxic_to_pets === value) delete next.is_toxic_to_pets;
-      else next.is_toxic_to_pets = value;
+      if (f.placement === value) delete next.placement;
+      else next.placement = value;
       return next;
     });
     this._syncLoadingState();
+  }
+
+  protected toggleMultiFilter(key: 'careDifficulty' | 'maintenanceLevel', value: string): void {
+    this.filters.update((f) => {
+      const next: LibraryFilters = { ...f };
+      const current = next[key] ?? [];
+      const updated = current.includes(value)
+        ? current.filter((v) => v !== value)
+        : [...current, value];
+      if (updated.length === 0) delete next[key];
+      else next[key] = updated;
+      return next;
+    });
+    this._syncLoadingState();
+  }
+
+  protected isMultiFilterActive(
+    key: 'careDifficulty' | 'maintenanceLevel',
+    value: string,
+  ): boolean {
+    return this.filters()[key]?.includes(value) ?? false;
+  }
+
+  protected setTropicalFilter(v: boolean): void {
+    this.filters.update((f) => {
+      const next: LibraryFilters = { ...f };
+      if (!v) delete next.isTropical;
+      else next.isTropical = true;
+      return next;
+    });
+    this._syncLoadingState();
+  }
+
+  protected setAirPurifyingFilter(v: boolean): void {
+    this.filters.update((f) => {
+      const next: LibraryFilters = { ...f };
+      if (!v) delete next.airPurifying;
+      else next.airPurifying = true;
+      return next;
+    });
+    this._syncLoadingState();
+  }
+
+  protected setSafeForHumansFilter(v: boolean): void {
+    this.filters.update((f) => {
+      const next: LibraryFilters = { ...f };
+      if (!v) delete next.isSafeForHumans;
+      else next.isSafeForHumans = true;
+      return next;
+    });
+    this._syncLoadingState();
+  }
+
+  protected setPetSafeFilter(v: boolean): void {
+    this.filters.update((f) => {
+      const next: LibraryFilters = { ...f };
+      if (!v) delete next.isPetSafe;
+      else next.isPetSafe = true;
+      return next;
+    });
+    this._syncLoadingState();
+  }
+
+  protected goToPage(page: number): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    this.currentPage.set(page);
+    void this._load(this.searchQuery(), this.filters(), page);
   }
 
   private _activeHandle: 0 | 1 | null = null;
@@ -329,20 +455,20 @@ export class LibraryComponent {
     }
   }
 
-  private async _load(query: string, f: LibraryFilters): Promise<void> {
+  private async _load(query: string, f: LibraryFilters, page = 0): Promise<void> {
     this._poll.stop();
     this.isLoading.set(true);
     try {
-      let newResults: CachedBotanicalRecord[];
-      if (query.length >= 2) {
-        newResults = await this.libraryService.search(query, f);
-      } else {
-        newResults = await this.libraryService.browse(f);
-      }
-      this.results.set(newResults);
+      const result =
+        query.length >= 2
+          ? await this.libraryService.search(query, f, page, PAGE_SIZE)
+          : await this.libraryService.browse(f, page, PAGE_SIZE);
+
+      this.results.set(result.data);
+      this.totalCount.set(result.count);
 
       // Include records missing Phase 3.10 data (is_ai_enriched but description null)
-      const needsEnrichment = newResults.filter((r) => !r.is_ai_enriched || r.description == null);
+      const needsEnrichment = result.data.filter((r) => !r.is_ai_enriched || r.description == null);
       this._poll.start(
         needsEnrichment.map((r) => r.scientific_name),
         async (pending) => {

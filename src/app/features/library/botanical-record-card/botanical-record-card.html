@@ -3,88 +3,99 @@
   tabindex="0"
   [attr.aria-selected]="selected()"
   [attr.aria-label]="ariaLabel()"
-  class="p-4 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md cursor-pointer transition-all duration-150 hover:border-primary-500 dark:hover:border-primary-700 hover:shadow-md outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 h-full flex flex-col"
+  class="p-5 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md cursor-pointer transition-all duration-150 hover:border-primary-500 dark:hover:border-primary-700 hover:shadow-md outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 flex gap-4 items-start"
   [class.ring-2]="selected()"
   [class.ring-primary-500]="selected()"
   (click)="cardSelect.emit()"
   (keydown.enter)="cardSelect.emit()"
   (keydown.space)="onSpaceKey($event)"
 >
-  @if (record().scientific_name) {
-    <h2
-      class="text-sm font-semibold italic font-display text-neutral-900 dark:text-neutral-100 mb-0.5 leading-snug"
-    >
-      {{ record().scientific_name }}
-    </h2>
-  }
-  @if (record().common_name) {
-    <p
-      class="text-xs text-neutral-400 dark:text-neutral-500 font-display leading-snug"
-      [class.mb-3]="!record().description"
-      [class.mb-0.5]="!!record().description"
-    >
-      {{ record().common_name }}
-    </p>
-  }
-  @if (record().description) {
-    <p
-      class="text-xs text-neutral-500 dark:text-neutral-400 font-display truncate leading-snug mb-3"
-    >
-      {{ record().description }}
-    </p>
-  }
-  <div class="flex flex-wrap gap-1.5 mt-auto" [attr.aria-busy]="isEnriching()">
-    @if (record().placement === 'Indoor' || record().placement === 'Both') {
-      <p-tag value="Indoor" severity="secondary" [pt]="FloraTagPT" />
+  <!-- Image slot: leaf icon placeholder now, thumbnail_url in Phase 3.11 -->
+  <div
+    class="flex-shrink-0 w-16 h-16 rounded-garden-sm bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center"
+    aria-hidden="true"
+  >
+    <app-leaf-icon size="lg" class="text-neutral-300 dark:text-neutral-500" />
+  </div>
+
+  <!-- Content -->
+  <div class="flex-1 min-w-0 flex flex-col">
+    @if (record().scientific_name) {
+      <h2
+        class="text-base font-semibold italic font-display text-neutral-900 dark:text-neutral-100 leading-snug"
+      >
+        {{ record().scientific_name }}
+      </h2>
     }
-    @if (record().placement === 'Outdoor' || record().placement === 'Both') {
-      <p-tag value="Outdoor" severity="secondary" [pt]="FloraTagPT" />
+    @if (record().common_name) {
+      <p
+        class="text-xs text-neutral-400 dark:text-neutral-500 font-display leading-snug mt-0.5"
+        [class.mb-2]="!record().description"
+        [class.mb-1]="!!record().description"
+      >
+        {{ record().common_name }}
+      </p>
     }
-    @if (record().is_toxic_to_pets === true) {
-      <p-tag
-        value="Toxic (pets)"
-        severity="danger"
-        icon="pi pi-exclamation-triangle"
-        [pt]="FloraTagPT"
-      />
-    } @else if (record().is_toxic_to_pets === false) {
-      <p-tag value="Pet-safe" severity="success" icon="pi pi-check-circle" [pt]="FloraTagPT" />
+    @if (record().description) {
+      <p
+        class="text-xs text-neutral-500 dark:text-neutral-400 font-display line-clamp-2 leading-relaxed mb-2"
+      >
+        {{ record().description }}
+      </p>
     }
-    @if (record().is_toxic_to_humans === true) {
-      <p-tag
-        value="Toxic (humans)"
-        severity="danger"
-        icon="pi pi-exclamation-triangle"
-        [pt]="FloraTagPT"
-      />
-    } @else if (record().is_toxic_to_humans === false) {
-      <p-tag value="Child-safe" severity="success" icon="pi pi-check-circle" [pt]="FloraTagPT" />
-    }
-    @if (difficultyTag(); as tag) {
-      <p-tag [value]="tag.label" [severity]="tag.severity" [pt]="FloraTagPT" />
-    }
-    @if (maintenanceTag(); as tag) {
-      <p-tag [value]="tag.label" [severity]="tag.severity" [pt]="FloraTagPT" />
-    }
-    @if (
-      isEnriching() &&
-      record().is_toxic_to_pets === null &&
-      !record().placement &&
-      !record().care_difficulty &&
-      !record().maintenance_level
-    ) {
-      <span
-        class="h-5 w-14 rounded-full bg-neutral-200 dark:bg-neutral-700 animate-[flora-skeleton_1.5s_ease-in-out_infinite]"
-        aria-hidden="true"
-      ></span>
-      <span
-        class="h-5 w-10 rounded-full bg-neutral-200 dark:bg-neutral-700 animate-[flora-skeleton_1.5s_ease-in-out_infinite] [animation-delay:200ms]"
-        aria-hidden="true"
-      ></span>
-      <span
-        class="h-5 w-16 rounded-full bg-neutral-200 dark:bg-neutral-700 animate-[flora-skeleton_1.5s_ease-in-out_infinite] [animation-delay:400ms]"
-        aria-hidden="true"
-      ></span>
-    }
+    <div class="flex flex-wrap gap-1.5 mt-auto" [attr.aria-busy]="isEnriching()">
+      @if (record().placement === 'Indoor' || record().placement === 'Both') {
+        <p-tag value="Indoor" severity="secondary" [pt]="FloraTagPT" />
+      }
+      @if (record().placement === 'Outdoor' || record().placement === 'Both') {
+        <p-tag value="Outdoor" severity="secondary" [pt]="FloraTagPT" />
+      }
+      @if (record().is_toxic_to_pets === true) {
+        <p-tag
+          value="Toxic (pets)"
+          severity="danger"
+          icon="pi pi-exclamation-triangle"
+          [pt]="FloraTagPT"
+        />
+      } @else if (record().is_toxic_to_pets === false) {
+        <p-tag value="Pet-safe" severity="success" icon="pi pi-check-circle" [pt]="FloraTagPT" />
+      }
+      @if (record().is_toxic_to_humans === true) {
+        <p-tag
+          value="Toxic (humans)"
+          severity="danger"
+          icon="pi pi-exclamation-triangle"
+          [pt]="FloraTagPT"
+        />
+      } @else if (record().is_toxic_to_humans === false) {
+        <p-tag value="Child-safe" severity="success" icon="pi pi-check-circle" [pt]="FloraTagPT" />
+      }
+      @if (difficultyTag(); as tag) {
+        <p-tag [value]="tag.label" [severity]="tag.severity" [pt]="FloraTagPT" />
+      }
+      @if (maintenanceTag(); as tag) {
+        <p-tag [value]="tag.label" [severity]="tag.severity" [pt]="FloraTagPT" />
+      }
+      @if (
+        isEnriching() &&
+        record().is_toxic_to_pets === null &&
+        !record().placement &&
+        !record().care_difficulty &&
+        !record().maintenance_level
+      ) {
+        <span
+          class="h-5 w-14 rounded-full bg-neutral-200 dark:bg-neutral-700 animate-[flora-skeleton_1.5s_ease-in-out_infinite]"
+          aria-hidden="true"
+        ></span>
+        <span
+          class="h-5 w-10 rounded-full bg-neutral-200 dark:bg-neutral-700 animate-[flora-skeleton_1.5s_ease-in-out_infinite] [animation-delay:200ms]"
+          aria-hidden="true"
+        ></span>
+        <span
+          class="h-5 w-16 rounded-full bg-neutral-200 dark:bg-neutral-700 animate-[flora-skeleton_1.5s_ease-in-out_infinite] [animation-delay:400ms]"
+          aria-hidden="true"
+        ></span>
+      }
+    </div>
   </div>
 </article>

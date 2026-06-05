@@ -1,7 +1,7 @@
 ﻿<main class="p-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen" aria-labelledby="library-heading">
   <div class="max-w-5xl mx-auto">
     <!-- Page header -->
-    <header class="mb-8">
+    <header class="mb-10">
       <p
         class="text-xs font-semibold uppercase tracking-widest text-primary-600 dark:text-primary-400 font-display mb-1"
       >
@@ -19,7 +19,7 @@
     </header>
 
     <!-- Search bar - prominent, full-width -->
-    <div id="library-search-area" class="mb-6">
+    <div id="library-search-area" class="mb-8">
       <label for="library-search" class="sr-only">Search botanical registry</label>
       <div class="relative">
         <i
@@ -50,7 +50,7 @@
       <!-- Filter sidebar -->
       <aside class="w-52 shrink-0 self-start sticky top-6 z-10" aria-label="Filter options">
         <div
-          class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md p-4"
+          class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md p-4 max-h-[calc(100vh-3.5rem)] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           <div class="flex items-center justify-between mb-3">
             <span
@@ -70,7 +70,7 @@
             }
           </div>
 
-          <!-- Watering -->
+          <!-- Placement -->
           <details class="group mb-4" open>
             <summary
               class="flex items-center justify-between py-0.5 mb-2 cursor-pointer list-none select-none outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
@@ -79,23 +79,18 @@
                 <h2
                   class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display"
                 >
-                  Watering
+                  Placement
                 </h2>
-                <span class="relative group/hint">
-                  <span
-                    class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500"
-                    aria-hidden="true"
-                  >
-                    <i class="pi pi-info-circle text-xs"></i>
-                  </span>
-                  <span
-                    aria-hidden="true"
-                    class="absolute left-0 top-full mt-1.5 z-30 px-2.5 py-1.5 rounded-garden-sm bg-neutral-900 dark:bg-neutral-700 text-white text-xs font-display leading-snug w-44 shadow-lg invisible opacity-0 group-hover/hint:visible group-hover/hint:opacity-100 group-focus-within/hint:visible group-focus-within/hint:opacity-100 transition-opacity duration-150 pointer-events-none"
-                  >
-                    How often the plant needs water
-                  </span>
+                <span
+                  class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-help"
+                  (mouseenter)="showTooltip($event, 'Where the plant can thrive')"
+                  (mouseleave)="hideTooltip()"
+                  tabindex="0"
+                  aria-label="More info about placement"
+                >
+                  <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
                 </span>
-                @if (hasWateringFilter()) {
+                @if (hasPlacementFilter()) {
                   <span
                     class="w-1.5 h-1.5 rounded-full bg-primary-500 ml-0.5"
                     aria-hidden="true"
@@ -107,13 +102,13 @@
                 aria-hidden="true"
               ></i>
             </summary>
-            <div class="flex flex-col gap-0.5" role="group" aria-label="Filter by watering">
-              @for (opt of WATERING_OPTIONS; track opt) {
+            <div class="flex flex-col gap-0.5" role="group" aria-label="Filter by placement">
+              @for (opt of PLACEMENT_OPTIONS; track opt) {
                 <button
                   type="button"
-                  [class]="filterBtnClass(isFilterActive('watering', opt))"
-                  [attr.aria-pressed]="isFilterActive('watering', opt)"
-                  (click)="toggleFilter('watering', opt)"
+                  [class]="filterBtnClass(filters().placement === opt)"
+                  [attr.aria-pressed]="filters().placement === opt"
+                  (click)="togglePlacementFilter(opt)"
                 >
                   {{ opt }}
                 </button>
@@ -132,19 +127,14 @@
                 >
                   Sunlight
                 </h2>
-                <span class="relative group/hint">
-                  <span
-                    class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500"
-                    aria-hidden="true"
-                  >
-                    <i class="pi pi-info-circle text-xs"></i>
-                  </span>
-                  <span
-                    aria-hidden="true"
-                    class="absolute left-0 top-full mt-1.5 z-30 px-2.5 py-1.5 rounded-garden-sm bg-neutral-900 dark:bg-neutral-700 text-white text-xs font-display leading-snug w-44 shadow-lg invisible opacity-0 group-hover/hint:visible group-hover/hint:opacity-100 group-focus-within/hint:visible group-focus-within/hint:opacity-100 transition-opacity duration-150 pointer-events-none"
-                  >
-                    Required daily light level
-                  </span>
+                <span
+                  class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-help"
+                  (mouseenter)="showTooltip($event, 'Required daily light level')"
+                  (mouseleave)="hideTooltip()"
+                  tabindex="0"
+                  aria-label="More info about sunlight"
+                >
+                  <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
                 </span>
                 @if (hasSunlightFilter()) {
                   <span
@@ -172,7 +162,7 @@
             </div>
           </details>
 
-          <!-- Pet toxicity -->
+          <!-- Watering -->
           <details class="group mb-4" open>
             <summary
               class="flex items-center justify-between py-0.5 mb-2 cursor-pointer list-none select-none outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
@@ -181,23 +171,18 @@
                 <h2
                   class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display"
                 >
-                  Pet toxicity
+                  Watering
                 </h2>
-                <span class="relative group/hint">
-                  <span
-                    class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500"
-                    aria-hidden="true"
-                  >
-                    <i class="pi pi-info-circle text-xs"></i>
-                  </span>
-                  <span
-                    aria-hidden="true"
-                    class="absolute left-0 top-full mt-1.5 z-30 px-2.5 py-1.5 rounded-garden-sm bg-neutral-900 dark:bg-neutral-700 text-white text-xs font-display leading-snug w-44 shadow-lg invisible opacity-0 group-hover/hint:visible group-hover/hint:opacity-100 group-focus-within/hint:visible group-focus-within/hint:opacity-100 transition-opacity duration-150 pointer-events-none"
-                  >
-                    Safe for cats and dogs
-                  </span>
+                <span
+                  class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-help"
+                  (mouseenter)="showTooltip($event, 'How often the plant needs water')"
+                  (mouseleave)="hideTooltip()"
+                  tabindex="0"
+                  aria-label="More info about watering"
+                >
+                  <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
                 </span>
-                @if (hasToxicityFilter()) {
+                @if (hasWateringFilter()) {
                   <span
                     class="w-1.5 h-1.5 rounded-full bg-primary-500 ml-0.5"
                     aria-hidden="true"
@@ -209,22 +194,219 @@
                 aria-hidden="true"
               ></i>
             </summary>
-            <div class="flex flex-col gap-0.5" role="group" aria-label="Filter by pet toxicity">
-              @for (opt of TOXICITY_OPTIONS; track opt.label) {
+            <div class="flex flex-col gap-0.5" role="group" aria-label="Filter by watering">
+              @for (opt of WATERING_OPTIONS; track opt) {
                 <button
                   type="button"
-                  [class]="filterBtnClass(filters().is_toxic_to_pets === opt.value)"
-                  [attr.aria-pressed]="filters().is_toxic_to_pets === opt.value"
-                  (click)="toggleToxFilter(opt.value)"
+                  [class]="filterBtnClass(isFilterActive('watering', opt))"
+                  [attr.aria-pressed]="isFilterActive('watering', opt)"
+                  (click)="toggleFilter('watering', opt)"
                 >
-                  {{ opt.label }}
+                  {{ opt }}
+                </button>
+              }
+            </div>
+          </details>
+
+          <!-- Plant traits -->
+          <details class="group mb-4">
+            <summary
+              class="flex items-center justify-between py-0.5 mb-2 cursor-pointer list-none select-none outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
+            >
+              <div class="flex items-center gap-1">
+                <h2
+                  class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display"
+                >
+                  Plant traits
+                </h2>
+                @if (hasTraitFilters()) {
+                  <span
+                    class="w-1.5 h-1.5 rounded-full bg-primary-500 ml-0.5"
+                    aria-hidden="true"
+                  ></span>
+                }
+              </div>
+              <i
+                class="pi pi-chevron-down text-xs text-neutral-300 transition-transform duration-200 group-open:rotate-180"
+                aria-hidden="true"
+              ></i>
+            </summary>
+            <div class="flex flex-col gap-2 pt-1">
+              <div class="flex items-center justify-between gap-2">
+                <label
+                  class="text-sm font-display text-neutral-600 dark:text-neutral-400 cursor-pointer"
+                  for="filter-tropical"
+                >
+                  Tropical only
+                </label>
+                <p-toggleswitch
+                  inputId="filter-tropical"
+                  [ngModel]="isTropicalFilter()"
+                  (ngModelChange)="setTropicalFilter($event)"
+                  [pt]="FloraToggleSwitchPT"
+                  ariaLabel="Show tropical plants only"
+                  class="flex-shrink-0"
+                />
+              </div>
+              <div class="flex items-center justify-between gap-2">
+                <label
+                  class="text-sm font-display text-neutral-600 dark:text-neutral-400 cursor-pointer"
+                  for="filter-air-purifying"
+                >
+                  Air-purifying
+                </label>
+                <p-toggleswitch
+                  inputId="filter-air-purifying"
+                  [ngModel]="airPurifyingFilter()"
+                  (ngModelChange)="setAirPurifyingFilter($event)"
+                  [pt]="FloraToggleSwitchPT"
+                  ariaLabel="Show air-purifying plants only"
+                  class="flex-shrink-0"
+                />
+              </div>
+              <div class="flex items-center justify-between gap-2">
+                <label
+                  class="text-sm font-display text-neutral-600 dark:text-neutral-400 cursor-pointer"
+                  for="filter-safe-humans"
+                >
+                  Child-safe
+                </label>
+                <p-toggleswitch
+                  inputId="filter-safe-humans"
+                  [ngModel]="isSafeForHumansFilter()"
+                  (ngModelChange)="setSafeForHumansFilter($event)"
+                  [pt]="FloraToggleSwitchPT"
+                  ariaLabel="Show child-safe plants only"
+                  class="flex-shrink-0"
+                />
+              </div>
+              <div class="flex items-center justify-between gap-2">
+                <label
+                  class="text-sm font-display text-neutral-600 dark:text-neutral-400 cursor-pointer"
+                  for="filter-pet-safe"
+                >
+                  Pet-safe
+                </label>
+                <p-toggleswitch
+                  inputId="filter-pet-safe"
+                  [ngModel]="isPetSafeFilter()"
+                  (ngModelChange)="setPetSafeFilter($event)"
+                  [pt]="FloraToggleSwitchPT"
+                  ariaLabel="Show pet-safe plants only"
+                  class="flex-shrink-0"
+                />
+              </div>
+            </div>
+          </details>
+
+          <!-- Care Difficulty -->
+          <details class="group mb-4">
+            <summary
+              class="flex items-center justify-between py-0.5 mb-2 cursor-pointer list-none select-none outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
+            >
+              <div class="flex items-center gap-1">
+                <h2
+                  class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display"
+                >
+                  Difficulty
+                </h2>
+                <span
+                  class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-help"
+                  (mouseenter)="showTooltip($event, 'Skill level to keep the plant healthy')"
+                  (mouseleave)="hideTooltip()"
+                  tabindex="0"
+                  aria-label="More info about care difficulty"
+                >
+                  <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
+                </span>
+                @if (hasDifficultyFilter()) {
+                  <span
+                    class="w-1.5 h-1.5 rounded-full bg-primary-500 ml-0.5"
+                    aria-hidden="true"
+                  ></span>
+                }
+              </div>
+              <i
+                class="pi pi-chevron-down text-xs text-neutral-300 transition-transform duration-200 group-open:rotate-180"
+                aria-hidden="true"
+              ></i>
+            </summary>
+            <div class="flex flex-col gap-0.5" role="group" aria-label="Filter by care difficulty">
+              @for (opt of CARE_DIFFICULTY_OPTIONS; track opt) {
+                <button
+                  type="button"
+                  [class]="multiSelectBtnClass(isMultiFilterActive('careDifficulty', opt))"
+                  [attr.aria-pressed]="isMultiFilterActive('careDifficulty', opt)"
+                  (click)="toggleMultiFilter('careDifficulty', opt)"
+                >
+                  <span
+                    [class]="checkboxIndicatorClass(isMultiFilterActive('careDifficulty', opt))"
+                    aria-hidden="true"
+                  ></span>
+                  {{ opt }}
+                </button>
+              }
+            </div>
+          </details>
+
+          <!-- Maintenance -->
+          <details class="group mb-4">
+            <summary
+              class="flex items-center justify-between py-0.5 mb-2 cursor-pointer list-none select-none outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
+            >
+              <div class="flex items-center gap-1">
+                <h2
+                  class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display"
+                >
+                  Maintenance
+                </h2>
+                <span
+                  class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-help"
+                  (mouseenter)="
+                    showTooltip($event, 'Weekly time investment to keep the plant happy')
+                  "
+                  (mouseleave)="hideTooltip()"
+                  tabindex="0"
+                  aria-label="More info about maintenance"
+                >
+                  <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
+                </span>
+                @if (hasMaintenanceFilter()) {
+                  <span
+                    class="w-1.5 h-1.5 rounded-full bg-primary-500 ml-0.5"
+                    aria-hidden="true"
+                  ></span>
+                }
+              </div>
+              <i
+                class="pi pi-chevron-down text-xs text-neutral-300 transition-transform duration-200 group-open:rotate-180"
+                aria-hidden="true"
+              ></i>
+            </summary>
+            <div
+              class="flex flex-col gap-0.5"
+              role="group"
+              aria-label="Filter by maintenance level"
+            >
+              @for (opt of MAINTENANCE_OPTIONS; track opt) {
+                <button
+                  type="button"
+                  [class]="multiSelectBtnClass(isMultiFilterActive('maintenanceLevel', opt))"
+                  [attr.aria-pressed]="isMultiFilterActive('maintenanceLevel', opt)"
+                  (click)="toggleMultiFilter('maintenanceLevel', opt)"
+                >
+                  <span
+                    [class]="checkboxIndicatorClass(isMultiFilterActive('maintenanceLevel', opt))"
+                    aria-hidden="true"
+                  ></span>
+                  {{ opt }}
                 </button>
               }
             </div>
           </details>
 
           <!-- Lifecycle -->
-          <details class="group mb-4" open>
+          <details class="group mb-4">
             <summary
               class="flex items-center justify-between py-0.5 mb-2 cursor-pointer list-none select-none outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
             >
@@ -234,22 +416,14 @@
                 >
                   Lifecycle
                 </h2>
-                <span class="relative group/hint">
-                  <span
-                    class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500"
-                    aria-hidden="true"
-                  >
-                    <i class="pi pi-info-circle text-xs"></i>
-                  </span>
-                  <span
-                    aria-hidden="true"
-                    class="absolute left-0 top-full mt-1.5 z-30 px-2.5 py-1.5 rounded-garden-sm bg-neutral-900 dark:bg-neutral-700 text-white text-xs font-display leading-snug w-44 shadow-lg invisible opacity-0 group-hover/hint:visible group-hover/hint:opacity-100 group-focus-within/hint:visible group-focus-within/hint:opacity-100 transition-opacity duration-150 pointer-events-none"
-                  >
-                    <span class="block">Annual: 1 season</span>
-                    <span class="block">Biennial: 2 years</span>
-                    <span class="block">Biannual: twice a year</span>
-                    <span class="block">Perennial: returns every year</span>
-                  </span>
+                <span
+                  class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-help"
+                  (mouseenter)="showTooltip($event, lifecycleTooltip)"
+                  (mouseleave)="hideTooltip()"
+                  tabindex="0"
+                  aria-label="More info about lifecycle"
+                >
+                  <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
                 </span>
                 @if (hasCycleFilter()) {
                   <span
@@ -277,7 +451,7 @@
             </div>
           </details>
 
-          <!-- Soil pH range — closed by default (advanced filter) -->
+          <!-- Soil pH -->
           <details class="group">
             <summary
               class="flex items-center justify-between py-0.5 mb-2 cursor-pointer list-none select-none outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
@@ -288,19 +462,16 @@
                 >
                   Soil pH
                 </h2>
-                <span class="relative group/hint">
-                  <span
-                    class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500"
-                    aria-hidden="true"
-                  >
-                    <i class="pi pi-info-circle text-xs"></i>
-                  </span>
-                  <span
-                    aria-hidden="true"
-                    class="absolute left-0 top-full mt-1.5 z-30 px-2.5 py-1.5 rounded-garden-sm bg-neutral-900 dark:bg-neutral-700 text-white text-xs font-display leading-snug w-48 shadow-lg invisible opacity-0 group-hover/hint:visible group-hover/hint:opacity-100 group-focus-within/hint:visible group-focus-within/hint:opacity-100 transition-opacity duration-150 pointer-events-none"
-                  >
-                    Soil acidity scale 0 (very acid) to 14 (alkaline)
-                  </span>
+                <span
+                  class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-help"
+                  (mouseenter)="
+                    showTooltip($event, 'Soil acidity scale 0 (very acid) to 14 (alkaline)')
+                  "
+                  (mouseleave)="hideTooltip()"
+                  tabindex="0"
+                  aria-label="More info about soil pH"
+                >
+                  <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
                 </span>
                 @if (hasPhFilter()) {
                   <span
@@ -372,10 +543,10 @@
             </p>
           </div>
         } @else if (isInitialLoad()) {
-          <ul class="grid grid-cols-1 lg:grid-cols-2 gap-4" aria-label="Loading botanical records">
+          <ul class="flex flex-col gap-4" aria-label="Loading botanical records">
             @for (_ of loadingPlaceholders; track $index) {
               <li aria-hidden="true">
-                <p-skeleton height="7rem" [pt]="FloraSkeletonPT" />
+                <p-skeleton height="8.5rem" [pt]="FloraSkeletonPT" />
               </li>
             }
           </ul>
@@ -420,7 +591,7 @@
               aria-live="polite"
               aria-atomic="true"
             >
-              {{ results().length }} species found
+              {{ totalCount() }} species found
             </p>
             @if (enrichingCount() > 0) {
               <div
@@ -438,7 +609,7 @@
               </div>
             }
             <ul
-              class="grid grid-cols-1 lg:grid-cols-2 gap-4 transition-opacity duration-200"
+              class="flex flex-col gap-4 transition-opacity duration-200"
               [class.opacity-40]="isReloading()"
               aria-label="Botanical records"
             >
@@ -453,11 +624,57 @@
                 </li>
               }
             </ul>
+
+            @if (totalPages() > 1) {
+              <nav
+                class="flex items-center justify-between mt-6 pt-4 border-t border-neutral-200 dark:border-neutral-700"
+                aria-label="Results pagination"
+              >
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-1.5 text-sm font-medium font-display px-3 py-1.5 rounded-garden-sm transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"
+                  [disabled]="!hasPrevPage()"
+                  (click)="goToPage(currentPage() - 1)"
+                  aria-label="Go to previous page"
+                >
+                  <i class="pi pi-chevron-left text-xs" aria-hidden="true"></i>
+                  Previous
+                </button>
+                <span
+                  class="text-xs font-display text-neutral-500 dark:text-neutral-400"
+                  aria-live="polite"
+                  aria-atomic="true"
+                >
+                  Page {{ currentPage() + 1 }} of {{ totalPages() }}
+                </span>
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-1.5 text-sm font-medium font-display px-3 py-1.5 rounded-garden-sm transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"
+                  [disabled]="!hasNextPage()"
+                  (click)="goToPage(currentPage() + 1)"
+                  aria-label="Go to next page"
+                >
+                  Next
+                  <i class="pi pi-chevron-right text-xs" aria-hidden="true"></i>
+                </button>
+              </nav>
+            }
           </div>
         }
       </section>
     </div>
   </div>
+
+  @if (tooltipPos(); as pos) {
+    <div
+      role="tooltip"
+      class="fixed z-[9999] -translate-y-1/2 bg-neutral-900 text-white text-xs font-display px-2.5 py-1.5 rounded-garden-sm shadow-lg max-w-[11rem] leading-snug pointer-events-none whitespace-pre-line"
+      [style.left.px]="pos.x"
+      [style.top.px]="pos.y"
+    >
+      {{ tooltipText() }}
+    </div>
+  }
 
   <app-botanical-detail-dialog
     [record]="selectedRecord()"

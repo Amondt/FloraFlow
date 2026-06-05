@@ -6,15 +6,27 @@ import { environment } from '../../../environments/environment';
 
 export type CachedBotanicalRecord = Database['public']['Tables']['cached_botanical_records']['Row'];
 
+export interface LibraryPage {
+  data: CachedBotanicalRecord[];
+  count: number;
+}
+
 export interface LibraryFilters {
   watering?: string;
   sunlight?: string;
-  is_toxic_to_pets?: boolean | null;
+  isPetSafe?: boolean;
   cycle?: string;
   phMin?: number;
   phMax?: number;
+  placement?: string;
+  careDifficulty?: string[];
+  maintenanceLevel?: string[];
+  isTropical?: boolean;
+  airPurifying?: boolean;
+  isSafeForHumans?: boolean;
 }
 
+export const PAGE_SIZE = 20;
 export const WATERING_OPTIONS = ['Frequent', 'Average', 'Minimum', 'None'] as const;
 export const SUNLIGHT_OPTIONS = [
   'full_sun',
@@ -23,6 +35,9 @@ export const SUNLIGHT_OPTIONS = [
   'filtered_indirect',
 ] as const;
 export const CYCLE_OPTIONS = ['Perennial', 'Annual', 'Biennial', 'Biannual'] as const;
+export const PLACEMENT_OPTIONS = ['Indoor', 'Outdoor', 'Both'] as const;
+export const CARE_DIFFICULTY_OPTIONS = ['Beginner', 'Intermediate', 'Advanced'] as const;
+export const MAINTENANCE_OPTIONS = ['Low', 'Medium', 'High'] as const;
 
 export { SUNLIGHT_LABEL, WATERING_LABEL } from '../../shared/utils/botanical-label.util';
 
@@ -31,24 +46,41 @@ export class LibraryService {
   private readonly supabase = inject(SupabaseService);
   private readonly botanicalSearch = inject(BotanicalSearchService);
 
-  async browse(filters: LibraryFilters): Promise<CachedBotanicalRecord[]> {
+  async browse(filters: LibraryFilters, page = 0, pageSize = PAGE_SIZE): Promise<LibraryPage> {
     try {
-      let query = this.supabase.client.from('cached_botanical_records').select('*');
+      let query = this.supabase.client
+        .from('cached_botanical_records')
+        .select('*', { count: 'exact' });
 
       if (filters.watering != null) query = query.eq('watering', filters.watering);
       if (filters.sunlight != null) query = query.contains('sunlight', [filters.sunlight]);
-      if (filters.is_toxic_to_pets != null)
-        query = query.eq('is_toxic_to_pets', filters.is_toxic_to_pets);
+      if (filters.isPetSafe === true) query = query.eq('is_toxic_to_pets', false);
       if (filters.cycle != null) query = query.eq('cycle', filters.cycle);
       if (filters.phMin != null && filters.phMax != null)
         query = query.lte('ideal_min_ph', filters.phMax).gte('ideal_max_ph', filters.phMin);
+      if (filters.placement != null) {
+        if (filters.placement === 'Indoor') query = query.in('placement', ['Indoor', 'Both']);
+        else if (filters.placement === 'Outdoor')
+          query = query.in('placement', ['Outdoor', 'Both']);
+        else query = query.eq('placement', 'Both');
+      }
+      if (filters.careDifficulty?.length)
+        query = query.in('care_difficulty', filters.careDifficulty);
+      if (filters.maintenanceLevel?.length)
+        query = query.in('maintenance_level', filters.maintenanceLevel);
+      if (filters.isTropical === true) query = query.eq('is_tropical', true);
+      if (filters.airPurifying === true) query = query.eq('air_purifying', true);
+      if (filters.isSafeForHumans === true) query = query.eq('is_toxic_to_humans', false);
 
-      const { data, error } = await query.order('cached_at', { ascending: false }).limit(50);
+      const from = page * pageSize;
+      const { data, count, error } = await query
+        .order('cached_at', { ascending: false })
+        .range(from, from + pageSize - 1);
 
-      if (error) return [];
-      return data ?? [];
+      if (error) return { data: [], count: 0 };
+      return { data: data ?? [], count: count ?? 0 };
     } catch {
-      return [];
+      return { data: [], count: 0 };
     }
   }
 
@@ -108,31 +140,51 @@ export class LibraryService {
     }
   }
 
-  async search(searchQuery: string, filters: LibraryFilters): Promise<CachedBotanicalRecord[]> {
+  async search(
+    searchQuery: string,
+    filters: LibraryFilters,
+    page = 0,
+    pageSize = PAGE_SIZE,
+  ): Promise<LibraryPage> {
     try {
       const suggestions = await this.botanicalSearch.search(searchQuery);
       const names = suggestions.map((s) => s.scientific_name);
-      if (names.length === 0) return [];
+      if (names.length === 0) return { data: [], count: 0 };
 
       let query = this.supabase.client
         .from('cached_botanical_records')
-        .select('*')
+        .select('*', { count: 'exact' })
         .in('scientific_name', names);
 
       if (filters.watering != null) query = query.eq('watering', filters.watering);
       if (filters.sunlight != null) query = query.contains('sunlight', [filters.sunlight]);
-      if (filters.is_toxic_to_pets != null)
-        query = query.eq('is_toxic_to_pets', filters.is_toxic_to_pets);
+      if (filters.isPetSafe === true) query = query.eq('is_toxic_to_pets', false);
       if (filters.cycle != null) query = query.eq('cycle', filters.cycle);
       if (filters.phMin != null && filters.phMax != null)
         query = query.lte('ideal_min_ph', filters.phMax).gte('ideal_max_ph', filters.phMin);
+      if (filters.placement != null) {
+        if (filters.placement === 'Indoor') query = query.in('placement', ['Indoor', 'Both']);
+        else if (filters.placement === 'Outdoor')
+          query = query.in('placement', ['Outdoor', 'Both']);
+        else query = query.eq('placement', 'Both');
+      }
+      if (filters.careDifficulty?.length)
+        query = query.in('care_difficulty', filters.careDifficulty);
+      if (filters.maintenanceLevel?.length)
+        query = query.in('maintenance_level', filters.maintenanceLevel);
+      if (filters.isTropical === true) query = query.eq('is_tropical', true);
+      if (filters.airPurifying === true) query = query.eq('air_purifying', true);
+      if (filters.isSafeForHumans === true) query = query.eq('is_toxic_to_humans', false);
 
-      const { data, error } = await query.order('cached_at', { ascending: false }).limit(50);
+      const from = page * pageSize;
+      const { data, count, error } = await query
+        .order('cached_at', { ascending: false })
+        .range(from, from + pageSize - 1);
 
-      if (error) return [];
-      return data ?? [];
+      if (error) return { data: [], count: 0 };
+      return { data: data ?? [], count: count ?? 0 };
     } catch {
-      return [];
+      return { data: [], count: 0 };
     }
   }
 }

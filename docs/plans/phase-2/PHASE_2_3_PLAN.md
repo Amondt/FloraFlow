@@ -3,8 +3,8 @@
 **Scope:** Client-side display fix only. No DB migration, no new files, no new route.
 **Agent:** `/visualizer`
 **Files touched:**
-- `src/app/features/scheduler/soil-check-dialog/soil-check-dialog.ts`
-- `src/app/features/scheduler/soil-check-dialog/soil-check-dialog.html`
+- `src/app/features/tasks/soil-check-dialog/soil-check-dialog.ts`
+- `src/app/features/tasks/soil-check-dialog/soil-check-dialog.html`
 
 ---
 

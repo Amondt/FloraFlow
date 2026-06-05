@@ -37,8 +37,7 @@ export const routes: Routes = [
       },
       {
         path: 'tasks',
-        loadComponent: () =>
-          import('./features/scheduler/scheduler').then((m) => m.SchedulerComponent),
+        loadComponent: () => import('./features/tasks/tasks').then((m) => m.TasksComponent),
       },
       {
         path: 'journal',
@@ -50,7 +49,7 @@ export const routes: Routes = [
       },
       {
         path: 'seeds',
-        loadComponent: () => import('./features/vault/vault').then((m) => m.VaultComponent),
+        loadComponent: () => import('./features/seeds/seeds').then((m) => m.SeedsComponent),
       },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],

@@ -66,11 +66,11 @@ Adds `growth_stage` to `plants`, updates the `snooze_plant_check` RPC to apply a
     ```
   - Manual Browser Check — Plant Form Dialog
     ```
-    App running at: http://localhost:4200/scheduler
+    App running at: http://localhost:4200/tasks
 
     1. Open Add Plant dialog → Growth stage select visible, defaults to "Mature".
     2. Change to "Seedling" → form stays valid, no console errors.
-    3. Save → plant appears in scheduler list without errors.
+    3. Save → plant appears in tasks list without errors.
     4. Open Edit Plant on a saved plant → Growth stage select shows the saved value.
     5. Change growth stage and save → updated value persists on next edit open.
     6. Open DevTools Console → zero red errors.
@@ -87,7 +87,7 @@ Adds `growth_stage` to `plants`, updates the `snooze_plant_check` RPC to apply a
     ```
   - Manual Browser Check — Soil Check Dialog
     ```
-    App running at: http://localhost:4200/scheduler
+    App running at: http://localhost:4200/tasks
 
     1. Open Soil Check on any plant → growth stage label ("Mature", "Seedling", etc.) visible in the context line below the plant name.
     2. Open Soil Check on a plant edited to "Dormant" → shows "Dormant".

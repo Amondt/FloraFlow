@@ -6,7 +6,7 @@ Agent chain: `/plumber` (Blocks A–B) → `/visualizer` (Blocks C–F)
 
 ## Design Intent
 
-The Seed Vault is not a standalone feature — it is the **origin layer of plant management**. A seed batch is a plant before it has a pot. The vault tracks the journey from packet to soil, and when a seedling is potted it graduates directly into the scheduler.
+The Seed Vault is not a standalone feature — it is the **origin layer of plant management**. A seed batch is a plant before it has a pot. The vault tracks the journey from packet to soil, and when a seedling is potted it graduates directly into tasks.
 
 Three integration points make this feel native to the app:
 
@@ -33,17 +33,17 @@ Stored → Sown Indoors → Germinated → Potted Up → Hardened Off → Transp
 
 **New:**
 - `supabase/migrations/<timestamp>_seed_batches.sql`
-- `src/app/features/vault/seed-batch.model.ts`
-- `src/app/features/vault/seed-batch.service.ts`
-- `src/app/features/vault/seed-batch.service.spec.ts`
-- `src/app/features/vault/seed-batch-card/seed-batch-card.ts`
-- `src/app/features/vault/seed-batch-card/seed-batch-card.html`
-- `src/app/features/vault/seed-batch-form-dialog/seed-batch-form-dialog.ts`
-- `src/app/features/vault/seed-batch-form-dialog/seed-batch-form-dialog.html`
-- `src/app/features/vault/vault.html`
+- `src/app/features/seeds/seed-batch.model.ts`
+- `src/app/features/seeds/seed-batch.service.ts`
+- `src/app/features/seeds/seed-batch.service.spec.ts`
+- `src/app/features/seeds/seed-batch-card/seed-batch-card.ts`
+- `src/app/features/seeds/seed-batch-card/seed-batch-card.html`
+- `src/app/features/seeds/seed-batch-form-dialog/seed-batch-form-dialog.ts`
+- `src/app/features/seeds/seed-batch-form-dialog/seed-batch-form-dialog.html`
+- `src/app/features/seeds/seeds.html`
 
 **Modified:**
-- `src/app/features/vault/vault.ts` (replace stub)
+- `src/app/features/seeds/seeds.ts` (replace stub)
 - `src/app/shared/components/botanical-detail-dialog/botanical-detail-dialog.ts` (Block F)
 - `src/app/shared/components/botanical-detail-dialog/botanical-detail-dialog.html` (Block F)
 - `src/app/features/library/library.ts` (Block F)
@@ -102,12 +102,12 @@ Stored → Sown Indoors → Germinated → Potted Up → Hardened Off → Transp
   - Confirm `seed_batches` and `seed_stage_type` appear in `src/types/database.types.ts`.
 
 - [x] **Block B — Model & Service** | Agent: `/plumber`
-  - Create `src/app/features/vault/seed-batch.model.ts`:
+  - Create `src/app/features/seeds/seed-batch.model.ts`:
     - `SeedStage` union type mirroring the ENUM values.
     - `SEED_STAGE_OPTIONS: SeedStage[]` — ordered progression array (used for advance logic).
     - `SeedBatch` interface matching all `seed_batches` columns (use `string | null` for nullable text fields, `number | null` for `packet_year`, `string | null` for timestamps).
     - `SeedBatchFormData` interface: `common_name`, `scientific_name`, `brand`, `packet_year`, `notes` — all optional except `common_name`.
-  - Create `src/app/features/vault/seed-batch.service.ts` — `SeedBatchService` (`providedIn: 'root'`):
+  - Create `src/app/features/seeds/seed-batch.service.ts` — `SeedBatchService` (`providedIn: 'root'`):
     - Signals: `batches = signal<SeedBatch[]>([])`, `loading = signal(false)`, `error = signal<string | null>(null)`.
     - `loadBatches()` — SELECT all columns, ordered by `created_at DESC`.
     - `createBatch(data: SeedBatchFormData): Promise<SeedBatch | null>` — INSERT + `.select().single()`; pushes result into `batches` signal.
@@ -119,7 +119,7 @@ Stored → Sown Indoors → Germinated → Potted Up → Hardened Off → Transp
       - If `nextStage === 'Sown Indoors'`: add `sown_at: new Date().toISOString()`.
       - If `nextStage === 'Germinated'`: add `germinated_at: new Date().toISOString()`.
       - On success: update the matching entry in `batches` signal in-place.
-  - Create `src/app/features/vault/seed-batch.service.spec.ts` — unit tests covering:
+  - Create `src/app/features/seeds/seed-batch.service.spec.ts` — unit tests covering:
     - `advanceStage()` returns early when batch is at 'Transplanted Outside'.
     - `advanceStage()` from 'Stored' produces `current_stage: 'Sown Indoors'` and a non-null `sown_at`.
     - `advanceStage()` from 'Sown Indoors' produces `current_stage: 'Germinated'` and a non-null `germinated_at`.
@@ -132,7 +132,7 @@ Stored → Sown Indoors → Germinated → Potted Up → Hardened Off → Transp
     ```
 
 - [x] **Block C — Vault Page Shell + Seed Batch Card** | Agent: `/visualizer`
-  - Create `src/app/features/vault/seed-batch-card/seed-batch-card.ts` and `.html`:
+  - Create `src/app/features/seeds/seed-batch-card/seed-batch-card.ts` and `.html`:
     - Inputs: `batch = input.required<SeedBatch>()`.
     - Outputs: `advanceRequested = output<void>()`, `editRequested = output<void>()`, `deleteRequested = output<void>()`, `graduateRequested = output<void>()`.
     - Computed: `isTerminalStage = computed(() => this.batch().current_stage === 'Staged.Outside')` — use `SEED_STAGE_OPTIONS` to determine if no next stage exists.
@@ -145,8 +145,8 @@ Stored → Sown Indoors → Germinated → Potted Up → Hardened Off → Transp
       - `Potted Up` → `primary-700` text, `primary-50` bg
       - `Hardened Off` → `warning-500` text, amber-50 bg
       - `Transplanted Outside` → `primary-900` text, `primary-50` bg
-  - Replace the `vault.ts` stub and create `vault.html`:
-    - Extract existing inline template into `vault.html`; update `vault.ts` to use `templateUrl`.
+  - Replace the `seeds.ts` stub and create `seeds.html`:
+    - Extract existing inline template into `seeds.html`; update `seeds.ts` to use `templateUrl`.
     - Inject `SeedBatchService`, `ConfirmationService`, `MessageService`, `Router`.
     - On `ngOnInit`: call `loadBatches()`.
     - Signals: `selectedStageFilter = signal<SeedStage | 'All'>('All')`.
@@ -167,7 +167,7 @@ Stored → Sown Indoors → Germinated → Potted Up → Hardened Off → Transp
     ```
   - Manual Browser Check — Vault Page:
     ```
-    App running at: http://localhost:4200/vault
+    App running at: http://localhost:4200/seeds
 
     1. Page loads with eyebrow header "Seed Vault" and a subtitle.
     2. No batches yet → empty state renders with a "Add your first seed batch" CTA.
@@ -177,7 +177,7 @@ Stored → Sown Indoors → Germinated → Potted Up → Hardened Off → Transp
     ```
 
 - [x] **Block D — Add/Edit Batch Dialog** | Agent: `/visualizer`
-  - Create `src/app/features/vault/seed-batch-form-dialog/seed-batch-form-dialog.ts` and `.html`:
+  - Create `src/app/features/seeds/seed-batch-form-dialog/seed-batch-form-dialog.ts` and `.html`:
     - `visible = model<boolean>(false)`.
     - `prefill = input<SeedBatchFormData | null>(null)` — pre-fills fields when set (Library integration + edit mode).
     - `editTarget = input<SeedBatch | null>(null)` — when set, dialog title becomes "Edit Batch"; on submit calls `updateBatch()`; when null, calls `createBatch()`.
@@ -195,7 +195,7 @@ Stored → Sown Indoors → Germinated → Potted Up → Hardened Off → Transp
       - `packet_year` — optional, number input (`pInputText` with `type="number"`, min 2000, max current year)
       - `notes` — optional, textarea
     - Footer: "Cancel" text button + "Save Batch" / "Save Changes" primary button with loading spinner.
-  - Wire the dialog into `vault.ts`:
+  - Wire the dialog into `seeds.ts`:
     - Add `formDialogVisible = signal(false)`, `editTarget = signal<SeedBatch | null>(null)`, `prefillData = signal<SeedBatchFormData | null>(null)`.
     - `openCreateDialog(prefill?: SeedBatchFormData)`: sets `editTarget(null)`, `prefillData(prefill ?? null)`, `formDialogVisible(true)`.
     - `openEditDialog(batch: SeedBatch)`: sets `editTarget(batch)`, `prefillData(null)`, `formDialogVisible(true)`.
@@ -209,7 +209,7 @@ Stored → Sown Indoors → Germinated → Potted Up → Hardened Off → Transp
     ```
   - Manual Browser Check — Batch Form Dialog:
     ```
-    App running at: http://localhost:4200/vault
+    App running at: http://localhost:4200/seeds
 
     1. Click "New batch" → dialog opens with all fields empty, title "New Seed Batch".
     2. Submit with empty common_name → validation error shown on the field; form not submitted.
@@ -220,15 +220,15 @@ Stored → Sown Indoors → Germinated → Potted Up → Hardened Off → Transp
     ```
 
 - [x] **Block E — Stage Advance + Graduate to Plant CTA** | Agent: `/visualizer`
-  - Wire the advance confirm flow in `vault.ts` (scaffolded in Block C):
+  - Wire the advance confirm flow in `seeds.ts` (scaffolded in Block C):
     - `nextStageName(batch: SeedBatch): string` — pure helper using `SEED_STAGE_OPTIONS`.
     - `confirmAdvance(batch: SeedBatch)`: opens a `ConfirmationService` dialog with message `"Advance '${batch.common_name}' to ${nextStage}? This cannot be undone."`, accept label `"Advance"`, reject label `"Cancel"`.
-  - Wire the "Graduate to Plant" CTA in `vault.ts`:
-    - Inject `PlantFormDialogComponent` by importing it into `vault.ts`'s `imports` array.
+  - Wire the "Graduate to Plant" CTA in `seeds.ts`:
+    - Inject `PlantFormDialogComponent` by importing it into `seeds.ts`'s `imports` array.
     - Signals: `plantFormVisible = signal(false)`, `graduatePrefill = signal<{ common_name: string; scientific_name: string | null } | null>(null)`.
     - `onGraduateRequested(batch: SeedBatch)`: set `graduatePrefill` from the batch, set `plantFormVisible(true)`.
-    - `onPlantSaved()`: set `plantFormVisible(false)`, show toast `"Plant added to your greenhouse"` with a router link to `/scheduler`; toast summary includes the plant name.
-    - In `vault.html`: add `<app-plant-form-dialog [(visible)]="plantFormVisible" [prefillName]="graduatePrefill()?.common_name" [prefillScientific]="graduatePrefill()?.scientific_name" (plantSaved)="onPlantSaved()" />`.
+    - `onPlantSaved()`: set `plantFormVisible(false)`, show toast `"Plant added to your greenhouse"` with a router link to `/tasks`; toast summary includes the plant name.
+    - In `seeds.html`: add `<app-plant-form-dialog [(visible)]="plantFormVisible" [prefillName]="graduatePrefill()?.common_name" [prefillScientific]="graduatePrefill()?.scientific_name" (plantSaved)="onPlantSaved()" />`.
     - Check `plant-form-dialog.ts` input names — use the actual input signal names already defined there. If those prefill inputs do not exist, add them as optional `input<string | null>(null)` signals and wire them into the form's initial state via an `effect()`.
   - Verification:
     ```powershell
@@ -237,14 +237,14 @@ Stored → Sown Indoors → Germinated → Potted Up → Hardened Off → Transp
     ```
   - Manual Browser Check — Stage Advance & Graduate:
     ```
-    App running at: http://localhost:4200/vault
+    App running at: http://localhost:4200/seeds
 
     1. Create a batch in "Stored" stage → "Advance Stage" button is visible; no "Graduate to Plant" button.
     2. Click "Advance Stage" → confirm dialog shows "Advance to Sown Indoors? This cannot be undone." → confirm → card badge updates to "Sown Indoors"; toast fires.
     3. Advance through to "Potted Up" → "Graduate to Plant" CTA appears on the card.
     4. Click "Graduate to Plant" → Add Plant dialog opens with common_name pre-filled.
     5. Select a zone and save → dialog closes, toast "Plant added to your greenhouse" fires.
-    6. Navigate to /scheduler → the new plant appears.
+    6. Navigate to /tasks → the new plant appears.
     7. At "Transplanted Outside" → no "Advance Stage" button visible.
     8. Open DevTools Console → zero red errors.
     ```
@@ -276,7 +276,7 @@ Stored → Sown Indoors → Germinated → Potted Up → Hardened Off → Transp
   - In `seed-batch-card.html`:
     - When archived: apply muted card styling; show an "Archived" label in place of the stage badge; show the archived date in a small line. No Advance / Edit / Graduate buttons.
     - When not archived: existing layout unchanged, plus Archive action in the footer alongside Edit and Delete.
-  - In `vault.ts`:
+  - In `seeds.ts`:
     - Extend `stageFilters` array and `selectedStageFilter` signal type to include `'Archived'`.
     - Add an `effect()` that calls `batchService.loadArchivedBatches()` when `selectedStageFilter() === 'Archived'`.
     - Update `filteredBatches` computed: when filter is `'Archived'`, return `batchService.archivedBatches()`; otherwise existing logic unchanged.
@@ -284,7 +284,7 @@ Stored → Sown Indoors → Germinated → Potted Up → Hardened Off → Transp
     - Add `confirmArchive(batch: SeedBatch)`: uses `ConfirmationService` with message `"Archive '${batch.common_name}'? It will move to your archive."`, accept label `"Archive"`.
     - Add `_doArchive(batch: SeedBatch)`: calls `batchService.archiveBatch(batch.id)`; on success shows toast `"Batch archived"`.
     - Update `_doAdvance` success toast when `nextStage === 'Transplanted Outside'`: `"'${batch.common_name}' is transplanted outside and has been archived."`.
-  - In `vault.html`: wire `(archiveRequested)="confirmArchive(batch)"` on `<app-seed-batch-card>`.
+  - In `seeds.html`: wire `(archiveRequested)="confirmArchive(batch)"` on `<app-seed-batch-card>`.
   - Verification:
     ```powershell
     bun run format
@@ -292,7 +292,7 @@ Stored → Sown Indoors → Germinated → Potted Up → Hardened Off → Transp
     ```
   - Manual Browser Check — Archive End State:
     ```
-    App running at: http://localhost:4200/vault
+    App running at: http://localhost:4200/seeds
 
     1. On any active batch card → an "Archive" button is visible in the footer.
     2. Click "Archive" → confirm dialog appears with the batch name → confirm
@@ -309,16 +309,16 @@ Stored → Sown Indoors → Germinated → Potted Up → Hardened Off → Transp
 
 - [x] **Block F — Library Integration: "Save to Seed Vault"** | Agent: `/visualizer`
   - In `src/app/shared/components/botanical-detail-dialog/botanical-detail-dialog.ts`:
-    - Add `vaultRequested = output<CachedBotanicalRecord>()`.
-    - Add `onSaveToVault()`: emits `vaultRequested` with the current `record()`.
+    - Add `seedsRequested = output<CachedBotanicalRecord>()`.
+    - Add `onSaveToVault()`: emits `seedsRequested` with the current `record()`.
   - In `botanical-detail-dialog.html`, in the footer `<ng-template #footer>`:
     - Add a "Save to Vault" secondary outlined button (`icon="pi pi-bookmark"`, `ariaLabel="Save species to Seed Vault"`) before the existing "Add to my greenhouse" button; calls `onSaveToVault()`.
     - Button only visible when `record()` is non-null.
   - In `src/app/features/library/library.ts`:
     - Inject `Router`.
-    - Add `onVaultRequested(rec: CachedBotanicalRecord)`: navigate to `/vault` with query params `{ name: rec.common_name, scientific: rec.scientific_name ?? null }`.
-  - In `library.html`: wire `(vaultRequested)="onVaultRequested($event)"` on `<app-botanical-detail-dialog>`.
-  - In `src/app/features/vault/vault.ts`:
+    - Add `onSeedsRequested(rec: CachedBotanicalRecord)`: navigate to `/seeds` with query params `{ name: rec.common_name, scientific: rec.scientific_name ?? null }`.
+  - In `library.html`: wire `(seedsRequested)="onSeedsRequested($event)"` on `<app-botanical-detail-dialog>`.
+  - In `src/app/features/seeds/seeds.ts`:
     - Inject `ActivatedRoute`.
     - In `ngOnInit()`, after `loadBatches()`: read `route.snapshot.queryParamMap`; if `name` param is present, call `openCreateDialog({ common_name: name, scientific_name: scientific ?? null, brand: null, packet_year: null, notes: null })`, then clear params via `this.router.navigate([], { queryParams: {}, replaceUrl: true })`.
   - Verification:
@@ -332,9 +332,9 @@ Stored → Sown Indoors → Germinated → Potted Up → Hardened Off → Transp
 
     1. Search for any species → open the botanical detail dialog.
     2. "Save to Vault" button appears in the dialog footer.
-    3. Click "Save to Vault" → dialog closes, browser navigates to /vault.
+    3. Click "Save to Vault" → dialog closes, browser navigates to /seeds.
     4. The "New Seed Batch" form dialog opens automatically, pre-filled with the species name.
-    5. Save the form → batch appears in the vault list.
+    5. Save the form → batch appears in the seeds list.
     6. Navigate back to /library → URL has no stale query params.
     7. Open DevTools Console → zero red errors.
     ```

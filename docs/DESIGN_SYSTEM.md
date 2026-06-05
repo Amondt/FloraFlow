@@ -314,7 +314,7 @@ Every form field must follow this exact structure — no exceptions.
 
 ### 6.2 Card List Layout
 
-**Task / urgency lists** (scheduler, journal) — single-column:
+**Task / urgency lists** (tasks, journal) — single-column:
 ```html
 <ul class="flex flex-col gap-4" aria-label="…">
   @for (item of items(); track item.id) { <li><app-my-card [item]="item" /></li> }
@@ -390,11 +390,11 @@ Three required elements:
 </header>
 ```
 
-**Eyebrow header** (engine/task pages with live stats — scheduler):
+**Eyebrow header** (engine/task pages with live stats — tasks):
 ```html
 <header class="mb-8">
   <p class="text-xs font-semibold uppercase tracking-widest text-primary-600 font-display mb-1">Anti-Root-Rot Engine</p>
-  <h1 class="text-3xl font-semibold font-display text-neutral-900 dark:text-white">Check scheduler</h1>
+  <h1 class="text-3xl font-semibold font-display text-neutral-900 dark:text-white">Care tasks</h1>
   <p class="text-sm text-neutral-500 font-display mt-1">3 need attention now · 7 due in the next 3 days</p>
 </header>
 ```

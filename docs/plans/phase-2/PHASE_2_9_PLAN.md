@@ -35,7 +35,7 @@
   - Inputs: `entry` (`JournalEntryWithPlant`), `imageUrl` (`string | null`).
   - Template structure (`<article>`):
     - Category badge (`<span>` using token colors per category).
-    - Plant name as a `routerLink="/scheduler"` link (no deep plant route exists yet).
+    - Plant name as a `routerLink="/tasks"` link (no deep plant route exists yet).
     - `logged_at` formatted as a human-readable date string (no pipe — use `toLocaleDateString()`).
     - Notes paragraph (shown only if `entry.notes` is non-null).
     - `<img [src]="imageUrl" [alt]="…">` thumbnail (shown only if `imageUrl` is non-null).
@@ -79,7 +79,7 @@ App running at: http://localhost:4200/journal
 3. Click "Log Care Event" → dialog opens, fill all fields, submit → entry appears in the feed without page reload.
 4. Entry card shows: category badge, plant name, date, notes (if any).
 5. Entry with a photo shows a thumbnail image; entry without a photo shows no image element.
-6. Plant name link navigates to /scheduler.
+6. Plant name link navigates to /tasks.
 7. Category filter → select "Watering" → only Watering entries shown; select "All" → all entries return.
 8. Filter with no matches → filtered empty state message is shown.
 9. Open DevTools Console → zero red errors.

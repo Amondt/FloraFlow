@@ -15,7 +15,7 @@ Only the template rendering needs to change.
 
 ## - [x] **Block A — Dual-name item template in Add Plant autocomplete** | Agent: `/visualizer`
 
-File: `src/app/features/scheduler/plant-form-dialog/plant-form-dialog.html`
+File: `src/app/features/tasks/plant-form-dialog/plant-form-dialog.html`
 
 - Add `<ng-template #item let-s>` inside `<p-autocomplete>` that renders a two-line row:
   - Line 1 (primary): `s.common_name` — sentence-case display name
@@ -35,7 +35,7 @@ bun run lint
 
 **Manual Browser Check — Add Plant autocomplete**
 ```
-App running at: http://localhost:4200/scheduler
+App running at: http://localhost:4200/tasks
 
 1. Open Add Plant dialog → focus "Plant name" field → label hint reads "Search by common or scientific name"
 2. Type "monstera" → dropdown suggestions show two lines per row: common name on top, italic scientific name below

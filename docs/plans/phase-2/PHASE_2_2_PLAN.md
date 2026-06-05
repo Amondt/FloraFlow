@@ -34,8 +34,8 @@ Phase 2.1 delivered the `botanical-search` Edge Function and the `cached_botanic
   - Run `bun run lint`
 
 - [x] **Block C — Extend PlantFormData and PlantService** | Agent: `/plumber`
-  - `src/app/features/scheduler/plant.model.ts`: add `perenual_id: number | null` to `PlantFormData`
-  - `src/app/features/scheduler/plant.service.ts`: update `createPlant()` and `updatePlant()` to pass `perenual_id` in the Supabase insert/update payload (column already exists in `database.types.ts`)
+  - `src/app/features/tasks/plant.model.ts`: add `perenual_id: number | null` to `PlantFormData`
+  - `src/app/features/tasks/plant.service.ts`: update `createPlant()` and `updatePlant()` to pass `perenual_id` in the Supabase insert/update payload (column already exists in `database.types.ts`)
   - Cross-check column name in `src/types/database.types.ts` before writing
   - Run `bun run lint`
 
@@ -69,10 +69,10 @@ Phase 2.1 delivered the `botanical-search` Edge Function and the `cached_botanic
 | `src/app/shared/ui/pt/autocomplete.pt.ts` | **New** — `FloraAutoCompletePT` |
 | `src/app/shared/ui/pt/index.ts` | Add export |
 | `src/app/core/services/botanical-search.service.ts` | **New** — `BotanicalSearchService` |
-| `src/app/features/scheduler/plant.model.ts` | Add `perenual_id` to `PlantFormData` |
-| `src/app/features/scheduler/plant.service.ts` | Pass `perenual_id` in create/update |
-| `src/app/features/scheduler/plant-form-dialog/plant-form-dialog.ts` | Autocomplete logic |
-| `src/app/features/scheduler/plant-form-dialog/plant-form-dialog.html` | Replace input with `p-autocomplete` |
+| `src/app/features/tasks/plant.model.ts` | Add `perenual_id` to `PlantFormData` |
+| `src/app/features/tasks/plant.service.ts` | Pass `perenual_id` in create/update |
+| `src/app/features/tasks/plant-form-dialog/plant-form-dialog.ts` | Autocomplete logic |
+| `src/app/features/tasks/plant-form-dialog/plant-form-dialog.html` | Replace input with `p-autocomplete` |
 
 ---
 
@@ -91,7 +91,7 @@ Phase 2.1 delivered the `botanical-search` Edge Function and the `cached_botanic
 **Block B:** Temporarily log `BotanicalSearchService.search('monstera')` in the component to confirm the Edge Function returns an array.
 
 **Block D — Manual Browser Check:**
-1. Navigate to `http://localhost:4200/scheduler`
+1. Navigate to `http://localhost:4200/tasks`
 2. Open Add Plant dialog
 3. Type "mo" → suggestions appear (2-char minimum triggers search)
 4. Type "monst" → dropdown with botanical suggestions within ~300ms

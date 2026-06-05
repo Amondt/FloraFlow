@@ -13,9 +13,9 @@ import {
   FloraConfirmDialogPT,
   FloraToastPT,
 } from '../../shared/ui/pt/index';
-import { PlantService } from '../scheduler/plant.service';
-import { Plant, PlantFormData } from '../scheduler/plant.model';
-import { PlantFormDialogComponent } from '../scheduler/plant-form-dialog/plant-form-dialog';
+import { PlantService } from '../tasks/plant.service';
+import { Plant, PlantFormData } from '../tasks/plant.model';
+import { PlantFormDialogComponent } from '../tasks/plant-form-dialog/plant-form-dialog';
 import { ZoneService } from './zone.service';
 import { ZoneCardComponent } from './zone-card/zone-card';
 import { LeafIconComponent } from '../../shared/components/leaf-icon/leaf-icon';

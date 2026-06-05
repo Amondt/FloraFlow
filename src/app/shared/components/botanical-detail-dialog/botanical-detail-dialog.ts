@@ -37,7 +37,7 @@ export class BotanicalDetailDialogComponent {
   readonly showAddButton = input<boolean>(true);
   readonly visibleChange = output<boolean>();
   readonly addRequested = output<CachedBotanicalRecord>();
-  readonly vaultRequested = output<CachedBotanicalRecord>();
+  readonly seedsRequested = output<CachedBotanicalRecord>();
 
   protected readonly FloraButtonPT = FloraButtonPT;
   protected readonly FloraDetailDialogPT = FloraDetailDialogPT;
@@ -137,8 +137,8 @@ export class BotanicalDetailDialogComponent {
     if (rec) this.addRequested.emit(rec);
   }
 
-  protected onSaveToVault(): void {
+  protected onSaveToSeeds(): void {
     const rec = this.record();
-    if (rec) this.vaultRequested.emit(rec);
+    if (rec) this.seedsRequested.emit(rec);
   }
 }

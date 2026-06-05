@@ -25,7 +25,7 @@ import {
 } from '../../shared/ui/pt/index';
 
 @Component({
-  selector: 'app-scheduler',
+  selector: 'app-tasks',
   standalone: true,
   imports: [
     RouterLink,
@@ -39,9 +39,9 @@ import {
     PlantFormDialogComponent,
   ],
   providers: [ConfirmationService, MessageService],
-  templateUrl: './scheduler.html',
+  templateUrl: './tasks.html',
 })
-export class SchedulerComponent {
+export class TasksComponent {
   protected readonly plantService = inject(PlantService);
   protected readonly zoneService = inject(ZoneService);
   protected readonly thumbnailService = inject(BotanicalThumbnailService);

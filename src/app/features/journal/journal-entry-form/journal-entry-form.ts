@@ -28,7 +28,7 @@ import {
   FLORA_FOCUS,
 } from '../../../shared/ui/pt/index';
 import { blurActiveElement } from '../../../shared/utils/dom';
-import { PlantService } from '../../scheduler/plant.service';
+import { PlantService } from '../../tasks/plant.service';
 import { JournalService } from '../journal.service';
 import { ImageCompressorService } from '../../../core/services/image-compressor.service';
 import { SupabaseService } from '../../../core/services/supabase.service';

@@ -4,7 +4,7 @@ import { provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
 import { LibraryComponent } from './library';
 import { LibraryService, PAGE_SIZE } from './library.service';
-import { PlantService } from '../scheduler/plant.service';
+import { PlantService } from '../tasks/plant.service';
 
 describe('LibraryComponent – pageItems', () => {
   beforeEach(async () => {

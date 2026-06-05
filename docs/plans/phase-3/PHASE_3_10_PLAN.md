@@ -37,7 +37,7 @@ Four plant-display surfaces, four distinct user questions. Field selection follo
 
 | Surface | User's question | Phase 3.10 additions |
 |---|---|---|
-| `/tasks` scheduler card | "What needs watering and how urgently?" | None — task surface; botanical metadata is noise here |
+| `/tasks` card | "What needs watering and how urgently?" | None — task surface; botanical metadata is noise here |
 | Zone-detail plant card | "Which plants live here, and are any a poor fit?" | `care_difficulty` + `placement` + `is_tropical` badges (Block E); amber mismatch warnings (Block G) |
 | Zone-detail care panel ("Care tips") | "Quick care reference while managing this zone" | `preferred_soil_type` chips + `maintenance_level` pill (Block C) |
 | Library card | "Is this species right for me?" | `description` subtitle + `care_difficulty` + `placement` badges (Block D) |

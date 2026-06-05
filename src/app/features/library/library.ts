@@ -39,9 +39,9 @@ import {
 } from '../../shared/ui/pt/index';
 import { BotanicalRecordCardComponent } from './botanical-record-card/botanical-record-card';
 import { BotanicalDetailDialogComponent } from '../../shared/components/botanical-detail-dialog/botanical-detail-dialog';
-import { PlantFormDialogComponent } from '../scheduler/plant-form-dialog/plant-form-dialog';
-import { PlantService } from '../scheduler/plant.service';
-import { PlantFormData } from '../scheduler/plant.model';
+import { PlantFormDialogComponent } from '../tasks/plant-form-dialog/plant-form-dialog';
+import { PlantService } from '../tasks/plant.service';
+import { PlantFormData } from '../tasks/plant.model';
 import { plantAddedDetail } from '../../shared/utils/plant-message.util';
 import { EnrichmentPoll } from '../../shared/utils/enrichment-poll';
 
@@ -441,7 +441,7 @@ export class LibraryComponent {
     if (!visible) this.selectedRecord.set(null);
   }
 
-  protected onVaultRequested(rec: CachedBotanicalRecord): void {
+  protected onSeedsRequested(rec: CachedBotanicalRecord): void {
     this.selectedRecord.set(null);
     void this.router.navigate(['/seeds'], {
       queryParams: {

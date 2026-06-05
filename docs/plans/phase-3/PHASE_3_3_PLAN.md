@@ -51,7 +51,7 @@ Surfaces AI-enriched botanical fields on plant profile cards and in the soil-che
     ```
   - Manual Browser Check — Soil Check Dialog
     ```
-    App running at: http://localhost:4200/scheduler
+    App running at: http://localhost:4200/tasks
 
     1. Open soil check on a plant with a linked scientific name that has been AI-enriched →
        the hint box shows the AI-sourced text (not the generic substrate wording);

@@ -22,7 +22,7 @@ import {
   FloraMessagePT,
   FLORA_FOCUS,
 } from '../../../shared/ui/pt/index';
-import { PlantService } from '../../scheduler/plant.service';
+import { PlantService } from '../../tasks/plant.service';
 import {
   JournalService,
   type LeafDoctorDiagnostics,

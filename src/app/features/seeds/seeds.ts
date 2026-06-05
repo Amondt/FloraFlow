@@ -10,9 +10,9 @@ import { SeedBatchService } from './seed-batch.service';
 import { SeedBatchCardComponent } from './seed-batch-card/seed-batch-card';
 import { SeedBatch, SeedBatchFormData, SeedStage, SEED_STAGE_OPTIONS } from './seed-batch.model';
 import { SeedBatchFormDialogComponent } from './seed-batch-form-dialog/seed-batch-form-dialog';
-import { PlantFormDialogComponent } from '../scheduler/plant-form-dialog/plant-form-dialog';
-import { PlantFormData } from '../scheduler/plant.model';
-import { PlantService } from '../scheduler/plant.service';
+import { PlantFormDialogComponent } from '../tasks/plant-form-dialog/plant-form-dialog';
+import { PlantFormData } from '../tasks/plant.model';
+import { PlantService } from '../tasks/plant.service';
 import {
   FloraButtonPT,
   FloraConfirmDialogPT,
@@ -24,7 +24,7 @@ import { tabClass, tabCountClass } from '../../shared/utils/tab-styles.util';
 import { PendingDeleteManager } from '../../shared/utils/pending-delete';
 
 @Component({
-  selector: 'app-vault',
+  selector: 'app-seeds',
   standalone: true,
   imports: [
     ButtonModule,
@@ -37,9 +37,9 @@ import { PendingDeleteManager } from '../../shared/utils/pending-delete';
     PlantFormDialogComponent,
   ],
   providers: [ConfirmationService, MessageService],
-  templateUrl: './vault.html',
+  templateUrl: './seeds.html',
 })
-export class VaultComponent implements OnInit {
+export class SeedsComponent implements OnInit {
   protected readonly batchService = inject(SeedBatchService);
   private readonly plantService = inject(PlantService);
   private readonly confirmService = inject(ConfirmationService);

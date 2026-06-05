@@ -34,7 +34,7 @@
   - Smart Snooze: if soil wet, push `next_check_due_at` by 2, 5, or 7 days from `snooze_interval_rules`.
 
 - [x] **1.6 Plant CRUD (Add / Edit / Delete)**
-  - Plant form dialog in `src/app/features/scheduler/`.
+  - Plant form dialog in `src/app/features/tasks/`.
   - Fields: `common_name` (required), `scientific_name` (optional), `zone_id` (select), `container_vector` (enum), `substrate_factor` (enum).
   - Delete confirmation via PrimeNG ConfirmDialog + 5-second undo toast.
   - `PlantService`: `createPlant()`, `updatePlant()`, `deletePlant()`.
@@ -42,7 +42,7 @@
 
 - [x] **1.7 App Shell & Navigation**
   - `src/app/shared/components/shell/shell.ts` — layout component wrapping `<router-outlet>` + nav bar.
-  - `src/app/shared/components/nav/nav.ts` — nav links via `routerLink` + `routerLinkActive` for all five routes: Dashboard, Scheduler, Journal, Library, Vault.
+  - `src/app/shared/components/nav/nav.ts` — nav links via `routerLink` + `routerLinkActive` for all five routes: Dashboard, Tasks, Journal, Library, Seeds.
   - Style nav links using `FloraMenuPT` and Tailwind tokens.
   - Update `app.ts` to render `<app-shell>` instead of bare `<router-outlet>`.
   - Login route stays outside the shell (no nav on login page).
@@ -120,7 +120,7 @@
   - New `/journal` route listing all `plant_journals` entries for the authenticated user.
   - Grouped by plant, ordered by `logged_at DESC`; filterable by `log_category_type`.
   - Photo thumbnails resolved from `image_storage_path` via Supabase Storage public URL.
-  - Each entry links back to the plant's scheduler card.
+  - Each entry links back to the plant's tasks card.
   - Plan: `docs/plans/phase-2/PHASE_2_9_PLAN.md`
 - [x] **2.10 Zone Detail View** | Agent: `/visualizer`
   - New route `/dashboard/zones/:id` — shows all plants in a zone with per-plant soil check and species info dialogs.
@@ -153,7 +153,7 @@
   - Modify `snooze_plant_check` RPC to apply a multiplier: Seedling × 0.5, Juvenile × 1.0, Mature × 1.0, Dormant × 2.0.
   - Plant form: add growth stage select field.
   - Soil check dialog: show growth stage in the plant context line.
-  - Note: `Seed` is excluded — seeds belong in the Seed Vault (Phase 3.5), not in `plants`.
+  - Note: `Seed` is excluded — seeds belong in the Seeds module (Phase 3.5), not in `plants`.
   - Plan: `docs/plans/phase-3/PHASE_3_2_PLAN.md`
 - [x] **3.3 Care Recommendations Panel** | Agent: `/visualizer`
   - Surface AI-enriched fields on the plant profile card: `check_depth_description`, `ideal_humidity_min/max`, `sunlight` (from Perenual), `watering` frequency.
@@ -168,10 +168,10 @@
   - Angular: dedicated "Diagnose a Plant" dialog on the journal page — diagnose first, then optionally save as an Observation entry pre-filled with the diagnostic result. The care log form ("Log Care Event") is not involved.
   - Diagnostic results stored in `diagnostics JSONB` on `plant_journals`; displayed as a collapsible section on journal entry cards.
   - Safety guard: `is_botanical_image: false` shows a user-facing error state — never crashes or guesses.
-- [x] **3.5** Intelligent Seed Vault Module (`/vault`) | Agent: `/plumber` → `/visualizer`
+- [x] **3.5** Intelligent Seed Vault Module (`/seeds`) | Agent: `/plumber` → `/visualizer`
   - Migration: `seed_batches` table (stub in `docs/DB_SCHEMA_MATRIX.md §7`); `seed_stage_type` ENUM already defined.
   - Stage progression: Stored → Sown Indoors → Germinated → Potted Up → Hardened Off → Transplanted Outside.
-  - New `/vault` route: seed batch list with add / edit / delete CRUD and stage transition UI.
+  - New `/seeds` route: seed batch list with add / edit / delete CRUD and stage transition UI.
   - Tracks brand, packet year, sown date, germination date, and free-text notes per batch.
   - Stage transitions are forward-only and timestamp-stamped; no regression allowed.
 - [x] **3.6** Real-Time Frost Line Alerts | Agent: `/plumber` → `/visualizer`
@@ -221,7 +221,7 @@
 - [x] **3.12 Botanically-Informed Snooze & Confirm** | Agent: `/mind` + `/plumber`
   - **Client (`soil-check-dialog.ts`):** `recommendedDays` now computes `SNOOZE_MATRIX[container×substrate] × WATERING_MULTIPLIER[watering] × GROWTH_MULTIPLIER[growth_stage]`, clamped to [1–14]. All three multipliers applied client-side so the user sees the exact days that will be stored.
   - **Presets expanded:** `snoozePresets` changed from `[2,5,7]` to `[2,5,7,10,14]`; grid updated to `grid-cols-5` to cover the full botanical range.
-  - **Dry path fixed:** `onConfirm()` emits `recommendedDays()` as `days`; both `scheduler.ts` and `zone-detail.ts` pass it to `confirmCheck(plantId, days)`; dry-step text updated.
+  - **Dry path fixed:** `onConfirm()` emits `recommendedDays()` as `days`; both `tasks.ts` and `zone-detail.ts` pass it to `confirmCheck(plantId, days)`; dry-step text updated.
   - **`plant.service.ts`:** `confirmCheck` accepts `snoozeDays`; passes it to the RPC and to the offline queue; offline replay uses it with a fallback of 5.
   - **Migration (plumber):** `confirm_plant_check` drops old single-param signature and adds `p_snooze_days INT`; `snooze_plant_check` drops growth-stage multiplier — both become simple writers. After migration: `bun run types` + copy types to `_shared`.
 
@@ -308,7 +308,7 @@
   - All existing `filters()` signal logic and `clearFilters()` remain unchanged — only the presentation layer changes.
 
 - [ ] **5.5 Responsive Page Layout & Overflow** | Agent: `/visualizer`
-  - Reduce side padding on mobile: `p-6` → `px-4 py-6 md:p-6` on every feature `<main>` wrapper (dashboard, scheduler, journal, library, vault, zone-detail).
+  - Reduce side padding on mobile: `p-6` → `px-4 py-6 md:p-6` on every feature `<main>` wrapper (dashboard, tasks, journal, library, seeds, zone-detail).
   - Dashboard header action buttons (`Add plant`, `Identify a plant`) wrap to a second row below `sm` via `flex-wrap`.
   - Journal category tab bar gets `overflow-x-auto` with `scrollbar-gutter: stable` so tabs scroll horizontally on narrow screens without layout shift.
   - Scheduler section-header secondary italics (`"Address first…"`, `"Monitor but no action needed yet"`) hidden on `<md` with `max-md:hidden` — recovers horizontal space for the section title and badge.

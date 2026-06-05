@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { SchedulerComponent } from './scheduler';
+import { TasksComponent } from './tasks';
 import { PlantService } from './plant.service';
 import { ZoneService } from '../dashboard/zone.service';
 import type { Plant } from './plant.model';
@@ -35,8 +35,8 @@ function makePlant(id: string, offsetDays: number): Plant {
   };
 }
 
-describe('SchedulerComponent — plantsGrouped()', () => {
-  let component: SchedulerComponent;
+describe('TasksComponent — plantsGrouped()', () => {
+  let component: TasksComponent;
   let plantsSignal: ReturnType<typeof signal<Plant[]>>;
 
   beforeEach(async () => {
@@ -44,7 +44,7 @@ describe('SchedulerComponent — plantsGrouped()', () => {
     plantsSignal = signal<Plant[]>([]);
 
     await TestBed.configureTestingModule({
-      imports: [SchedulerComponent],
+      imports: [TasksComponent],
       providers: [
         {
           provide: PlantService,
@@ -71,10 +71,10 @@ describe('SchedulerComponent — plantsGrouped()', () => {
         },
       ],
     })
-      .overrideTemplate(SchedulerComponent, '')
+      .overrideTemplate(TasksComponent, '')
       .compileComponents();
 
-    component = TestBed.createComponent(SchedulerComponent).componentInstance;
+    component = TestBed.createComponent(TasksComponent).componentInstance;
   });
 
   afterEach(() => {

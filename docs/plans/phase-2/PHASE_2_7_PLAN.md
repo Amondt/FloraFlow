@@ -71,7 +71,7 @@ VAPID public key is intentionally public — lives in `environment.ts`. Private 
         "body": "{N} plant(s) need attention today",
         "data": {
           "onActionClick": {
-            "default": { "operation": "navigateLastFocusedOrOpen", "url": "/scheduler" }
+            "default": { "operation": "navigateLastFocusedOrOpen", "url": "/tasks" }
           }
         }
       }

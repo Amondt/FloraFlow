@@ -28,10 +28,10 @@ To maintain clean separation of concerns and isolate data fetching models from p
     │   │   ├── auth/              # Login component (magic-link / email+password)
     │   │   ├── onboarding/        # One-time first-login wizard (Welcome → Zone → All Set)
     │   │   ├── dashboard/         # Greenhouse Zone Grid UI & Overview
-    │   │   ├── scheduler/         # Soil-Check Alert Hub & Snooze Modals
+    │   │   ├── tasks/             # Soil-Check Alert Hub & Snooze Modals
     │   │   ├── journal/           # Multi-modal Care Tracking & Photo Feeds
     │   │   ├── library/           # Plant Browser, Botanical Wiki & AI Plant Identifier
-    │   │   └── vault/             # Seed Vault & Germination Milestone Tracking
+    │   │   └── seeds/             # Seed Vault & Germination Milestone Tracking
     │   ├── shared/                # Pure visual presentational components
     │   │   ├── components/        # Base Layout Shell, Navs, Accessible Forms
     │   │   └── ui/
@@ -66,7 +66,7 @@ To maintain clean separation of concerns and isolate data fetching models from p
 
 See `src/app/app.routes.ts` for the full route map. All routes except `login` use `canActivate: [authGuard]`.
 
-**Naming rules:** No `.component` suffix (`scheduler.ts` not `scheduler.component.ts`). Guards are functional and lowercase (`authGuard`, `onboardingGuard`). Routes: `login`, `onboarding`, `dashboard`, `tasks`, `journal`, `library`, `seeds`. Default redirects to `dashboard`.
+**Naming rules:** No `.component` suffix (`tasks.ts` not `tasks.component.ts`). Guards are functional and lowercase (`authGuard`, `onboardingGuard`). Routes: `login`, `onboarding`, `dashboard`, `tasks`, `journal`, `library`, `seeds`. Default redirects to `dashboard`.
 
 **Route security model:** `login` — public. `onboarding` — `authGuard` only (logged in, not yet completed). All shell routes — `authGuard` + `onboardingGuard` (logged in and onboarding complete).
 

@@ -340,9 +340,6 @@
   .z-20 {
     z-index: 20;
   }
-  .z-30 {
-    z-index: 30;
-  }
   .z-50 {
     z-index: 50;
   }
@@ -502,9 +499,6 @@
   .table {
     display: table;
   }
-  .aspect-square {
-    aspect-ratio: 1 / 1;
-  }
   .size-11 {
     width: calc(var(--spacing) * 11);
     height: calc(var(--spacing) * 11);
@@ -608,12 +602,6 @@
   }
   .min-h-24 {
     min-height: calc(var(--spacing) * 24);
-  }
-  .min-h-\[3\.5rem\] {
-    min-height: 3.5rem;
-  }
-  .min-h-\[4rem\] {
-    min-height: 4rem;
   }
   .min-h-screen {
     min-height: 100vh;
@@ -786,14 +774,8 @@
   .grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .grid-cols-3 {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
   .grid-cols-5 {
     grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
-  .grid-cols-\[auto_1fr\] {
-    grid-template-columns: auto 1fr;
   }
   .flex-col {
     flex-direction: column;
@@ -879,9 +861,6 @@
   }
   .self-start {
     align-self: flex-start;
-  }
-  .self-stretch {
-    align-self: stretch;
   }
   .truncate {
     overflow: hidden;
@@ -993,12 +972,6 @@
   }
   .border-primary-500 {
     border-color: var(--color-primary-500);
-  }
-  .border-primary-500\/30 {
-    border-color: color-mix(in srgb, #10b981 30%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
-      border-color: color-mix(in oklab, var(--color-primary-500) 30%, transparent);
-    }
   }
   .border-success-500 {
     border-color: var(--color-success-500);
@@ -1599,34 +1572,10 @@
       rotate: 180deg;
     }
   }
-  .group-focus-within\/hint\:visible {
-    &:is(:where(.group\/hint):focus-within *) {
-      visibility: visible;
-    }
-  }
-  .group-focus-within\/hint\:opacity-100 {
-    &:is(:where(.group\/hint):focus-within *) {
-      opacity: 100%;
-    }
-  }
   .group-hover\:visible {
     &:is(:where(.group):hover *) {
       @media (hover: hover) {
         visibility: visible;
-      }
-    }
-  }
-  .group-hover\/hint\:visible {
-    &:is(:where(.group\/hint):hover *) {
-      @media (hover: hover) {
-        visibility: visible;
-      }
-    }
-  }
-  .group-hover\/hint\:opacity-100 {
-    &:is(:where(.group\/hint):hover *) {
-      @media (hover: hover) {
-        opacity: 100%;
       }
     }
   }

@@ -1,7 +1,4 @@
-<main
-  class="p-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen"
-  aria-labelledby="scheduler-heading"
->
+<main class="p-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen" aria-labelledby="tasks-heading">
   <div class="max-w-5xl mx-auto">
     <header class="mb-8">
       <p
@@ -12,7 +9,7 @@
       <div class="flex items-end justify-between gap-4">
         <div>
           <h1
-            id="scheduler-heading"
+            id="tasks-heading"
             class="text-3xl font-semibold font-display text-neutral-900 dark:text-white"
           >
             Care tasks
@@ -98,7 +95,7 @@
               variant="outlined"
               [pt]="FloraButtonPT"
               class="mt-4"
-              ariaLabel="Add your first plant to the scheduler"
+              ariaLabel="Add your first plant to your tasks"
               (onClick)="openAddPlant()"
             />
           }

@@ -13,7 +13,7 @@ import {
   FloraMessagePT,
 } from '../../shared/ui/pt/index';
 import { PlantSelectComponent } from '../../shared/components/plant-select/plant-select';
-import { PlantService } from '../scheduler/plant.service';
+import { PlantService } from '../tasks/plant.service';
 import { JournalService, type JournalEntryWithPlant } from './journal.service';
 import { JournalEntryFormComponent } from './journal-entry-form/journal-entry-form';
 import { JournalEntryCardComponent } from './journal-entry-card/journal-entry-card';

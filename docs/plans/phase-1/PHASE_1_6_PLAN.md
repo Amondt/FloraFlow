@@ -2,7 +2,7 @@
 
 ## Context
 
-FloraFlow's scheduler lets users record soil-check results (confirm or snooze). These interactions hit Supabase RPCs and fail silently without a network. Task 1.6 makes the app resilient: the service worker caches the app shell so the UI loads offline, and any soil-check interactions made while offline are queued in IndexedDB and replayed automatically when the connection returns.
+FloraFlow's tasks view lets users record soil-check results (confirm or snooze). These interactions hit Supabase RPCs and fail silently without a network. Task 1.6 makes the app resilient: the service worker caches the app shell so the UI loads offline, and any soil-check interactions made while offline are queued in IndexedDB and replayed automatically when the connection returns.
 
 ---
 
@@ -19,7 +19,7 @@ Browser (back online)
        └─ PlantService reconciliation loop
             ├─ drains IndexedDB queue item by item (FIFO)
             ├─ replays each action against Supabase RPC
-            └─ calls loadPlants() to refresh scheduler state
+            └─ calls loadPlants() to refresh tasks state
 ```
 
 ---
@@ -92,7 +92,7 @@ Expose:
 ## Block D — Offline-aware PlantService
 
 **Agent:** `/plumber`
-**File:** `src/app/features/scheduler/plant.service.ts` (modify)
+**File:** `src/app/features/tasks/plant.service.ts` (modify)
 
 1. Inject `NetworkStatusService` and `OfflineQueueService`.
 2. `confirmCheck(plantId)`:
@@ -101,16 +101,16 @@ Expose:
 3. `snoozeCheck(plantId, snoozeDays)`:
    - Online → existing Supabase RPC path (unchanged).
    - Offline → `enqueue({ action: 'snooze', plant_id: plantId, snooze_days: snoozeDays, ... })` + optimistic signal update: advance `next_check_due_at` by `snoozeDays` from today.
-4. The scheduler's `computed()` urgency groups re-derive automatically — no template changes needed.
+4. The tasks view's `computed()` urgency groups re-derive automatically — no template changes needed.
 
-**Why:** Optimistic updates keep the UI responsive offline. The scheduler sees the plant as "handled" immediately, preventing duplicate interactions.
+**Why:** Optimistic updates keep the UI responsive offline. The tasks view sees the plant as "handled" immediately, preventing duplicate interactions.
 
 ---
 
 ## Block E — Reconciliation Loop
 
 **Agent:** `/plumber`
-**File:** `src/app/features/scheduler/plant.service.ts` (continue modifying)
+**File:** `src/app/features/tasks/plant.service.ts` (continue modifying)
 
 1. Add an `effect()` watching `NetworkStatusService.isOnline`.
 2. When `isOnline()` transitions to `true`:
@@ -150,7 +150,7 @@ Expose:
 | `src/app/app.config.ts` | Modify | Add `provideServiceWorker` |
 | `src/app/core/services/network-status.service.ts` | New | Online/offline signal |
 | `src/app/core/services/offline-queue.service.ts` | New | IndexedDB via `idb` |
-| `src/app/features/scheduler/plant.service.ts` | Modify | Offline fork + reconciliation loop |
+| `src/app/features/tasks/plant.service.ts` | Modify | Offline fork + reconciliation loop |
 | `src/app/shared/components/shell/shell.ts` | Modify | Inject services for banner |
 | `src/app/shared/components/shell/shell.html` | Modify | Offline/syncing banner |
 

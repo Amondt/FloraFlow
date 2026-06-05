@@ -4,11 +4,11 @@ import { provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
 import { ZoneDetailComponent } from './zone-detail';
 import { ZoneService } from '../zone.service';
-import { PlantService } from '../../scheduler/plant.service';
+import { PlantService } from '../../tasks/plant.service';
 import { LibraryService, CachedBotanicalRecord } from '../../library/library.service';
 import { JournalService } from '../../journal/journal.service';
 import type { Zone } from '../zone.model';
-import type { Plant } from '../../scheduler/plant.model';
+import type { Plant } from '../../tasks/plant.model';
 
 const ZONE_ID = 'zone-1';
 const PLANT_ID = 'plant-1';

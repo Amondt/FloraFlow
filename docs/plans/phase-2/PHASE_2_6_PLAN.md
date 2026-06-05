@@ -62,7 +62,7 @@ No Angular UI. `RESEND_API_KEY` in Edge Function secrets only.
   - **Grouping:** Group plants by `user_id`, then by `zone_name` within each user. Classify each plant as `Overdue` (before today's midnight UTC) or `Due today`.
   - **HTML email template** (inline styles only — email clients strip `<style>` tags):
     - Subject: `Your FloraFlow plant digest — {N} plants need attention`
-    - Body: greeting with `display_name`, one `<section>` per zone listing plants with overdue/due badge, CTA link to `http://localhost:4200/scheduler`
+    - Body: greeting with `display_name`, one `<section>` per zone listing plants with overdue/due badge, CTA link to `http://localhost:4200/tasks`
     - Plain structure — no external images or fonts
   - **Resend API call** per user:
     - `POST https://api.resend.com/emails` with `Authorization: Bearer <RESEND_API_KEY>`

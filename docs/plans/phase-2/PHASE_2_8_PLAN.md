@@ -112,7 +112,7 @@ Name search path: `BotanicalSearchService.search()` → `botanical-search` EF ha
   - Species detail panel lives in the parent (`library.ts`) — not inside the card — to avoid duplication across the grid
 
 - [x] **Block E — Add to Greenhouse Integration** | Agent: `/visualizer`
-  - Modify `src/app/features/scheduler/plant-form-dialog/plant-form-dialog.ts`:
+  - Modify `src/app/features/tasks/plant-form-dialog/plant-form-dialog.ts`:
     - Add `botanicalPrefill = input<{ common_name: string; scientific_name: string | null; perenual_id: number | null } | null>(null)`
     - In the existing `effect()`: when `justOpened && !p && this.botanicalPrefill()`, apply prefill:
       - `this.commonNameQuery = prefill.common_name`

@@ -49,7 +49,7 @@ Scheduler card and dashboard chip thumbnails are not in scope — those surfaces
   - Copy types: `Copy-Item src/types/database.types.ts supabase/functions/_shared/database.types.ts`.
   - Verification: `SELECT column_name FROM information_schema.columns WHERE table_name = 'cached_botanical_records' AND column_name IN ('thumbnail_url', 'regular_url');` — confirm both rows present.
 
-- [ ] **Block B — AI Scribe: Parallel iNaturalist Fetch** | Agent: `/plumber`
+- [x] **Block B — AI Scribe: Parallel iNaturalist Fetch** | Agent: `/plumber`
   - In `supabase/functions/claude-enrichment/index.ts`, run the Claude call and the iNaturalist fetch in parallel with `Promise.all`.
   - iNaturalist response: `results[0]?.default_photo?.url` → `thumbnail_url`, `results[0]?.default_photo?.medium_url` → `regular_url`. Both nullable — on any error or empty result, store `null`.
   - Add both fields to the upsert payload.

@@ -96,6 +96,26 @@ const EnrichmentSchema = z.object({
   is_ai_enriched: z.literal(true),
 });
 
+async function fetchINatThumbnail(
+  scientificName: string,
+): Promise<{ thumbnail_url: string | null; regular_url: string | null }> {
+  try {
+    const url = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(scientificName)}&rank=species&per_page=1`;
+    const res = await fetch(url);
+    if (!res.ok) return { thumbnail_url: null, regular_url: null };
+    const data = (await res.json()) as {
+      results?: Array<{ default_photo?: { url?: string; medium_url?: string } }>;
+    };
+    const photo = data?.results?.[0]?.default_photo;
+    return {
+      thumbnail_url: photo?.url ?? null,
+      regular_url: photo?.medium_url ?? null,
+    };
+  } catch {
+    return { thumbnail_url: null, regular_url: null };
+  }
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
 
@@ -118,33 +138,58 @@ Deno.serve(async (req: Request) => {
       .eq('scientific_name', scientificName)
       .maybeSingle();
 
-    // Re-enrich existing records that pre-date Phase 3.10 (description is null).
+    // Fully enriched with thumbnail — nothing left to do.
+    if (
+      cached?.is_ai_enriched &&
+      cached?.watering &&
+      cached?.cycle &&
+      cached?.description != null &&
+      cached?.thumbnail_url != null
+    ) {
+      return json(cached);
+    }
+
+    // Already AI-enriched but thumbnail missing — iNaturalist fetch only, skip Claude.
     if (
       cached?.is_ai_enriched &&
       cached?.watering &&
       cached?.cycle &&
       cached?.description != null
     ) {
-      return json(cached);
+      const inat = await fetchINatThumbnail(scientificName);
+      const { data: updated, error: thumbError } = await supabase
+        .from('cached_botanical_records')
+        .update({ thumbnail_url: inat.thumbnail_url, regular_url: inat.regular_url })
+        .eq('scientific_name', scientificName)
+        .select()
+        .single();
+      if (thumbError) throw thumbError;
+      return json(updated);
     }
 
+    // Full enrichment path — Claude and iNaturalist run in parallel.
     const anthropic = new Anthropic({ apiKey: Deno.env.get('ANTHROPIC_API_KEY')! });
 
     let parsed: z.infer<typeof EnrichmentSchema>;
+    let inat: { thumbnail_url: string | null; regular_url: string | null };
     try {
-      const msg = await anthropic.messages.parse({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1024,
-        system: SYSTEM_PROMPT,
-        messages: [{ role: 'user', content: `${scientificName} / ${commonName}` }],
-        output_config: { format: zodOutputFormat(EnrichmentSchema) },
-      });
+      const [msg, inatResult] = await Promise.all([
+        anthropic.messages.parse({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 1024,
+          system: SYSTEM_PROMPT,
+          messages: [{ role: 'user', content: `${scientificName} / ${commonName}` }],
+          output_config: { format: zodOutputFormat(EnrichmentSchema) },
+        }),
+        fetchINatThumbnail(scientificName),
+      ]);
 
       if (!msg.parsed_output) {
         console.error('Claude returned invalid shape for:', scientificName);
         return json({ error: 'AI returned invalid shape' }, 503);
       }
       parsed = msg.parsed_output;
+      inat = inatResult;
     } catch (err) {
       console.error('Claude enrichment call failed:', err);
       return json({ error: 'Enrichment service unavailable' }, 503);
@@ -197,6 +242,8 @@ Deno.serve(async (req: Request) => {
           max_height_cm: parsed.max_height_cm,
           max_spread_cm: parsed.max_spread_cm,
           air_purifying: parsed.air_purifying,
+          thumbnail_url: inat.thumbnail_url,
+          regular_url: inat.regular_url,
           ...conditionalFields,
         },
         { onConflict: 'scientific_name' },

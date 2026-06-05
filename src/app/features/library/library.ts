@@ -493,8 +493,10 @@ export class LibraryComponent {
       this.results.set(result.data);
       this.totalCount.set(result.count);
 
-      // Include records missing Phase 3.10 data (is_ai_enriched but description null)
-      const needsEnrichment = result.data.filter((r) => !r.is_ai_enriched || r.description == null);
+      // Include records missing AI enrichment or iNaturalist thumbnail
+      const needsEnrichment = result.data.filter(
+        (r) => !r.is_ai_enriched || r.description == null || r.thumbnail_url == null,
+      );
       this._poll.start(
         needsEnrichment.map((r) => r.scientific_name),
         async (pending) => {
@@ -512,7 +514,7 @@ export class LibraryComponent {
           }
           return new Set(
             refreshed
-              .filter((r) => !r.is_ai_enriched || r.description == null)
+              .filter((r) => !r.is_ai_enriched || r.description == null || r.thumbnail_url == null)
               .map((r) => r.scientific_name),
           );
         },

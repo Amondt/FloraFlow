@@ -212,7 +212,7 @@
   - **Block F** — Library filters: 6 new filter dimensions (Placement, Care Difficulty, Maintenance, Tropical, Air-Purifying, Safe for Humans).
   - **Block G** — Plant-zone compatibility warnings: amber inline alerts on zone detail cards when `placement` or tropical humidity needs conflict with the zone.
   - Plan: `docs/plans/phase-3/PHASE_3_10_PLAN.md`
-- [ ] **3.11 Plant Species Thumbnails (iNaturalist)** | Agent: `/plumber` → `/visualizer` → `/gatekeeper`
+- [x] **3.11 Plant Species Thumbnails (iNaturalist)** | Agent: `/plumber` → `/visualizer` → `/gatekeeper`
   - Depends on 3.10 Block C (identity strip image slot).
   - **Block A** — Migration: `thumbnail_url TEXT` + `regular_url TEXT` on `cached_botanical_records`.
   - **Block B** — AI Scribe: parallel Claude + iNaturalist fetch; cache sentinel + client filter extended with `thumbnail_url != null`.

@@ -188,7 +188,7 @@
             aria-label="Plants needing attention"
           >
             @for (chip of attentionChips(); track chip.plant.id) {
-              @let thumbUrl = thumbnailFor(chip.plant.scientific_name);
+              @let thumbUrl = thumbnailService.thumbnailFor(chip.plant.scientific_name);
               <li>
                 <a
                   [routerLink]="['/tasks']"

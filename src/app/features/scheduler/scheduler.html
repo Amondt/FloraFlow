@@ -131,7 +131,7 @@
                   <app-plant-alert-card
                     [plant]="plant"
                     [zoneName]="zoneMap().get(plant.zone_id)?.name ?? null"
-                    [thumbnailUrl]="thumbnailFor(plant.scientific_name)"
+                    [thumbnailUrl]="thumbnailService.thumbnailFor(plant.scientific_name)"
                     (checkNow)="onCheckNow($event)"
                     (edit)="openEditPlant($event)"
                     (deleteRequested)="onDeleteRequested($event)"
@@ -167,7 +167,7 @@
                   <app-plant-alert-card
                     [plant]="plant"
                     [zoneName]="zoneMap().get(plant.zone_id)?.name ?? null"
-                    [thumbnailUrl]="thumbnailFor(plant.scientific_name)"
+                    [thumbnailUrl]="thumbnailService.thumbnailFor(plant.scientific_name)"
                     (checkNow)="onCheckNow($event)"
                     (edit)="openEditPlant($event)"
                     (deleteRequested)="onDeleteRequested($event)"
@@ -203,7 +203,7 @@
                   <app-plant-alert-card
                     [plant]="plant"
                     [zoneName]="zoneMap().get(plant.zone_id)?.name ?? null"
-                    [thumbnailUrl]="thumbnailFor(plant.scientific_name)"
+                    [thumbnailUrl]="thumbnailService.thumbnailFor(plant.scientific_name)"
                     (checkNow)="onCheckNow($event)"
                     (edit)="openEditPlant($event)"
                     (deleteRequested)="onDeleteRequested($event)"
@@ -239,7 +239,7 @@
                   <app-plant-alert-card
                     [plant]="plant"
                     [zoneName]="zoneMap().get(plant.zone_id)?.name ?? null"
-                    [thumbnailUrl]="thumbnailFor(plant.scientific_name)"
+                    [thumbnailUrl]="thumbnailService.thumbnailFor(plant.scientific_name)"
                     (checkNow)="onCheckNow($event)"
                     (edit)="openEditPlant($event)"
                     (deleteRequested)="onDeleteRequested($event)"

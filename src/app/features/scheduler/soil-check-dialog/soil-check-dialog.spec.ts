@@ -104,22 +104,63 @@ describe('SoilCheckDialogComponent', () => {
   });
 
   // ── recommendedDays ────────────────────────────────────────────────────────
+  // All cases have no botanical record (scientific_name is null) → watering
+  // multiplier falls back to ×1.0. Only the matrix and growth stage vary.
 
   describe('recommendedDays()', () => {
-    it('returns 2 for an interval closest to the 2-day preset', () => {
-      expect(setup(makePlant({ current_snooze_interval_days: 1 })).recommendedDays()).toBe(2);
+    it('Terracotta + Standard Potting + Mature → snaps to 2 days (matrix=3, raw=3)', () => {
+      const c = setup(
+        makePlant({
+          container_vector: 'Terracotta',
+          substrate_factor: 'Standard Potting',
+          growth_stage: 'Mature',
+        }),
+      );
+      expect(c.recommendedDays()).toBe(2);
     });
 
-    it('returns 5 for an interval closest to the 5-day preset', () => {
-      expect(setup(makePlant({ current_snooze_interval_days: 4 })).recommendedDays()).toBe(5);
+    it('Plastic + Heavy Peat + Mature → snaps to 7 days (matrix=7, raw=7)', () => {
+      const c = setup(
+        makePlant({
+          container_vector: 'Plastic',
+          substrate_factor: 'Heavy Peat',
+          growth_stage: 'Mature',
+        }),
+      );
+      expect(c.recommendedDays()).toBe(7);
     });
 
-    it('returns 7 for an interval closest to the 7-day preset', () => {
-      expect(setup(makePlant({ current_snooze_interval_days: 7 })).recommendedDays()).toBe(7);
+    it('Plastic + Heavy Peat + Dormant → snaps to 14 days (matrix=7 × 2.0 = 14)', () => {
+      const c = setup(
+        makePlant({
+          container_vector: 'Plastic',
+          substrate_factor: 'Heavy Peat',
+          growth_stage: 'Dormant',
+        }),
+      );
+      expect(c.recommendedDays()).toBe(14);
     });
 
-    it('defaults to 5 when current_snooze_interval_days is 0', () => {
-      expect(setup(makePlant({ current_snooze_interval_days: 0 })).recommendedDays()).toBe(5);
+    it('Plastic + Heavy Peat + Seedling → snaps to 5 days (matrix=7 × 0.5 = 3.5 → rounds to 4)', () => {
+      const c = setup(
+        makePlant({
+          container_vector: 'Plastic',
+          substrate_factor: 'Heavy Peat',
+          growth_stage: 'Seedling',
+        }),
+      );
+      expect(c.recommendedDays()).toBe(5);
+    });
+
+    it('clamps to 14 max — Self-Watering + Heavy Peat + Dormant = 7 × 2.0 = 14', () => {
+      const c = setup(
+        makePlant({
+          container_vector: 'Self-Watering',
+          substrate_factor: 'Heavy Peat',
+          growth_stage: 'Dormant',
+        }),
+      );
+      expect(c.recommendedDays()).toBe(14);
     });
   });
 
@@ -167,7 +208,7 @@ describe('SoilCheckDialogComponent', () => {
   // ── outputs ────────────────────────────────────────────────────────────────
 
   describe('onConfirm()', () => {
-    it('emits the confirmed output with the current plant and note', () => {
+    it('emits the confirmed output with the current plant, note, and computed days', () => {
       const plant = makePlant();
       const c = setup(plant);
       c.note.set('looks very dry');
@@ -175,8 +216,9 @@ describe('SoilCheckDialogComponent', () => {
 
       c.onConfirm();
 
+      // Terracotta + Standard Potting + Mature + no record → matrix 3 → snaps to 2
       expect(spy).toHaveBeenCalledOnce();
-      expect(spy).toHaveBeenCalledWith({ plant, note: 'looks very dry' });
+      expect(spy).toHaveBeenCalledWith({ plant, note: 'looks very dry', days: 2 });
     });
 
     it('resets step and note after confirming', () => {

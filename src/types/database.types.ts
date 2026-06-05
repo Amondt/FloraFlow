@@ -71,6 +71,7 @@ export type Database = {
           regular_url: string | null
           scientific_name: string
           sunlight: string[] | null
+          thumbnail_fetched: boolean
           thumbnail_url: string | null
           toxicity_notes: string | null
           watering: string | null
@@ -111,6 +112,7 @@ export type Database = {
           regular_url?: string | null
           scientific_name: string
           sunlight?: string[] | null
+          thumbnail_fetched?: boolean
           thumbnail_url?: string | null
           toxicity_notes?: string | null
           watering?: string | null
@@ -151,6 +153,7 @@ export type Database = {
           regular_url?: string | null
           scientific_name?: string
           sunlight?: string[] | null
+          thumbnail_fetched?: boolean
           thumbnail_url?: string | null
           toxicity_notes?: string | null
           watering?: string | null

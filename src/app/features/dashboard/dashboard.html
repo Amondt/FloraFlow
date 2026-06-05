@@ -188,6 +188,7 @@
             aria-label="Plants needing attention"
           >
             @for (chip of attentionChips(); track chip.plant.id) {
+              @let thumbUrl = thumbnailFor(chip.plant.scientific_name);
               <li>
                 <a
                   [routerLink]="['/tasks']"
@@ -195,10 +196,20 @@
                   class="flex items-center gap-3 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md px-4 py-3 hover:border-primary-500 dark:hover:border-primary-400 transition-colors w-full outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
                   [attr.aria-label]="chipAriaLabel(chip)"
                 >
-                  <!-- Leaf thumbnail -->
-                  <div [class]="chipThumbClass(chip.isOverdue)">
-                    <app-leaf-icon [class]="chipIconColorClass(chip.isOverdue)" />
-                  </div>
+                  <!-- Species thumbnail or status-coloured leaf icon -->
+                  @if (thumbUrl) {
+                    <img
+                      class="flex-shrink-0 w-10 h-10 rounded-garden-sm object-cover"
+                      loading="lazy"
+                      [src]="thumbUrl"
+                      [alt]="chip.plant.common_name"
+                      aria-hidden="true"
+                    />
+                  } @else {
+                    <div [class]="chipThumbClass(chip.isOverdue)">
+                      <app-leaf-icon [class]="chipIconColorClass(chip.isOverdue)" />
+                    </div>
+                  }
 
                   <!-- Plant name + zone + status -->
                   <div class="flex-1 min-w-0">

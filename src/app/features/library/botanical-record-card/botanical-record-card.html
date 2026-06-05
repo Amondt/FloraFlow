@@ -10,13 +10,56 @@
   (keydown.enter)="cardSelect.emit()"
   (keydown.space)="onSpaceKey($event)"
 >
-  <!-- Image slot: leaf icon placeholder now, thumbnail_url in Phase 3.11 -->
-  <div
-    class="flex-shrink-0 w-16 h-16 rounded-garden-sm bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center"
-    aria-hidden="true"
-  >
-    <app-leaf-icon size="lg" class="text-neutral-300 dark:text-neutral-500" />
-  </div>
+  @if (record().thumbnail_url) {
+    <button
+      type="button"
+      class="cursor-zoom-in flex-shrink-0 w-28 h-28 rounded-garden-sm overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+      [attr.aria-label]="'View full-size photo of ' + record().common_name"
+      (click)="showLightbox.set(true); $event.stopPropagation()"
+    >
+      <img
+        class="w-full h-full rounded-garden-sm object-cover"
+        loading="lazy"
+        [src]="record().regular_url ?? record().thumbnail_url"
+        [alt]="record().common_name"
+      />
+    </button>
+  } @else {
+    <div
+      class="flex-shrink-0 w-28 h-28 rounded-garden-sm bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center"
+      aria-hidden="true"
+    >
+      <app-leaf-icon size="lg" class="text-neutral-300 dark:text-neutral-500" />
+    </div>
+  }
+
+  @if (showLightbox() && (record().regular_url ?? record().thumbnail_url)) {
+    <div
+      #lightboxEl
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-label]="'Full-size photo — ' + record().common_name"
+      class="fixed inset-0 z-[9999] flex items-center justify-center bg-neutral-900/90 cursor-zoom-out"
+      tabindex="-1"
+      (click)="showLightbox.set(false); $event.stopPropagation()"
+      (keydown.escape)="showLightbox.set(false)"
+    >
+      <img
+        [src]="record().regular_url ?? record().thumbnail_url"
+        [alt]="record().common_name + ' — full-size photo'"
+        class="max-h-[90vh] max-w-[90vw] rounded-garden-md shadow-2xl object-contain cursor-default"
+        (click)="$event.stopPropagation()"
+      />
+      <button
+        type="button"
+        class="cursor-pointer absolute top-4 right-4 flex items-center justify-center w-9 h-9 rounded-full bg-neutral-800/70 text-white hover:bg-neutral-700/90 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-white"
+        aria-label="Close full-size photo"
+        (click)="showLightbox.set(false); $event.stopPropagation()"
+      >
+        <i class="pi pi-times text-sm" aria-hidden="true"></i>
+      </button>
+    </div>
+  }
 
   <!-- Content -->
   <div class="flex-1 min-w-0 flex flex-col">

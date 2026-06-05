@@ -96,23 +96,41 @@ const EnrichmentSchema = z.object({
   is_ai_enriched: z.literal(true),
 });
 
-async function fetchINatThumbnail(
-  scientificName: string,
-): Promise<{ thumbnail_url: string | null; regular_url: string | null }> {
+async function queryINat(
+  query: string,
+  signal: AbortSignal,
+): Promise<{ thumbnail_url: string; regular_url: string | null } | null> {
   try {
-    const url = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(scientificName)}&rank=species&per_page=1`;
-    const res = await fetch(url);
-    if (!res.ok) return { thumbnail_url: null, regular_url: null };
+    const url = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(query)}&rank=species&per_page=1`;
+    const res = await fetch(url, { signal });
+    if (!res.ok) return null;
     const data = (await res.json()) as {
       results?: Array<{ default_photo?: { url?: string; medium_url?: string } }>;
     };
     const photo = data?.results?.[0]?.default_photo;
-    return {
-      thumbnail_url: photo?.url ?? null,
-      regular_url: photo?.medium_url ?? null,
-    };
+    if (!photo?.url) return null;
+    return { thumbnail_url: photo.url, regular_url: photo.medium_url ?? null };
   } catch {
-    return { thumbnail_url: null, regular_url: null };
+    return null;
+  }
+}
+
+async function fetchINatThumbnail(
+  scientificName: string,
+  commonName: string,
+): Promise<{ thumbnail_url: string | null; regular_url: string | null }> {
+  // Cultivar suffixes (e.g. "'Variegata'") are not indexed by iNaturalist — strip them.
+  const queryName = scientificName.split("'")[0].trim();
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8_000);
+  try {
+    // Scientific name first; fall back to common name when iNat has no entry for the species.
+    const result =
+      (await queryINat(queryName, controller.signal)) ??
+      (await queryINat(commonName, controller.signal));
+    return result ?? { thumbnail_url: null, regular_url: null };
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
@@ -138,28 +156,32 @@ Deno.serve(async (req: Request) => {
       .eq('scientific_name', scientificName)
       .maybeSingle();
 
-    // Fully enriched with thumbnail — nothing left to do.
+    // Fully enriched — thumbnail either present or already confirmed absent. Nothing left to do.
     if (
       cached?.is_ai_enriched &&
       cached?.watering &&
       cached?.cycle &&
       cached?.description != null &&
-      cached?.thumbnail_url != null
+      (cached?.thumbnail_url != null || cached?.thumbnail_fetched)
     ) {
       return json(cached);
     }
 
-    // Already AI-enriched but thumbnail missing — iNaturalist fetch only, skip Claude.
+    // Already AI-enriched but thumbnail not yet attempted — iNaturalist fetch only, skip Claude.
     if (
       cached?.is_ai_enriched &&
       cached?.watering &&
       cached?.cycle &&
       cached?.description != null
     ) {
-      const inat = await fetchINatThumbnail(scientificName);
+      const inat = await fetchINatThumbnail(scientificName, commonName);
       const { data: updated, error: thumbError } = await supabase
         .from('cached_botanical_records')
-        .update({ thumbnail_url: inat.thumbnail_url, regular_url: inat.regular_url })
+        .update({
+          thumbnail_url: inat.thumbnail_url,
+          regular_url: inat.regular_url,
+          thumbnail_fetched: true,
+        })
         .eq('scientific_name', scientificName)
         .select()
         .single();
@@ -181,7 +203,7 @@ Deno.serve(async (req: Request) => {
           messages: [{ role: 'user', content: `${scientificName} / ${commonName}` }],
           output_config: { format: zodOutputFormat(EnrichmentSchema) },
         }),
-        fetchINatThumbnail(scientificName),
+        fetchINatThumbnail(scientificName, commonName),
       ]);
 
       if (!msg.parsed_output) {
@@ -244,6 +266,7 @@ Deno.serve(async (req: Request) => {
           air_purifying: parsed.air_purifying,
           thumbnail_url: inat.thumbnail_url,
           regular_url: inat.regular_url,
+          thumbnail_fetched: true,
           ...conditionalFields,
         },
         { onConflict: 'scientific_name' },

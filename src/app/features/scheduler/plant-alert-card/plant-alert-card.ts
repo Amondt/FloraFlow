@@ -20,6 +20,7 @@ const BASE_BADGE = [
 export class PlantAlertCardComponent {
   readonly plant = input.required<Plant>();
   readonly zoneName = input<string | null>(null);
+  readonly thumbnailUrl = input<string | null>(null);
   readonly checkNow = output<Plant>();
   readonly edit = output<Plant>();
   readonly deleteRequested = output<Plant>();

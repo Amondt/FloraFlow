@@ -130,6 +130,8 @@ export class SoilCheckDialogComponent {
     });
   }
 
+  protected readonly thumbnailUrl = computed(() => this._botanicalRecord()?.thumbnail_url ?? null);
+
   readonly wateringNeeds = computed(() => {
     const w = this._botanicalRecord()?.watering;
     if (!w) return null;

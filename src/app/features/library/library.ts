@@ -493,9 +493,9 @@ export class LibraryComponent {
       this.results.set(result.data);
       this.totalCount.set(result.count);
 
-      // Include records missing AI enrichment or iNaturalist thumbnail
+      // Include records missing AI enrichment, description, or an attempted thumbnail fetch
       const needsEnrichment = result.data.filter(
-        (r) => !r.is_ai_enriched || r.description == null || r.thumbnail_url == null,
+        (r) => !r.is_ai_enriched || r.description == null || !r.thumbnail_fetched,
       );
       this._poll.start(
         needsEnrichment.map((r) => r.scientific_name),
@@ -514,7 +514,7 @@ export class LibraryComponent {
           }
           return new Set(
             refreshed
-              .filter((r) => !r.is_ai_enriched || r.description == null || r.thumbnail_url == null)
+              .filter((r) => !r.is_ai_enriched || r.description == null || !r.thumbnail_fetched)
               .map((r) => r.scientific_name),
           );
         },

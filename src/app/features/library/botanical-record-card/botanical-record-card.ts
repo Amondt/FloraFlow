@@ -1,4 +1,13 @@
-import { Component, computed, input, output } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  computed,
+  effect,
+  input,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { TagModule } from 'primeng/tag';
 import { CachedBotanicalRecord } from '../library.service';
 import { FloraTagPT } from '../../../shared/ui/pt/index';
@@ -19,6 +28,16 @@ export class BotanicalRecordCardComponent {
   readonly cardSelect = output<void>();
 
   protected readonly FloraTagPT = FloraTagPT;
+  protected readonly showLightbox = signal(false);
+  private readonly lightboxEl = viewChild<ElementRef<HTMLDivElement>>('lightboxEl');
+
+  constructor() {
+    effect(() => {
+      if (this.showLightbox()) {
+        Promise.resolve().then(() => this.lightboxEl()?.nativeElement.focus());
+      }
+    });
+  }
 
   protected readonly ariaLabel = computed(() => {
     const r = this.record();

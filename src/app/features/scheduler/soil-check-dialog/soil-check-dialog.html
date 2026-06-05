@@ -10,12 +10,22 @@
 >
   <!-- Plant hero — always visible across all steps -->
   <div class="flex items-start gap-3 mb-5">
-    <div
-      class="flora-plant-thumb w-14 h-14 rounded-garden-sm flex-shrink-0 flex items-center justify-center"
-      aria-hidden="true"
-    >
-      <app-leaf-icon size="md" class="text-primary-700 dark:text-primary-400" />
-    </div>
+    @if (thumbnailUrl()) {
+      <img
+        class="w-14 h-14 rounded-garden-sm flex-shrink-0 object-cover"
+        loading="lazy"
+        [src]="thumbnailUrl()"
+        [alt]="plant().common_name"
+        aria-hidden="true"
+      />
+    } @else {
+      <div
+        class="flora-plant-thumb w-14 h-14 rounded-garden-sm flex-shrink-0 flex items-center justify-center"
+        aria-hidden="true"
+      >
+        <app-leaf-icon size="md" class="text-primary-700 dark:text-primary-400" />
+      </div>
+    }
     <div class="flex-1 min-w-0">
       <h2
         class="text-base font-semibold font-display text-neutral-900 dark:text-white leading-snug"

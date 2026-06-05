@@ -312,30 +312,45 @@
                       (click)="openSpeciesInfo(ep.plant)"
                     ></button>
                   }
-                  <!-- Card body: leaf icon + name column + status chip -->
-                  <div class="px-4 pt-4 pb-3 flex items-start gap-3">
-                    <!-- Status-coloured leaf icon -->
-                    <div
-                      class="flex-shrink-0 w-10 h-10 rounded-garden-sm flex items-center justify-center mt-0.5"
-                      [class]="
-                        ep.status === 'overdue'
-                          ? 'bg-yellow-50 dark:bg-yellow-900/20'
-                          : ep.status === 'due-today'
-                            ? 'bg-primary-50 dark:bg-primary-900/20'
-                            : 'bg-green-50 dark:bg-green-900/20'
-                      "
-                      aria-hidden="true"
-                    >
-                      <app-leaf-icon
+                  <!-- Card body: thumbnail + content -->
+                  <div class="px-4 pt-4 pb-3 flex items-center gap-4">
+                    @let plantRecord = enrichedRecordFor(ep.plant.scientific_name ?? '');
+                    @if (ep.plant.scientific_name && plantRecord?.thumbnail_url) {
+                      <div
+                        class="flex-none w-28 h-28 rounded-garden-sm overflow-hidden"
+                        aria-hidden="true"
+                      >
+                        <img
+                          class="w-full h-full object-cover block"
+                          loading="lazy"
+                          [src]="plantRecord!.regular_url ?? plantRecord!.thumbnail_url"
+                          [alt]="ep.plant.common_name"
+                        />
+                      </div>
+                    } @else {
+                      <!-- Status-coloured leaf icon -->
+                      <div
+                        class="flex-none w-28 h-28 rounded-garden-sm flex items-center justify-center"
                         [class]="
                           ep.status === 'overdue'
-                            ? 'text-warning-500'
+                            ? 'bg-yellow-50 dark:bg-yellow-900/20'
                             : ep.status === 'due-today'
-                              ? 'text-primary-500'
-                              : 'text-success-500'
+                              ? 'bg-primary-50 dark:bg-primary-900/20'
+                              : 'bg-green-50 dark:bg-green-900/20'
                         "
-                      />
-                    </div>
+                        aria-hidden="true"
+                      >
+                        <app-leaf-icon
+                          [class]="
+                            ep.status === 'overdue'
+                              ? 'text-warning-500'
+                              : ep.status === 'due-today'
+                                ? 'text-primary-500'
+                                : 'text-success-500'
+                          "
+                        />
+                      </div>
+                    }
 
                     <!-- Name + badges + status chip -->
                     <div class="flex-1 min-w-0">

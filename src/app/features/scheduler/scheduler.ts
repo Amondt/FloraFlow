@@ -1,4 +1,13 @@
-import { Component, DestroyRef, computed, effect, inject, input, signal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+  untracked,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Message } from 'primeng/message';
 import { SkeletonModule } from 'primeng/skeleton';
@@ -15,6 +24,7 @@ import { JournalService } from '../journal/journal.service';
 import { plantAddedDetail } from '../../shared/utils/plant-message.util';
 import { PendingDeleteManager } from '../../shared/utils/pending-delete';
 import { ZoneService } from '../dashboard/zone.service';
+import { LibraryService, CachedBotanicalRecord } from '../library/library.service';
 import {
   FloraButtonPT,
   FloraConfirmDialogPT,
@@ -43,10 +53,13 @@ import {
 export class SchedulerComponent {
   protected readonly plantService = inject(PlantService);
   protected readonly zoneService = inject(ZoneService);
+  private readonly libraryService = inject(LibraryService);
   private readonly confirmService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
   private readonly journalService = inject(JournalService);
   private readonly destroyRef = inject(DestroyRef);
+
+  private readonly _botanicalMap = signal<Map<string, CachedBotanicalRecord>>(new Map());
   protected readonly FloraButtonPT = FloraButtonPT;
   protected readonly FloraConfirmDialogPT = FloraConfirmDialogPT;
   protected readonly FloraMessagePT = FloraMessagePT;
@@ -106,6 +119,25 @@ export class SchedulerComponent {
 
   private _autoOpenedPlantId: string | null = null;
 
+  protected thumbnailFor(scientificName: string | null): string | null {
+    if (!scientificName) return null;
+    return this._botanicalMap().get(scientificName)?.thumbnail_url ?? null;
+  }
+
+  private async _loadBotanicalRecords(plants: Plant[]): Promise<void> {
+    const names = [
+      ...new Set(plants.map((p) => p.scientific_name).filter((n): n is string => n !== null)),
+    ];
+    const toFetch = names.filter((n) => !untracked(() => this._botanicalMap()).has(n));
+    if (toFetch.length === 0) return;
+    const records = await this.libraryService.refetchByScientificNames(toFetch);
+    this._botanicalMap.update((map) => {
+      const updated = new Map(map);
+      for (const record of records) updated.set(record.scientific_name, record);
+      return updated;
+    });
+  }
+
   constructor() {
     if (this.plantService.plants().length === 0) {
       void this.plantService.loadPlants();
@@ -113,6 +145,11 @@ export class SchedulerComponent {
     if (this.zoneService.zones().length === 0) {
       void this.zoneService.loadZones();
     }
+
+    effect(() => {
+      const plants = this.plantService.plants();
+      if (plants.length > 0) void this._loadBotanicalRecords(plants);
+    });
 
     effect(() => {
       if (!this.dialogVisible()) {

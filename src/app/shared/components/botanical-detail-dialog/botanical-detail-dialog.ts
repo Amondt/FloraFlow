@@ -1,4 +1,13 @@
-import { Component, computed, effect, input, output, signal } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  computed,
+  effect,
+  input,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { CachedBotanicalRecord } from '../../../features/library/library.service';
@@ -35,6 +44,12 @@ export class BotanicalDetailDialogComponent {
   protected readonly tabs = DIALOG_TABS;
   protected readonly activeTab = signal<DialogTab>('overview');
   protected readonly tabClass = tabClass;
+  protected readonly showLightbox = signal(false);
+  private readonly lightboxEl = viewChild<ElementRef<HTMLDivElement>>('lightboxEl');
+
+  protected readonly lightboxUrl = computed(
+    () => this.record()?.regular_url ?? this.record()?.thumbnail_url ?? null,
+  );
 
   // Tracks the last scientific_name to distinguish "new plant opened" from "same plant refreshed".
   private _lastScientificName: string | null = null;
@@ -46,6 +61,17 @@ export class BotanicalDetailDialogComponent {
       if (name && name !== this._lastScientificName) {
         this._lastScientificName = name;
         this.activeTab.set('overview');
+        this.showLightbox.set(false);
+      }
+    });
+
+    effect(() => {
+      if (!this.visible()) this.showLightbox.set(false);
+    });
+
+    effect(() => {
+      if (this.showLightbox()) {
+        Promise.resolve().then(() => this.lightboxEl()?.nativeElement.focus());
       }
     });
   }

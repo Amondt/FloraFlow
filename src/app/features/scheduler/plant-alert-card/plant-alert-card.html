@@ -9,12 +9,22 @@
     [attr.aria-label]="'Check soil for ' + plant().common_name"
     (click)="checkNow.emit(plant())"
   >
-    <div
-      class="w-10 h-10 rounded-garden-sm flex items-center justify-center flex-shrink-0 bg-primary-100 dark:bg-primary-900/30"
-      aria-hidden="true"
-    >
-      <app-leaf-icon class="text-primary-600 dark:text-primary-400" />
-    </div>
+    @if (thumbnailUrl()) {
+      <img
+        class="w-10 h-10 rounded-garden-sm object-cover flex-shrink-0"
+        loading="lazy"
+        [src]="thumbnailUrl()"
+        [alt]="plant().common_name"
+        aria-hidden="true"
+      />
+    } @else {
+      <div
+        class="w-10 h-10 rounded-garden-sm flex items-center justify-center flex-shrink-0 bg-primary-100 dark:bg-primary-900/30"
+        aria-hidden="true"
+      >
+        <app-leaf-icon class="text-primary-600 dark:text-primary-400" />
+      </div>
+    }
 
     <div class="flex-1 min-w-0">
       <p

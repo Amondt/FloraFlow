@@ -27,6 +27,7 @@ import { Zone, ZoneFormData } from './zone.model';
 import { ProfileService } from '../../core/services/profile.service';
 import { WeatherService } from '../../core/services/weather.service';
 import { LocationDialogComponent } from './location-dialog/location-dialog';
+import { LibraryService, CachedBotanicalRecord } from '../library/library.service';
 
 interface AttentionChip {
   plant: Plant;
@@ -58,9 +59,12 @@ export class DashboardComponent {
   protected readonly plantService = inject(PlantService);
   protected readonly profileService = inject(ProfileService);
   protected readonly weatherService = inject(WeatherService);
+  private readonly libraryService = inject(LibraryService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
   private readonly destroyRef = inject(DestroyRef);
+
+  private readonly _botanicalMap = signal<Map<string, CachedBotanicalRecord>>(new Map());
 
   protected readonly FloraButtonPT = FloraButtonPT;
   protected readonly FloraMessagePT = FloraMessagePT;
@@ -170,11 +174,35 @@ export class DashboardComponent {
   // ── Plant Add dialog (Dashboard entry point) ──────────────────
   readonly plantFormVisible = signal(false);
 
+  protected thumbnailFor(scientificName: string | null): string | null {
+    if (!scientificName) return null;
+    return this._botanicalMap().get(scientificName)?.thumbnail_url ?? null;
+  }
+
+  private async _loadBotanicalRecords(plants: { scientific_name: string | null }[]): Promise<void> {
+    const names = [
+      ...new Set(plants.map((p) => p.scientific_name).filter((n): n is string => n !== null)),
+    ];
+    const toFetch = names.filter((n) => !untracked(() => this._botanicalMap()).has(n));
+    if (toFetch.length === 0) return;
+    const records = await this.libraryService.refetchByScientificNames(toFetch);
+    this._botanicalMap.update((map) => {
+      const updated = new Map(map);
+      for (const record of records) updated.set(record.scientific_name, record);
+      return updated;
+    });
+  }
+
   constructor() {
     void this.zoneService.loadZones();
     void this.plantService.loadPlants();
     this.destroyRef.onDestroy(() => {
       this._deleteManager.cancelAll();
+    });
+
+    effect(() => {
+      const plants = this.plantService.plants();
+      if (plants.length > 0) void this._loadBotanicalRecords(plants);
     });
 
     // Load weather whenever the profile gains a location

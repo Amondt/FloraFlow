@@ -8,7 +8,7 @@
     <div
       class="w-[5.25rem] h-[5.25rem] rounded-garden-sm overflow-hidden shrink-0 flex items-center justify-center"
       [class]="imageUrl() ? '' : 'bg-primary-50 dark:bg-primary-900/30'"
-      aria-hidden="true"
+      [attr.aria-hidden]="imageUrl() ? null : 'true'"
     >
       @if (imageUrl()) {
         <button

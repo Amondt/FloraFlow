@@ -997,6 +997,9 @@
   .border-t-transparent {
     border-top-color: transparent;
   }
+  .border-l-primary-500 {
+    border-left-color: var(--color-primary-500);
+  }
   .border-l-warning-500 {
     border-left-color: var(--color-warning-500);
   }

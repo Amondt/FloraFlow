@@ -88,7 +88,7 @@ const GROWTH_MULTIPLIER: Record<GrowthStage, number> = {
   Dormant: 2.0,
 };
 
-type CheckStep = 'ask' | 'dry' | 'moist';
+type CheckStep = 'ask' | 'schedule';
 
 @Component({
   selector: 'app-soil-check-dialog',
@@ -109,6 +109,7 @@ export class SoilCheckDialogComponent {
   protected readonly FloraButtonPT = FloraButtonPT;
 
   readonly step = signal<CheckStep>('ask');
+  readonly isWatering = signal(false);
   readonly snoozeDays = signal(5);
   readonly note = signal('');
   readonly snoozePresets = [2, 5, 7, 10, 14] as const;
@@ -186,12 +187,15 @@ export class SoilCheckDialogComponent {
   }
 
   onDry(): void {
-    this.step.set('dry');
+    this.isWatering.set(true);
+    this.snoozeDays.set(this.recommendedDays());
+    this.step.set('schedule');
   }
 
   onMoist(): void {
+    this.isWatering.set(false);
     this.snoozeDays.set(this.recommendedDays());
-    this.step.set('moist');
+    this.step.set('schedule');
   }
 
   onBack(): void {
@@ -199,7 +203,7 @@ export class SoilCheckDialogComponent {
   }
 
   onConfirm(): void {
-    this.confirmed.emit({ plant: this.plant(), note: this.note(), days: this.recommendedDays() });
+    this.confirmed.emit({ plant: this.plant(), note: this.note(), days: this.snoozeDays() });
     this.close();
   }
 

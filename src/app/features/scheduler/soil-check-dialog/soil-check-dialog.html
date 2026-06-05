@@ -65,7 +65,7 @@
         </p>
       }
       <p class="text-sm font-semibold font-display text-primary-700 dark:text-primary-400">
-        Is the soil dry at this depth?
+        Is the soil dry?
       </p>
     </div>
     @if (isAiEnriched()) {
@@ -117,63 +117,50 @@
     </div>
   }
 
-  <!-- ── Step: dry ────────────────────────────────── -->
-  @if (step() === 'dry') {
-    <div
-      class="flex items-start gap-2.5 p-3 bg-primary-50 dark:bg-primary-900/20 border border-primary-500/30 dark:border-primary-800/50 rounded-garden-sm mb-4"
-    >
-      <i
-        class="pi pi-check text-primary-600 dark:text-primary-400 text-sm mt-0.5 flex-shrink-0"
-        aria-hidden="true"
-      ></i>
-      <p class="text-sm font-display text-neutral-700 dark:text-neutral-200 leading-relaxed">
-        Logging a <strong>watering</strong> on {{ todayLabel() }}. Next check in
-        <strong>{{ recommendedDays() }} days</strong> based on container, substrate, and care
-        profile.
-      </p>
-    </div>
-
-    <div class="flex flex-col gap-1.5">
-      <label
-        for="check-note"
-        class="text-xs font-semibold uppercase tracking-wide font-display text-neutral-500 dark:text-neutral-400"
+  <!-- ── Step: schedule (shared by dry and moist paths) ──────────────────── -->
+  @if (step() === 'schedule') {
+    @if (isWatering()) {
+      <div
+        class="p-3 bg-neutral-50 dark:bg-neutral-900/60 border-l-4 border-l-primary-500 rounded-garden-sm mb-4 text-xs font-display text-neutral-600 dark:text-neutral-300 leading-relaxed"
       >
-        Notes
-        <span class="normal-case tracking-normal font-normal text-neutral-400">(optional)</span>
-      </label>
-      <textarea
-        id="check-note"
-        class="w-full px-3 py-2 text-sm font-display resize-y min-h-20 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 border border-neutral-300 dark:border-neutral-600 rounded-garden-sm placeholder:text-neutral-400 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 transition-colors"
-        [value]="note()"
-        (input)="note.set($any($event.target).value)"
-        placeholder="e.g. Watered until drainage; fertilized at half strength."
-        [attr.aria-label]="'Optional watering notes for ' + plant().common_name"
-      ></textarea>
-    </div>
-  }
+        <p class="font-semibold text-neutral-800 dark:text-neutral-100 mb-0.5">
+          Watering logged — {{ todayLabel() }}
+        </p>
+        <p>
+          <span class="text-neutral-500">Container:</span> {{ plant().container_vector }} ·
+          <span class="text-neutral-500">Substrate:</span> {{ plant().substrate_factor }} ·
+          <span class="text-neutral-500">Stage:</span> {{ plant().growth_stage }}<br />
+          We suggest checking again in
+          <strong class="text-neutral-800 dark:text-neutral-100"
+            >{{ recommendedDays() }} days</strong
+          >.
+        </p>
+      </div>
+    } @else {
+      <div
+        class="p-3 bg-neutral-50 dark:bg-neutral-900/60 border-l-4 border-l-warning-500 rounded-garden-sm mb-4 text-xs font-display text-neutral-600 dark:text-neutral-300 leading-relaxed"
+      >
+        <p class="font-semibold text-neutral-800 dark:text-neutral-100 mb-0.5">
+          Smart snooze for {{ plant().common_name }}
+        </p>
+        <p>
+          <span class="text-neutral-500">Container:</span> {{ plant().container_vector }} ·
+          <span class="text-neutral-500">Substrate:</span> {{ plant().substrate_factor }} ·
+          <span class="text-neutral-500">Stage:</span> {{ plant().growth_stage }}<br />
+          Based on container, substrate, watering needs, and growth stage, we suggest
+          <strong class="text-neutral-800 dark:text-neutral-100"
+            >{{ recommendedDays() }} days</strong
+          >.
+        </p>
+      </div>
+    }
 
-  <!-- ── Step: moist ──────────────────────────────── -->
-  @if (step() === 'moist') {
     <div
-      class="p-3 bg-neutral-50 dark:bg-neutral-900/60 border-l-4 border-l-warning-500 rounded-garden-sm mb-4 text-xs font-display text-neutral-600 dark:text-neutral-300 leading-relaxed"
-    >
-      <p class="font-semibold text-neutral-800 dark:text-neutral-100 mb-0.5">
-        Smart snooze for {{ plant().common_name }}
-      </p>
-      <p>
-        <span class="text-neutral-500">Container:</span> {{ plant().container_vector }} ·
-        <span class="text-neutral-500">Substrate:</span> {{ plant().substrate_factor }} ·
-        <span class="text-neutral-500">Stage:</span> {{ plant().growth_stage }}<br />
-        Based on container, substrate, watering needs, and growth stage, we suggest
-        <strong class="text-neutral-800 dark:text-neutral-100">{{ recommendedDays() }} days</strong
-        >.
-      </p>
-    </div>
-
-    <div
-      class="grid grid-cols-5 gap-2"
+      class="grid grid-cols-5 gap-2 mb-4"
       role="radiogroup"
-      [attr.aria-label]="'Snooze duration for ' + plant().common_name"
+      [attr.aria-label]="
+        (isWatering() ? 'Next check interval' : 'Snooze duration') + ' for ' + plant().common_name
+      "
     >
       @for (d of snoozePresets; track d) {
         <button
@@ -206,6 +193,26 @@
         </button>
       }
     </div>
+
+    @if (isWatering()) {
+      <div class="flex flex-col gap-1.5">
+        <label
+          for="check-note"
+          class="text-xs font-semibold uppercase tracking-wide font-display text-neutral-500 dark:text-neutral-400"
+        >
+          Notes
+          <span class="normal-case tracking-normal font-normal text-neutral-400">(optional)</span>
+        </label>
+        <textarea
+          id="check-note"
+          class="w-full px-3 py-2 text-sm font-display resize-y min-h-20 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 border border-neutral-300 dark:border-neutral-600 rounded-garden-sm placeholder:text-neutral-400 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 transition-colors"
+          [value]="note()"
+          (input)="note.set($any($event.target).value)"
+          placeholder="e.g. Watered until drainage; fertilized at half strength."
+          [attr.aria-label]="'Optional watering notes for ' + plant().common_name"
+        ></textarea>
+      </div>
+    }
   }
 
   <ng-template #footer>
@@ -217,20 +224,6 @@
         [attr.aria-label]="'Cancel soil check for ' + plant().common_name"
         (onClick)="onCancel()"
       />
-    } @else if (step() === 'dry') {
-      <p-button
-        label="Back"
-        variant="text"
-        [pt]="FloraButtonPT"
-        ariaLabel="Back to soil check question"
-        (onClick)="onBack()"
-      />
-      <p-button
-        label="Log watering"
-        [pt]="FloraButtonPT"
-        [ariaLabel]="'Log watering for ' + plant().common_name"
-        (onClick)="onConfirm()"
-      />
     } @else {
       <p-button
         label="Back"
@@ -239,12 +232,21 @@
         ariaLabel="Back to soil check question"
         (onClick)="onBack()"
       />
-      <p-button
-        [label]="snoozeLabelText()"
-        [pt]="FloraButtonPT"
-        [ariaLabel]="'Snooze soil check for ' + snoozeDays() + ' days for ' + plant().common_name"
-        (onClick)="onSnooze()"
-      />
+      @if (isWatering()) {
+        <p-button
+          label="Log watering"
+          [pt]="FloraButtonPT"
+          [ariaLabel]="'Log watering for ' + plant().common_name"
+          (onClick)="onConfirm()"
+        />
+      } @else {
+        <p-button
+          [label]="snoozeLabelText()"
+          [pt]="FloraButtonPT"
+          [ariaLabel]="'Snooze soil check for ' + snoozeDays() + ' days for ' + plant().common_name"
+          (onClick)="onSnooze()"
+        />
+      }
     }
   </ng-template>
 </p-dialog>

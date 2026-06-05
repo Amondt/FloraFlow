@@ -171,16 +171,18 @@ describe('SoilCheckDialogComponent', () => {
       expect(setup(makePlant()).step()).toBe('ask');
     });
 
-    it('transitions to "dry" on onDry()', () => {
+    it('transitions to "schedule" with isWatering=true on onDry()', () => {
       const c = setup(makePlant());
       c.onDry();
-      expect(c.step()).toBe('dry');
+      expect(c.step()).toBe('schedule');
+      expect(c.isWatering()).toBe(true);
     });
 
-    it('transitions to "moist" on onMoist()', () => {
+    it('transitions to "schedule" with isWatering=false on onMoist()', () => {
       const c = setup(makePlant());
       c.onMoist();
-      expect(c.step()).toBe('moist');
+      expect(c.step()).toBe('schedule');
+      expect(c.isWatering()).toBe(false);
     });
 
     it('returns to "ask" on onBack()', () => {
@@ -197,6 +199,13 @@ describe('SoilCheckDialogComponent', () => {
       expect(c.step()).toBe('ask');
     });
 
+    it('resets step to "ask" on onMoist() + onBack()', () => {
+      const c = setup(makePlant());
+      c.onMoist();
+      c.onBack();
+      expect(c.step()).toBe('ask');
+    });
+
     it('resets note to "" on onVisibleChange(false)', () => {
       const c = setup(makePlant());
       c.note.set('some note');
@@ -208,15 +217,15 @@ describe('SoilCheckDialogComponent', () => {
   // ── outputs ────────────────────────────────────────────────────────────────
 
   describe('onConfirm()', () => {
-    it('emits the confirmed output with the current plant, note, and computed days', () => {
+    it('emits the confirmed output with the current plant, note, and selected days', () => {
       const plant = makePlant();
       const c = setup(plant);
+      c.onDry(); // initializes snoozeDays to recommendedDays() — Terracotta + Standard + Mature → 2
       c.note.set('looks very dry');
       const spy = vi.spyOn(c.confirmed, 'emit');
 
       c.onConfirm();
 
-      // Terracotta + Standard Potting + Mature + no record → matrix 3 → snaps to 2
       expect(spy).toHaveBeenCalledOnce();
       expect(spy).toHaveBeenCalledWith({ plant, note: 'looks very dry', days: 2 });
     });

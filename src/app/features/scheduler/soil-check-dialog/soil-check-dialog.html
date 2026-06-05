@@ -129,8 +129,12 @@
         <p>
           <span class="text-neutral-500">Container:</span> {{ plant().container_vector }} ·
           <span class="text-neutral-500">Substrate:</span> {{ plant().substrate_factor }} ·
-          <span class="text-neutral-500">Stage:</span> {{ plant().growth_stage }}<br />
-          We suggest checking again in
+          <span class="text-neutral-500">Stage:</span> {{ plant().growth_stage }}
+          @if (wateringNeeds()) {
+            · <span class="text-neutral-500">Watering:</span> {{ wateringNeeds() }}
+          }
+          <br />
+          Based on your plant's profile, we suggest checking again in
           <strong class="text-neutral-800 dark:text-neutral-100"
             >{{ recommendedDays() }} days</strong
           >.
@@ -146,8 +150,12 @@
         <p>
           <span class="text-neutral-500">Container:</span> {{ plant().container_vector }} ·
           <span class="text-neutral-500">Substrate:</span> {{ plant().substrate_factor }} ·
-          <span class="text-neutral-500">Stage:</span> {{ plant().growth_stage }}<br />
-          Based on container, substrate, watering needs, and growth stage, we suggest
+          <span class="text-neutral-500">Stage:</span> {{ plant().growth_stage }}
+          @if (wateringNeeds()) {
+            · <span class="text-neutral-500">Watering:</span> {{ wateringNeeds() }}
+          }
+          <br />
+          Based on your plant's profile, we suggest
           <strong class="text-neutral-800 dark:text-neutral-100"
             >{{ recommendedDays() }} days</strong
           >.

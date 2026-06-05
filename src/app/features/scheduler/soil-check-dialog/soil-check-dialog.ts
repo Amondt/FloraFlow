@@ -130,6 +130,12 @@ export class SoilCheckDialogComponent {
     });
   }
 
+  readonly wateringNeeds = computed(() => {
+    const w = this._botanicalRecord()?.watering;
+    if (!w) return null;
+    return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+  });
+
   readonly isAiEnriched = computed(
     () =>
       !!(

@@ -218,6 +218,12 @@
   - **Block B** — AI Scribe: parallel Claude + iNaturalist fetch; cache sentinel + client filter extended with `thumbnail_url != null`.
   - **Block C** — UI wiring: identity strip (`regular_url`), library card (`thumbnail_url`), zone detail card (`thumbnail_url`). Leaf icon fallback on all surfaces. `loading="lazy"` on every `<img>`.
   - Plan: `docs/plans/phase-3/PHASE_3_11_PLAN.md`
+- [x] **3.12 Botanically-Informed Snooze & Confirm** | Agent: `/mind` + `/plumber`
+  - **Client (`soil-check-dialog.ts`):** `recommendedDays` now computes `SNOOZE_MATRIX[container×substrate] × WATERING_MULTIPLIER[watering] × GROWTH_MULTIPLIER[growth_stage]`, clamped to [1–14]. All three multipliers applied client-side so the user sees the exact days that will be stored.
+  - **Presets expanded:** `snoozePresets` changed from `[2,5,7]` to `[2,5,7,10,14]`; grid updated to `grid-cols-5` to cover the full botanical range.
+  - **Dry path fixed:** `onConfirm()` emits `recommendedDays()` as `days`; both `scheduler.ts` and `zone-detail.ts` pass it to `confirmCheck(plantId, days)`; dry-step text updated.
+  - **`plant.service.ts`:** `confirmCheck` accepts `snoozeDays`; passes it to the RPC and to the offline queue; offline replay uses it with a fallback of 5.
+  - **Migration (plumber):** `confirm_plant_check` drops old single-param signature and adds `p_snooze_days INT`; `snooze_plant_check` drops growth-stage multiplier — both become simple writers. After migration: `bun run types` + copy types to `_shared`.
 
 ### 🔒 Phase 3 QA Criteria
 
@@ -245,6 +251,7 @@
   - `LanguageSwitcherComponent` added to the nav bar; selection persisted to localStorage (requires 1.7).
   - Full string audit across all components and templates — no hardcoded UI text left after this phase.
   - Language switch applies in the same render cycle without page reload.
+
 ### 🔒 Phase 4 QA Criteria
 
 1. No `flora-theme` key in localStorage + browser set to dark → `.dark` on `<html>` on first paint.

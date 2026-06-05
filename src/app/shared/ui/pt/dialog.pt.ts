@@ -14,7 +14,7 @@ export const FloraDialogPT = {
   pcCloseButton: {
     root: {
       class:
-        'inline-flex items-center justify-center p-1 rounded hover:bg-primary-700 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-white',
+        'cursor-pointer inline-flex items-center justify-center p-1 rounded hover:bg-primary-700 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-white',
     },
   },
   content: {
@@ -41,7 +41,7 @@ export const FloraDetailDialogPT = {
   pcCloseButton: {
     root: {
       class:
-        'inline-flex items-center justify-center p-1 rounded hover:bg-primary-700 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-white',
+        'cursor-pointer inline-flex items-center justify-center p-1 rounded hover:bg-primary-700 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-white',
     },
   },
   content: {

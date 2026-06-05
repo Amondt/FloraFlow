@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { FloraDialogPT, FloraButtonPT } from '../../../shared/ui/pt/index';
-import { Plant, SubstrateFactor } from '../plant.model';
+import { ContainerVector, GrowthStage, Plant, SubstrateFactor } from '../plant.model';
 import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-icon';
 import { blurActiveElement } from '../../../shared/utils/dom';
 import { daysSince } from '../../../shared/utils/date.util';
@@ -29,6 +29,65 @@ const SUBSTRATE_DEPTH_RULES: Record<SubstrateFactor, { depth: string; descriptio
   },
 };
 
+const SNOOZE_MATRIX: Record<ContainerVector, Record<SubstrateFactor, number>> = {
+  Terracotta: {
+    'High-Drainage Aroid': 2,
+    'Standard Potting': 3,
+    'Heavy Peat': 5,
+    'Desert Succulent': 2,
+    'Sphagnum Moss Mix': 4,
+  },
+  Plastic: {
+    'High-Drainage Aroid': 3,
+    'Standard Potting': 5,
+    'Heavy Peat': 7,
+    'Desert Succulent': 3,
+    'Sphagnum Moss Mix': 6,
+  },
+  Ceramic: {
+    'High-Drainage Aroid': 2,
+    'Standard Potting': 4,
+    'Heavy Peat': 6,
+    'Desert Succulent': 2,
+    'Sphagnum Moss Mix': 5,
+  },
+  Fabric: {
+    'High-Drainage Aroid': 2,
+    'Standard Potting': 3,
+    'Heavy Peat': 5,
+    'Desert Succulent': 2,
+    'Sphagnum Moss Mix': 4,
+  },
+  'Self-Watering': {
+    'High-Drainage Aroid': 7,
+    'Standard Potting': 7,
+    'Heavy Peat': 7,
+    'Desert Succulent': 7,
+    'Sphagnum Moss Mix': 7,
+  },
+  Ground: {
+    'High-Drainage Aroid': 5,
+    'Standard Potting': 5,
+    'Heavy Peat': 7,
+    'Desert Succulent': 5,
+    'Sphagnum Moss Mix': 7,
+  },
+};
+
+const WATERING_MULTIPLIER: Record<string, number> = {
+  frequent: 0.75,
+  average: 1.0,
+  minimum: 1.5,
+  none: 2.0,
+};
+
+const GROWTH_MULTIPLIER: Record<GrowthStage, number> = {
+  Seedling: 0.5,
+  Juvenile: 1.0,
+  Mature: 1.0,
+  Dormant: 2.0,
+};
+
 type CheckStep = 'ask' | 'dry' | 'moist';
 
 @Component({
@@ -43,7 +102,7 @@ export class SoilCheckDialogComponent {
   readonly plant = input.required<Plant>();
   readonly zoneName = input<string | null>(null);
   readonly visible = model<boolean>(false);
-  readonly confirmed = output<{ plant: Plant; note: string }>();
+  readonly confirmed = output<{ plant: Plant; note: string; days: number }>();
   readonly snoozed = output<{ id: string; days: number }>();
 
   protected readonly FloraDialogPT = FloraDialogPT;
@@ -52,7 +111,7 @@ export class SoilCheckDialogComponent {
   readonly step = signal<CheckStep>('ask');
   readonly snoozeDays = signal(5);
   readonly note = signal('');
-  readonly snoozePresets = [2, 5, 7] as const;
+  readonly snoozePresets = [2, 5, 7, 10, 14] as const;
 
   private readonly _botanicalRecord = signal<CachedBotanicalRecord | null>(null);
 
@@ -97,12 +156,19 @@ export class SoilCheckDialogComponent {
   });
 
   readonly recommendedDays = computed(() => {
-    const interval = this.plant().current_snooze_interval_days;
-    if (!interval) return 5;
-    const presets = [2, 5, 7] as const;
-    return presets.reduce((prev, cur) =>
-      Math.abs(cur - interval) < Math.abs(prev - interval) ? cur : prev,
+    const plant = this.plant();
+    const record = this._botanicalRecord();
+
+    const baseDays = SNOOZE_MATRIX[plant.container_vector][plant.substrate_factor];
+    const wateringMultiplier = WATERING_MULTIPLIER[record?.watering?.toLowerCase() ?? ''] ?? 1.0;
+    const growthMultiplier = GROWTH_MULTIPLIER[plant.growth_stage];
+    const raw = Math.max(
+      1,
+      Math.min(14, Math.round(baseDays * wateringMultiplier * growthMultiplier)),
     );
+
+    const presets = [2, 5, 7, 10, 14] as const;
+    return presets.reduce((prev, cur) => (Math.abs(cur - raw) < Math.abs(prev - raw) ? cur : prev));
   });
 
   readonly todayLabel = computed(() =>
@@ -133,7 +199,7 @@ export class SoilCheckDialogComponent {
   }
 
   onConfirm(): void {
-    this.confirmed.emit({ plant: this.plant(), note: this.note() });
+    this.confirmed.emit({ plant: this.plant(), note: this.note(), days: this.recommendedDays() });
     this.close();
   }
 

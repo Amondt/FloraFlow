@@ -323,8 +323,8 @@ export class ZoneDetailComponent {
     if (!v) this.activeSoilPlant.set(null);
   }
 
-  async onConfirmed(payload: { plant: Plant; note: string }): Promise<void> {
-    await this.plantService.confirmCheck(payload.plant.id);
+  async onConfirmed(payload: { plant: Plant; note: string; days: number }): Promise<void> {
+    await this.plantService.confirmCheck(payload.plant.id, payload.days);
     if (this.plantService.error()) {
       this.messageService.add({
         severity: 'error',

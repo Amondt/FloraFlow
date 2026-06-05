@@ -47,23 +47,29 @@ export class PlantService {
     this.loading.set(false);
   }
 
-  async confirmCheck(plantId: string): Promise<void> {
+  async confirmCheck(plantId: string, snoozeDays: number): Promise<void> {
     this.error.set(null);
 
     if (!this.networkStatus.isOnline()) {
       const now = new Date().toISOString();
+      const nextDue = new Date();
+      nextDue.setDate(nextDue.getDate() + snoozeDays);
       this.plants.update((all) =>
         all.map((p) => {
           if (p.id !== plantId) return p;
-          const nextDue = new Date();
-          nextDue.setDate(nextDue.getDate() + p.current_snooze_interval_days);
-          return { ...p, last_checked_at: now, next_check_due_at: nextDue.toISOString() };
+          return {
+            ...p,
+            last_checked_at: now,
+            next_check_due_at: nextDue.toISOString(),
+            current_snooze_interval_days: snoozeDays,
+          };
         }),
       );
       await this.offlineQueue.enqueue({
         id: crypto.randomUUID(),
         action: 'confirm',
         plant_id: plantId,
+        snooze_days: snoozeDays,
         queued_at: now,
       });
       return;
@@ -71,6 +77,7 @@ export class PlantService {
 
     const { error } = await this.supabase.client.rpc('confirm_plant_check', {
       p_plant_id: plantId,
+      p_snooze_days: snoozeDays,
     });
 
     if (error) {
@@ -146,6 +153,7 @@ export class PlantService {
         if (item.action === 'confirm') {
           const { error } = await this.supabase.client.rpc('confirm_plant_check', {
             p_plant_id: item.plant_id,
+            p_snooze_days: item.snooze_days ?? 5,
           });
           rpcError = error;
         } else if (item.action === 'snooze') {

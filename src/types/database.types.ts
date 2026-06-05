@@ -502,7 +502,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      confirm_plant_check: { Args: { p_plant_id: string }; Returns: undefined }
+      confirm_plant_check: {
+        Args: { p_plant_id: string; p_snooze_days: number }
+        Returns: undefined
+      }
       snooze_plant_check: {
         Args: { p_plant_id: string; p_snooze_days: number }
         Returns: undefined

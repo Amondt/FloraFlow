@@ -86,7 +86,10 @@ describe('PlantService — reconciliation loop', () => {
     TestBed.flushEffects();
     await flushPromises();
 
-    expect(mockRpc).toHaveBeenCalledWith('confirm_plant_check', { p_plant_id: 'plant-a' });
+    expect(mockRpc).toHaveBeenCalledWith('confirm_plant_check', {
+      p_plant_id: 'plant-a',
+      p_snooze_days: 5,
+    });
     expect(mockRemove).toHaveBeenCalledWith('confirm-1');
     expect(service.isSyncing()).toBe(false);
   });

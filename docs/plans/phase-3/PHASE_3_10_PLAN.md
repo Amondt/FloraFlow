@@ -151,7 +151,7 @@ Phase 3.10 additions (handled in Block C):
   - Active filter count badge on the sidebar header updates automatically (badge logic is already count-based).
   - Manual Browser Check: apply each new filter independently — confirm result set updates. Combine Placement + Care Difficulty — confirm AND logic. Clear all → full list.
 
-- [ ] **Block G — Plant-Zone Compatibility Warnings** | Agent: `/visualizer`
+- [x] **Block G — Plant-Zone Compatibility Warnings** | Agent: `/visualizer`
   - Requires Block E's `botanicalMap` signal to exist.
   - In `ZoneDetailComponent`: add `incompatibilities` computed signal — a `Map<string, string[]>` keyed by `plant.id`. Each value is a list of human-readable warning strings. Two checks per plant:
     1. **Placement mismatch** — `placement = 'Indoor'` in an `outdoor` zone, or `placement = 'Outdoor'` in an `indoor` zone → "Prefers [indoor/outdoor] conditions"

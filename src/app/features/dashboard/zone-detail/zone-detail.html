@@ -62,16 +62,24 @@
 
         <!-- Microclimate badges -->
         <div class="flex flex-wrap items-center gap-2 mt-4" aria-label="Zone microclimate settings">
-          <span
-            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium font-display bg-neutral-100 border border-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
-            [attr.aria-label]="
-              'Window orientation: ' +
-              (z.window_orientation === 'None' ? 'No window' : z.window_orientation)
-            "
-          >
-            <i class="pi pi-compass text-xs" aria-hidden="true"></i>
-            {{ z.window_orientation === 'None' ? 'No window' : z.window_orientation }}
-          </span>
+          @if (z.zone_type === 'indoor' || z.window_orientation !== 'None') {
+            <span
+              class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium font-display bg-neutral-100 border border-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+              [attr.aria-label]="
+                (z.zone_type === 'indoor' ? 'Window orientation: ' : 'Facing direction: ') +
+                (z.zone_type === 'indoor' && z.window_orientation === 'None'
+                  ? 'No window'
+                  : z.window_orientation)
+              "
+            >
+              <i class="pi pi-compass text-xs" aria-hidden="true"></i>
+              {{
+                z.zone_type === 'indoor' && z.window_orientation === 'None'
+                  ? 'No window'
+                  : z.window_orientation
+              }}
+            </span>
+          }
 
           <span
             class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium font-display bg-neutral-100 border border-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
@@ -81,31 +89,35 @@
             {{ z.humidity_baseline }}% humidity
           </span>
 
-          <span
-            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium font-display border transition-colors"
-            [class]="
-              z.has_grow_lights
-                ? 'bg-primary-50 border-primary-200 text-primary-700 dark:bg-primary-900/30 dark:border-primary-800 dark:text-primary-300'
-                : 'bg-neutral-100 border-neutral-200 text-neutral-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-400'
-            "
-            [attr.aria-label]="'Grow lights: ' + (z.has_grow_lights ? 'active' : 'inactive')"
-          >
-            <i class="pi pi-sun text-xs" aria-hidden="true"></i>
-            Grow lights {{ z.has_grow_lights ? 'on' : 'off' }}
-          </span>
+          @if (z.zone_type === 'indoor') {
+            <span
+              class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium font-display border transition-colors"
+              [class]="
+                z.has_grow_lights
+                  ? 'bg-primary-50 border-primary-200 text-primary-700 dark:bg-primary-900/30 dark:border-primary-800 dark:text-primary-300'
+                  : 'bg-neutral-100 border-neutral-200 text-neutral-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-400'
+              "
+              [attr.aria-label]="'Grow lights: ' + (z.has_grow_lights ? 'active' : 'inactive')"
+            >
+              <i class="pi pi-sun text-xs" aria-hidden="true"></i>
+              Grow lights {{ z.has_grow_lights ? 'on' : 'off' }}
+            </span>
 
-          <span
-            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium font-display border transition-colors"
-            [class]="
-              z.has_active_ventilation
-                ? 'bg-primary-50 border-primary-200 text-primary-700 dark:bg-primary-900/30 dark:border-primary-800 dark:text-primary-300'
-                : 'bg-neutral-100 border-neutral-200 text-neutral-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-400'
-            "
-            [attr.aria-label]="'Ventilation: ' + (z.has_active_ventilation ? 'active' : 'inactive')"
-          >
-            <i class="pi pi-send text-xs" aria-hidden="true"></i>
-            Ventilation {{ z.has_active_ventilation ? 'on' : 'off' }}
-          </span>
+            <span
+              class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium font-display border transition-colors"
+              [class]="
+                z.has_active_ventilation
+                  ? 'bg-primary-50 border-primary-200 text-primary-700 dark:bg-primary-900/30 dark:border-primary-800 dark:text-primary-300'
+                  : 'bg-neutral-100 border-neutral-200 text-neutral-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-400'
+              "
+              [attr.aria-label]="
+                'Ventilation: ' + (z.has_active_ventilation ? 'active' : 'inactive')
+              "
+            >
+              <i class="pi pi-send text-xs" aria-hidden="true"></i>
+              Ventilation {{ z.has_active_ventilation ? 'on' : 'off' }}
+            </span>
+          }
         </div>
       </header>
 
@@ -283,6 +295,7 @@
           }
           <ul class="flex flex-col gap-3" aria-label="Plants in this zone">
             @for (ep of enrichedPlants(); track ep.plant.id) {
+              @let warnings = incompatibilities().get(ep.plant.id);
               <li>
                 <article
                   class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md shadow-sm relative transition-colors duration-150"
@@ -422,6 +435,27 @@
                     </div>
                   </div>
 
+                  @if (warnings?.length) {
+                    <div
+                      class="px-4 py-2.5 border-t border-yellow-100 dark:border-yellow-900/40 bg-yellow-50 dark:bg-yellow-900/10"
+                      role="alert"
+                      [attr.aria-label]="'Compatibility warnings for ' + ep.plant.common_name"
+                    >
+                      <ul class="flex flex-col gap-1">
+                        @for (warning of warnings!; track warning) {
+                          <li
+                            class="flex items-start gap-1.5 text-xs font-display text-warning-500 dark:text-yellow-400"
+                          >
+                            <i
+                              class="pi pi-exclamation-triangle text-[10px] flex-shrink-0 mt-0.5"
+                              aria-hidden="true"
+                            ></i>
+                            {{ warning }}
+                          </li>
+                        }
+                      </ul>
+                    </div>
+                  }
                   <!-- Card footer: last-checked label + actions -->
                   <footer
                     class="px-4 pb-3 pt-3 border-t border-neutral-100 dark:border-neutral-700 flex items-center justify-between gap-2"

@@ -198,6 +198,75 @@ export class ZoneDetailComponent {
     return record?.is_ai_enriched ? record : null;
   };
 
+  // Plant–zone compatibility warnings. Each entry is keyed by plant.id.
+  protected readonly incompatibilities = computed((): Map<string, string[]> => {
+    const zone = this.zone();
+    const map = new Map<string, string[]>();
+    if (!zone) return map;
+
+    // Orientations with little direct sunlight (Northern Hemisphere)
+    const lowLightOrientations = new Set(['North', 'Northeast', 'Northwest']);
+    // Orientations with intense direct sunlight
+    const highLightOrientations = new Set(['South', 'Southeast', 'Southwest']);
+
+    for (const ep of this.enrichedPlants()) {
+      const { plant } = ep;
+      if (!plant.scientific_name) continue;
+      const botanical = this.enrichedRecordFor(plant.scientific_name);
+      if (!botanical) continue;
+
+      const warnings: string[] = [];
+
+      // 1. Placement mismatch
+      if (botanical.placement === 'Indoor' && zone.zone_type === 'outdoor') {
+        warnings.push('Prefers indoor conditions');
+      } else if (botanical.placement === 'Outdoor' && zone.zone_type === 'indoor') {
+        warnings.push('Prefers outdoor conditions');
+      }
+
+      // 2. Zone humidity below the plant's documented ideal minimum
+      if (
+        botanical.ideal_humidity_min != null &&
+        zone.humidity_baseline < botanical.ideal_humidity_min
+      ) {
+        warnings.push(
+          `Zone humidity (${zone.humidity_baseline}%) below this plant's minimum (${botanical.ideal_humidity_min}%)`,
+        );
+      }
+
+      // 3. Light / window orientation (indoor zones only — outdoor has ambient sun)
+      if (zone.zone_type === 'indoor') {
+        const sunlight = botanical.sunlight;
+        if (sunlight && sunlight.length > 0) {
+          const orientation = zone.window_orientation;
+          const needsHighLight =
+            sunlight.includes('full_sun') &&
+            !sunlight.includes('full_shade') &&
+            !sunlight.includes('filtered_indirect');
+          const needsLowLight = !sunlight.includes('full_sun') && !sunlight.includes('part_shade');
+
+          if (orientation === 'None' && !zone.has_grow_lights) {
+            warnings.push('No natural light source — grow lights recommended');
+          } else if (
+            lowLightOrientations.has(orientation) &&
+            needsHighLight &&
+            !zone.has_grow_lights
+          ) {
+            warnings.push('Needs direct sunlight — north-facing zones provide little');
+          } else if (highLightOrientations.has(orientation) && needsLowLight) {
+            warnings.push('Prefers indirect light — direct sun may cause leaf scorch');
+          }
+        }
+      }
+
+      if (warnings.length > 0) {
+        map.set(plant.id, warnings);
+      }
+    }
+
+    return map;
+  });
+
   constructor() {
     void this.zoneService.loadZones();
     void this.plantService.loadPlants();

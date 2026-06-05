@@ -627,34 +627,55 @@
 
             @if (totalPages() > 1) {
               <nav
-                class="flex items-center justify-between mt-6 pt-4 border-t border-neutral-200 dark:border-neutral-700"
+                class="flex items-center justify-center gap-1 mt-6 pt-4 border-t border-neutral-200 dark:border-neutral-700"
                 aria-label="Results pagination"
               >
+                <!-- Previous -->
                 <button
                   type="button"
-                  class="inline-flex items-center gap-1.5 text-sm font-medium font-display px-3 py-1.5 rounded-garden-sm transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"
+                  class="w-8 h-8 inline-flex items-center justify-center rounded-garden-sm text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                   [disabled]="!hasPrevPage()"
                   (click)="goToPage(currentPage() - 1)"
                   aria-label="Go to previous page"
                 >
                   <i class="pi pi-chevron-left text-xs" aria-hidden="true"></i>
-                  Previous
                 </button>
-                <span
-                  class="text-xs font-display text-neutral-500 dark:text-neutral-400"
-                  aria-live="polite"
-                  aria-atomic="true"
-                >
-                  Page {{ currentPage() + 1 }} of {{ totalPages() }}
-                </span>
+
+                <!-- Page items -->
+                @for (item of pageItems(); track $index) {
+                  @if (item === 'ellipsis') {
+                    <span
+                      class="w-8 h-8 inline-flex items-center justify-center text-xs font-display text-neutral-400 dark:text-neutral-500 select-none"
+                      aria-hidden="true"
+                    >
+                      …
+                    </span>
+                  } @else {
+                    <button
+                      type="button"
+                      class="w-8 h-8 inline-flex items-center justify-center rounded-garden-sm text-sm font-display transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 cursor-pointer"
+                      [class]="
+                        item === currentPage()
+                          ? 'bg-primary-500 text-white font-semibold'
+                          : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800'
+                      "
+                      [attr.aria-label]="'Go to page ' + (item + 1)"
+                      [attr.aria-current]="item === currentPage() ? 'page' : null"
+                      (click)="goToPage(item)"
+                    >
+                      {{ item + 1 }}
+                    </button>
+                  }
+                }
+
+                <!-- Next -->
                 <button
                   type="button"
-                  class="inline-flex items-center gap-1.5 text-sm font-medium font-display px-3 py-1.5 rounded-garden-sm transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"
+                  class="w-8 h-8 inline-flex items-center justify-center rounded-garden-sm text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                   [disabled]="!hasNextPage()"
                   (click)="goToPage(currentPage() + 1)"
                   aria-label="Go to next page"
                 >
-                  Next
                   <i class="pi pi-chevron-right text-xs" aria-hidden="true"></i>
                 </button>
               </nav>

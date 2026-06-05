@@ -136,6 +136,32 @@ export class LibraryComponent {
   readonly hasPrevPage = computed(() => this.currentPage() > 0);
   readonly hasNextPage = computed(() => this.currentPage() < this.totalPages() - 1);
 
+  // Windowed page list with ellipsis gaps — always shows first, last, and
+  // a 5-page window (±2) around the current page.
+  readonly pageItems = computed((): Array<number | 'ellipsis'> => {
+    const total = this.totalPages();
+    const current = this.currentPage();
+    const WINDOW = 2;
+
+    const visible = new Set<number>([
+      0,
+      total - 1,
+      ...Array.from({ length: WINDOW * 2 + 1 }, (_, i) =>
+        Math.min(total - 1, Math.max(0, current - WINDOW + i)),
+      ),
+    ]);
+
+    const sorted = [...visible].sort((a, b) => a - b);
+    const result: Array<number | 'ellipsis'> = [];
+
+    for (let i = 0; i < sorted.length; i++) {
+      if (i > 0 && sorted[i] - sorted[i - 1] > 1) result.push('ellipsis');
+      result.push(sorted[i]);
+    }
+
+    return result;
+  });
+
   // Tracks whether the most recent query has received a response (success or error).
   // Starts false so skeletons appear as soon as criteria is met — no dependency on
   // isLoading() timing, which eliminates the signal-write race on first search.

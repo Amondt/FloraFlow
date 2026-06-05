@@ -66,6 +66,7 @@ export class ZoneFormFieldsComponent {
   protected selectZoneType(type: ZoneType): void {
     this.form().controls.zone_type.setValue(type);
     if (type === 'outdoor') {
+      this.form().controls.window_orientation.setValue('None');
       this.form().controls.has_active_ventilation.setValue(false);
       this.form().controls.has_grow_lights.setValue(false);
       this.form().controls.humidity_baseline.setValue(40);

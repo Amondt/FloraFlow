@@ -202,7 +202,7 @@
   - On successful identification: checks `cached_botanical_records`; queues AI Scribe enrichment if the species is absent.
   - Pre-fills `common_name`, `scientific_name`, `perenual_id` in Add Plant form from the identified species.
   - Safety guard: `is_plant_image: false` shows error state — never hallucinates a species name.
-- [ ] **3.10 Extended Plant Profile — Schema, AI Enrichment & Multi-Surface UI** | Agent: `/plumber` → `/visualizer` → `/gatekeeper`
+- [x] **3.10 Extended Plant Profile — Schema, AI Enrichment & Multi-Surface UI** | Agent: `/plumber` → `/visualizer` → `/gatekeeper`
   - Depends on 3.1 (AI Scribe must be deployed first).
   - **Block A** — Migration: 16 new columns on `cached_botanical_records`.
   - **Block B** — AI Scribe extended to fill all 16 new fields; `docs/AI_PROMPT_MANIFEST.md §1` updated.

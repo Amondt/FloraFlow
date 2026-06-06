@@ -11,13 +11,47 @@
   <!-- Plant hero — always visible across all steps -->
   <div class="flex items-start gap-3 mb-5">
     @if (thumbnailUrl()) {
-      <img
-        class="w-20 h-20 rounded-garden-sm flex-shrink-0 object-cover"
-        loading="lazy"
-        [src]="thumbnailUrl()"
-        [alt]="plant().common_name"
-        aria-hidden="true"
-      />
+      <button
+        type="button"
+        class="cursor-zoom-in flex-shrink-0 w-20 h-20 rounded-garden-sm overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+        [attr.aria-label]="'View full-size photo of ' + plant().common_name"
+        (click)="showLightbox.set(true)"
+      >
+        <img
+          class="w-full h-full rounded-garden-sm object-cover"
+          loading="lazy"
+          [src]="thumbnailUrl()"
+          [alt]="plant().common_name"
+        />
+      </button>
+
+      @if (showLightbox()) {
+        <div
+          #lightboxEl
+          role="dialog"
+          aria-modal="true"
+          [attr.aria-label]="'Full-size photo — ' + plant().common_name"
+          class="fixed inset-0 z-[9999] flex items-center justify-center bg-neutral-900/90 cursor-zoom-out"
+          tabindex="-1"
+          (click)="showLightbox.set(false)"
+          (keydown.escape)="showLightbox.set(false)"
+        >
+          <img
+            [src]="thumbnailUrl()"
+            [alt]="plant().common_name + ' — full-size photo'"
+            class="max-h-[90vh] max-w-[90vw] rounded-garden-md shadow-2xl object-contain cursor-default"
+            (click)="$event.stopPropagation()"
+          />
+          <button
+            type="button"
+            class="cursor-pointer absolute top-4 right-4 flex items-center justify-center w-9 h-9 rounded-full bg-neutral-800/70 text-white hover:bg-neutral-700/90 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-white"
+            aria-label="Close full-size photo"
+            (click)="showLightbox.set(false); $event.stopPropagation()"
+          >
+            <i class="pi pi-times text-sm" aria-hidden="true"></i>
+          </button>
+        </div>
+      }
     } @else {
       <div
         class="flora-plant-thumb w-20 h-20 rounded-garden-sm flex-shrink-0 flex items-center justify-center"

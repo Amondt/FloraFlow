@@ -1,4 +1,15 @@
-import { Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  computed,
+  effect,
+  inject,
+  input,
+  model,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
@@ -114,6 +125,9 @@ export class SoilCheckDialogComponent {
   readonly note = signal('');
   readonly snoozePresets = [2, 5, 7, 10, 14] as const;
 
+  protected readonly showLightbox = signal(false);
+  private readonly lightboxEl = viewChild<ElementRef<HTMLDivElement>>('lightboxEl');
+
   private readonly _botanicalRecord = signal<CachedBotanicalRecord | null>(null);
 
   constructor() {
@@ -126,6 +140,12 @@ export class SoilCheckDialogComponent {
             .fetchByScientificName(name)
             .then((r) => this._botanicalRecord.set(r));
         }
+      }
+    });
+
+    effect(() => {
+      if (this.showLightbox()) {
+        Promise.resolve().then(() => this.lightboxEl()?.nativeElement.focus());
       }
     });
   }
@@ -229,6 +249,7 @@ export class SoilCheckDialogComponent {
   private close(): void {
     this.step.set('ask');
     this.note.set('');
+    this.showLightbox.set(false);
     blurActiveElement();
     this.visible.set(false);
   }

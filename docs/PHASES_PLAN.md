@@ -136,6 +136,12 @@
   - Reuses `SoilCheckDialogComponent` (Block C) and the shared botanical detail dialog extracted during 2.8 (Block D).
   - No new migrations — reads from existing `ZoneService` and `PlantService` signals.
   - Plan: `docs/plans/phase-2/PHASE_2_10_PLAN.md`
+- [ ] **2.12 Library Species Grouping** | Agent: `/visualizer`
+  - Client-side grouping of library results by common name — multi-cultivar species collapse into one card with a variety count badge.
+  - Botanical detail dialog gains an inline cultivar picker (chip strip ≤5, dropdown >5) between the identity strip and the content tabs — switching cultivar updates all content tabs in-place.
+  - "Add to my greenhouse" and "Track seeds" always act on the currently selected cultivar.
+  - No DB migration — pure computed transformation of the existing `results()` signal.
+  - Plan: `docs/plans/phase-2/PHASE_2_12_PLAN.md`
 - [x] **2.11 Background Botanical Cache Enrichment Worker** | Agent: `/plumber`
   - `botanical-search` extended to paginate all Perenual pages (up to 5 pages, ~150 results max) per query — no slice limit.
   - `_shared/enrich-record.ts` extracted: `ENRICHMENT_SYSTEM_PROMPT`, `EnrichmentSchema`, `fetchINatThumbnail()`, and `enrichRecord()` shared between `claude-enrichment` and the new worker.

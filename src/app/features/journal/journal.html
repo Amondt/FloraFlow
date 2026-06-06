@@ -174,7 +174,12 @@
               >
                 @for (entry of group.entries; track entry.id) {
                   <li>
-                    <app-journal-entry-card [entry]="entry" [imageUrl]="entry.imageUrl" />
+                    <app-journal-entry-card
+                      [entry]="entry"
+                      [imageUrl]="entry.imageUrl"
+                      (editRequested)="onEditRequested(entry)"
+                      (deleteRequested)="onDeleteRequested(entry)"
+                    />
                   </li>
                 }
               </ul>
@@ -191,8 +196,11 @@
 <app-journal-entry-form
   [(visible)]="dialogVisible"
   [preselectedPlantId]="selectedPlant()"
+  [editEntry]="editingEntry()"
   (entrySaved)="onEntrySaved()"
 />
+
+<p-confirmdialog [pt]="FloraConfirmDialogPT" />
 
 <app-leaf-doctor-dialog
   [(visible)]="diagnosisDialogVisible"

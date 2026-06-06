@@ -4,6 +4,7 @@ import type { Database } from '../../../types/database.types';
 
 type JournalInsert = Database['public']['Tables']['plant_journals']['Insert'];
 type JournalRow = Database['public']['Tables']['plant_journals']['Row'];
+type JournalUpdate = Database['public']['Tables']['plant_journals']['Update'];
 
 export interface LeafDoctorDiagnostics {
   primary_condition: string;
@@ -50,6 +51,21 @@ export class JournalService {
 
     if (error) throw error;
     return data;
+  }
+
+  async updateEntry(id: string, payload: JournalUpdate): Promise<void> {
+    const { error } = await this.supabase.client
+      .from('plant_journals')
+      .update(payload)
+      .eq('id', id);
+
+    if (error) throw error;
+  }
+
+  async deleteEntry(id: string): Promise<void> {
+    const { error } = await this.supabase.client.from('plant_journals').delete().eq('id', id);
+
+    if (error) throw error;
   }
 
   async loadEntries(): Promise<void> {

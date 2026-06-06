@@ -5,12 +5,14 @@ import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { SkeletonModule } from 'primeng/skeleton';
 import { MessageModule } from 'primeng/message';
-import { MessageService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import {
   FloraButtonPT,
   FloraToastPT,
   FloraSkeletonPT,
   FloraMessagePT,
+  FloraConfirmDialogPT,
 } from '../../shared/ui/pt/index';
 import { PlantSelectComponent } from '../../shared/components/plant-select/plant-select';
 import { PlantService } from '../tasks/plant.service';
@@ -52,30 +54,33 @@ const CATEGORY_FILTER_OPTIONS: FilterOption[] = [
     SkeletonModule,
     PlantSelectComponent,
     MessageModule,
+    ConfirmDialogModule,
     JournalEntryFormComponent,
     JournalEntryCardComponent,
     LeafDoctorDialogComponent,
   ],
-  providers: [MessageService],
+  providers: [MessageService, ConfirmationService],
   templateUrl: './journal.html',
 })
 export class JournalComponent {
   private readonly plantService = inject(PlantService);
   private readonly messageService = inject(MessageService);
+  private readonly confirmationService = inject(ConfirmationService);
   private readonly router = inject(Router);
   protected readonly journalService = inject(JournalService);
 
   protected readonly FloraButtonPT = FloraButtonPT;
-
   protected readonly FloraToastPT = FloraToastPT;
   protected readonly FloraSkeletonPT = FloraSkeletonPT;
   protected readonly FloraMessagePT = FloraMessagePT;
+  protected readonly FloraConfirmDialogPT = FloraConfirmDialogPT;
   protected readonly categoryFilterOptions = CATEGORY_FILTER_OPTIONS;
   protected readonly skeletonItems = [1, 2, 3];
 
   readonly plant = input<string | undefined>(undefined);
 
   readonly dialogVisible = signal(false);
+  readonly editingEntry = signal<JournalEntryWithPlant | null>(null);
   readonly diagnosisDialogVisible = signal(false);
   readonly selectedCategory = signal<LogCategoryType | null>(null);
   readonly selectedPlant = linkedSignal<string | null>(() => this.plant() ?? null);
@@ -148,7 +153,41 @@ export class JournalComponent {
   }
 
   openDialog(): void {
+    this.editingEntry.set(null);
     this.dialogVisible.set(true);
+  }
+
+  onEditRequested(entry: JournalEntryWithPlant): void {
+    this.editingEntry.set(entry);
+    this.dialogVisible.set(true);
+  }
+
+  onDeleteRequested(entry: JournalEntryWithPlant): void {
+    this.confirmationService.confirm({
+      message: `Delete this ${entry.category} entry for ${entry.plants.common_name}? This cannot be undone.`,
+      header: 'Delete entry',
+      acceptLabel: 'Delete entry',
+      rejectLabel: 'Cancel',
+      accept: () => void this.executeDelete(entry),
+    });
+  }
+
+  private async executeDelete(entry: JournalEntryWithPlant): Promise<void> {
+    try {
+      await this.journalService.deleteEntry(entry.id);
+      await this.journalService.loadEntries();
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Entry deleted',
+        detail: 'The care event has been removed.',
+      });
+    } catch (e) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Failed to delete entry',
+        detail: e instanceof Error ? e.message : 'Unexpected error.',
+      });
+    }
   }
 
   openDiagnosisDialog(): void {
@@ -156,6 +195,7 @@ export class JournalComponent {
   }
 
   onEntrySaved(): void {
+    this.editingEntry.set(null);
     void this.journalService.loadEntries();
   }
 

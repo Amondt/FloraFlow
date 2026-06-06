@@ -243,7 +243,7 @@
   - **Dry path fixed:** `onConfirm()` emits `recommendedDays()` as `days`; both `tasks.ts` and `zone-detail.ts` pass it to `confirmCheck(plantId, days)`; dry-step text updated.
   - **`plant.service.ts`:** `confirmCheck` accepts `snoozeDays`; passes it to the RPC and to the offline queue; offline replay uses it with a fallback of 5.
   - **Migration (plumber):** `confirm_plant_check` drops old single-param signature and adds `p_snooze_days INT`; `snooze_plant_check` drops growth-stage multiplier — both become simple writers. After migration: `bun run types` + copy types to `_shared`.
-- [ ] **3.13 Journal Entry Edit / Delete + Care-Tips-Style Accordion** | Agent: `/visualizer`
+- [x] **3.13 Journal Entry Edit / Delete + Care-Tips-Style Accordion** | Agent: `/visualizer`
   - No DB migration — pure frontend work within `src/app/features/journal/`.
   - `JournalService`: `updateEntry(id, payload)` and `deleteEntry(id)` methods.
   - `JournalEntryFormComponent`: edit mode via `editEntry` input — pre-fills category, notes, date; hides photo section; updates dialog title and submit label.

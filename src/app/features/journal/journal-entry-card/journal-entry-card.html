@@ -1,9 +1,9 @@
 <article
-  class="bg-white dark:bg-neutral-800 rounded-garden-md border border-neutral-200 dark:border-neutral-700 p-3.5 flex flex-col"
+  class="bg-white dark:bg-neutral-800 rounded-garden-md border border-neutral-200 dark:border-neutral-700 flex flex-col"
   [attr.aria-label]="entry().plants.common_name + ' — ' + categoryLabel() + ' — ' + formattedWhen()"
 >
   <!-- Top row: icon/photo + entry body -->
-  <div class="flex gap-3.5">
+  <div class="px-3.5 pt-3.5 pb-3 flex gap-3.5">
     <!-- Category icon box / photo thumbnail -->
     <div
       class="w-[5.25rem] h-[5.25rem] rounded-garden-sm overflow-hidden shrink-0 flex items-center justify-center"
@@ -50,7 +50,7 @@
       </div>
 
       @if (diagnostics(); as diag) {
-        <p class="text-sm text-neutral-700 dark:text-neutral-200 font-display leading-snug">
+        <p class="text-sm text-neutral-600 dark:text-neutral-300 font-display leading-snug">
           {{ diag.primary_condition }}
         </p>
         <app-leaf-doctor-badges
@@ -58,39 +58,69 @@
           [riskAssessment]="diag.systemic_risk_assessment"
         />
       } @else if (entry().notes) {
-        <p class="text-sm text-neutral-700 dark:text-neutral-200 font-display leading-snug">
+        <p class="text-sm text-neutral-600 dark:text-neutral-300 font-display leading-snug">
           {{ entry().notes }}
         </p>
       }
     </div>
   </div>
 
-  <!-- Leaf Doctor section — only visible on entries with a diagnostics payload -->
-  @if (diagnostics(); as diag) {
+  <!-- Card footer: actions -->
+  <footer
+    class="px-3.5 pb-3 pt-3 border-t border-neutral-100 dark:border-neutral-700 flex items-center gap-1 relative z-20"
+  >
     <button
       type="button"
-      [class]="
-        FLORA_FOCUS +
-        ' w-full flex items-center gap-2 pt-2 mt-1 border-t border-neutral-100 dark:border-neutral-700 text-xs font-semibold font-display text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-150'
+      class="inline-flex items-center gap-1 text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+      [attr.aria-label]="
+        'Edit this ' + categoryLabel() + ' entry for ' + entry().plants.common_name
       "
-      (click)="toggleDiagnostics()"
-      [attr.aria-expanded]="showDiagnostics()"
-      [attr.aria-controls]="'diag-' + entry().id"
+      (click)="editRequested.emit()"
     >
-      <i class="pi pi-eye text-primary-500 dark:text-primary-400" aria-hidden="true"></i>
-      <span>Action points</span>
-      <span class="flex-1" aria-hidden="true"></span>
-      @if (showDiagnostics()) {
-        <i class="pi pi-chevron-up" aria-hidden="true"></i>
-      } @else {
-        <i class="pi pi-chevron-down" aria-hidden="true"></i>
-      }
+      <i class="pi pi-pencil text-[10px]" aria-hidden="true"></i>
+      Edit
     </button>
 
-    @if (showDiagnostics()) {
+    <button
+      type="button"
+      class="inline-flex items-center gap-1 text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-danger-500 transition-colors cursor-pointer px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-danger-500"
+      [attr.aria-label]="
+        'Delete this ' + categoryLabel() + ' entry for ' + entry().plants.common_name
+      "
+      (click)="deleteRequested.emit()"
+    >
+      <i class="pi pi-trash text-[10px]" aria-hidden="true"></i>
+      Delete
+    </button>
+
+    @if (diagnostics()) {
+      <button
+        type="button"
+        class="inline-flex items-center gap-2 text-xs font-semibold font-display text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+        [attr.aria-label]="'Toggle Leaf Doctor action points for ' + entry().plants.common_name"
+        [attr.aria-expanded]="showDiagnostics()"
+        [attr.aria-controls]="'diag-' + entry().id"
+        (click)="toggleDiagnostics()"
+      >
+        <i
+          class="pi pi-eye text-primary-500 dark:text-primary-400 text-[10px]"
+          aria-hidden="true"
+        ></i>
+        Action points
+        <i
+          class="pi pi-chevron-down text-[10px] transition-transform duration-150"
+          [class.rotate-180]="showDiagnostics()"
+          aria-hidden="true"
+        ></i>
+      </button>
+    }
+  </footer>
+
+  @if (showDiagnostics()) {
+    @if (diagnostics(); as diag) {
       <div
         [attr.id]="'diag-' + entry().id"
-        class="flex flex-col gap-2 pt-2"
+        class="border-t border-neutral-100 dark:border-neutral-700 px-3.5 py-3.5 relative z-20"
         role="region"
         aria-label="Leaf Doctor action points"
       >
@@ -107,6 +137,7 @@
       </div>
     }
   }
+
   @if (showLightbox() && imageUrl()) {
     <div
       #lightboxEl

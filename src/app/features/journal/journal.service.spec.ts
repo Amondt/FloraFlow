@@ -102,4 +102,56 @@ describe('JournalService', () => {
       await expect(service.createEntry(PAYLOAD)).rejects.toThrow('RLS violation');
     });
   });
+
+  describe('updateEntry()', () => {
+    let mockEq: ReturnType<typeof vi.fn>;
+    let mockUpdate: ReturnType<typeof vi.fn>;
+
+    beforeEach(() => {
+      mockEq = vi.fn().mockResolvedValue({ error: null });
+      mockUpdate = vi.fn().mockReturnValue({ eq: mockEq });
+      mockFrom.mockReturnValue({ update: mockUpdate });
+    });
+
+    it('calls update on plant_journals with the given payload and id', async () => {
+      const updatePayload = { notes: 'updated notes', category: 'Watering' as const };
+
+      await service.updateEntry('entry-uuid', updatePayload);
+
+      expect(mockFrom).toHaveBeenCalledWith('plant_journals');
+      expect(mockUpdate).toHaveBeenCalledWith(updatePayload);
+      expect(mockEq).toHaveBeenCalledWith('id', 'entry-uuid');
+    });
+
+    it('throws when the DB update returns an error', async () => {
+      mockEq.mockResolvedValue({ error: new Error('update failed') });
+
+      await expect(service.updateEntry('entry-uuid', {})).rejects.toThrow('update failed');
+    });
+  });
+
+  describe('deleteEntry()', () => {
+    let mockEq: ReturnType<typeof vi.fn>;
+    let mockDelete: ReturnType<typeof vi.fn>;
+
+    beforeEach(() => {
+      mockEq = vi.fn().mockResolvedValue({ error: null });
+      mockDelete = vi.fn().mockReturnValue({ eq: mockEq });
+      mockFrom.mockReturnValue({ delete: mockDelete });
+    });
+
+    it('calls delete on plant_journals with the given id', async () => {
+      await service.deleteEntry('entry-uuid');
+
+      expect(mockFrom).toHaveBeenCalledWith('plant_journals');
+      expect(mockDelete).toHaveBeenCalled();
+      expect(mockEq).toHaveBeenCalledWith('id', 'entry-uuid');
+    });
+
+    it('throws when the DB delete returns an error', async () => {
+      mockEq.mockResolvedValue({ error: new Error('RLS violation') });
+
+      await expect(service.deleteEntry('entry-uuid')).rejects.toThrow('RLS violation');
+    });
+  });
 });

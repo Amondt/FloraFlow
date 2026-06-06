@@ -29,7 +29,7 @@ import {
 } from '../../../shared/ui/pt/index';
 import { blurActiveElement } from '../../../shared/utils/dom';
 import { PlantService } from '../../tasks/plant.service';
-import { JournalService } from '../journal.service';
+import { JournalService, type JournalEntryWithPlant } from '../journal.service';
 import { ImageCompressorService } from '../../../core/services/image-compressor.service';
 import { SupabaseService } from '../../../core/services/supabase.service';
 import { CATEGORY_OPTIONS, type LogCategoryType } from '../journal-categories';
@@ -56,7 +56,10 @@ export class JournalEntryFormComponent implements OnDestroy {
 
   readonly visible = model<boolean>(false);
   readonly preselectedPlantId = input<string | null>(null);
+  readonly editEntry = input<JournalEntryWithPlant | null>(null);
   readonly entrySaved = output<void>();
+
+  protected readonly isEditMode = computed(() => this.editEntry() !== null);
 
   protected readonly FloraFormDialogPT = FloraFormDialogPT;
   protected readonly FloraSelectPT = FloraSelectPT;
@@ -110,8 +113,18 @@ export class JournalEntryFormComponent implements OnDestroy {
   constructor() {
     effect(() => {
       if (this.visible()) {
-        const id = this.preselectedPlantId();
-        if (id) this.form.controls.plant_id.setValue(id);
+        const entry = this.editEntry();
+        if (entry) {
+          this.form.patchValue({
+            plant_id: entry.plant_id,
+            category: entry.category,
+            notes: entry.notes ?? null,
+            logged_at: new Date(entry.logged_at).toISOString().slice(0, 10),
+          });
+        } else {
+          const id = this.preselectedPlantId();
+          if (id) this.form.controls.plant_id.setValue(id);
+        }
       }
     });
   }
@@ -161,44 +174,62 @@ export class JournalEntryFormComponent implements OnDestroy {
       return;
     }
 
+    const isEditing = this.isEditMode();
     this.submitting.set(true);
 
     try {
-      const user = await this.supabase.getUser();
-      if (!user) throw new Error('Not authenticated');
-
       const raw = this.form.getRawValue();
       const category = raw.category as LogCategoryType;
-      const blob = this.compressedBlob();
 
-      let imagePath: string | null = null;
-      if (blob) {
-        imagePath = await this.journalService.uploadImage(user.id, raw.plant_id, blob);
+      if (isEditing) {
+        const entry = this.editEntry()!;
+        await this.journalService.updateEntry(entry.id, {
+          category,
+          notes: raw.notes ?? null,
+          logged_at: raw.logged_at
+            ? new Date(raw.logged_at + 'T12:00:00').toISOString()
+            : entry.logged_at,
+        });
+
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Entry updated',
+          detail: 'Your care event has been updated.',
+        });
+      } else {
+        const user = await this.supabase.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        const blob = this.compressedBlob();
+        let imagePath: string | null = null;
+        if (blob) {
+          imagePath = await this.journalService.uploadImage(user.id, raw.plant_id, blob);
+        }
+
+        await this.journalService.createEntry({
+          plant_id: raw.plant_id,
+          category,
+          notes: raw.notes ?? null,
+          user_id: user.id,
+          image_storage_path: imagePath,
+          logged_at: raw.logged_at
+            ? new Date(raw.logged_at + 'T12:00:00').toISOString()
+            : new Date().toISOString(),
+        });
+
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Entry logged',
+          detail: 'Your care event has been recorded.',
+        });
       }
-
-      await this.journalService.createEntry({
-        plant_id: raw.plant_id,
-        category,
-        notes: raw.notes ?? null,
-        user_id: user.id,
-        image_storage_path: imagePath,
-        logged_at: raw.logged_at
-          ? new Date(raw.logged_at + 'T12:00:00').toISOString()
-          : new Date().toISOString(),
-      });
-
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Entry logged',
-        detail: 'Your care event has been recorded.',
-      });
 
       this.onVisibleChange(false);
       this.entrySaved.emit();
     } catch (e) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Failed to log entry',
+        summary: isEditing ? 'Failed to update entry' : 'Failed to log entry',
         detail: e instanceof Error ? e.message : 'Unexpected error.',
       });
     } finally {

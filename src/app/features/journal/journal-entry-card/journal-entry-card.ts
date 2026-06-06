@@ -1,8 +1,16 @@
-import { Component, ElementRef, computed, effect, input, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  computed,
+  effect,
+  input,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CATEGORY_ICON, CATEGORY_LABEL, type LogCategoryType } from '../journal-categories';
 import { type JournalEntryWithPlant, type LeafDoctorDiagnostics } from '../journal.service';
-import { FLORA_FOCUS } from '../../../shared/ui/pt/index';
 import { LeafDoctorBadgesComponent } from '../leaf-doctor-badges/leaf-doctor-badges';
 
 const BADGE_BASE =
@@ -28,6 +36,8 @@ const ICON_BASE = 'text-xl text-primary-600 dark:text-primary-400';
 export class JournalEntryCardComponent {
   readonly entry = input.required<JournalEntryWithPlant>();
   readonly imageUrl = input.required<string | null>();
+  readonly editRequested = output<void>();
+  readonly deleteRequested = output<void>();
 
   protected readonly showDiagnostics = signal(false);
   protected readonly showLightbox = signal(false);
@@ -43,8 +53,6 @@ export class JournalEntryCardComponent {
   protected readonly diagnostics = computed(
     () => this.entry().diagnostics as LeafDoctorDiagnostics | null,
   );
-
-  protected readonly FLORA_FOCUS = FLORA_FOCUS;
 
   protected toggleDiagnostics(): void {
     this.showDiagnostics.update((v) => !v);

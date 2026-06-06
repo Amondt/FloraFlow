@@ -6,13 +6,13 @@
 
 ## Blocks
 
-- [ ] **Block A — `JournalService`: `updateEntry` + `deleteEntry`** | Agent: `/visualizer`
+- [x] **Block A — `JournalService`: `updateEntry` + `deleteEntry`** | Agent: `/visualizer`
   - Add `JournalUpdate` type alias from `database.types.ts`
   - `updateEntry(id: string, payload: JournalUpdate): Promise<void>` — `UPDATE plant_journals WHERE id`
   - `deleteEntry(id: string): Promise<void>` — `DELETE FROM plant_journals WHERE id`
   - No signal mutation in service — callers reload via `loadEntries()`
 
-- [ ] **Block B — `JournalEntryFormComponent`: edit mode** | Agent: `/visualizer`
+- [x] **Block B — `JournalEntryFormComponent`: edit mode** | Agent: `/visualizer`
   - Add `editEntry = input<JournalEntryWithPlant | null>(null)`
   - `isEditMode = computed(() => this.editEntry() !== null)`
   - Pre-fill effect: when `visible() && isEditMode()`, patch all form fields from `editEntry()`
@@ -23,7 +23,7 @@
   - Photo section: hidden with `@if (!isEditMode())` — photo cannot be changed after logging
   - Toast: "Entry updated" / "Your care event has been updated." in edit mode
 
-- [ ] **Block C — `JournalEntryCardComponent`: footer CTA + accordion move** | Agent: `/visualizer`
+- [x] **Block C — `JournalEntryCardComponent`: footer CTA + accordion move** | Agent: `/visualizer`
   - Add `editRequested = output<void>()`
   - Add `deleteRequested = output<void>()`
   - Remove the existing full-width "Action points" button from mid-card
@@ -35,19 +35,19 @@
   - Move diagnostics panel content block below `</footer>`:
     ```html
     @if (showDiagnostics() && diagnostics()) {
-      <div class="border-t border-neutral-100 dark:border-neutral-700 px-3.5 py-3.5 relative z-20">
-        <!-- remedial actions list — unchanged -->
-      </div>
+    <div class="border-t border-neutral-100 dark:border-neutral-700 px-3.5 py-3.5 relative z-20">
+      <!-- remedial actions list — unchanged -->
+    </div>
     }
     ```
   - Lightbox stays last, unchanged
 
-- [ ] **Block D — `JournalComponent`: wire edit/delete, add ConfirmDialog** | Agent: `/visualizer`
+- [x] **Block D — `JournalComponent`: wire edit/delete, add ConfirmDialog** | Agent: `/visualizer`
   - Add `editingEntry = signal<JournalEntryWithPlant | null>(null)`
   - Update `openDialog()`: also sets `editingEntry(null)` before opening
   - Add `onEditRequested(entry: JournalEntryWithPlant)`: sets `editingEntry(entry)`, `dialogVisible.set(true)`
   - Add `onDeleteRequested(entry: JournalEntryWithPlant)`: calls `ConfirmationService.confirm()`:
-    - `message`: ``'Delete this ${entry.category} entry for ${entry.plants.common_name}? This cannot be undone.'``
+    - `message`: `'Delete this ${entry.category} entry for ${entry.plants.common_name}? This cannot be undone.'`
     - `header`: `'Delete entry'`
     - `acceptLabel`: `'Delete entry'`
     - `rejectLabel`: `'Cancel'`

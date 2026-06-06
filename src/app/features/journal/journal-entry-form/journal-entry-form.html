@@ -2,7 +2,7 @@
   [visible]="visible()"
   (visibleChange)="onVisibleChange($event)"
   (onHide)="onHide()"
-  header="Log Care Event"
+  [header]="isEditMode() ? 'Edit Care Event' : 'Log Care Event'"
   [modal]="true"
   [draggable]="false"
   [resizable]="false"
@@ -15,7 +15,7 @@
     (ngSubmit)="onSubmit()"
     novalidate
     class="flex flex-col gap-5"
-    aria-label="Log care event form"
+    [attr.aria-label]="isEditMode() ? 'Edit care event form' : 'Log care event form'"
   >
     <!-- Plant -->
     <div class="flex flex-col gap-1.5">
@@ -144,55 +144,57 @@
       </small>
     </div>
 
-    <!-- Photo (optional) -->
-    <div class="flex flex-col gap-1.5">
-      <label
-        [for]="photoId"
-        class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
-      >
-        Photo
-        <span class="text-neutral-400 font-normal text-xs ml-1">(optional)</span>
-      </label>
+    <!-- Photo (optional) — hidden in edit mode -->
+    @if (!isEditMode()) {
+      <div class="flex flex-col gap-1.5">
+        <label
+          [for]="photoId"
+          class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+        >
+          Photo
+          <span class="text-neutral-400 font-normal text-xs ml-1">(optional)</span>
+        </label>
 
-      <!-- Hidden native input — receives the actual file selection -->
-      <input
-        type="file"
-        [id]="photoId"
-        #photoInputRef
-        accept="image/*"
-        class="sr-only"
-        aria-label="Upload a photo for this care event — optional, will be compressed to under 300 KB"
-        (change)="onFileChange($event)"
-      />
+        <!-- Hidden native input — receives the actual file selection -->
+        <input
+          type="file"
+          [id]="photoId"
+          #photoInputRef
+          accept="image/*"
+          class="sr-only"
+          aria-label="Upload a photo for this care event — optional, will be compressed to under 300 KB"
+          (change)="onFileChange($event)"
+        />
 
-      <!-- Custom styled trigger — avoids browser-locale button labels -->
-      <button
-        type="button"
-        [class]="
-          FLORA_FOCUS +
-          ' flex w-full items-center gap-2 px-3 h-control text-sm font-medium font-display text-neutral-600 dark:text-neutral-200 bg-neutral-50 dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 rounded-garden-sm hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-150'
-        "
-        aria-label="Choose a photo for this care event"
-        (click)="triggerPhotoInput()"
-      >
-        <i class="pi pi-paperclip text-xs" aria-hidden="true"></i>
-        Choose photo
-      </button>
+        <!-- Custom styled trigger — avoids browser-locale button labels -->
+        <button
+          type="button"
+          [class]="
+            FLORA_FOCUS +
+            ' flex w-full items-center gap-2 px-3 h-control text-sm font-medium font-display text-neutral-600 dark:text-neutral-200 bg-neutral-50 dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 rounded-garden-sm hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-150 cursor-pointer'
+          "
+          aria-label="Choose a photo for this care event"
+          (click)="triggerPhotoInput()"
+        >
+          <i class="pi pi-paperclip text-xs" aria-hidden="true"></i>
+          Choose photo
+        </button>
 
-      @if (compressedBlob()) {
-        <div class="flex items-center gap-3">
-          <img
-            [src]="previewObjectUrl()"
-            alt="Compressed photo preview"
-            class="w-16 h-16 rounded-garden-sm object-cover border border-neutral-200 dark:border-neutral-700"
-          />
-          <p class="text-xs font-display text-success-500 flex items-center gap-1" role="status">
-            <i class="pi pi-check-circle" aria-hidden="true"></i>
-            {{ compressedLabel() }} — ready to save
-          </p>
-        </div>
-      }
-    </div>
+        @if (compressedBlob()) {
+          <div class="flex items-center gap-3">
+            <img
+              [src]="previewObjectUrl()"
+              alt="Compressed photo preview"
+              class="w-16 h-16 rounded-garden-sm object-cover border border-neutral-200 dark:border-neutral-700"
+            />
+            <p class="text-xs font-display text-success-500 flex items-center gap-1" role="status">
+              <i class="pi pi-check-circle" aria-hidden="true"></i>
+              {{ compressedLabel() }} — ready to save
+            </p>
+          </div>
+        }
+      </div>
+    }
   </form>
 
   <ng-template #footer>
@@ -204,9 +206,9 @@
       (onClick)="onCancel()"
     />
     <p-button
-      label="Log entry"
+      [label]="isEditMode() ? 'Save changes' : 'Log entry'"
       [pt]="FloraButtonPT"
-      ariaLabel="Save this care event"
+      [ariaLabel]="isEditMode() ? 'Save changes to this care event' : 'Save this care event'"
       [loading]="submitting()"
       (onClick)="onSubmit()"
     />

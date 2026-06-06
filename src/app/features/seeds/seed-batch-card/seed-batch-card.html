@@ -92,32 +92,6 @@
         Delete
       </button>
     } @else {
-      @if (!isTerminalStage()) {
-        <button
-          type="button"
-          class="inline-flex cursor-pointer items-center gap-1.5 px-3 py-1.5 text-xs font-semibold font-display rounded-garden-sm bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
-          [attr.aria-label]="'Advance ' + batch().common_name + ' to next growth stage'"
-          (click)="advanceRequested.emit()"
-        >
-          <i class="pi pi-arrow-right text-xs" aria-hidden="true"></i>
-          Advance Stage
-        </button>
-      }
-
-      @if (canGraduate()) {
-        <button
-          type="button"
-          class="inline-flex cursor-pointer items-center gap-1.5 px-3 py-1.5 text-xs font-semibold font-display rounded-garden-sm border border-primary-500 text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
-          [attr.aria-label]="'Graduate ' + batch().common_name + ' to a tracked plant'"
-          (click)="graduateRequested.emit()"
-        >
-          <i class="pi pi-external-link text-xs" aria-hidden="true"></i>
-          Graduate to Plant
-        </button>
-      }
-
-      <div class="flex-1" aria-hidden="true"></div>
-
       <button
         type="button"
         class="relative inline-flex items-center gap-1 cursor-pointer text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-warning-500 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
@@ -159,6 +133,32 @@
         <i class="pi pi-trash text-[10px]" aria-hidden="true"></i>
         Delete
       </button>
+
+      <div class="flex-1" aria-hidden="true"></div>
+
+      @if (!isTerminalStage()) {
+        <button
+          type="button"
+          class="inline-flex cursor-pointer items-center gap-1.5 px-3 py-1.5 text-xs font-semibold font-display rounded-garden-sm bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+          [attr.aria-label]="'Advance ' + batch().common_name + ' to next growth stage'"
+          (click)="advanceRequested.emit()"
+        >
+          <i class="pi pi-arrow-right text-xs" aria-hidden="true"></i>
+          Advance Stage
+        </button>
+      }
+
+      @if (canGraduate()) {
+        <button
+          type="button"
+          class="inline-flex cursor-pointer items-center gap-1.5 px-3 py-1.5 text-xs font-semibold font-display rounded-garden-sm border border-primary-500 text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+          [attr.aria-label]="'Graduate ' + batch().common_name + ' to a tracked plant'"
+          (click)="graduateRequested.emit()"
+        >
+          <i class="pi pi-external-link text-xs" aria-hidden="true"></i>
+          Graduate to Plant
+        </button>
+      }
     }
   </footer>
 </article>

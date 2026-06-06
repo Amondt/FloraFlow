@@ -447,6 +447,9 @@
                           </div>
                         }
                       }
+                      <p class="text-xs font-display text-neutral-400 dark:text-neutral-500 mt-1.5">
+                        {{ ep.lastCheckedLabel }}
+                      </p>
                     </div>
                   </div>
 
@@ -471,70 +474,64 @@
                       </ul>
                     </div>
                   }
-                  <!-- Card footer: last-checked label + actions -->
+                  <!-- Card footer: actions -->
                   <footer
-                    class="px-4 pb-3 pt-3 border-t border-neutral-100 dark:border-neutral-700 flex items-center justify-between gap-2"
+                    class="px-4 pb-3 pt-3 border-t border-neutral-100 dark:border-neutral-700 flex items-center gap-1 relative z-20"
                   >
-                    <p class="text-xs font-display text-neutral-400 dark:text-neutral-500">
-                      {{ ep.lastCheckedLabel }}
-                    </p>
-                    <div class="flex items-center gap-1 flex-shrink-0 relative z-20">
-                      <button
-                        type="button"
-                        class="inline-flex items-center gap-1 text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-                        [attr.aria-label]="'Edit ' + ep.plant.common_name"
-                        (click)="openEditPlant(ep.plant)"
-                      >
-                        <i class="pi pi-pencil text-[10px]" aria-hidden="true"></i>
-                        Edit
-                      </button>
+                    <button
+                      type="button"
+                      class="inline-flex items-center gap-1 text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                      [attr.aria-label]="'Edit ' + ep.plant.common_name"
+                      (click)="openEditPlant(ep.plant)"
+                    >
+                      <i class="pi pi-pencil text-[10px]" aria-hidden="true"></i>
+                      Edit
+                    </button>
 
-                      <button
-                        type="button"
-                        class="inline-flex items-center gap-1 text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-danger-500 transition-colors cursor-pointer px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-danger-500"
-                        [attr.aria-label]="'Delete ' + ep.plant.common_name"
-                        (click)="onDeleteRequested(ep.plant)"
-                      >
-                        <i class="pi pi-trash text-[10px]" aria-hidden="true"></i>
-                        Delete
-                      </button>
-                      @if (
-                        ep.plant.scientific_name && enrichedRecordFor(ep.plant.scientific_name)
-                      ) {
-                        <button
-                          type="button"
-                          class="inline-flex items-center gap-1 text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-                          [attr.aria-label]="'Care tips for ' + ep.plant.common_name"
-                          [attr.aria-expanded]="expandedPlantId() === ep.plant.id"
-                          (click)="toggleCarePanel(ep.plant.id)"
-                        >
-                          Care tips
-                          <i
-                            class="pi pi-chevron-down text-[10px] transition-transform duration-150"
-                            [class.rotate-180]="expandedPlantId() === ep.plant.id"
-                            aria-hidden="true"
-                          ></i>
-                        </button>
-                      }
+                    <button
+                      type="button"
+                      class="inline-flex items-center gap-1 text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-danger-500 transition-colors cursor-pointer px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-danger-500"
+                      [attr.aria-label]="'Delete ' + ep.plant.common_name"
+                      (click)="onDeleteRequested(ep.plant)"
+                    >
+                      <i class="pi pi-trash text-[10px]" aria-hidden="true"></i>
+                      Delete
+                    </button>
+                    @if (ep.plant.scientific_name && enrichedRecordFor(ep.plant.scientific_name)) {
                       <button
                         type="button"
                         class="inline-flex items-center gap-1 text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-                        [attr.aria-label]="'Open substrate mix guide for ' + ep.plant.common_name"
-                        (click)="openMixWizard(ep.plant)"
+                        [attr.aria-label]="'Care tips for ' + ep.plant.common_name"
+                        [attr.aria-expanded]="expandedPlantId() === ep.plant.id"
+                        (click)="toggleCarePanel(ep.plant.id)"
                       >
-                        <i class="pi pi-list-check text-[10px]" aria-hidden="true"></i>
-                        Mix substrate
+                        Care tips
+                        <i
+                          class="pi pi-chevron-down text-[10px] transition-transform duration-150"
+                          [class.rotate-180]="expandedPlantId() === ep.plant.id"
+                          aria-hidden="true"
+                        ></i>
                       </button>
-                      <button
-                        type="button"
-                        class="inline-flex items-center gap-1 text-xs font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 border border-primary-200 dark:border-primary-800 hover:border-primary-400 dark:hover:border-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors cursor-pointer px-2.5 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-                        [attr.aria-label]="'Check soil for ' + ep.plant.common_name"
-                        (click)="openSoilCheck(ep.plant)"
-                      >
-                        <i class="pi pi-tint text-[10px]" aria-hidden="true"></i>
-                        Check soil
-                      </button>
-                    </div>
+                    }
+                    <div class="flex-1" aria-hidden="true"></div>
+                    <button
+                      type="button"
+                      class="inline-flex items-center gap-1 text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                      [attr.aria-label]="'Open substrate mix guide for ' + ep.plant.common_name"
+                      (click)="openMixWizard(ep.plant)"
+                    >
+                      <i class="pi pi-list-check text-[10px]" aria-hidden="true"></i>
+                      Mix substrate
+                    </button>
+                    <button
+                      type="button"
+                      class="inline-flex items-center gap-1 text-xs font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 border border-primary-200 dark:border-primary-800 hover:border-primary-400 dark:hover:border-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors cursor-pointer px-2.5 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                      [attr.aria-label]="'Check soil for ' + ep.plant.common_name"
+                      (click)="openSoilCheck(ep.plant)"
+                    >
+                      <i class="pi pi-tint text-[10px]" aria-hidden="true"></i>
+                      Check soil
+                    </button>
                   </footer>
                   @if (
                     expandedPlantId() === ep.plant.id &&

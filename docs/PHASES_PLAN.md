@@ -243,7 +243,14 @@
   - **Dry path fixed:** `onConfirm()` emits `recommendedDays()` as `days`; both `tasks.ts` and `zone-detail.ts` pass it to `confirmCheck(plantId, days)`; dry-step text updated.
   - **`plant.service.ts`:** `confirmCheck` accepts `snoozeDays`; passes it to the RPC and to the offline queue; offline replay uses it with a fallback of 5.
   - **Migration (plumber):** `confirm_plant_check` drops old single-param signature and adds `p_snooze_days INT`; `snooze_plant_check` drops growth-stage multiplier — both become simple writers. After migration: `bun run types` + copy types to `_shared`.
-- [ ] **3.13 Multi-Image Leaf Doctor** | Agent: `/plumber` → `/visualizer`
+- [ ] **3.13 Journal Entry Edit / Delete + Care-Tips-Style Accordion** | Agent: `/visualizer`
+  - No DB migration — pure frontend work within `src/app/features/journal/`.
+  - `JournalService`: `updateEntry(id, payload)` and `deleteEntry(id)` methods.
+  - `JournalEntryFormComponent`: edit mode via `editEntry` input — pre-fills category, notes, date; hides photo section; updates dialog title and submit label.
+  - `JournalEntryCardComponent`: card footer with Edit + Delete buttons + diagnostic "Action points" accordion toggle (zone-detail Care tips pattern); `editRequested` and `deleteRequested` outputs.
+  - `JournalComponent`: `ConfirmationService` delete flow, `editingEntry` signal, wires both events to the shared form dialog.
+  - Plan: `docs/plans/phase-3/PHASE_3_13_PLAN.md`
+- [ ] **3.14 Multi-Image Leaf Doctor** | Agent: `/plumber` → `/visualizer`
   - Enhancement to 3.4: user can upload up to 3 photos per diagnosis session; all are sent to Claude as a single multi-image request for better diagnostic precision.
   - No DB migration — primary image still stored in `image_storage_path`; additional images are ephemeral (analysis only); diagnosis result in `diagnostics JSONB` already covers the full multi-image analysis.
   - `claude-vision` Edge Function: request body changes from `{ imageBase64, imageMediaType }` to `{ images: [{imageBase64, imageMediaType}, ...] }` (1–3 items); each becomes an `image` content block in Claude's `content[]` array.

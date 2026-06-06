@@ -201,7 +201,7 @@ The UX must reflect this:
   - `/visualizer`: add optional "Pot diameter (cm)" `pInputNumber` field in `plant-form-dialog.html` (position: below substrate_factor, above growth_stage); hint: "Helps calculate volumes when mixing substrate"; `[min]="4"` `[max]="60"` `[step]="1"` `[showButtons]="true"` using `FloraInputNumberPT`; nullable — no validator
   - Verification: open Add Plant form → pot diameter field appears; save a plant with a value → reload tasks page → plant data still loads without error
 
-- [ ] **Block C — Mix engine** | Agent: `/visualizer`
+- [x] **Block C — Mix engine** | Agent: `/visualizer`
   - New file: `src/app/shared/utils/substrate-mix.model.ts`
   - Exports: `GENUS_PROFILES` array, `SubstrateMixResult` interface, `computeMix(profile, volumeLitres)`, `getPhStatus(mixPhLow, mixPhHigh, idealMin, idealMax)`, `preferredSoilToProfile(types: string[])`, `substrateFactorToProfile(factor: SubstrateFactor)`, `diameterToVolume(cm: number)`
   - No Angular imports — pure TypeScript

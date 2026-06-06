@@ -34,7 +34,7 @@ export class PlantService {
     const { data, error } = await this.supabase.client
       .from('plants')
       .select(
-        'id, common_name, scientific_name, zone_id, next_check_due_at, last_checked_at, current_snooze_interval_days, container_vector, substrate_factor, growth_stage, pot_diameter_cm',
+        'id, common_name, scientific_name, perenual_id, zone_id, next_check_due_at, last_checked_at, current_snooze_interval_days, container_vector, substrate_factor, growth_stage, pot_diameter_cm',
       )
       .order('next_check_due_at', { ascending: true });
 
@@ -126,7 +126,7 @@ export class PlantService {
     const { data, error } = await this.supabase.client
       .from('plants')
       .select(
-        'id, common_name, scientific_name, zone_id, next_check_due_at, last_checked_at, current_snooze_interval_days, container_vector, substrate_factor, growth_stage, pot_diameter_cm',
+        'id, common_name, scientific_name, perenual_id, zone_id, next_check_due_at, last_checked_at, current_snooze_interval_days, container_vector, substrate_factor, growth_stage, pot_diameter_cm',
       )
       .eq('id', plantId)
       .single();

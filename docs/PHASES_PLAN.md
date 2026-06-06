@@ -63,6 +63,14 @@
   - Completion writes the flag and navigates to `/dashboard`; back-navigation to `/onboarding` immediately forwards to `/dashboard`.
   - Plan: `docs/plans/phase-1/PHASE_1_10_PLAN.md`
 
+- [ ] **1.11 Plant Form Dialog UX Redesign** | Agent: `/visualizer`
+  - Split the single "Plant name" autocomplete into two dedicated sections: **Species (optional)** and **My plant's name (required)**.
+  - Species section: autocomplete search when unselected; read-only chip (🌿 Common · *Scientific* + "Change" button) when a species is locked.
+  - Nickname section: always-visible plain text input, pre-filled from species common name on selection but always editable.
+  - Remove the standalone scientific name input from the visible form (data still wired internally).
+  - No DB migration — `common_name` remains the user's display label; `scientific_name` and `perenual_id` wiring unchanged.
+  - Plan: `docs/plans/phase-1/PHASE_1_11_PLAN.md`
+
 ### 🔒 Phase 1 QA Acceptance Criteria
 
 1. `supabase db test` — users cannot access/edit/delete data owned by other users (100% RLS).
@@ -184,6 +192,7 @@
 - [~] **3.7** Companion Planting & Allelopathy Lookup Engine — **Dropped**
   - Research confirmed the primary mechanism (root exudate allelopathy) requires shared soil and does not apply to plants in separate pots, which covers the majority of FloraFlow's indoor use cases. Manual data curation would be required (no API source exists), and the feature would generate warnings that don't reflect real risk for potted plants. Dropped in favour of building features with genuine value for the app's actual context.
 - [ ] **3.8** Substrate Composition Mix Wizard | Agent: `/visualizer`
+  - Plan: `docs/plans/phase-3/PHASE_3_8_PLAN.md`
   - Standalone wizard accessible from the Library or a dedicated tab (no disruption to daily dashboard flow).
   - User selects genus profile (Epiphytic Aroid, Desert Succulent, Carnivorous Bog, etc.) and inputs pot volume in litres.
   - Pure client-side math outputs volumetric breakdown (e.g. 40% Orchid Bark, 30% Perlite, 30% Coco Coir).
@@ -221,6 +230,13 @@
   - **Dry path fixed:** `onConfirm()` emits `recommendedDays()` as `days`; both `tasks.ts` and `zone-detail.ts` pass it to `confirmCheck(plantId, days)`; dry-step text updated.
   - **`plant.service.ts`:** `confirmCheck` accepts `snoozeDays`; passes it to the RPC and to the offline queue; offline replay uses it with a fallback of 5.
   - **Migration (plumber):** `confirm_plant_check` drops old single-param signature and adds `p_snooze_days INT`; `snooze_plant_check` drops growth-stage multiplier — both become simple writers. After migration: `bun run types` + copy types to `_shared`.
+- [ ] **3.13 Multi-Image Leaf Doctor** | Agent: `/plumber` → `/visualizer`
+  - Enhancement to 3.4: user can upload up to 3 photos per diagnosis session; all are sent to Claude as a single multi-image request for better diagnostic precision.
+  - No DB migration — primary image still stored in `image_storage_path`; additional images are ephemeral (analysis only); diagnosis result in `diagnostics JSONB` already covers the full multi-image analysis.
+  - `claude-vision` Edge Function: request body changes from `{ imageBase64, imageMediaType }` to `{ images: [{imageBase64, imageMediaType}, ...] }` (1–3 items); each becomes an `image` content block in Claude's `content[]` array.
+  - Angular dialog: three scalar signals become arrays (`compressedBlobs`, `previewObjectUrls`, `compressedLabels`); "Add photo" button hidden at 3; per-thumbnail remove button; adding/removing a photo resets diagnosis state.
+  - `docs/AI_PROMPT_MANIFEST.md §3.0` updated to document the new `images[]` request shape.
+  - Plan: `docs/plans/phase-3/PHASE_3_4_MULTI_IMAGE_PLAN.md`
 
 ### 🔒 Phase 3 QA Criteria
 

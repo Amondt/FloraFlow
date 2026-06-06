@@ -9,11 +9,20 @@ type BotanicalResult = {
   perenual_id: number | null;
 };
 
+// How many results to return from cache and to cap the Perenual page at.
+// Perenual's free tier returns one page at a time; one page is ~30 results.
+const MAX_RESULTS = 30;
+
+// Only skip the Perenual round-trip when the cache already holds a comprehensive
+// result set for this query. A threshold as low as 5 causes the cache to lock in
+// after the first few results and never surface more — users see the same small
+// list forever. 25 ensures we re-fetch until the cache is truly saturated.
+const CACHE_THRESHOLD = 25;
+
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
 
   try {
-    // Reject unauthenticated callers before doing any work
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) return json({ error: 'Unauthorized' }, 401);
 
@@ -38,19 +47,18 @@ Deno.serve(async (req: Request) => {
     const safeQ = q.replace(/[,)(]/g, '');
     if (safeQ.length < 2) return json([]);
 
-    // Cache check — include enrichment flags so we can identify stale records
     const { data: cached } = await supabase
       .from('cached_botanical_records')
       .select(
         'scientific_name, common_name, perenual_id, is_perenual_enriched, is_ai_enriched, watering, cycle',
       )
       .or(`common_name.ilike.%${safeQ}%,scientific_name.ilike.%${safeQ}%`)
-      .limit(8);
+      .limit(MAX_RESULTS);
 
-    // 5+ hits means the cache is warm enough — skip the Perenual round-trip entirely
-    if ((cached?.length ?? 0) >= 5) return json(cached);
+    // Cache is warm enough — serve immediately and skip the Perenual round-trip
+    if ((cached?.length ?? 0) >= CACHE_THRESHOLD) return json(cached);
 
-    // Cache miss — fetch from Perenual; degrade silently if it fails
+    // Cache miss or partial cache — fetch from Perenual; degrade silently if it fails
     const fresh: BotanicalResult[] = [];
 
     try {
@@ -74,8 +82,9 @@ Deno.serve(async (req: Request) => {
         );
         const perenualId = plant['id'] as number;
 
-        // Persist only the basic search fields + raw payload now.
-        // Enriched care fields (pH, toxicity notes, etc.) are populated by claude-enrichment after insertion.
+        // Persist basic search fields now. Care fields (watering, pH, toxicity) are
+        // populated later by claude-enrichment when the plant is actually saved —
+        // not during search, where the user may never select this result.
         await supabase.from('cached_botanical_records').upsert(
           {
             scientific_name: scientificName,
@@ -92,57 +101,6 @@ Deno.serve(async (req: Request) => {
           perenual_id: perenualId,
         });
       }
-
-      // Second pass: fetch species/details for each result to populate care fields.
-      // Done separately because the species-list endpoint only returns taxonomy, not care data.
-      // Runs in parallel with Promise.all — each async job handles its own errors so one
-      // 404 or timeout never aborts the others. Skip plants already Perenual-enriched — the
-      // flag is true regardless of what the details endpoint returned, which correctly handles
-      // plants where Perenual legitimately has null care fields.
-      const perenualEnriched = new Set(
-        (cached ?? []).filter((r) => r.is_perenual_enriched).map((r) => r.scientific_name),
-      );
-      const detailJobs = fresh.filter(
-        (r) => r.perenual_id && !perenualEnriched.has(r.scientific_name),
-      );
-      await Promise.all(
-        detailJobs.map(async (record) => {
-          try {
-            const detailsResp = await fetch(
-              `https://perenual.com/api/v2/species/details/${record.perenual_id}?key=${apiKey}`,
-              { signal: AbortSignal.timeout(8000) },
-            );
-            if (!detailsResp.ok)
-              throw new Error(`Perenual details responded ${detailsResp.status}`);
-
-            const details = (await detailsResp.json()) as {
-              poisonous_to_pets?: boolean | null;
-              watering?: string | null;
-              sunlight?: string[] | null;
-              cycle?: string | null;
-              type?: string | null;
-            };
-
-            await supabase.from('cached_botanical_records').upsert(
-              {
-                scientific_name: record.scientific_name,
-                is_toxic_to_pets: details.poisonous_to_pets ?? null,
-                watering: details.watering ?? null,
-                sunlight: details.sunlight ?? null,
-                cycle: details.cycle ?? null,
-                plant_type: details.type ?? null,
-                is_perenual_enriched: true,
-              },
-              { onConflict: 'scientific_name' },
-            );
-          } catch (detailsErr) {
-            console.error(
-              `Perenual details fetch failed for perenual_id ${record.perenual_id}:`,
-              detailsErr,
-            );
-          }
-        }),
-      );
     } catch (err) {
       console.error('Perenual fetch failed — returning cached results only:', err);
     }

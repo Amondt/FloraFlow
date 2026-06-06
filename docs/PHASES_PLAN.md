@@ -63,7 +63,7 @@
   - Completion writes the flag and navigates to `/dashboard`; back-navigation to `/onboarding` immediately forwards to `/dashboard`.
   - Plan: `docs/plans/phase-1/PHASE_1_10_PLAN.md`
 
-- [ ] **1.11 Plant Form Dialog UX Redesign** | Agent: `/visualizer`
+- [x] **1.11 Plant Form Dialog UX Redesign** | Agent: `/visualizer`
   - Split the single "Plant name" autocomplete into two dedicated sections: **Species (optional)** and **My plant's name (required)**.
   - Species section: autocomplete search when unselected; read-only chip (🌿 Common · *Scientific* + "Change" button) when a species is locked.
   - Nickname section: always-visible plain text input, pre-filled from species common name on selection but always editable.
@@ -136,6 +136,13 @@
   - Reuses `SoilCheckDialogComponent` (Block C) and the shared botanical detail dialog extracted during 2.8 (Block D).
   - No new migrations — reads from existing `ZoneService` and `PlantService` signals.
   - Plan: `docs/plans/phase-2/PHASE_2_10_PLAN.md`
+- [ ] **2.11 Background Botanical Cache Enrichment Worker** | Agent: `/plumber`
+  - `botanical-search` extended to paginate all Perenual pages (up to 5 pages, ~150 results max) per query — no slice limit.
+  - `_shared/enrich-record.ts` extracted: `ENRICHMENT_SYSTEM_PROMPT`, `EnrichmentSchema`, `fetchINatThumbnail()`, and `enrichRecord()` shared between `claude-enrichment` and the new worker.
+  - `claude-enrichment` refactored to use shared module — zero API contract change.
+  - New `cache-enrichment-worker` Edge Function: processes 5 unenriched `cached_botanical_records` per run (Claude AI + iNaturalist), ordered by `cached_at DESC` (most recently searched first).
+  - New pg_cron job: fires `cache-enrichment-worker` every 10 minutes.
+  - Plan: `docs/plans/phase-2/PHASE_2_11_PLAN.md`
 
 ### 🔒 Phase 2 QA Criteria
 

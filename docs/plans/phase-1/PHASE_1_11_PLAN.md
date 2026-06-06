@@ -21,10 +21,10 @@ After a species locks, the field becomes a free-text rename input, but nothing s
 
 ### Section 1 — Species (optional)
 
-| State | What the user sees |
-|---|---|
-| Nothing selected | Autocomplete search input: "Search by common or scientific name…" |
-| Species selected | Read-only chip: 🌿 Common Name · *Scientific name* + "Change" button |
+| State            | What the user sees                                                   |
+| ---------------- | -------------------------------------------------------------------- |
+| Nothing selected | Autocomplete search input: "Search by common or scientific name…"    |
+| Species selected | Read-only chip: 🌿 Common Name · _Scientific name_ + "Change" button |
 
 ### Section 2 — My plant's name (required)
 
@@ -39,7 +39,7 @@ The scientific name field is **removed** from the visible form. It is already me
 
 ## Blocks
 
-- [ ] **Block A — Template restructure** | Agent: `/visualizer`
+- [x] **Block A — Template restructure** | Agent: `/visualizer`
   - Replace the `@if (selectedPerenualId()) { input } @else { autocomplete }` toggle with two dedicated form sections
   - Section 1: species picker — autocomplete when unlocked, locked chip (`<article role="status">`) when locked
   - Locked chip: plant icon + `lockedSpeciesCommonName() · lockedScientificName()` + "Change" button
@@ -47,7 +47,7 @@ The scientific name field is **removed** from the visible form. It is already me
   - Remove the standalone `scientific_name` input block from the template (data stays wired)
   - Update all `aria-label`, `aria-describedby`, and `role="note"` copy to match new layout
 
-- [ ] **Block B — TypeScript wiring** | Agent: `/visualizer`
+- [x] **Block B — TypeScript wiring** | Agent: `/visualizer`
   - Rename `commonNameQuery` → `speciesSearchQuery` (drives autocomplete only)
   - Add `lockedSpeciesCommonName = signal<string | null>(null)` for the chip display
   - Update `onCommonNameChange`: when species selected → pre-fill `form.controls.common_name` with species common name (only if nickname is currently empty)
@@ -65,6 +65,7 @@ bun run lint
 ```
 
 **Manual Browser Check — Plant Form Dialog UX**
+
 ```
 Manual Browser Check — Plant Form Dialog (UX Redesign)
 ──────────────────────────────────────────────────────

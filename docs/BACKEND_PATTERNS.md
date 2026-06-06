@@ -204,6 +204,14 @@ This runs server-side automatically — no client code needed.
 
 ---
 
+## Edge Function Design Principles
+
+- **Single Responsibility** — each Edge Function handles one workflow (enrichment, identification, diagnosis). Never add a second unrelated operation to an existing function; create a new one.
+- **Separation of Concerns** — always structure in this order: (1) preflight, (2) auth check, (3) input validation, (4) business logic / external calls, (5) response. Never interleave these layers.
+- **Descriptive function names** — helper functions inside an Edge Function follow the same rule: `validateAuthToken()` not `check()`, `fetchEnrichmentData()` not `getData()`.
+
+---
+
 ## Deno Edge Function — Full Structure
 
 ```ts

@@ -82,6 +82,52 @@ import { PlantAlertCardComponent } from './plant-alert-card/plant-alert-card';
 
 ---
 
+## Naming Conventions
+
+| Artifact | Convention | Example |
+|---|---|---|
+| Variables, properties, methods | `camelCase` | `plantCount`, `getUserPlants()` |
+| Component / service / pipe classes | `PascalCase` | `PlantCardComponent`, `PlantService` |
+| File names | `kebab-case` | `plant-card.ts`, `plant.service.ts` |
+| Constants | `SCREAMING_SNAKE_CASE` | `FLORA_FOCUS`, `MAX_RETRY_COUNT` |
+
+- Names communicate intent without a comment — `getUserPlantsByZone()` not `getData()`
+- Booleans: `isLoading`, `hasError`, `canSubmit` — always `is` / `has` / `can` / `should` prefix
+- No single-letter variables outside loop indices (`i`, `j`)
+
+---
+
+## Smart / Dumb Component Pattern
+
+Angular components must follow Single Responsibility:
+
+```
+// ❌ Mixed responsibility — fetches data AND renders it
+@Component({ selector: 'app-plant-card' })
+export class PlantCardComponent {
+  private readonly plantService = inject(PlantService);
+  readonly plant = httpResource(() => `/api/plants/${this.id()}`);
+  // template: renders loading, error, data...
+}
+
+// ✅ Smart container — data, loading, error only
+@Component({ selector: 'app-plant-card-container' })
+export class PlantCardContainerComponent {
+  private readonly plantService = inject(PlantService);
+  readonly plant = httpResource(() => `/api/plants/${this.id()}`);
+}
+
+// ✅ Dumb presentational — template only, no service calls
+@Component({ selector: 'app-plant-card' })
+export class PlantCardComponent {
+  readonly plant = input.required<Plant>();
+}
+```
+
+**Rule:** if a component calls `inject(SomeService)` to load data AND has a non-trivial template, split it.
+
+---
+
 ## Dependency Injection
 
 ```ts

@@ -43,14 +43,14 @@ cache-enrichment-worker (batch = 5 records / run)
 
 ## Blocks
 
-- [ ] **Block A — `botanical-search` pagination + cleanup** | Agent: `/plumber`
+- [x] **Block A — `botanical-search` pagination + cleanup** | Agent: `/plumber`
   - Add a `page` loop: fetch `&page=1`, `&page=2`, … until `body.data` is empty or `page > 5` (safety cap)
   - Remove `is_perenual_enriched` from the `.select()` list — the field is vestigial in this function
   - Keep `CACHE_THRESHOLD = 25` and `MAX_RESULTS = 30` (already correct from last fix)
   - No detail-fetch code reintroduced — that path is gone
   - `bun run format && bun run lint` must pass
 
-- [ ] **Block B — Extract `_shared/enrich-record.ts` + refactor `claude-enrichment`** | Agent: `/plumber`
+- [x] **Block B — Extract `_shared/enrich-record.ts` + refactor `claude-enrichment`** | Agent: `/plumber`
   - Create `supabase/functions/_shared/enrich-record.ts` containing:
     - `ENRICHMENT_SYSTEM_PROMPT` — the AI Scribe system prompt (moved from `claude-enrichment`)
     - `EnrichmentSchema` — the Zod schema (moved from `claude-enrichment`)
@@ -61,7 +61,7 @@ cache-enrichment-worker (batch = 5 records / run)
   - Zero change to `claude-enrichment`'s external API contract
   - `bun run format && bun run lint` must pass
 
-- [ ] **Block C — `cache-enrichment-worker` Edge Function** | Agent: `/plumber`
+- [x] **Block C — `cache-enrichment-worker` Edge Function** | Agent: `/plumber`
   - Create `supabase/functions/cache-enrichment-worker/index.ts`
   - Auth: `x-cron-secret` header (server-to-server, same pattern as `push-plant-alerts`)
   - Logic — Separation of Concerns:

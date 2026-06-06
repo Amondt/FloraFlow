@@ -1,0 +1,10 @@
+{
+  "deno.enablePaths": ["supabase/functions"],
+  "deno.lint": true,
+  "deno.suggest.imports.hosts": {
+    "https://deno.land": true
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
+}

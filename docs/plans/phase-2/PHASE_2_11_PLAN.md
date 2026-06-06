@@ -73,7 +73,7 @@ cache-enrichment-worker (batch = 5 records / run)
   - If `ANTHROPIC_API_KEY` is absent: return `503` with a clear message (no silent crash)
   - `bun run format && bun run lint` must pass
 
-- [ ] **Block D — pg_cron migration** | Agent: `/plumber`
+- [x] **Block D — pg_cron migration** | Agent: `/plumber`
   - New migration file: `supabase/migrations/20260606000002_cache_enrichment_cron.sql`
   - Schedules `cache-enrichment-worker` every 10 minutes (`*/10 * * * *`)
   - Pattern: identical to `20260527000001_push_alerts_cron.sql` — uses `extensions.http_post` with `x-cron-secret` header

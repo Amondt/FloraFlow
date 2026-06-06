@@ -77,7 +77,7 @@
 
     <!-- Panel content -->
     <div
-      class="mt-4 max-h-[45vh] overflow-y-auto"
+      class="mt-4"
       role="tabpanel"
       tabindex="0"
       [id]="'bdd-panel-' + activeTab()"
@@ -753,35 +753,6 @@
       </div>
     }
 
-    <!-- Footer buttons -->
-    <div
-      class="mt-4 flex justify-end gap-3 border-t border-neutral-100 pt-4 dark:border-neutral-700"
-    >
-      <p-button
-        label="Close"
-        variant="outlined"
-        [pt]="FloraButtonPT"
-        ariaLabel="Close species details"
-        (onClick)="visibleChange.emit(false)"
-      />
-      @if (showAddButton()) {
-        <p-button
-          label="Track seeds"
-          variant="outlined"
-          icon="pi pi-bookmark"
-          [pt]="FloraButtonPT"
-          ariaLabel="Track seeds for this species in your seed bank"
-          (onClick)="onSaveToSeeds()"
-        />
-        <p-button
-          label="Add to my greenhouse"
-          [pt]="FloraButtonPT"
-          [ariaLabel]="'Add ' + rec.scientific_name + ' to my greenhouse'"
-          (onClick)="onAdd()"
-        />
-      }
-    </div>
-
     <!-- Photo lightbox -->
     @if (showLightbox() && lightboxUrl()) {
       <div
@@ -811,4 +782,34 @@
       </div>
     }
   }
+
+  <ng-template #footer>
+    <p-button
+      label="Close"
+      variant="outlined"
+      [pt]="FloraButtonPT"
+      ariaLabel="Close species details"
+      (onClick)="visibleChange.emit(false)"
+    />
+    @if (showAddButton()) {
+      <p-button
+        label="Track seeds"
+        variant="outlined"
+        icon="pi pi-bookmark"
+        [pt]="FloraButtonPT"
+        ariaLabel="Track seeds for this species in your seed bank"
+        (onClick)="onSaveToSeeds()"
+      />
+      <p-button
+        label="Add to my greenhouse"
+        [pt]="FloraButtonPT"
+        [ariaLabel]="
+          'Add ' +
+          (record()?.scientific_name ?? record()?.common_name ?? 'plant') +
+          ' to my greenhouse'
+        "
+        (onClick)="onAdd()"
+      />
+    }
+  </ng-template>
 </p-dialog>

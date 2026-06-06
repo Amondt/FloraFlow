@@ -4,11 +4,11 @@ import type { ConfirmDialogPassThroughOptions } from 'primeng/confirmdialog';
 export const FloraDialogPT = {
   root: {
     class:
-      'max-w-md w-full bg-white dark:bg-neutral-900 rounded-garden-lg shadow-2xl overflow-hidden',
+      'max-w-md w-full max-h-[90vh] flex flex-col bg-white dark:bg-neutral-900 rounded-garden-lg shadow-2xl overflow-hidden',
   },
   header: {
     class:
-      'bg-primary-900 p-4 flex items-center justify-between text-white font-semibold font-display',
+      'shrink-0 bg-primary-900 p-4 flex items-center justify-between text-white font-semibold font-display',
   },
   title: { class: 'text-base' },
   pcCloseButton: {
@@ -19,11 +19,38 @@ export const FloraDialogPT = {
   },
   content: {
     class:
-      'p-6 text-neutral-700 dark:text-neutral-200 text-base leading-relaxed font-display max-h-[60vh] overflow-y-auto',
+      'flex-1 min-h-0 overflow-y-auto p-6 text-neutral-700 dark:text-neutral-200 text-base leading-relaxed font-display',
   },
   footer: {
     class:
-      'bg-neutral-50 dark:bg-neutral-800 p-4 flex justify-end gap-3 border-t border-neutral-100 dark:border-neutral-700',
+      'shrink-0 bg-neutral-50 dark:bg-neutral-800 p-4 flex justify-end gap-3 border-t border-neutral-100 dark:border-neutral-700',
+  },
+  mask: { class: 'bg-neutral-900/50 backdrop-blur-sm' },
+} satisfies DialogPassThroughOptions;
+
+export const FloraFormDialogPT = {
+  root: {
+    class:
+      'max-w-lg w-full max-h-[90vh] flex flex-col bg-white dark:bg-neutral-900 rounded-garden-lg shadow-2xl overflow-hidden',
+  },
+  header: {
+    class:
+      'shrink-0 bg-primary-900 p-4 flex items-center justify-between text-white font-semibold font-display',
+  },
+  title: { class: 'text-base' },
+  pcCloseButton: {
+    root: {
+      class:
+        'cursor-pointer inline-flex items-center justify-center p-1 rounded hover:bg-primary-700 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-white',
+    },
+  },
+  content: {
+    class:
+      'flex-1 min-h-0 overflow-y-auto p-6 text-neutral-700 dark:text-neutral-200 text-base leading-relaxed font-display',
+  },
+  footer: {
+    class:
+      'shrink-0 bg-neutral-50 dark:bg-neutral-800 p-4 flex justify-end gap-3 border-t border-neutral-100 dark:border-neutral-700',
   },
   mask: { class: 'bg-neutral-900/50 backdrop-blur-sm' },
 } satisfies DialogPassThroughOptions;
@@ -31,11 +58,11 @@ export const FloraDialogPT = {
 export const FloraDetailDialogPT = {
   root: {
     class:
-      'max-w-2xl w-full bg-white dark:bg-neutral-900 rounded-garden-lg shadow-2xl overflow-hidden',
+      'max-w-2xl w-full max-h-[90vh] flex flex-col bg-white dark:bg-neutral-900 rounded-garden-lg shadow-2xl overflow-hidden',
   },
   header: {
     class:
-      'bg-primary-900 p-4 flex items-center justify-between text-white font-semibold font-display',
+      'shrink-0 bg-primary-900 p-4 flex items-center justify-between text-white font-semibold font-display',
   },
   title: { class: 'text-base' },
   pcCloseButton: {
@@ -45,7 +72,12 @@ export const FloraDetailDialogPT = {
     },
   },
   content: {
-    class: 'p-6 text-neutral-700 dark:text-neutral-200 text-sm leading-relaxed font-display',
+    class:
+      'flex-1 min-h-0 overflow-y-auto p-6 text-neutral-700 dark:text-neutral-200 text-sm leading-relaxed font-display',
+  },
+  footer: {
+    class:
+      'shrink-0 bg-neutral-50 dark:bg-neutral-800 p-4 flex justify-end gap-3 border-t border-neutral-100 dark:border-neutral-700',
   },
   mask: { class: 'bg-neutral-900/50 backdrop-blur-sm' },
 } satisfies DialogPassThroughOptions;

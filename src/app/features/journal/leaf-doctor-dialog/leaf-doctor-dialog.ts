@@ -17,7 +17,7 @@ import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
 import { MessageService } from 'primeng/api';
 import {
-  FloraDialogPT,
+  FloraFormDialogPT,
   FloraButtonPT,
   FloraMessagePT,
   FLORA_FOCUS,
@@ -59,7 +59,7 @@ export class LeafDoctorDialogComponent implements OnDestroy {
   readonly preselectedPlantId = input<string | null>(null);
   readonly entrySaved = output<void>();
 
-  protected readonly FloraDialogPT = FloraDialogPT;
+  protected readonly FloraFormDialogPT = FloraFormDialogPT;
   protected readonly FloraButtonPT = FloraButtonPT;
   protected readonly FloraMessagePT = FloraMessagePT;
   protected readonly FLORA_FOCUS = FLORA_FOCUS;

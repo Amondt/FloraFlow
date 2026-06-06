@@ -19,7 +19,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageService } from 'primeng/api';
 import {
-  FloraDialogPT,
+  FloraFormDialogPT,
   FloraSelectPT,
   FloraTextareaPT,
   FloraButtonPT,
@@ -58,7 +58,7 @@ export class JournalEntryFormComponent implements OnDestroy {
   readonly preselectedPlantId = input<string | null>(null);
   readonly entrySaved = output<void>();
 
-  protected readonly FloraDialogPT = FloraDialogPT;
+  protected readonly FloraFormDialogPT = FloraFormDialogPT;
   protected readonly FloraSelectPT = FloraSelectPT;
   protected readonly FloraTextareaPT = FloraTextareaPT;
   protected readonly FloraButtonPT = FloraButtonPT;

@@ -17,7 +17,7 @@ import { AutoComplete, AutoCompleteModule, AutoCompleteCompleteEvent } from 'pri
 import { Select, SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
 import {
-  FloraDialogPT,
+  FloraFormDialogPT,
   FloraInputTextPT,
   FloraAutoCompletePT,
   FloraSelectPT,
@@ -69,7 +69,7 @@ export class PlantFormDialogComponent {
   readonly visible = model<boolean>(false);
   readonly saved = output<PlantFormData>();
 
-  protected readonly FloraDialogPT = FloraDialogPT;
+  protected readonly FloraFormDialogPT = FloraFormDialogPT;
   protected readonly FloraInputTextPT = FloraInputTextPT;
   protected readonly FloraAutoCompletePT = FloraAutoCompletePT;
   protected readonly FloraSelectPT = FloraSelectPT;

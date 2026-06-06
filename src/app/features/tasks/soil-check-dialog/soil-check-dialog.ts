@@ -2,7 +2,7 @@ import { Component, computed, effect, inject, input, model, output, signal } fro
 import { RouterLink } from '@angular/router';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
-import { FloraDialogPT, FloraButtonPT } from '../../../shared/ui/pt/index';
+import { FloraFormDialogPT, FloraButtonPT } from '../../../shared/ui/pt/index';
 import { ContainerVector, GrowthStage, Plant, SubstrateFactor } from '../plant.model';
 import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-icon';
 import { blurActiveElement } from '../../../shared/utils/dom';
@@ -105,7 +105,7 @@ export class SoilCheckDialogComponent {
   readonly confirmed = output<{ plant: Plant; note: string; days: number }>();
   readonly snoozed = output<{ id: string; days: number }>();
 
-  protected readonly FloraDialogPT = FloraDialogPT;
+  protected readonly FloraFormDialogPT = FloraFormDialogPT;
   protected readonly FloraButtonPT = FloraButtonPT;
 
   readonly step = signal<CheckStep>('ask');

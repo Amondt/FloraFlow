@@ -197,7 +197,7 @@ export class DashboardComponent {
 
   // ── Chip class helpers (return full class strings for Tailwind scanning) ──
   protected chipThumbClass(isOverdue: boolean): string {
-    const base = 'flex-shrink-0 w-10 h-10 rounded-garden-sm flex items-center justify-center';
+    const base = 'flex-shrink-0 w-12 h-12 rounded-garden-sm flex items-center justify-center';
     return isOverdue
       ? `${base} bg-yellow-50 dark:bg-yellow-900/20`
       : `${base} bg-primary-50 dark:bg-primary-900/20`;

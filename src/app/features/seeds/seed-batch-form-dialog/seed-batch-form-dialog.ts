@@ -23,7 +23,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { ButtonModule } from 'primeng/button';
 import { MessageService } from 'primeng/api';
 import {
-  FloraDialogPT,
+  FloraFormDialogPT,
   FloraInputTextPT,
   FloraAutoCompletePT,
   FloraTextareaPT,
@@ -62,7 +62,7 @@ export class SeedBatchFormDialogComponent {
   readonly editTarget = input<SeedBatch | null>(null);
   readonly saved = output<SeedBatch>();
 
-  protected readonly FloraDialogPT = FloraDialogPT;
+  protected readonly FloraFormDialogPT = FloraFormDialogPT;
   protected readonly FloraInputTextPT = FloraInputTextPT;
   protected readonly FloraAutoCompletePT = FloraAutoCompletePT;
   protected readonly FloraTextareaPT = FloraTextareaPT;

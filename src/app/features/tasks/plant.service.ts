@@ -34,7 +34,7 @@ export class PlantService {
     const { data, error } = await this.supabase.client
       .from('plants')
       .select(
-        'id, common_name, scientific_name, zone_id, next_check_due_at, last_checked_at, current_snooze_interval_days, container_vector, substrate_factor, growth_stage',
+        'id, common_name, scientific_name, zone_id, next_check_due_at, last_checked_at, current_snooze_interval_days, container_vector, substrate_factor, growth_stage, pot_diameter_cm',
       )
       .order('next_check_due_at', { ascending: true });
 
@@ -126,7 +126,7 @@ export class PlantService {
     const { data, error } = await this.supabase.client
       .from('plants')
       .select(
-        'id, common_name, scientific_name, zone_id, next_check_due_at, last_checked_at, current_snooze_interval_days, container_vector, substrate_factor, growth_stage',
+        'id, common_name, scientific_name, zone_id, next_check_due_at, last_checked_at, current_snooze_interval_days, container_vector, substrate_factor, growth_stage, pot_diameter_cm',
       )
       .eq('id', plantId)
       .single();
@@ -177,6 +177,7 @@ export class PlantService {
               container_vector: item.container_vector as ContainerVector,
               substrate_factor: item.substrate_factor as SubstrateFactor,
               growth_stage: (item.growth_stage as GrowthStage) ?? 'Mature',
+              pot_diameter_cm: item.pot_diameter_cm ?? null,
               user_id: user.id,
             });
             rpcError = error;
@@ -214,6 +215,7 @@ export class PlantService {
         container_vector: data.container_vector,
         substrate_factor: data.substrate_factor,
         growth_stage: data.growth_stage,
+        pot_diameter_cm: data.pot_diameter_cm ?? null,
         last_checked_at: null,
         next_check_due_at: nextDue.toISOString(),
         current_snooze_interval_days: 3,
@@ -234,6 +236,7 @@ export class PlantService {
         container_vector: data.container_vector,
         substrate_factor: data.substrate_factor,
         growth_stage: data.growth_stage,
+        pot_diameter_cm: data.pot_diameter_cm,
       });
       return optimisticPlant;
     }
@@ -255,7 +258,7 @@ export class PlantService {
       .from('plants')
       .insert({ ...data, user_id: user.id })
       .select(
-        'id, common_name, scientific_name, next_check_due_at, container_vector, substrate_factor, growth_stage, zone_id',
+        'id, common_name, scientific_name, next_check_due_at, container_vector, substrate_factor, growth_stage, pot_diameter_cm, zone_id',
       )
       .single();
 

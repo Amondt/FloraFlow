@@ -20,12 +20,12 @@ Pure functions only — no Angular, no Supabase. Fully testable in isolation.
 
 **Entry points and context:**
 
-| Entry point | Plant context | Botanical record context | Pre-fill source |
-|---|---|---|---|
-| Zone-detail plant card | ✓ | ✓ (from zone batch fetch) | `substrate_factor` → profile; `pot_diameter_cm` → volume; `ideal_min/max_ph` → pH badge |
-| Library botanical detail dialog (Care tab) | — | ✓ | `preferred_soil_type` → profile; `ideal_min/max_ph` → pH badge |
-| Plant form dialog (substrate helper) | — | — | Currently selected `substrate_factor` → profile only |
-| Library page header button | — | — | Fully manual (no pre-fill) |
+| Entry point                                | Plant context | Botanical record context  | Pre-fill source                                                                         |
+| ------------------------------------------ | ------------- | ------------------------- | --------------------------------------------------------------------------------------- |
+| Zone-detail plant card                     | ✓             | ✓ (from zone batch fetch) | `substrate_factor` → profile; `pot_diameter_cm` → volume; `ideal_min/max_ph` → pH badge |
+| Library botanical detail dialog (Care tab) | —             | ✓                         | `preferred_soil_type` → profile; `ideal_min/max_ph` → pH badge                          |
+| Plant form dialog (substrate helper)       | —             | —                         | Currently selected `substrate_factor` → profile only                                    |
+| Library page header button                 | —             | —                         | Fully manual (no pre-fill)                                                              |
 
 **Profile pre-selection priority** (highest wins): `plant.substrate_factor` → `botanicalRecord.preferred_soil_type` → `substratePreset` → 'General Tropical' fallback.
 
@@ -35,16 +35,17 @@ Pure functions only — no Angular, no Supabase. Fully testable in isolation.
 
 The wizard must be useful at every enrichment level. `substrate_factor` is the one field that is **always present** on every plant — the wizard is always functional. Everything else is progressive enhancement.
 
-| What's available | Profile source | Volume source | pH badge |
-|---|---|---|---|
-| Plant only (no scientific name, no botanical record) | `substrate_factor` → profile | `pot_diameter_cm` if set, else 1 L | Not shown |
-| Plant + botanical record, not AI-enriched (`preferred_soil_type` = null, pH = null) | `substrate_factor` → profile (preferred_soil_type is null, so substrate wins) | `pot_diameter_cm` if set, else 1 L | Not shown |
-| Plant + botanical record, AI-enriched (all fields populated) | `substrate_factor` → profile (plant's own choice takes priority over preferred_soil_type) | `pot_diameter_cm` if set, else 1 L | Shown (green or amber) |
-| Botanical record only (library entry, no plant) | `preferred_soil_type` → profile if non-null, else 'General Tropical' | 1 L default | Shown if pH fields present |
-| Substrate preset only (plant form entry) | Preset → profile | 1 L default | Not shown (no plant, no record) |
-| No context (library header button) | 'General Tropical' default | 1 L default | Not shown |
+| What's available                                                                    | Profile source                                                                            | Volume source                      | pH badge                        |
+| ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------- | ------------------------------- |
+| Plant only (no scientific name, no botanical record)                                | `substrate_factor` → profile                                                              | `pot_diameter_cm` if set, else 1 L | Not shown                       |
+| Plant + botanical record, not AI-enriched (`preferred_soil_type` = null, pH = null) | `substrate_factor` → profile (preferred_soil_type is null, so substrate wins)             | `pot_diameter_cm` if set, else 1 L | Not shown                       |
+| Plant + botanical record, AI-enriched (all fields populated)                        | `substrate_factor` → profile (plant's own choice takes priority over preferred_soil_type) | `pot_diameter_cm` if set, else 1 L | Shown (green or amber)          |
+| Botanical record only (library entry, no plant)                                     | `preferred_soil_type` → profile if non-null, else 'General Tropical'                      | 1 L default                        | Shown if pH fields present      |
+| Substrate preset only (plant form entry)                                            | Preset → profile                                                                          | 1 L default                        | Not shown (no plant, no record) |
+| No context (library header button)                                                  | 'General Tropical' default                                                                | 1 L default                        | Not shown                       |
 
 **When pH badge cannot be shown:**
+
 - If plant has no `scientific_name`: show a soft nudge below the pH estimate — "Link a species to your plant to also see pH compatibility."
 - If botanical record exists but pH fields are null (not yet AI-enriched): show pH estimate only, no badge, no nudge.
 - Never show a broken or empty badge — the section is absent from the DOM entirely when pH data is unavailable.
@@ -57,15 +58,16 @@ The wizard must be useful at every enrichment level. `substrate_factor` is the o
 
 Five profiles map directly to the five `SubstrateFactor` enum values in `plant.model.ts`:
 
-| Profile | Maps from | Components | Typical use |
-|---|---|---|---|
-| Epiphytic Aroid | `High-Drainage Aroid` | 40% Orchid Bark · 30% Perlite · 30% Coco Coir | Monsteras, Philodendrons, Pothos |
-| Desert Succulent | `Desert Succulent` | 40% Standard Potting Mix · 35% Coarse Sand · 25% Perlite | Cacti, Echeveria, Aloe |
-| Sphagnum Epiphyte | `Sphagnum Moss Mix` | 60% Sphagnum Moss · 30% Perlite · 10% Orchid Bark | Orchids, moisture-loving epiphytes |
-| Peat-Based Bog | `Heavy Peat` | 50% Peat Moss · 30% Perlite · 20% Coarse Sand | Carnivorous plants, acid-loving tropicals |
-| General Tropical | `Standard Potting` | 50% Standard Potting Mix · 25% Perlite · 25% Coco Coir | Most common houseplants |
+| Profile           | Maps from             | Components                                               | Typical use                               |
+| ----------------- | --------------------- | -------------------------------------------------------- | ----------------------------------------- |
+| Epiphytic Aroid   | `High-Drainage Aroid` | 40% Orchid Bark · 30% Perlite · 30% Coco Coir            | Monsteras, Philodendrons, Pothos          |
+| Desert Succulent  | `Desert Succulent`    | 40% Standard Potting Mix · 35% Coarse Sand · 25% Perlite | Cacti, Echeveria, Aloe                    |
+| Sphagnum Epiphyte | `Sphagnum Moss Mix`   | 60% Sphagnum Moss · 30% Perlite · 10% Orchid Bark        | Orchids, moisture-loving epiphytes        |
+| Peat-Based Bog    | `Heavy Peat`          | 50% Peat Moss · 30% Perlite · 20% Coarse Sand            | Carnivorous plants, acid-loving tropicals |
+| General Tropical  | `Standard Potting`    | 50% Standard Potting Mix · 25% Perlite · 25% Coco Coir   | Most common houseplants                   |
 
 **Recipe rationale (sources consulted):**
+
 - **Epiphytic Aroid 40/30/30**: "Equal-thirds bark/perlite/coir" is the most cited DIY aroid recipe; 40% bark is slightly bark-heavy for better drainage. Consistent with monsteramash.com, elmdirt.com, and pistilsandpollen.com guides.
 - **Desert Succulent 40/35/25**: Corrected from initial 50/30/20. Multiple sources (gardeningknowhow.com, masterclass.com) cite a 3:3:2 potting:sand:perlite ratio; our 40/35/25 matches that spirit. Initial recipe was drainage-heavy (80% inorganic) which would suit true xeric cacti but not the average FloraFlow user's potted succulents.
 - **Sphagnum Epiphyte 60/30/10**: Corrected from initial 70/20/10. 70% sphagnum stays wet too long in a pot; 60% is still moss-forward (reflecting the "Sphagnum Moss Mix" label) while the 30% perlite ensures air pockets. Consistent with orchid epiphyte guidance from herebutnot.com and oakhillgardens.com.
@@ -78,15 +80,15 @@ Five profiles map directly to the five `SubstrateFactor` enum values in `plant.m
 
 ### Component pH ranges
 
-| Component | pH range | Source |
-|---|---|---|
-| Orchid Bark (fir/pine) | 4.0–6.5 | OrchidResourceCenter; commercial orchid bark is typically fir-based (4.4–6.5); pine bark runs 3.4–5.5 |
-| Perlite | 7.0–7.0 | Sterile volcanic glass, pH-neutral; confirmed universally |
-| Coco Coir | 6.0–6.8 | Botanicoir; GreenPlanet Nutrients; HORIBA lab analysis |
-| Coarse Sand/Grit | 7.0–7.0 | Silica/quartz sand is pH-neutral; always use horticultural-grade, never fine beach sand |
-| Standard Potting Mix | 6.0–7.0 | Industry standard; most commercial mixes are limed to this range |
-| Sphagnum Moss | 3.5–4.5 | Consistent with multiple horticultural references |
-| Peat Moss | 3.0–4.5 | University of Arkansas greenhouse unit; PMC NCBl 8469801 — unamended sphagnum peat measures 3.0–4.5 |
+| Component              | pH range | Source                                                                                                |
+| ---------------------- | -------- | ----------------------------------------------------------------------------------------------------- |
+| Orchid Bark (fir/pine) | 4.0–6.5  | OrchidResourceCenter; commercial orchid bark is typically fir-based (4.4–6.5); pine bark runs 3.4–5.5 |
+| Perlite                | 7.0–7.0  | Sterile volcanic glass, pH-neutral; confirmed universally                                             |
+| Coco Coir              | 6.0–6.8  | Botanicoir; GreenPlanet Nutrients; HORIBA lab analysis                                                |
+| Coarse Sand/Grit       | 7.0–7.0  | Silica/quartz sand is pH-neutral; always use horticultural-grade, never fine beach sand               |
+| Standard Potting Mix   | 6.0–7.0  | Industry standard; most commercial mixes are limed to this range                                      |
+| Sphagnum Moss          | 3.5–4.5  | Consistent with multiple horticultural references                                                     |
+| Peat Moss              | 3.0–4.5  | University of Arkansas greenhouse unit; PMC NCBl 8469801 — unamended sphagnum peat measures 3.0–4.5   |
 
 > **Peat Moss correction:** PHASES_PLAN.md §3.8 cited "3.5–4.8". Research shows the correct range is 3.0–4.5 — the spec upper bound was too high.
 
@@ -95,12 +97,14 @@ Five profiles map directly to the five `SubstrateFactor` enum values in `plant.m
 pH is a **logarithmic scale**. Directly averaging pH numbers is a known error: a difference of 3 pH units represents a 1000× difference in [H+]. The correct method converts to ion concentration first, weights, then converts back.
 
 **Wrong (what the PHASES_PLAN.md spec originally described):**
+
 ```
 pH_low  = Σ(component_pH_low  × fraction)   ← linear mean, incorrect
 pH_high = Σ(component_pH_high × fraction)
 ```
 
 **Correct (what the engine must implement):**
+
 ```
 H+_most_acidic   = Σ(10^(−component_pH_low)  × fraction)
 H+_most_alkaline = Σ(10^(−component_pH_high) × fraction)
@@ -111,19 +115,20 @@ pH_high = −log10(H+_most_alkaline)   ← most alkaline scenario
 
 ### Why the method matters — error magnitude
 
-| Profile | H⁺ method (correct) | Linear (wrong) | Error on low end |
-|---|---|---|---|
-| Epiphytic Aroid | pH ~4.4–6.7 | pH ~5.5–6.7 | +1.1 units too high |
-| Desert Succulent | pH ~6.3–7.0 | pH ~6.6–7.0 | +0.3 units (minor) |
-| Sphagnum Epiphyte | pH ~3.7–4.7 | pH ~4.6–5.5 | +0.9 units too high |
-| Peat-Based Bog | pH ~3.3–4.8 | pH ~5.0–5.8 | **+1.7 units too high** |
-| General Tropical | pH ~6.1–6.9 | pH ~6.3–7.0 | +0.1 units (negligible) |
+| Profile           | H⁺ method (correct) | Linear (wrong) | Error on low end        |
+| ----------------- | ------------------- | -------------- | ----------------------- |
+| Epiphytic Aroid   | pH ~4.4–6.7         | pH ~5.5–6.7    | +1.1 units too high     |
+| Desert Succulent  | pH ~6.3–7.0         | pH ~6.6–7.0    | +0.3 units (minor)      |
+| Sphagnum Epiphyte | pH ~3.7–4.7         | pH ~4.6–5.5    | +0.9 units too high     |
+| Peat-Based Bog    | pH ~3.3–4.8         | pH ~5.0–5.8    | **+1.7 units too high** |
+| General Tropical  | pH ~6.1–6.9         | pH ~6.3–7.0    | +0.1 units (negligible) |
 
 The Peat-Based Bog error (pH 5.0 vs pH 3.3) is not cosmetic — a carnivorous plant owner seeing "pH 5.0" would think the mix is fine; "pH 3.3" correctly communicates that this is a very acidic environment. The H⁺ method must be used.
 
 ### Remaining limitations (document in UI caveat)
 
 Even the H⁺ method is an approximation for substrates. Real pH is affected by:
+
 - **Buffering capacity**: peat and sphagnum have high CEC and resist pH change — the actual root-zone pH may be more stable than the formula suggests.
 - **Measurement method**: substrate pH is measured by 1:2 dilution or saturated paste — different from pure solution pH.
 - **Amendment history**: commercial mixes often have lime added; a brand-new bag may test differently from an in-use substrate.
@@ -133,11 +138,12 @@ The "not a lab measurement" caveat in the UI must remain.
 Display: `"Estimated pH: ~4.4–6.7"` (one decimal, rounded from the H⁺ computation).
 
 **pH compatibility badge** (only when botanical record has `ideal_min_ph` and `ideal_max_ph`):
+
 - Mix high < `ideal_min_ph` → amber "⚠ Too acidic — plant needs pH {min}–{max}"
 - Mix low > `ideal_max_ph` → amber "⚠ Too alkaline — plant needs pH {min}–{max}"
 - Ranges overlap → green "✓ pH compatible (plant prefers pH {min}–{max})"
 
-Always followed by the caveat: *"Estimated pH — not a lab measurement."*
+Always followed by the caveat: _"Estimated pH — not a lab measurement."_
 
 ---
 
@@ -151,27 +157,28 @@ The plan originally used a tapered-cylinder approximation: `V = π(d/2)² × 0.8
 
 Use this table (derived from standard horticultural trade pot dimensions) rather than any formula. For a `pot_diameter_cm` value that doesn't match a table entry exactly, snap to the nearest entry.
 
-| Pot diameter | Volume | Common use |
-|---|---|---|
-| 6 cm | 0.07 L | Seedlings, offsets |
-| 8 cm | 0.15 L | Small seedlings |
-| 9 cm | 0.25 L | Cuttings |
-| 10 cm | 0.40 L | Small succulents, herbs |
-| 12 cm | 0.70 L | Young plants |
-| 14 cm | 1.00 L | Small houseplants |
-| 15 cm | 1.30 L | Standard indoor plant |
-| 17 cm | 2.00 L | Mid-size houseplants |
-| 19 cm | 3.00 L | |
-| 20 cm | 3.20 L | Larger houseplants |
-| 21 cm | 4.00 L | |
-| 25 cm | 6.00 L | Large plants |
-| 30 cm | 10.0 L | Statement plants |
+| Pot diameter | Volume | Common use              |
+| ------------ | ------ | ----------------------- |
+| 6 cm         | 0.07 L | Seedlings, offsets      |
+| 8 cm         | 0.15 L | Small seedlings         |
+| 9 cm         | 0.25 L | Cuttings                |
+| 10 cm        | 0.40 L | Small succulents, herbs |
+| 12 cm        | 0.70 L | Young plants            |
+| 14 cm        | 1.00 L | Small houseplants       |
+| 15 cm        | 1.30 L | Standard indoor plant   |
+| 17 cm        | 2.00 L | Mid-size houseplants    |
+| 19 cm        | 3.00 L |                         |
+| 20 cm        | 3.20 L | Larger houseplants      |
+| 21 cm        | 4.00 L |                         |
+| 25 cm        | 6.00 L | Large plants            |
+| 30 cm        | 10.0 L | Statement plants        |
 
 ### Volume as a low-friction optional input
 
 **Percentages are the primary output.** Volumes are a convenience scaling tool — they answer "how much of each component do I need to buy?" but they are never required to make the wizard useful.
 
 The UX must reflect this:
+
 - Volume defaults to `1` (the "per 1 litre" reference unit). Results are immediately meaningful because proportions are shown alongside volumes.
 - The primary interaction is **five pot-size chips** — not a free-text number. Chips are: `10 cm`, `12 cm`, `15 cm`, `20 cm`, `25 cm`. Each shows its volume in parentheses. One tap fills the volume input without any mental arithmetic.
 - The number input remains editable for non-standard pot sizes.
@@ -184,12 +191,12 @@ The UX must reflect this:
 
 ## Blocks
 
-- [ ] **Block A — Migration: `pot_diameter_cm` on `plants`** | Agent: `/plumber`
+- [x] **Block A — Migration: `pot_diameter_cm` on `plants`** | Agent: `/plumber`
   - Migration file: `ALTER TABLE public.plants ADD COLUMN pot_diameter_cm INT;` — nullable, no default, no RLS changes (existing plant policy covers it)
   - After migration: `bun run types` then `Copy-Item src/types/database.types.ts supabase/functions/_shared/database.types.ts`
   - Verification: confirm `pot_diameter_cm` appears in `database.types.ts` Plants Row
 
-- [ ] **Block B — Plant data layer: model, service & form** | Agent: `/plumber` → `/visualizer`
+- [x] **Block B — Plant data layer: model, service & form** | Agent: `/plumber` → `/visualizer`
   - `/plumber`: add `pot_diameter_cm?: number | null` to `Plant` interface and `PlantFormData` in `plant.model.ts`; update `PlantService.loadPlants()` select string to include `pot_diameter_cm`; update `createPlant()` and `updatePlant()` to pass the field when present
   - `/visualizer`: add optional "Pot diameter (cm)" `pInputNumber` field in `plant-form-dialog.html` (position: below substrate_factor, above growth_stage); hint: "Helps calculate volumes when mixing substrate"; `[min]="4"` `[max]="60"` `[step]="1"` `[showButtons]="true"` using `FloraInputNumberPT`; nullable — no validator
   - Verification: open Add Plant form → pot diameter field appears; save a plant with a value → reload tasks page → plant data still loads without error
@@ -216,7 +223,7 @@ The UX must reflect this:
     2. else `botanicalRecord()?.preferred_soil_type` → `preferredSoilToProfile()` when non-null and non-empty
     3. else `substratePreset()` → `substrateFactorToProfile()` when non-null
     4. else `'General Tropical'` hardcoded fallback
-    User can override the pre-selection by clicking any profile card — this does not mutate any input.
+       User can override the pre-selection by clicking any profile card — this does not mutate any input.
   - `rawVolume`: `linkedSignal` — initialises from `diameterToVolume(plant().pot_diameter_cm)` when `pot_diameter_cm != null`, else `1` (the reference unit); always editable by the user via the number input
   - `selectedChipDiameter`: `linkedSignal` — initialises to the nearest chip diameter when `pot_diameter_cm` is set (snapping to 10/12/15/20/25), else `null`; updated when the user taps a chip; drives both the chip highlight and the volume input simultaneously
   - `mixResult`: `computed(() => computeMix(selectedProfile(), rawVolume()))` — updates every keystroke
@@ -225,7 +232,7 @@ The UX must reflect this:
   - **Approximation disclosure strategy — three layers of progressive disclosure:**
     - **Layer 1 — silent visual signal (always visible, zero reading required):** all estimated numbers are prefixed with `~` — pH estimate reads "Estimated pH: ~4.4–6.7", volume hint reads "~2 L". The tilde is a universal approximation symbol; most users process it subconsciously.
     - **Layer 2 — one-line anchor (visible, skimmable):** immediately below the pH estimate, a small inline row: `ℹ Estimates — actual pH varies by brand and substrate age.` Styled as `text-xs text-neutral-400 dark:text-neutral-500 font-display` with `pi-info-circle` icon. One sentence. No jargon. Does not alarm.
-    - **Layer 3 — on-demand detail (opt-in only):** the `ℹ` icon is a small `<button>` that opens a `FloraPopoverPT` popover on click. Popover text (two sentences, max): *"pH is calculated from typical component values reported in horticultural research — actual results depend on the brand, age, and water quality you use. For precision, test your mix with a pH meter after blending."* Popover closes on outside click. No modal, no blocking UX.
+    - **Layer 3 — on-demand detail (opt-in only):** the `ℹ` icon is a small `<button>` that opens a `FloraPopoverPT` popover on click. Popover text (two sentences, max): _"pH is calculated from typical component values reported in horticultural research — actual results depend on the brand, age, and water quality you use. For precision, test your mix with a pH meter after blending."_ Popover closes on outside click. No modal, no blocking UX.
   - UI layout top-to-bottom:
     1. Dialog header "Substrate Mix Guide" + plant name subtitle line (`@if (plant())`)
     2. Profile selector — 5 cards in a responsive grid; active: `border-2 border-primary-600 bg-primary-50`; inactive: `border border-neutral-200 hover:border-neutral-300`

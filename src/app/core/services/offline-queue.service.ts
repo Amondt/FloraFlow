@@ -14,6 +14,7 @@ export interface QueuedAction {
   container_vector?: string;
   substrate_factor?: string;
   growth_stage?: string;
+  pot_diameter_cm?: number | null;
   zone_name?: string;
   zone_icon?: string;
   zone_type?: string;

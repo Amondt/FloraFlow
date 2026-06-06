@@ -204,6 +204,36 @@
       />
     </div>
 
+    <!-- Pot diameter (optional) -->
+    <div class="flex flex-col gap-1.5">
+      <label
+        [for]="potDiameterId"
+        class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+      >
+        Pot diameter
+        <span class="text-neutral-400 font-normal text-xs ml-1">(cm, optional)</span>
+      </label>
+      <p-inputnumber
+        [inputId]="potDiameterId"
+        formControlName="pot_diameter_cm"
+        [pt]="FloraInputNumberPT"
+        [min]="4"
+        [max]="60"
+        [step]="1"
+        [showButtons]="true"
+        [allowEmpty]="true"
+        [aria-describedby]="potDiameterId + '-hint'"
+        placeholder="e.g. 15"
+      />
+      <small
+        [id]="potDiameterId + '-hint'"
+        class="text-neutral-400 text-xs font-display"
+        role="note"
+      >
+        Helps calculate volumes when mixing substrate
+      </small>
+    </div>
+
     <!-- Growth stage -->
     <div class="flex flex-col gap-1.5">
       <span

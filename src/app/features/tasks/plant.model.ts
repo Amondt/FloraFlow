@@ -44,6 +44,7 @@ export interface Plant {
   container_vector: ContainerVector;
   substrate_factor: SubstrateFactor;
   growth_stage: GrowthStage;
+  pot_diameter_cm?: number | null;
   last_checked_at: string | null;
   next_check_due_at: string;
   current_snooze_interval_days: number;
@@ -59,4 +60,5 @@ export interface PlantFormData {
   container_vector: ContainerVector;
   substrate_factor: SubstrateFactor;
   growth_stage: GrowthStage;
+  pot_diameter_cm?: number | null;
 }

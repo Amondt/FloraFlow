@@ -255,6 +255,7 @@ export type Database = {
           last_checked_at: string | null
           next_check_due_at: string
           perenual_id: number | null
+          pot_diameter_cm: number | null
           scientific_name: string | null
           substrate_factor: Database["public"]["Enums"]["substrate_factor_type"]
           updated_at: string
@@ -271,6 +272,7 @@ export type Database = {
           last_checked_at?: string | null
           next_check_due_at?: string
           perenual_id?: number | null
+          pot_diameter_cm?: number | null
           scientific_name?: string | null
           substrate_factor?: Database["public"]["Enums"]["substrate_factor_type"]
           updated_at?: string
@@ -287,6 +289,7 @@ export type Database = {
           last_checked_at?: string | null
           next_check_due_at?: string
           perenual_id?: number | null
+          pot_diameter_cm?: number | null
           scientific_name?: string | null
           substrate_factor?: Database["public"]["Enums"]["substrate_factor_type"]
           updated_at?: string

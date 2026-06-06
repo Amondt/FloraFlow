@@ -13,6 +13,7 @@ import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angula
 import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
+import { InputNumberModule } from 'primeng/inputnumber';
 import { AutoComplete, AutoCompleteModule, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { Select, SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
@@ -20,6 +21,7 @@ import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-ico
 import {
   FloraFormDialogPT,
   FloraInputTextPT,
+  FloraInputNumberPT,
   FloraAutoCompletePT,
   FloraSelectPT,
   FloraButtonPT,
@@ -50,6 +52,7 @@ import {
     FormsModule,
     DialogModule,
     InputTextModule,
+    InputNumberModule,
     AutoCompleteModule,
     SelectModule,
     ButtonModule,
@@ -73,6 +76,7 @@ export class PlantFormDialogComponent {
 
   protected readonly FloraFormDialogPT = FloraFormDialogPT;
   protected readonly FloraInputTextPT = FloraInputTextPT;
+  protected readonly FloraInputNumberPT = FloraInputNumberPT;
   protected readonly FloraAutoCompletePT = FloraAutoCompletePT;
   protected readonly FloraSelectPT = FloraSelectPT;
   protected readonly FloraButtonPT = FloraButtonPT;
@@ -87,6 +91,7 @@ export class PlantFormDialogComponent {
   protected readonly zoneSelectId = `flora-plant-zone-${crypto.randomUUID().slice(0, 8)}`;
   protected readonly containerId = `flora-plant-ct-${crypto.randomUUID().slice(0, 8)}`;
   protected readonly substrateId = `flora-plant-sf-${crypto.randomUUID().slice(0, 8)}`;
+  protected readonly potDiameterId = `flora-plant-pd-${crypto.randomUUID().slice(0, 8)}`;
   protected readonly growthStageId = `flora-plant-gs-${crypto.randomUUID().slice(0, 8)}`;
 
   protected suggestions = signal<BotanicalSuggestion[]>([]);
@@ -101,6 +106,7 @@ export class PlantFormDialogComponent {
     zone_id: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     container_vector: new FormControl<ContainerVector>('Plastic', { nonNullable: true }),
     substrate_factor: new FormControl<SubstrateFactor>('Standard Potting', { nonNullable: true }),
+    pot_diameter_cm: new FormControl<number | null>(null),
     growth_stage: new FormControl<GrowthStage>('Mature', { nonNullable: true }),
   });
 
@@ -149,6 +155,7 @@ export class PlantFormDialogComponent {
           zone_id: p.zone_id,
           container_vector: p.container_vector,
           substrate_factor: p.substrate_factor,
+          pot_diameter_cm: p.pot_diameter_cm ?? null,
           growth_stage: p.growth_stage,
         });
       } else {
@@ -158,6 +165,7 @@ export class PlantFormDialogComponent {
           zone_id: defaultZoneId ?? this.zoneService.zones()[0]?.id ?? '',
           container_vector: 'Plastic',
           substrate_factor: 'Standard Potting',
+          pot_diameter_cm: null,
           growth_stage: 'Mature',
         });
 
@@ -244,6 +252,7 @@ export class PlantFormDialogComponent {
       zone_id: this.form.controls.zone_id.value,
       container_vector: this.form.controls.container_vector.value,
       substrate_factor: this.form.controls.substrate_factor.value,
+      pot_diameter_cm: this.form.controls.pot_diameter_cm.value,
       growth_stage: this.form.controls.growth_stage.value,
     };
 

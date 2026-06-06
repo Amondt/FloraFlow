@@ -80,7 +80,7 @@
 
       <button
         type="button"
-        class="relative cursor-pointer text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-danger-500 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
+        class="relative inline-flex items-center gap-1 cursor-pointer text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-danger-500 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
         [attr.aria-label]="'Permanently delete ' + batch().common_name"
         (click)="deleteRequested.emit()"
       >
@@ -88,6 +88,7 @@
           aria-hidden="true"
           class="absolute top-1/2 left-1/2 size-11 -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"
         ></span>
+        <i class="pi pi-trash text-[10px]" aria-hidden="true"></i>
         Delete
       </button>
     } @else {
@@ -119,7 +120,7 @@
 
       <button
         type="button"
-        class="relative cursor-pointer text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-warning-500 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
+        class="relative inline-flex items-center gap-1 cursor-pointer text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-warning-500 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
         [attr.aria-label]="'Archive ' + batch().common_name"
         (click)="archiveRequested.emit()"
       >
@@ -127,12 +128,13 @@
           aria-hidden="true"
           class="absolute top-1/2 left-1/2 size-11 -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"
         ></span>
+        <i class="pi pi-box text-[10px]" aria-hidden="true"></i>
         Archive
       </button>
 
       <button
         type="button"
-        class="relative cursor-pointer text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
+        class="relative inline-flex items-center gap-1 cursor-pointer text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
         [attr.aria-label]="'Edit ' + batch().common_name"
         (click)="editRequested.emit()"
       >
@@ -140,12 +142,13 @@
           aria-hidden="true"
           class="absolute top-1/2 left-1/2 size-11 -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"
         ></span>
+        <i class="pi pi-pencil text-[10px]" aria-hidden="true"></i>
         Edit
       </button>
 
       <button
         type="button"
-        class="relative cursor-pointer text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-danger-500 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
+        class="relative inline-flex items-center gap-1 cursor-pointer text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-danger-500 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
         [attr.aria-label]="'Delete ' + batch().common_name"
         (click)="deleteRequested.emit()"
       >
@@ -153,6 +156,7 @@
           aria-hidden="true"
           class="absolute top-1/2 left-1/2 size-11 -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"
         ></span>
+        <i class="pi pi-trash text-[10px]" aria-hidden="true"></i>
         Delete
       </button>
     }

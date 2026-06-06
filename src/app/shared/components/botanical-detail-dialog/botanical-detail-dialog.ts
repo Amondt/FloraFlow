@@ -53,6 +53,7 @@ export class BotanicalDetailDialogComponent {
   readonly visibleChange = output<boolean>();
   readonly addRequested = output<CachedBotanicalRecord>();
   readonly seedsRequested = output<CachedBotanicalRecord>();
+  readonly mixWizardRequested = output<CachedBotanicalRecord>();
 
   protected readonly FloraButtonPT = FloraButtonPT;
   protected readonly FloraDetailDialogPT = FloraDetailDialogPT;
@@ -174,6 +175,11 @@ export class BotanicalDetailDialogComponent {
         Promise.resolve().then(() => this.lightboxEl()?.nativeElement.focus());
       }
     });
+  }
+
+  protected onMixWizardRequested(): void {
+    const rec = this.activeRecord();
+    if (rec) this.mixWizardRequested.emit(rec);
   }
 
   protected onAdd(): void {

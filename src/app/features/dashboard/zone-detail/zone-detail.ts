@@ -32,6 +32,7 @@ import { Plant, PlantFormData } from '../../tasks/plant.model';
 import { PlantFormDialogComponent } from '../../tasks/plant-form-dialog/plant-form-dialog';
 import { SoilCheckDialogComponent } from '../../tasks/soil-check-dialog/soil-check-dialog';
 import { BotanicalDetailDialogComponent } from '../../../shared/components/botanical-detail-dialog/botanical-detail-dialog';
+import { SubstrateMixWizardDialogComponent } from '../../../shared/components/substrate-mix-wizard/substrate-mix-wizard-dialog';
 import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-icon';
 import { LibraryService, CachedBotanicalRecord } from '../../library/library.service';
 import { EnrichmentPoll } from '../../../shared/utils/enrichment-poll';
@@ -63,6 +64,7 @@ interface EnrichedPlant {
     PlantFormDialogComponent,
     SoilCheckDialogComponent,
     BotanicalDetailDialogComponent,
+    SubstrateMixWizardDialogComponent,
     LeafIconComponent,
     CareRecommendationsPanelComponent,
     TagModule,
@@ -184,6 +186,12 @@ export class ZoneDetailComponent {
   readonly soilCheckVisible = signal(false);
   readonly plantFormVisible = signal(false);
   readonly editingPlant = signal<Plant | null>(null);
+
+  // ── Mix wizard state ──────────────────────────────────────────
+  readonly wizardVisible = signal(false);
+  readonly wizardPlant = signal<Plant | null>(null);
+  readonly wizardRecord = signal<CachedBotanicalRecord | null>(null);
+  private _savedSpeciesRecord: CachedBotanicalRecord | null = null;
 
   // ── Care panel state ──────────────────────────────────────────
   readonly botanicalMap = signal<Map<string, CachedBotanicalRecord>>(new Map());
@@ -381,6 +389,37 @@ export class ZoneDetailComponent {
 
   onSpeciesDialogClose(visible: boolean): void {
     if (!visible) this.activeSpeciesRecord.set(null);
+  }
+
+  // ── Mix wizard actions ────────────────────────────────────────
+  openMixWizard(plant: Plant): void {
+    blurActiveElement();
+    this._savedSpeciesRecord = null;
+    this.wizardPlant.set(plant);
+    const record = plant.scientific_name
+      ? (this.botanicalMap().get(plant.scientific_name) ?? null)
+      : null;
+    this.wizardRecord.set(record);
+    this.wizardVisible.set(true);
+  }
+
+  openWizardFromBotanical(record: CachedBotanicalRecord): void {
+    this._savedSpeciesRecord = this.activeSpeciesRecord();
+    this.activeSpeciesRecord.set(null);
+    this.wizardPlant.set(null);
+    this.wizardRecord.set(record);
+    this.wizardVisible.set(true);
+  }
+
+  onWizardClose(isVisible: boolean): void {
+    if (!isVisible) {
+      this.wizardVisible.set(false);
+      const saved = this._savedSpeciesRecord;
+      this._savedSpeciesRecord = null;
+      this.wizardRecord.set(null);
+      this.wizardPlant.set(null);
+      if (saved) this.activeSpeciesRecord.set(saved);
+    }
   }
 
   // ── Care panel actions ────────────────────────────────────────

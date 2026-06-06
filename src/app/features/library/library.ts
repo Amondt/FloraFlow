@@ -44,6 +44,7 @@ import {
 import { BotanicalRecordCardComponent } from './botanical-record-card/botanical-record-card';
 import { BotanicalDetailDialogComponent } from '../../shared/components/botanical-detail-dialog/botanical-detail-dialog';
 import { PlantFormDialogComponent } from '../tasks/plant-form-dialog/plant-form-dialog';
+import { SubstrateMixWizardDialogComponent } from '../../shared/components/substrate-mix-wizard/substrate-mix-wizard-dialog';
 import { PlantService } from '../tasks/plant.service';
 import { PlantFormData } from '../tasks/plant.model';
 import { plantAddedDetail } from '../../shared/utils/plant-message.util';
@@ -63,6 +64,7 @@ import { EnrichmentPoll } from '../../shared/utils/enrichment-poll';
     BotanicalDetailDialogComponent,
     BotanicalRecordCardComponent,
     PlantFormDialogComponent,
+    SubstrateMixWizardDialogComponent,
   ],
   providers: [MessageService],
   templateUrl: './library.html',
@@ -89,7 +91,7 @@ export class LibraryComponent {
   protected readonly SUNLIGHT_LABEL = SUNLIGHT_LABEL;
   protected readonly loadingPlaceholders = [1, 2, 3, 4, 5, 6];
   protected readonly lifecycleTooltip =
-    'Annual: 1 season\nBiennial: 2 years\nBiannual: twice a year\nPerennial: returns every year';
+    'Annual: 1 season\nBiennial: 2 years\nPerennial: returns every year';
 
   readonly tooltipText = signal('');
   readonly tooltipPos = signal<{ x: number; y: number } | null>(null);
@@ -109,6 +111,9 @@ export class LibraryComponent {
     scientific_name: string | null;
     perenual_id: number | null;
   } | null>(null);
+  readonly wizardVisible = signal(false);
+  readonly wizardFromBotanicalRecord = signal<CachedBotanicalRecord | null>(null);
+  private _savedGroupKey: string[] | null = null;
 
   readonly groupedResults = computed(() => groupBotanicalRecords(this.results()));
   readonly selectedKeySet = computed(() => new Set(this.selectedGroupKey() ?? []));
@@ -471,6 +476,21 @@ export class LibraryComponent {
 
   protected onDetailClose(visible: boolean): void {
     if (!visible) this.selectedGroupKey.set(null);
+  }
+
+  protected openWizardFromBotanical(record: CachedBotanicalRecord): void {
+    this._savedGroupKey = this.selectedGroupKey();
+    this.selectedGroupKey.set(null);
+    this.wizardFromBotanicalRecord.set(record);
+  }
+
+  protected onBotanicalWizardClose(isVisible: boolean): void {
+    if (!isVisible) {
+      const savedKey = this._savedGroupKey;
+      this._savedGroupKey = null;
+      this.wizardFromBotanicalRecord.set(null);
+      if (savedKey) this.selectedGroupKey.set(savedKey);
+    }
   }
 
   protected openGroup(group: SpeciesGroup): void {

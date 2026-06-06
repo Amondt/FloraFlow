@@ -43,7 +43,7 @@ export interface GenusProfile {
 export const GENUS_PROFILES: readonly GenusProfile[] = [
   {
     name: 'Epiphytic Aroid',
-    typicalUse: 'Monsteras, Philodendrons, Pothos',
+    typicalUse: 'Aroids, climbing tropicals & tree-dwellers',
     components: [
       { component: ORCHID_BARK, fraction: 0.4 },
       { component: PERLITE, fraction: 0.3 },
@@ -52,7 +52,7 @@ export const GENUS_PROFILES: readonly GenusProfile[] = [
   },
   {
     name: 'Desert Succulent',
-    typicalUse: 'Cacti, Echeveria, Aloe',
+    typicalUse: 'Cacti, succulents & drought-tolerant plants',
     components: [
       { component: STANDARD_POTTING, fraction: 0.4 },
       { component: COARSE_SAND, fraction: 0.35 },
@@ -61,7 +61,7 @@ export const GENUS_PROFILES: readonly GenusProfile[] = [
   },
   {
     name: 'Sphagnum Epiphyte',
-    typicalUse: 'Orchids, moisture-loving epiphytes',
+    typicalUse: 'Orchids & humidity-loving epiphytes',
     components: [
       { component: SPHAGNUM_MOSS, fraction: 0.6 },
       { component: PERLITE, fraction: 0.3 },
@@ -70,7 +70,7 @@ export const GENUS_PROFILES: readonly GenusProfile[] = [
   },
   {
     name: 'Peat-Based Bog',
-    typicalUse: 'Carnivorous plants, acid-loving tropicals',
+    typicalUse: 'Carnivorous plants & acid-loving species',
     components: [
       { component: PEAT_MOSS, fraction: 0.5 },
       { component: PERLITE, fraction: 0.3 },

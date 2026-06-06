@@ -34,7 +34,7 @@ export const SUNLIGHT_OPTIONS = [
   'full_shade',
   'filtered_indirect',
 ] as const;
-export const CYCLE_OPTIONS = ['Perennial', 'Annual', 'Biennial', 'Biannual'] as const;
+export const CYCLE_OPTIONS = ['Perennial', 'Annual', 'Biennial'] as const;
 export const PLACEMENT_OPTIONS = ['Indoor', 'Outdoor', 'Both'] as const;
 export const CARE_DIFFICULTY_OPTIONS = ['Beginner', 'Intermediate', 'Advanced'] as const;
 export const MAINTENANCE_OPTIONS = ['Low', 'Medium', 'High'] as const;
@@ -55,7 +55,11 @@ export class LibraryService {
       if (filters.watering != null) query = query.eq('watering', filters.watering);
       if (filters.sunlight != null) query = query.contains('sunlight', [filters.sunlight]);
       if (filters.isPetSafe === true) query = query.eq('is_toxic_to_pets', false);
-      if (filters.cycle != null) query = query.eq('cycle', filters.cycle);
+      if (filters.cycle != null)
+        query = query.in(
+          'cycle',
+          filters.cycle === 'Biennial' ? ['Biennial', 'Biannual'] : [filters.cycle],
+        );
       if (filters.phMin != null && filters.phMax != null)
         query = query.lte('ideal_min_ph', filters.phMax).gte('ideal_max_ph', filters.phMin);
       if (filters.placement != null) {
@@ -166,7 +170,11 @@ export class LibraryService {
       if (filters.watering != null) query = query.eq('watering', filters.watering);
       if (filters.sunlight != null) query = query.contains('sunlight', [filters.sunlight]);
       if (filters.isPetSafe === true) query = query.eq('is_toxic_to_pets', false);
-      if (filters.cycle != null) query = query.eq('cycle', filters.cycle);
+      if (filters.cycle != null)
+        query = query.in(
+          'cycle',
+          filters.cycle === 'Biennial' ? ['Biennial', 'Biannual'] : [filters.cycle],
+        );
       if (filters.phMin != null && filters.phMax != null)
         query = query.lte('ideal_min_ph', filters.phMax).gte('ideal_max_ph', filters.phMin);
       if (filters.placement != null) {

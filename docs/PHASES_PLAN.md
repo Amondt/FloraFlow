@@ -204,7 +204,7 @@
   - **Phase 3.10 integration:** when botanical records are available, scope frost warnings to plants with `placement = 'Outdoor'` or `'Both'` only — indoor-exclusive plants are excluded from frost risk.
 - [~] **3.7** Companion Planting & Allelopathy Lookup Engine — **Dropped**
   - Research confirmed the primary mechanism (root exudate allelopathy) requires shared soil and does not apply to plants in separate pots, which covers the majority of FloraFlow's indoor use cases. Manual data curation would be required (no API source exists), and the feature would generate warnings that don't reflect real risk for potted plants. Dropped in favour of building features with genuine value for the app's actual context.
-- [ ] **3.8** Substrate Composition Mix Wizard | Agent: `/visualizer`
+- [x] **3.8** Substrate Composition Mix Wizard | Agent: `/visualizer`
   - Plan: `docs/plans/phase-3/PHASE_3_8_PLAN.md`
   - Standalone wizard accessible from the Library or a dedicated tab (no disruption to daily dashboard flow).
   - User selects genus profile (Epiphytic Aroid, Desert Succulent, Carnivorous Bog, etc.) and inputs pot volume in litres.

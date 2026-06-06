@@ -215,7 +215,7 @@ The UX must reflect this:
   - `POT_SIZE_CHIPS`: exported const array of the 5 UI chips — `{ label: '10 cm', diameterCm: 10, volumeLitres: 0.40 }` etc. for 10/12/15/20/25 cm; used by Block D to render the chip strip without duplicating the table
   - Verification: run `bun run lint` — zero errors; verify in browser console that `computeMix('Peat-Based Bog', 1)` returns pH range approx 3.3–4.8 (not ~5.0, which would indicate the wrong linear formula was used); verify `diameterToVolume(15)` returns `1.3` (not `2.12`)
 
-- [ ] **Block D — Wizard dialog component** | Agent: `/visualizer`
+- [x] **Block D — Wizard dialog component** | Agent: `/visualizer`
   - New component: `src/app/shared/components/substrate-mix-wizard/substrate-mix-wizard-dialog.ts` + `.html`
   - Inputs: `visible: model<boolean>`, `plant: input<Plant | null>(null)`, `botanicalRecord: input<CachedBotanicalRecord | null>(null)`, `substratePreset: input<SubstrateFactor | null>(null)`
   - `selectedProfile`: `linkedSignal` initialised via this exact priority chain:
@@ -249,7 +249,7 @@ The UX must reflect this:
   - Styled with `FloraDetailDialogPT`; all interactive elements use `FLORA_FOCUS` and `FLORA_HOVER`; profile cards and info icon button use `cursor-pointer`; popover uses `FloraPopoverPT`
   - Verification: Manual Browser Check — (1) wizard opens with no plant context → 1 L default, no chip selected, results visible immediately as proportions; (2) wizard opens from zone-detail for plant with 15 cm pot diameter → "15 cm · 1.3 L" chip is pre-selected, volume input shows 1.3; (3) tapping a different chip updates volume and results instantly; (4) typing directly in volume input deselects chips; (5) pH line shows `~` prefix; (6) info icon opens popover; (7) clicking outside closes it; (8) switch profiles → results update instantly
 
-- [ ] **Block E — Zone-detail integration** | Agent: `/visualizer`
+- [x] **Block E — Zone-detail integration** | Agent: `/visualizer`
   - Import `SubstrateMixWizardDialogComponent` into `ZoneDetailComponent`
   - Add signals: `wizardVisible = signal(false)`, `wizardPlant = signal<Plant | null>(null)`, `wizardRecord = signal<CachedBotanicalRecord | null>(null)`
   - Add `openMixWizard(plant: Plant)` method: sets `wizardPlant`, looks up the botanical record for the plant from the existing `botanicalRecords` map (already loaded by zone-detail), sets `wizardRecord`, then sets `wizardVisible(true)`
@@ -257,7 +257,7 @@ The UX must reflect this:
   - Add `<app-substrate-mix-wizard-dialog>` at the end of the template with the three signals bound
   - Verification: Manual Browser Check — plant card in zone detail shows "Mix guide" button; clicking it opens the wizard pre-filled with that plant's profile and (if available) volume estimate and pH badge
 
-- [ ] **Block F — Library integration** | Agent: `/visualizer`
+- [x] **Block F — Library integration** | Agent: `/visualizer`
   - **Sub-task 1 — Library page header button**: add "Mix Wizard" button to the `/library` page header (next to the "Identify a plant" or main action row); icon `pi-list-check`; opens a local `wizardVisible` signal with no plant/record/preset (fully manual mode); add `<app-substrate-mix-wizard-dialog>` to the library template
   - **Sub-task 2 — Botanical detail dialog Care tab**: in `BotanicalDetailDialogComponent`, add `mixWizardVisible = signal(false)`; add "Build a substrate mix" button on the Care tab (below the preferred_soil_type row, above the pH row); button only rendered when `record()` is non-null; passes `record()` as `botanicalRecord` input to a `<app-substrate-mix-wizard-dialog>` rendered inside the botanical dialog template; the wizard dialog nests fine inside the outer dialog since it opens with its own `z-index`
   - Verification: Manual Browser Check — library header shows "Mix Wizard" button; clicking opens wizard in manual mode; botanical detail dialog Care tab shows "Build a substrate mix" button; clicking opens wizard pre-filled with the species' preferred soil profile and pH comparison badge

@@ -1,0 +1,273 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="visible.set($event)"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [dismissableMask]="true"
+  [pt]="FloraDetailDialogPT"
+>
+  <!-- Custom header: title + optional plant subtitle -->
+  <ng-template #header>
+    <div class="flex flex-col">
+      <span class="font-display text-base font-semibold">Substrate Mix Guide</span>
+      @if (plant()) {
+        <span class="font-display mt-0.5 text-xs font-normal text-primary-200">
+          {{ plant()!.common_name }}
+        </span>
+      }
+    </div>
+  </ng-template>
+
+  <div class="flex flex-col gap-6">
+    <!-- ── Profile selector ─────────────────────────────────── -->
+    <section aria-label="Substrate profile">
+      <div class="mb-3 flex flex-col gap-1">
+        <h2 class="font-display text-sm font-medium text-neutral-700 dark:text-neutral-200">
+          Substrate profile
+        </h2>
+        @if (recommendationSourceLabel()) {
+          <p
+            class="flex items-center gap-1.5 font-display text-xs text-primary-600 dark:text-primary-400"
+            role="note"
+          >
+            <i class="pi pi-star-fill text-[10px]" aria-hidden="true"></i>
+            {{ recommendationSourceLabel() }}
+          </p>
+        }
+      </div>
+      <ul
+        class="grid grid-cols-2 gap-2 sm:grid-cols-3"
+        role="radiogroup"
+        aria-label="Select a substrate profile"
+      >
+        @for (profile of GENUS_PROFILES; track profile.name) {
+          <li class="h-full">
+            <button
+              type="button"
+              role="radio"
+              [attr.aria-checked]="selectedProfile() === profile.name"
+              [attr.aria-label]="
+                profile.name +
+                ' — ' +
+                profile.typicalUse +
+                (recommendedProfile() === profile.name ? ' (recommended)' : '')
+              "
+              [class]="profileCardClass(profile.name)"
+              (click)="selectProfile(profile.name)"
+            >
+              @if (recommendedProfile() === profile.name) {
+                <i
+                  class="pi pi-star-fill absolute right-1.5 top-1.5 text-[9px] text-primary-500 dark:text-primary-400"
+                  aria-hidden="true"
+                ></i>
+              }
+              <span
+                class="block font-display text-sm font-medium leading-tight text-neutral-900 dark:text-neutral-100"
+              >
+                {{ profile.name }}
+              </span>
+              <span
+                class="mt-0.5 block font-display text-xs leading-tight text-neutral-500 dark:text-neutral-400"
+              >
+                {{ profile.typicalUse }}
+              </span>
+            </button>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <!-- ── Volume section ────────────────────────────────────── -->
+    <section aria-label="Substrate volume">
+      <h2 class="mb-3 font-display text-sm font-medium text-neutral-700 dark:text-neutral-200">
+        How much substrate do you need?
+      </h2>
+
+      <!-- Chip strip -->
+      <div class="mb-4 flex flex-wrap gap-2" role="group" aria-label="Pot size presets">
+        @for (chip of POT_SIZE_CHIPS; track chip.diameterCm) {
+          <button
+            type="button"
+            [class]="chipClass(chip.diameterCm)"
+            [attr.aria-pressed]="selectedChipDiameter() === chip.diameterCm"
+            [attr.aria-label]="chip.label + ' pot — ' + chip.volumeLitres + ' litres'"
+            (click)="selectChip(chip)"
+          >
+            {{ chip.label }} · {{ chip.volumeLitres }} L
+            <span
+              aria-hidden="true"
+              class="absolute left-1/2 top-1/2 size-11 -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"
+            ></span>
+          </button>
+        }
+      </div>
+
+      <!-- Number input -->
+      <div class="flex flex-col gap-1.5">
+        <label
+          [for]="volumeInputId"
+          class="font-display text-xs font-medium text-neutral-500 dark:text-neutral-400"
+        >
+          Or enter volume (L)
+        </label>
+        <p-inputnumber
+          [inputId]="volumeInputId"
+          [ngModel]="rawVolume()"
+          (ngModelChange)="onVolumeInput($event)"
+          [ngModelOptions]="{ standalone: true }"
+          [pt]="FloraInputNumberPT"
+          [min]="0.05"
+          [step]="0.1"
+          [showButtons]="false"
+          [maxFractionDigits]="2"
+          [attr.aria-describedby]="volumeInputId + '-hint'"
+          placeholder="e.g. 1.3"
+        />
+        <small
+          [id]="volumeInputId + '-hint'"
+          class="font-display text-xs text-neutral-400"
+          role="note"
+        >
+          @if (selectedChipDiameter() !== null) {
+            Based on the selected pot size
+          } @else {
+            Or pick a pot size above
+          }
+        </small>
+      </div>
+    </section>
+
+    <!-- ── Mix recipe table ───────────────────────────────────── -->
+    <section aria-label="Mix recipe">
+      <h2 class="mb-3 font-display text-sm font-medium text-neutral-700 dark:text-neutral-200">
+        Mix recipe
+      </h2>
+      <table
+        class="w-full font-display text-sm"
+        aria-label="Substrate components and approximate volumes"
+      >
+        <thead>
+          <tr class="border-b border-neutral-200 dark:border-neutral-700">
+            <th
+              scope="col"
+              class="pb-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
+            >
+              Component
+            </th>
+            <th
+              scope="col"
+              class="w-12 pb-2 text-right text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
+            >
+              %
+            </th>
+            <th
+              scope="col"
+              class="w-20 pb-2 text-right text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
+            >
+              ~Volume
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (component of mixResult().components; track component.name) {
+            <tr class="border-b border-neutral-100 last:border-0 dark:border-neutral-800">
+              <td class="py-2.5 text-neutral-900 dark:text-neutral-100">
+                {{ component.name }}
+              </td>
+              <td class="py-2.5 text-right text-neutral-600 dark:text-neutral-400">
+                {{ (component.fraction * 100).toFixed(0) }}%
+              </td>
+              <td class="py-2.5 text-right text-neutral-600 dark:text-neutral-400">
+                ~{{ component.volumeLitres }} L
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── pH estimate + disclosure ──────────────────────────── -->
+    <section aria-label="pH estimate">
+      <!-- Layer 1: pH estimate with ~ prefix (always visible) -->
+      <p class="font-display text-sm text-neutral-700 dark:text-neutral-200">
+        Estimated pH:
+        <strong class="text-neutral-900 dark:text-neutral-100">
+          ~{{ mixResult().phLow }}–{{ mixResult().phHigh }}
+        </strong>
+      </p>
+
+      <!-- Layer 2: one-line caveat + popover trigger button -->
+      <div class="mt-1.5 flex items-center gap-1.5">
+        <i class="pi pi-info-circle text-xs text-neutral-400" aria-hidden="true"></i>
+        <span class="font-display text-xs text-neutral-400 dark:text-neutral-500">
+          Estimates — actual pH varies by brand and substrate age.
+        </span>
+        <button
+          type="button"
+          class="relative ml-0.5 cursor-pointer rounded-sm text-neutral-400 outline-none transition-colors duration-150 hover:text-neutral-600 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 dark:hover:text-neutral-300"
+          aria-label="Learn more about pH estimation accuracy"
+          (click)="toggleInfoPopover($event)"
+        >
+          <i class="pi pi-question-circle text-xs" aria-hidden="true"></i>
+          <span
+            aria-hidden="true"
+            class="absolute left-1/2 top-1/2 size-11 -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"
+          ></span>
+        </button>
+      </div>
+
+      <!-- Layer 3: popover — closes on outside click -->
+      <p-popover #infoPopover [pt]="FloraPopoverPT">
+        <p
+          class="max-w-xs font-display text-sm leading-relaxed text-neutral-700 dark:text-neutral-200"
+        >
+          pH is calculated from typical component values reported in horticultural research — actual
+          results depend on the brand, age, and water quality you use. For precision, test your mix
+          with a pH meter after blending.
+        </p>
+      </p-popover>
+
+      <!-- pH badge (only when botanical record has ideal pH data) -->
+      @if (phStatus()) {
+        @let status = phStatus()!;
+        <div
+          class="mt-3 flex items-center gap-2 rounded-garden-sm px-3 py-2 font-display text-sm"
+          [class]="
+            status.compatibility === 'compatible'
+              ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-300'
+              : 'bg-neutral-100 text-warning-500 dark:bg-neutral-800'
+          "
+          role="status"
+          [attr.aria-label]="status.message"
+        >
+          <i
+            class="pi text-base"
+            [class.pi-check-circle]="status.compatibility === 'compatible'"
+            [class.pi-exclamation-triangle]="status.compatibility !== 'compatible'"
+            aria-hidden="true"
+          ></i>
+          <span>{{ status.message }}</span>
+        </div>
+      }
+
+      <!-- Species nudge (plant exists but has no scientific name and pH data unavailable) -->
+      @if (showSpeciesNudge()) {
+        <p class="mt-3 font-display text-xs italic text-neutral-400 dark:text-neutral-500">
+          Link a species to your plant to also see pH compatibility.
+        </p>
+      }
+    </section>
+  </div>
+
+  <!-- Footer -->
+  <ng-template #footer>
+    <p-button
+      label="Close"
+      variant="text"
+      [pt]="FloraButtonPT"
+      ariaLabel="Close substrate mix guide"
+      (onClick)="close()"
+    />
+  </ng-template>
+</p-dialog>

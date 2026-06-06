@@ -2,20 +2,34 @@
   <div class="max-w-5xl mx-auto">
     <!-- Page header -->
     <header class="mb-10">
-      <p
-        class="text-xs font-semibold uppercase tracking-widest text-primary-600 dark:text-primary-400 font-display mb-1"
-      >
-        Botanical Registry
-      </p>
-      <h1
-        id="library-heading"
-        class="text-3xl font-semibold font-display text-neutral-900 dark:text-white"
-      >
-        Plant browser
-      </h1>
-      <p class="text-sm text-neutral-500 dark:text-neutral-400 font-display mt-1">
-        A shared species database. Search or filter to find a plant, then add it to your greenhouse.
-      </p>
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p
+            class="text-xs font-semibold uppercase tracking-widest text-primary-600 dark:text-primary-400 font-display mb-1"
+          >
+            Botanical Registry
+          </p>
+          <h1
+            id="library-heading"
+            class="text-3xl font-semibold font-display text-neutral-900 dark:text-white"
+          >
+            Plant browser
+          </h1>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 font-display mt-1">
+            A shared species database. Search or filter to find a plant, then add it to your
+            greenhouse.
+          </p>
+        </div>
+        <button
+          type="button"
+          class="mt-1 inline-flex flex-shrink-0 cursor-pointer items-center gap-1.5 rounded-garden-sm border border-neutral-200 px-3 py-1.5 font-display text-sm font-medium text-neutral-600 outline-none transition-colors duration-150 hover:border-primary-300 hover:bg-primary-50 hover:text-primary-700 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 dark:border-neutral-700 dark:text-neutral-300 dark:hover:border-primary-700 dark:hover:bg-primary-900/20 dark:hover:text-primary-300"
+          aria-label="Open substrate mix guide"
+          (click)="wizardVisible.set(true)"
+        >
+          <i class="pi pi-list-check text-xs" aria-hidden="true"></i>
+          Mix substrate
+        </button>
+      </div>
     </header>
 
     <!-- Search bar - prominent, full-width -->
@@ -724,12 +738,24 @@
     (visibleChange)="onDetailClose($event)"
     (addRequested)="openAddDialog($event)"
     (seedsRequested)="onSeedsRequested($event)"
+    (mixWizardRequested)="openWizardFromBotanical($event)"
   />
 
   <app-plant-form-dialog
     [(visible)]="showAddDialog"
     [botanicalPrefill]="prefillRecord()"
     (saved)="onPlantSaved($event)"
+  />
+
+  <app-substrate-mix-wizard-dialog
+    [visible]="wizardVisible()"
+    (visibleChange)="wizardVisible.set($event)"
+  />
+
+  <app-substrate-mix-wizard-dialog
+    [visible]="wizardFromBotanicalRecord() !== null"
+    (visibleChange)="onBotanicalWizardClose($event)"
+    [botanicalRecord]="wizardFromBotanicalRecord()"
   />
 
   <p-toast position="bottom-right" [pt]="FloraToastPT" />

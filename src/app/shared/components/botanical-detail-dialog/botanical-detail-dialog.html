@@ -527,7 +527,7 @@
                   <p
                     class="mt-0.5 font-display text-sm font-medium text-neutral-700 dark:text-neutral-200"
                   >
-                    {{ rec.cycle }}
+                    {{ rec.cycle === 'Biannual' ? 'Biennial' : rec.cycle }}
                   </p>
                   <p class="mt-0.5 font-display text-xs text-neutral-400">
                     @switch (rec.cycle) {
@@ -540,8 +540,11 @@
                       @case ('Biennial') {
                         Two-year life cycle
                       }
+                      @case ('Biannual') {
+                        Two-year life cycle
+                      }
                       @default {
-                        Flowers twice a year
+                        Multi-year life cycle
                       }
                     }
                   </p>
@@ -813,6 +816,14 @@
       [pt]="FloraButtonPT"
       ariaLabel="Close species details"
       (onClick)="visibleChange.emit(false)"
+    />
+    <p-button
+      label="Mix substrate"
+      variant="outlined"
+      icon="pi pi-list-check"
+      [pt]="FloraButtonPT"
+      ariaLabel="Open substrate mix guide for this species"
+      (onClick)="onMixWizardRequested()"
     />
     @if (showAddButton()) {
       <p-button

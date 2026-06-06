@@ -30,6 +30,6 @@ export default tsEslint.config(
     rules: { ...angularTemplate.configs.recommended.rules },
   },
   {
-    ignores: ['.angular/**', 'dist/**', 'node_modules/**', 'src/types/**'],
+    ignores: ['.angular/**', 'dist/**', 'node_modules/**', 'src/types/**', 'supabase/**'],
   },
 );

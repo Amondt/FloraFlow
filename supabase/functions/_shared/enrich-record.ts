@@ -1,7 +1,7 @@
-import Anthropic from 'npm:@anthropic-ai/sdk';
-import { zodOutputFormat } from 'npm:@anthropic-ai/sdk/helpers/zod';
-import { z } from 'npm:zod/v4';
-import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
+import Anthropic from '@anthropic-ai/sdk';
+import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
+import { z } from 'zod/v4';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './database.types.ts';
 import { toSentenceCase } from './text.ts';
 

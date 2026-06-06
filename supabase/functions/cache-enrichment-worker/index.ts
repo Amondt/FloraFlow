@@ -1,5 +1,5 @@
-import { createClient } from 'npm:@supabase/supabase-js@2';
-import Anthropic from 'npm:@anthropic-ai/sdk';
+import { createClient } from '@supabase/supabase-js';
+import Anthropic from '@anthropic-ai/sdk';
 import type { Database } from '../_shared/database.types.ts';
 import { json } from '../_shared/response.ts';
 import { verifyCronSecret } from '../_shared/cron-auth.ts';

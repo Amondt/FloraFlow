@@ -1,5 +1,5 @@
-import { createClient } from 'npm:@supabase/supabase-js@2';
-import webPush from 'npm:web-push';
+import { createClient } from '@supabase/supabase-js';
+import webPush from 'web-push';
 import type { Database } from '../_shared/database.types.ts';
 import { verifyCronSecret } from '../_shared/cron-auth.ts';
 import { json } from '../_shared/response.ts';

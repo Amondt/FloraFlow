@@ -1,5 +1,5 @@
-import { createClient } from 'npm:@supabase/supabase-js@2';
-import type { QueryData } from 'npm:@supabase/supabase-js@2';
+import { createClient } from '@supabase/supabase-js';
+import type { QueryData } from '@supabase/supabase-js';
 import type { Database } from '../_shared/database.types.ts';
 import { verifyCronSecret } from '../_shared/cron-auth.ts';
 import { json } from '../_shared/response.ts';

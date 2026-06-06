@@ -52,12 +52,12 @@ Deno.serve(async (req: Request) => {
     const safeQ = q.replace(/[,)(]/g, '');
     if (safeQ.length < 2) return json([]);
 
-    // Only the three fields Angular's BotanicalSuggestion interface consumes.
+    // Only the fields Angular's BotanicalSuggestion interface consumes.
     // Enrichment fields (is_ai_enriched, watering, cycle, etc.) are written by
     // claude-enrichment and cache-enrichment-worker — never read during search.
     const { data: cached } = await supabase
       .from('cached_botanical_records')
-      .select('scientific_name, common_name, perenual_id')
+      .select('scientific_name, common_name, perenual_id, thumbnail_url')
       .or(`common_name.ilike.%${safeQ}%,scientific_name.ilike.%${safeQ}%`)
       .limit(MAX_RESULTS);
 

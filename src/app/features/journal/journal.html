@@ -36,6 +36,7 @@
                 [value]="selectedPlant()"
                 (valueChange)="onPlantFilterChange($event)"
                 [options]="plantSelectOptions()"
+                [grouped]="true"
                 [ariaLabel]="'Filter journal entries by plant'"
               />
             </div>

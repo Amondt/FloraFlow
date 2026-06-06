@@ -35,6 +35,9 @@
         [options]="plantOptions()"
         optionLabel="label"
         optionValue="value"
+        optionGroupLabel="label"
+        optionGroupChildren="items"
+        [group]="true"
         [pt]="FloraSelectPT"
         [class]="plantCtrl.invalid && plantCtrl.touched ? FLORA_ERROR : ''"
         [attr.aria-describedby]="plantCtrl.invalid && plantCtrl.touched ? plantId + '-error' : null"
@@ -42,7 +45,50 @@
         aria-required="true"
         placeholder="Select one of your plants"
         appendTo="body"
-      />
+      >
+        <ng-template let-group #group>
+          <div class="flex items-center gap-1.5 px-3 pt-1.5 pb-0.5">
+            <i
+              class="pi pi-map-marker text-xs text-neutral-400 dark:text-neutral-500"
+              aria-hidden="true"
+            ></i>
+            <span
+              class="text-xs font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500 font-display"
+            >
+              {{ group.label }}
+            </span>
+          </div>
+        </ng-template>
+        <ng-template #item let-opt>
+          <div class="flex items-center gap-2.5">
+            <div
+              class="w-7 h-7 shrink-0 rounded-garden-sm overflow-hidden bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center"
+              aria-hidden="true"
+            >
+              @if (opt.thumbnailUrl) {
+                <img
+                  [src]="opt.thumbnailUrl"
+                  [alt]="opt.label"
+                  class="w-full h-full object-cover block"
+                  loading="lazy"
+                />
+              } @else {
+                <app-leaf-icon size="sm" class="text-neutral-400 dark:text-neutral-500" />
+              }
+            </div>
+            <div class="flex flex-col min-w-0">
+              <span class="font-display leading-snug truncate">{{ opt.label }}</span>
+              @if (opt.scientificName) {
+                <span
+                  class="text-xs font-display italic text-neutral-400 dark:text-neutral-500 leading-snug truncate"
+                >
+                  {{ opt.scientificName }}
+                </span>
+              }
+            </div>
+          </div>
+        </ng-template>
+      </p-select>
       @if (plantCtrl.invalid && plantCtrl.touched) {
         <small [id]="plantId + '-error'" class="text-danger-500 text-xs font-display" role="alert">
           Please select one of your plants.

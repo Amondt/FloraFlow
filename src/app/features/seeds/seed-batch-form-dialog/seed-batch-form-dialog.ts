@@ -35,6 +35,7 @@ import {
   BotanicalSearchService,
   BotanicalSuggestion,
 } from '../../../core/services/botanical-search.service';
+import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-icon';
 import { SeedBatchService } from '../seed-batch.service';
 import { SeedBatch, SeedBatchFormData } from '../seed-batch.model';
 
@@ -49,6 +50,7 @@ import { SeedBatch, SeedBatchFormData } from '../seed-batch.model';
     AutoCompleteModule,
     TextareaModule,
     ButtonModule,
+    LeafIconComponent,
   ],
   templateUrl: './seed-batch-form-dialog.html',
 })

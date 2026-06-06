@@ -29,10 +29,20 @@ import {
 } from '../../../shared/ui/pt/index';
 import { blurActiveElement } from '../../../shared/utils/dom';
 import { PlantService } from '../../tasks/plant.service';
+import { ZoneService } from '../../dashboard/zone.service';
 import { JournalService, type JournalEntryWithPlant } from '../journal.service';
+import { PlantThumbnailService } from '../../../core/services/plant-thumbnail.service';
 import { ImageCompressorService } from '../../../core/services/image-compressor.service';
 import { SupabaseService } from '../../../core/services/supabase.service';
 import { CATEGORY_OPTIONS, type LogCategoryType } from '../journal-categories';
+import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-icon';
+
+interface PlantItemOption {
+  label: string;
+  value: string;
+  scientificName: string | null;
+  thumbnailUrl: string | null;
+}
 
 @Component({
   selector: 'app-journal-entry-form',
@@ -44,12 +54,15 @@ import { CATEGORY_OPTIONS, type LogCategoryType } from '../journal-categories';
     TextareaModule,
     ButtonModule,
     InputTextModule,
+    LeafIconComponent,
   ],
   templateUrl: './journal-entry-form.html',
 })
 export class JournalEntryFormComponent implements OnDestroy {
   private readonly plantService = inject(PlantService);
+  private readonly zoneService = inject(ZoneService);
   private readonly journalService = inject(JournalService);
+  private readonly plantThumbnailService = inject(PlantThumbnailService);
   private readonly compressor = inject(ImageCompressorService);
   private readonly supabase = inject(SupabaseService);
   private readonly messageService = inject(MessageService);
@@ -84,9 +97,37 @@ export class JournalEntryFormComponent implements OnDestroy {
   private readonly _plantSelect = viewChild<Select>('plantSelectRef');
   private readonly _categorySelect = viewChild<Select>('categorySelectRef');
 
-  protected readonly plantOptions = computed(() =>
-    this.plantService.plants().map((p) => ({ label: p.common_name, value: p.id })),
-  );
+  protected readonly plantOptions = computed(() => {
+    const plants = this.plantService.plants();
+    const zones = this.zoneService.zones();
+    const thumbnailMap = this.plantThumbnailService.thumbnailMap();
+
+    const groups = new Map<string, { label: string; items: PlantItemOption[] }>(
+      zones.map((z) => [z.id, { label: z.name, items: [] }]),
+    );
+    const ungrouped: PlantItemOption[] = [];
+
+    for (const p of plants) {
+      const option: PlantItemOption = {
+        label: p.common_name,
+        value: p.id,
+        scientificName: p.scientific_name ?? null,
+        thumbnailUrl: p.scientific_name ? (thumbnailMap.get(p.scientific_name) ?? null) : null,
+      };
+      const group = groups.get(p.zone_id);
+      if (group) {
+        group.items.push(option);
+      } else {
+        ungrouped.push(option);
+      }
+    }
+
+    const result = [...groups.values()].filter((g) => g.items.length > 0);
+    if (ungrouped.length > 0) {
+      result.push({ label: 'Other', items: ungrouped });
+    }
+    return result;
+  });
 
   readonly form = new FormGroup({
     plant_id: new FormControl('', { nonNullable: true, validators: [Validators.required] }),

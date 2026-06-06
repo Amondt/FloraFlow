@@ -41,6 +41,10 @@ export const FloraSelectPT = {
     ],
   }),
   emptyMessage: { class: 'px-3 py-2 text-sm text-neutral-400 italic' },
+  optionGroup: {
+    class:
+      'sticky top-0 z-10 bg-white dark:bg-neutral-800 border-t border-neutral-200 dark:border-neutral-700 first:border-t-0',
+  },
 } satisfies SelectPassThroughOptions;
 
 export const FloraMultiSelectPT = {

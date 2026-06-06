@@ -14,8 +14,14 @@ import {
   FloraMessagePT,
   FloraConfirmDialogPT,
 } from '../../shared/ui/pt/index';
-import { PlantSelectComponent } from '../../shared/components/plant-select/plant-select';
+import {
+  PlantSelectComponent,
+  type PlantOption,
+  type PlantOptionGroup,
+} from '../../shared/components/plant-select/plant-select';
 import { PlantService } from '../tasks/plant.service';
+import { ZoneService } from '../dashboard/zone.service';
+import { PlantThumbnailService } from '../../core/services/plant-thumbnail.service';
 import { JournalService, type JournalEntryWithPlant } from './journal.service';
 import { JournalEntryFormComponent } from './journal-entry-form/journal-entry-form';
 import { JournalEntryCardComponent } from './journal-entry-card/journal-entry-card';
@@ -64,6 +70,8 @@ const CATEGORY_FILTER_OPTIONS: FilterOption[] = [
 })
 export class JournalComponent {
   private readonly plantService = inject(PlantService);
+  private readonly zoneService = inject(ZoneService);
+  private readonly plantThumbnailService = inject(PlantThumbnailService);
   private readonly messageService = inject(MessageService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly router = inject(Router);
@@ -88,14 +96,49 @@ export class JournalComponent {
   readonly hasPlants = computed(() => this.plantService.plants().length > 0);
   readonly loading = computed(() => this.plantService.loading());
 
-  readonly plantSelectOptions = computed(() => [
-    { label: 'All plants', value: null as string | null, scientificName: null as string | null },
-    ...this.plantService.plants().map((p) => ({
-      label: p.common_name,
-      value: p.id,
-      scientificName: p.scientific_name,
-    })),
-  ]);
+  readonly plantSelectOptions = computed((): PlantOptionGroup[] => {
+    const plants = this.plantService.plants();
+    const zones = this.zoneService.zones();
+    const thumbnailMap = this.plantThumbnailService.thumbnailMap();
+
+    const entryCounts = new Map<string, number>();
+    for (const e of this.journalService.entries()) {
+      entryCounts.set(e.plant_id, (entryCounts.get(e.plant_id) ?? 0) + 1);
+    }
+
+    const allPlantsGroup: PlantOptionGroup = {
+      label: '',
+      items: [{ label: 'All plants', value: null, scientificName: null }],
+    };
+
+    const groups = new Map<string, PlantOptionGroup>(
+      zones.map((z) => [z.id, { label: z.name, items: [] }]),
+    );
+    const ungrouped: PlantOption[] = [];
+
+    for (const p of plants) {
+      const option: PlantOption = {
+        label: p.common_name,
+        value: p.id,
+        scientificName: p.scientific_name,
+        thumbnailUrl: p.scientific_name ? (thumbnailMap.get(p.scientific_name) ?? null) : null,
+        count: entryCounts.get(p.id),
+      };
+      const group = groups.get(p.zone_id);
+      if (group) {
+        group.items.push(option);
+      } else {
+        ungrouped.push(option);
+      }
+    }
+
+    const result: PlantOptionGroup[] = [allPlantsGroup];
+    result.push(...[...groups.values()].filter((g) => g.items.length > 0));
+    if (ungrouped.length > 0) {
+      result.push({ label: 'Other', items: ungrouped });
+    }
+    return result;
+  });
 
   private readonly entriesFilteredByPlant = computed(() => {
     const plant = this.selectedPlant();
@@ -148,6 +191,9 @@ export class JournalComponent {
   constructor() {
     if (this.plantService.plants().length === 0) {
       void this.plantService.loadPlants();
+    }
+    if (this.zoneService.zones().length === 0) {
+      void this.zoneService.loadZones();
     }
     void this.journalService.loadEntries();
   }

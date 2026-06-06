@@ -1,5 +1,6 @@
 import {
   Component,
+  DestroyRef,
   ElementRef,
   OnDestroy,
   computed,
@@ -9,6 +10,7 @@ import {
   model,
   output,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -28,6 +30,7 @@ import {
   type LeafDoctorDiagnostics,
   type LeafDoctorResult,
 } from '../journal.service';
+import { LibraryService } from '../../library/library.service';
 import { ImageCompressorService } from '../../../core/services/image-compressor.service';
 import { SupabaseService } from '../../../core/services/supabase.service';
 import { blurActiveElement } from '../../../shared/utils/dom';
@@ -51,9 +54,11 @@ import type { Json } from '../../../../types/database.types';
 export class LeafDoctorDialogComponent implements OnDestroy {
   private readonly plantService = inject(PlantService);
   private readonly journalService = inject(JournalService);
+  private readonly libraryService = inject(LibraryService);
   private readonly compressor = inject(ImageCompressorService);
   private readonly supabase = inject(SupabaseService);
   private readonly messageService = inject(MessageService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly visible = model<boolean>(false);
   readonly preselectedPlantId = input<string | null>(null);
@@ -68,6 +73,7 @@ export class LeafDoctorDialogComponent implements OnDestroy {
   private readonly _plantSelect = viewChild<PlantSelectComponent>('plantSelectRef');
 
   readonly selectedPlantId = signal<string | null>(null);
+  private readonly plantThumbnailMap = signal<Map<string, string | null>>(new Map());
   readonly compressedBlob = signal<Blob | null>(null);
   readonly previewObjectUrl = signal<string | null>(null);
   readonly compressedLabel = signal<string | null>(null);
@@ -81,7 +87,10 @@ export class LeafDoctorDialogComponent implements OnDestroy {
     this.plantService.plants().map((p) => ({
       label: p.common_name,
       value: p.id,
-      scientificName: p.scientific_name,
+      scientificName: p.scientific_name ?? null,
+      thumbnailUrl: p.scientific_name
+        ? (this.plantThumbnailMap().get(p.scientific_name) ?? null)
+        : null,
     })),
   );
 
@@ -125,6 +134,35 @@ export class LeafDoctorDialogComponent implements OnDestroy {
         const id = this.preselectedPlantId();
         if (id) this.selectedPlantId.set(id);
       }
+    });
+
+    effect(() => {
+      const plants = this.plantService.plants();
+      const names = [
+        ...new Set(plants.map((p) => p.scientific_name).filter((n): n is string => n !== null)),
+      ];
+      if (names.length > 0) {
+        void this._loadPlantThumbnails(names);
+      }
+    });
+  }
+
+  private async _loadPlantThumbnails(scientificNames: string[]): Promise<void> {
+    const toFetch = scientificNames.filter(
+      (n) => !untracked(() => this.plantThumbnailMap()).has(n),
+    );
+    if (toFetch.length === 0) return;
+    const records = await this.libraryService.refetchByScientificNames(toFetch);
+    this.plantThumbnailMap.update((map) => {
+      const updated = new Map(map);
+      for (const r of records) {
+        updated.set(r.scientific_name, r.thumbnail_url ?? null);
+      }
+      // Mark unfound names as null to prevent repeated fetches
+      for (const name of toFetch) {
+        if (!updated.has(name)) updated.set(name, null);
+      }
+      return updated;
     });
   }
 

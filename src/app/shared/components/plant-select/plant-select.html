@@ -5,6 +5,9 @@
   [options]="options()"
   optionLabel="label"
   optionValue="value"
+  [group]="grouped()"
+  optionGroupLabel="label"
+  optionGroupChildren="items"
   [pt]="FloraSelectPT"
   [inputId]="inputId()"
   [ariaLabel]="ariaLabel()"
@@ -13,14 +16,58 @@
   [attr.aria-required]="required() ? true : null"
   appendTo="body"
 >
-  <ng-template #item let-opt>
-    <div class="flex flex-col py-0.5">
-      <span class="font-display leading-snug">{{ opt.label }}</span>
-      @if (opt.scientificName) {
+  <ng-template let-group #group>
+    @if (group.label) {
+      <div class="flex items-center gap-1.5 px-3 pt-2.5 pb-1.5">
+        <i
+          class="pi pi-map-marker text-xs text-neutral-400 dark:text-neutral-500"
+          aria-hidden="true"
+        ></i>
         <span
-          class="text-xs font-display italic text-neutral-400 dark:text-neutral-500 leading-snug"
+          class="text-xs font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500 font-display"
         >
-          {{ opt.scientificName }}
+          {{ group.label }}
+        </span>
+      </div>
+    }
+  </ng-template>
+  <ng-template #item let-opt>
+    <div class="flex items-center gap-2.5">
+      <!-- Thumbnail or leaf-icon fallback -->
+      <div
+        class="w-7 h-7 shrink-0 rounded-garden-sm overflow-hidden bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center"
+        aria-hidden="true"
+      >
+        @if (opt.thumbnailUrl) {
+          <img
+            [src]="opt.thumbnailUrl"
+            [alt]="opt.label"
+            class="w-full h-full object-cover block"
+            loading="lazy"
+          />
+        } @else {
+          <app-leaf-icon size="sm" class="text-neutral-400 dark:text-neutral-500" />
+        }
+      </div>
+
+      <!-- Name lines -->
+      <div class="flex flex-col min-w-0 flex-1">
+        <span class="font-display leading-snug truncate">{{ opt.label }}</span>
+        @if (opt.scientificName) {
+          <span
+            class="text-xs font-display italic text-neutral-400 dark:text-neutral-500 leading-snug truncate"
+          >
+            {{ opt.scientificName }}
+          </span>
+        }
+      </div>
+
+      @if (opt.count) {
+        <span
+          class="shrink-0 text-xs font-mono tabular-nums text-neutral-400 dark:text-neutral-500"
+          [attr.aria-label]="opt.count + ' log entries'"
+        >
+          {{ opt.count }}
         </span>
       }
     </div>

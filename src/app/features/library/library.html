@@ -525,6 +525,24 @@
           [class.h-6]="!headerVisible()"
           aria-hidden="true"
         ></div>
+
+        <!-- Always-present loading indicator for initial load (no existing results).
+             Uses a class toggle, never removed from DOM, so it reacts in the same render
+             frame as the isLoading() signal write — no branch-switch delay. -->
+        <div
+          [class.hidden]="!isInitialLoad()"
+          class="flex items-center gap-2 mb-4 text-sm text-neutral-500 dark:text-neutral-400 font-display"
+          role="status"
+          aria-live="polite"
+          [attr.aria-label]="isInitialLoad() ? 'Loading botanical records' : null"
+        >
+          <span
+            class="w-4 h-4 border-2 border-neutral-200 dark:border-neutral-700 border-t-primary-500 rounded-full animate-spin shrink-0"
+            aria-hidden="true"
+          ></span>
+          Loading plants…
+        </div>
+
         @if (!hasSearchCriteria()) {
           <div
             class="flex flex-col items-center justify-center py-20 text-center"
@@ -536,10 +554,11 @@
               aria-hidden="true"
             ></i>
             <p class="text-neutral-500 dark:text-neutral-400 font-display text-sm mb-1">
-              Search any plant by name to see care guides, toxicity, and growth patterns.
+              Search by name or apply filters to discover plant species.
             </p>
             <p class="text-xs text-neutral-400 dark:text-neutral-500 font-display">
-              Try &ldquo;Monstera&rdquo;, &ldquo;Snake plant&rdquo;, or filter by watering needs.
+              Try &ldquo;Monstera&rdquo;, &ldquo;Lavender&rdquo; &mdash; tap any result to explore
+              its full plant profile.
             </p>
           </div>
         } @else if (isInitialLoad()) {
@@ -604,8 +623,7 @@
                   class="w-3 h-3 border border-primary-500 border-t-transparent rounded-full animate-spin shrink-0"
                   aria-hidden="true"
                 ></span>
-                AI is enriching care data for {{ enrichingCount() }}
-                {{ enrichingCount() === 1 ? 'species' : 'species' }}…
+                Enriching plant details for {{ enrichingCount() }} species…
               </div>
             }
             <ul

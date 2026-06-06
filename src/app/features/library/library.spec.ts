@@ -3,8 +3,23 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
 import { LibraryComponent } from './library';
-import { LibraryService, PAGE_SIZE } from './library.service';
+import { CachedBotanicalRecord, LibraryService, PAGE_SIZE } from './library.service';
 import { PlantService } from '../tasks/plant.service';
+
+// Creates N records each with a unique common_name so groupBotanicalRecords()
+// produces exactly N groups, giving totalPages = ceil(N / PAGE_SIZE).
+function makeGroups(n: number): CachedBotanicalRecord[] {
+  return Array.from(
+    { length: n },
+    (_, i) =>
+      ({
+        scientific_name: `Plant ${i}`,
+        common_name: `Plant ${i}`,
+        description: null,
+        thumbnail_url: null,
+      }) as unknown as CachedBotanicalRecord,
+  );
+}
 
 describe('LibraryComponent – pageItems', () => {
   beforeEach(async () => {
@@ -45,21 +60,21 @@ describe('LibraryComponent – pageItems', () => {
 
   it('returns a single item for 1 page', () => {
     const c = create();
-    c.totalCount.set(PAGE_SIZE);
+    c.results.set(makeGroups(PAGE_SIZE));
     c.currentPage.set(0);
     expect(c.pageItems()).toEqual([0]);
   });
 
   it('shows all page indices when total ≤ 7', () => {
     const c = create();
-    c.totalCount.set(3 * PAGE_SIZE);
+    c.results.set(makeGroups(3 * PAGE_SIZE));
     c.currentPage.set(0);
     expect(c.pageItems()).toEqual([0, 1, 2]);
   });
 
   it('inserts ellipsis after window and keeps first + last page (page 0 of 10)', () => {
     const c = create();
-    c.totalCount.set(10 * PAGE_SIZE);
+    c.results.set(makeGroups(10 * PAGE_SIZE));
     c.currentPage.set(0);
     const items = c.pageItems();
     expect(items[0]).toBe(0);
@@ -71,7 +86,7 @@ describe('LibraryComponent – pageItems', () => {
 
   it('inserts ellipsis on both sides on a middle page (page 4 of 10)', () => {
     const c = create();
-    c.totalCount.set(10 * PAGE_SIZE);
+    c.results.set(makeGroups(10 * PAGE_SIZE));
     c.currentPage.set(4);
     const items = c.pageItems();
     expect(items[0]).toBe(0);
@@ -85,7 +100,7 @@ describe('LibraryComponent – pageItems', () => {
 
   it('inserts ellipsis before window on last page (page 9 of 10)', () => {
     const c = create();
-    c.totalCount.set(10 * PAGE_SIZE);
+    c.results.set(makeGroups(10 * PAGE_SIZE));
     c.currentPage.set(9);
     const items = c.pageItems();
     expect(items[0]).toBe(0);
@@ -97,7 +112,7 @@ describe('LibraryComponent – pageItems', () => {
 
   it('always includes page 0 and last page for every current page', () => {
     const c = create();
-    c.totalCount.set(15 * PAGE_SIZE);
+    c.results.set(makeGroups(15 * PAGE_SIZE));
     for (let p = 0; p < 15; p++) {
       c.currentPage.set(p);
       const items = c.pageItems();
@@ -108,7 +123,7 @@ describe('LibraryComponent – pageItems', () => {
 
   it('never places two ellipses consecutively for any page', () => {
     const c = create();
-    c.totalCount.set(20 * PAGE_SIZE);
+    c.results.set(makeGroups(20 * PAGE_SIZE));
     for (let p = 0; p < 20; p++) {
       c.currentPage.set(p);
       const items = c.pageItems();
@@ -123,7 +138,7 @@ describe('LibraryComponent – pageItems', () => {
 
   it('current page is always present in the items list', () => {
     const c = create();
-    c.totalCount.set(10 * PAGE_SIZE);
+    c.results.set(makeGroups(10 * PAGE_SIZE));
     for (let p = 0; p < 10; p++) {
       c.currentPage.set(p);
       expect(c.pageItems()).toContain(p);

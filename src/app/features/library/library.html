@@ -610,7 +610,7 @@
               aria-live="polite"
               aria-atomic="true"
             >
-              {{ totalCount() }} species found
+              {{ groupedResults().length }} species
             </p>
             @if (enrichingCount() > 0) {
               <div
@@ -631,13 +631,16 @@
               [class.opacity-40]="isReloading()"
               aria-label="Botanical records"
             >
-              @for (record of results(); track record.scientific_name) {
+              @for (group of pagedGroupedResults(); track group.representative.scientific_name) {
                 <li>
                   <app-botanical-record-card
-                    [record]="record"
-                    [selected]="selectedRecord() === record"
-                    [isEnriching]="enrichingNames().has(record.scientific_name)"
-                    (cardSelect)="selectedRecord.set(record)"
+                    [record]="group.representative"
+                    [selected]="selectedKeySet().has(group.representative.scientific_name)"
+                    [isEnriching]="
+                      group.varieties.some((v) => enrichingNames().has(v.scientific_name))
+                    "
+                    [varietyCount]="group.varieties.length"
+                    (cardSelect)="openGroup(group)"
                   />
                 </li>
               }
@@ -716,7 +719,7 @@
   }
 
   <app-botanical-detail-dialog
-    [record]="selectedRecord()"
+    [records]="dialogRecords()"
     [visible]="detailVisible()"
     (visibleChange)="onDetailClose($event)"
     (addRequested)="openAddDialog($event)"

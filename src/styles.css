@@ -302,6 +302,9 @@
   .top-1\/2 {
     top: calc(1 / 2 * 100%);
   }
+  .top-3 {
+    top: calc(var(--spacing) * 3);
+  }
   .top-4 {
     top: calc(var(--spacing) * 4);
   }
@@ -582,6 +585,9 @@
   }
   .h-screen {
     height: 100vh;
+  }
+  .max-h-32 {
+    max-height: calc(var(--spacing) * 32);
   }
   .max-h-48 {
     max-height: calc(var(--spacing) * 48);
@@ -2006,6 +2012,11 @@
   .dark\:border-primary-500 {
     &:where(.dark, .dark *) {
       border-color: var(--color-primary-500);
+    }
+  }
+  .dark\:border-primary-600 {
+    &:where(.dark, .dark *) {
+      border-color: var(--color-primary-600);
     }
   }
   .dark\:border-primary-700 {

@@ -25,6 +25,21 @@ const DIALOG_TABS: { id: DialogTab; label: string; icon: string }[] = [
   { id: 'safety', label: 'Safety', icon: 'pi pi-shield' },
 ];
 
+function extractCultivarLabel(scientificName: string): string {
+  // Anchor on the first cultivar-name quote — handles multi-word species bases such as
+  // 'Juniperus x media' and 'Beta vulgaris (Garden Beet Group)', genus-only entries, and
+  // standard 'Genus species' forms. DB data uses ASCII apostrophes throughout.
+  const quoteIdx = scientificName.indexOf("'");
+  if (quoteIdx === -1) return 'Original';
+  const cultivarPart = scientificName.slice(quoteIdx);
+  // Strip opening delimiter; strip closing delimiter before a space or end-of-string.
+  // Preserves internal apostrophes (e.g. Dart's Gold) and trade names after the close quote.
+  return cultivarPart
+    .replace(/^'/, '')
+    .replace(/'(?=[ \t\n\r]|$)/, '')
+    .trim();
+}
+
 @Component({
   selector: 'app-botanical-detail-dialog',
   standalone: true,
@@ -32,7 +47,7 @@ const DIALOG_TABS: { id: DialogTab; label: string; icon: string }[] = [
   templateUrl: './botanical-detail-dialog.html',
 })
 export class BotanicalDetailDialogComponent {
-  readonly record = input<CachedBotanicalRecord | null>(null);
+  readonly records = input<CachedBotanicalRecord[]>([]);
   readonly visible = input<boolean>(false);
   readonly showAddButton = input<boolean>(true);
   readonly visibleChange = output<boolean>();
@@ -45,21 +60,106 @@ export class BotanicalDetailDialogComponent {
   protected readonly activeTab = signal<DialogTab>('overview');
   protected readonly tabClass = tabClass;
   protected readonly showLightbox = signal(false);
+  protected readonly selectedVarietyIndex = signal<number>(0);
   private readonly lightboxEl = viewChild<ElementRef<HTMLDivElement>>('lightboxEl');
 
-  protected readonly lightboxUrl = computed(
-    () => this.record()?.regular_url ?? this.record()?.thumbnail_url ?? null,
+  protected readonly activeRecord = computed(
+    (): CachedBotanicalRecord | null => this.records()[this.selectedVarietyIndex()] ?? null,
   );
 
-  // Tracks the last scientific_name to distinguish "new plant opened" from "same plant refreshed".
-  private _lastScientificName: string | null = null;
+  protected readonly hasVarieties = computed(() => this.records().length > 1);
+
+  protected readonly cultivarChips = computed(() => {
+    const activeIdx = this.selectedVarietyIndex();
+    const base =
+      'cursor-pointer inline-flex items-center rounded-full px-3 py-1 font-display text-xs font-semibold border transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1';
+    const activeClass =
+      'bg-primary-100 text-primary-700 border-primary-300 dark:bg-primary-900/40 dark:text-primary-300 dark:border-primary-600';
+    const inactiveClass =
+      'bg-neutral-50 text-neutral-600 border-neutral-200 hover:bg-neutral-100 dark:bg-neutral-800 dark:text-neutral-300 dark:border-neutral-700 dark:hover:bg-neutral-700';
+    return this.records().map((r, i) => ({
+      label: extractCultivarLabel(r.scientific_name),
+      index: i,
+      scientificName: r.scientific_name,
+      chipClass: `${base} ${activeIdx === i ? activeClass : inactiveClass}`,
+    }));
+  });
+
+  protected readonly lightboxUrl = computed(
+    () => this.activeRecord()?.regular_url ?? this.activeRecord()?.thumbnail_url ?? null,
+  );
+
+  protected readonly sunlightLabels = computed(() =>
+    getSunlightLabels(this.activeRecord()?.sunlight),
+  );
+  protected readonly wateringLabel = computed(() =>
+    getWateringLabel(this.activeRecord()?.watering),
+  );
+  protected readonly preferredSoilTypes = computed(
+    () => this.activeRecord()?.preferred_soil_type ?? [],
+  );
+
+  protected readonly difficultyClass = computed(() => {
+    switch (this.activeRecord()?.care_difficulty) {
+      case 'Beginner':
+        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300';
+      case 'Intermediate':
+        return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300';
+      case 'Advanced':
+        return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300';
+      default:
+        return 'bg-neutral-100 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300';
+    }
+  });
+
+  protected readonly maintenanceLevelClass = computed(() => {
+    switch (this.activeRecord()?.maintenance_level) {
+      case 'Low':
+        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300';
+      case 'Medium':
+        return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300';
+      case 'High':
+        return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300';
+      default:
+        return 'bg-neutral-100 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300';
+    }
+  });
+
+  protected readonly placementClass = computed(() => {
+    switch (this.activeRecord()?.placement) {
+      case 'Indoor':
+        return 'bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300';
+      case 'Outdoor':
+        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300';
+      case 'Both':
+        return 'bg-neutral-100 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300';
+      default:
+        return 'bg-neutral-100 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300';
+    }
+  });
+
+  protected readonly growthRateClass = computed(() => {
+    switch (this.activeRecord()?.growth_rate) {
+      case 'Fast':
+        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300';
+      case 'Moderate':
+        return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300';
+      case 'Slow':
+        return 'bg-neutral-100 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300';
+      default:
+        return 'bg-neutral-100 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300';
+    }
+  });
+
+  // Tracks the first record's key to distinguish "new group opened" from "same group refreshed".
+  private _lastGroupKey: string | null = null;
 
   constructor() {
-    // Reset to Overview only when a different plant opens — not when the same record refreshes.
     effect(() => {
-      const name = this.record()?.scientific_name ?? null;
-      if (name && name !== this._lastScientificName) {
-        this._lastScientificName = name;
+      const key = this.records()[0]?.scientific_name ?? null;
+      if (key && key !== this._lastGroupKey) {
+        this._lastGroupKey = key;
+        this.selectedVarietyIndex.set(0);
         this.activeTab.set('overview');
         this.showLightbox.set(false);
       }
@@ -76,69 +176,13 @@ export class BotanicalDetailDialogComponent {
     });
   }
 
-  protected readonly sunlightLabels = computed(() => getSunlightLabels(this.record()?.sunlight));
-  protected readonly wateringLabel = computed(() => getWateringLabel(this.record()?.watering));
-  protected readonly preferredSoilTypes = computed(() => this.record()?.preferred_soil_type ?? []);
-
-  protected readonly difficultyClass = computed(() => {
-    switch (this.record()?.care_difficulty) {
-      case 'Beginner':
-        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300';
-      case 'Intermediate':
-        return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300';
-      case 'Advanced':
-        return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300';
-      default:
-        return 'bg-neutral-100 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300';
-    }
-  });
-
-  protected readonly maintenanceLevelClass = computed(() => {
-    switch (this.record()?.maintenance_level) {
-      case 'Low':
-        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300';
-      case 'Medium':
-        return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300';
-      case 'High':
-        return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300';
-      default:
-        return 'bg-neutral-100 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300';
-    }
-  });
-
-  protected readonly placementClass = computed(() => {
-    switch (this.record()?.placement) {
-      case 'Indoor':
-        return 'bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300';
-      case 'Outdoor':
-        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300';
-      case 'Both':
-        return 'bg-neutral-100 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300';
-      default:
-        return 'bg-neutral-100 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300';
-    }
-  });
-
-  protected readonly growthRateClass = computed(() => {
-    switch (this.record()?.growth_rate) {
-      case 'Fast':
-        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300';
-      case 'Moderate':
-        return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300';
-      case 'Slow':
-        return 'bg-neutral-100 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300';
-      default:
-        return 'bg-neutral-100 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300';
-    }
-  });
-
   protected onAdd(): void {
-    const rec = this.record();
+    const rec = this.activeRecord();
     if (rec) this.addRequested.emit(rec);
   }
 
   protected onSaveToSeeds(): void {
-    const rec = this.record();
+    const rec = this.activeRecord();
     if (rec) this.seedsRequested.emit(rec);
   }
 }

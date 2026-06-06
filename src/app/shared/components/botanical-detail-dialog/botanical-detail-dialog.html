@@ -1,14 +1,14 @@
 <p-dialog
   [visible]="visible()"
   (visibleChange)="visibleChange.emit($event)"
-  [header]="(record()?.common_name || record()?.scientific_name) ?? ''"
+  [header]="(activeRecord()?.common_name || activeRecord()?.scientific_name) ?? ''"
   [modal]="true"
   [draggable]="false"
   [resizable]="false"
   [dismissableMask]="true"
   [pt]="FloraDetailDialogPT"
 >
-  @if (record(); as rec) {
+  @if (activeRecord(); as rec) {
     @let imgUrl = rec.regular_url ?? rec.thumbnail_url;
     <!-- Identity strip -->
     <div
@@ -37,7 +37,7 @@
           <app-leaf-icon size="lg" />
         </div>
       }
-      <div class="min-w-0 flex-1 pt-1">
+      <div class="min-w-0 flex-1">
         @if (rec.scientific_name) {
           <p
             class="mb-1 font-display text-sm italic leading-snug text-neutral-400 dark:text-neutral-500"
@@ -52,6 +52,29 @@
         }
       </div>
     </div>
+
+    <!-- Cultivar picker -->
+    @if (hasVarieties()) {
+      <div class="mt-4" role="group" aria-label="Select variety">
+        <p
+          class="mb-2 font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
+        >
+          Varieties
+        </p>
+        <div class="flex max-h-32 flex-wrap gap-2 overflow-y-auto">
+          @for (chip of cultivarChips(); track chip.scientificName) {
+            <button
+              type="button"
+              [class]="chip.chipClass"
+              [attr.aria-pressed]="selectedVarietyIndex() === chip.index"
+              (click)="selectedVarietyIndex.set(chip.index)"
+            >
+              {{ chip.label }}
+            </button>
+          }
+        </div>
+      </div>
+    }
 
     <!-- Tab nav — edge-to-edge -->
     <div
@@ -805,7 +828,7 @@
         [pt]="FloraButtonPT"
         [ariaLabel]="
           'Add ' +
-          (record()?.scientific_name ?? record()?.common_name ?? 'plant') +
+          (activeRecord()?.scientific_name ?? activeRecord()?.common_name ?? 'plant') +
           ' to my greenhouse'
         "
         (onClick)="onAdd()"

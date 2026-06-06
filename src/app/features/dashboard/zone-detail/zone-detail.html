@@ -581,7 +581,7 @@
     />
 
     <app-botanical-detail-dialog
-      [record]="activeSpeciesRecord()"
+      [records]="activeSpeciesRecord() ? [activeSpeciesRecord()!] : []"
       [visible]="activeSpeciesRecord() !== null"
       [showAddButton]="false"
       (visibleChange)="onSpeciesDialogClose($event)"

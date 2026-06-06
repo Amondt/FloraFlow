@@ -25,6 +25,7 @@ export class BotanicalRecordCardComponent {
   readonly record = input.required<CachedBotanicalRecord>();
   readonly selected = input<boolean>(false);
   readonly isEnriching = input<boolean>(false);
+  readonly varietyCount = input<number>(1);
   readonly cardSelect = output<void>();
 
   protected readonly FloraTagPT = FloraTagPT;
@@ -41,10 +42,12 @@ export class BotanicalRecordCardComponent {
 
   protected readonly ariaLabel = computed(() => {
     const r = this.record();
-    if (r.common_name && r.scientific_name) {
-      return `${r.common_name}, scientific name ${r.scientific_name}`;
-    }
-    return r.common_name ?? r.scientific_name ?? 'Unknown species';
+    const count = this.varietyCount();
+    const base =
+      r.common_name && r.scientific_name
+        ? `${r.common_name}, scientific name ${r.scientific_name}`
+        : (r.common_name ?? r.scientific_name ?? 'Unknown species');
+    return count > 1 ? `${base}, ${count} varieties` : base;
   });
 
   protected readonly difficultyTag = computed((): TagState | null => {

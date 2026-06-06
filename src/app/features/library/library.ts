@@ -30,6 +30,10 @@ import {
   WATERING_OPTIONS,
 } from './library.service';
 import {
+  SpeciesGroup,
+  groupBotanicalRecords,
+} from '../../shared/utils/group-botanical-records.util';
+import {
   FloraButtonPT,
   FloraInputTextPT,
   FloraSkeletonPT,
@@ -94,7 +98,7 @@ export class LibraryComponent {
   readonly searchQuery = signal('');
   readonly results = signal<CachedBotanicalRecord[]>([]);
   readonly isLoading = signal(false);
-  readonly selectedRecord = signal<CachedBotanicalRecord | null>(null);
+  readonly selectedGroupKey = signal<string[] | null>(null);
   readonly showAddDialog = signal(false);
   readonly phRange = signal<number[]>([0, 14]);
   readonly phDisplay = signal<number[]>([0, 14]);
@@ -106,7 +110,20 @@ export class LibraryComponent {
     perenual_id: number | null;
   } | null>(null);
 
-  readonly detailVisible = computed(() => this.selectedRecord() !== null);
+  readonly groupedResults = computed(() => groupBotanicalRecords(this.results()));
+  readonly selectedKeySet = computed(() => new Set(this.selectedGroupKey() ?? []));
+  readonly dialogRecords = computed((): CachedBotanicalRecord[] => {
+    const keys = this.selectedGroupKey();
+    if (!keys) return [];
+    const keySet = new Set(keys);
+    // Use the group's sorted varieties (base species first) rather than filtering
+    // from raw results(), which has no guaranteed ordering.
+    const group = this.groupedResults().find((g) =>
+      g.varieties.some((v) => keySet.has(v.scientific_name)),
+    );
+    return group?.varieties ?? [];
+  });
+  readonly detailVisible = computed(() => this.selectedGroupKey() !== null);
   readonly hasActiveFilters = computed(() => Object.keys(this.filters()).length > 0);
   readonly hasSearchCriteria = computed(
     () => this.searchQuery().length >= 2 || this.hasActiveFilters(),
@@ -132,7 +149,14 @@ export class LibraryComponent {
   readonly isSafeForHumansFilter = computed(() => this.filters().isSafeForHumans === true);
   readonly isPetSafeFilter = computed(() => this.filters().isPetSafe === true);
 
-  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.totalCount() / PAGE_SIZE)));
+  readonly pagedGroupedResults = computed(() => {
+    const groups = this.groupedResults();
+    const start = this.currentPage() * PAGE_SIZE;
+    return groups.slice(start, start + PAGE_SIZE);
+  });
+  readonly totalPages = computed(() =>
+    Math.max(1, Math.ceil(this.groupedResults().length / PAGE_SIZE)),
+  );
   readonly hasPrevPage = computed(() => this.currentPage() > 0);
   readonly hasNextPage = computed(() => this.currentPage() < this.totalPages() - 1);
 
@@ -231,7 +255,7 @@ export class LibraryComponent {
       this._debounceTimer = setTimeout(() => {
         this._debounceTimer = null;
         this.currentPage.set(0);
-        void this._load(q, f, 0);
+        void this._load(q, f);
       }, 300);
     });
   }
@@ -360,9 +384,10 @@ export class LibraryComponent {
   }
 
   protected goToPage(page: number): void {
+    this.selectedGroupKey.set(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     this.currentPage.set(page);
-    void this._load(this.searchQuery(), this.filters(), page);
+    // No re-fetch — all records are loaded at once; pagedGroupedResults() slices the window.
   }
 
   private _activeHandle: 0 | 1 | null = null;
@@ -445,11 +470,15 @@ export class LibraryComponent {
   }
 
   protected onDetailClose(visible: boolean): void {
-    if (!visible) this.selectedRecord.set(null);
+    if (!visible) this.selectedGroupKey.set(null);
+  }
+
+  protected openGroup(group: SpeciesGroup): void {
+    this.selectedGroupKey.set(group.varieties.map((v) => v.scientific_name));
   }
 
   protected onSeedsRequested(rec: CachedBotanicalRecord): void {
-    this.selectedRecord.set(null);
+    this.selectedGroupKey.set(null);
     void this.router.navigate(['/seeds'], {
       queryParams: {
         name: rec.common_name,
@@ -464,7 +493,7 @@ export class LibraryComponent {
       scientific_name: record.scientific_name,
       perenual_id: record.perenual_id,
     });
-    this.selectedRecord.set(null);
+    this.selectedGroupKey.set(null);
     this.showAddDialog.set(true);
   }
 
@@ -478,7 +507,7 @@ export class LibraryComponent {
       });
     } else {
       this.showAddDialog.set(false);
-      this.selectedRecord.set(null);
+      this.selectedGroupKey.set(null);
       this.prefillRecord.set(null);
       this.messageService.add({
         severity: 'success',
@@ -488,14 +517,16 @@ export class LibraryComponent {
     }
   }
 
-  private async _load(query: string, f: LibraryFilters, page = 0): Promise<void> {
+  private async _load(query: string, f: LibraryFilters): Promise<void> {
     this._poll.stop();
     this.isLoading.set(true);
     try {
+      // Fetch all matching records in one shot — grouping and client-side pagination
+      // slice them via pagedGroupedResults(). 1000 covers any realistic botanical library.
       const result =
         query.length >= 2
-          ? await this.libraryService.search(query, f, page, PAGE_SIZE)
-          : await this.libraryService.browse(f, page, PAGE_SIZE);
+          ? await this.libraryService.search(query, f, 0, 1000)
+          : await this.libraryService.browse(f, 0, 1000);
 
       this.results.set(result.data);
       this.totalCount.set(result.count);
@@ -513,12 +544,6 @@ export class LibraryComponent {
           this.results.update((current) =>
             current.map((r) => refreshedMap.get(r.scientific_name) ?? r),
           );
-          // Push updated data to the open detail dialog when its record finishes enriching
-          const openRec = this.selectedRecord();
-          if (openRec) {
-            const refreshedRec = refreshedMap.get(openRec.scientific_name);
-            if (refreshedRec?.description != null) this.selectedRecord.set(refreshedRec);
-          }
           return new Set(
             refreshed
               .filter((r) => !r.is_ai_enriched || r.description == null || !r.thumbnail_fetched)

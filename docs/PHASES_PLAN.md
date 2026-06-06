@@ -65,7 +65,7 @@
 
 - [x] **1.11 Plant Form Dialog UX Redesign** | Agent: `/visualizer`
   - Split the single "Plant name" autocomplete into two dedicated sections: **Species (optional)** and **My plant's name (required)**.
-  - Species section: autocomplete search when unselected; read-only chip (🌿 Common · *Scientific* + "Change" button) when a species is locked.
+  - Species section: autocomplete search when unselected; read-only chip (🌿 Common · _Scientific_ + "Change" button) when a species is locked.
   - Nickname section: always-visible plain text input, pre-filled from species common name on selection but always editable.
   - Remove the standalone scientific name input from the visible form (data still wired internally).
   - No DB migration — `common_name` remains the user's display label; `scientific_name` and `perenual_id` wiring unchanged.
@@ -136,12 +136,6 @@
   - Reuses `SoilCheckDialogComponent` (Block C) and the shared botanical detail dialog extracted during 2.8 (Block D).
   - No new migrations — reads from existing `ZoneService` and `PlantService` signals.
   - Plan: `docs/plans/phase-2/PHASE_2_10_PLAN.md`
-- [ ] **2.12 Library Species Grouping** | Agent: `/visualizer`
-  - Client-side grouping of library results by common name — multi-cultivar species collapse into one card with a variety count badge.
-  - Botanical detail dialog gains an inline cultivar picker (chip strip ≤5, dropdown >5) between the identity strip and the content tabs — switching cultivar updates all content tabs in-place.
-  - "Add to my greenhouse" and "Track seeds" always act on the currently selected cultivar.
-  - No DB migration — pure computed transformation of the existing `results()` signal.
-  - Plan: `docs/plans/phase-2/PHASE_2_12_PLAN.md`
 - [x] **2.11 Background Botanical Cache Enrichment Worker** | Agent: `/plumber`
   - `botanical-search` extended to paginate all Perenual pages (up to 5 pages, ~150 results max) per query — no slice limit.
   - `_shared/enrich-record.ts` extracted: `ENRICHMENT_SYSTEM_PROMPT`, `EnrichmentSchema`, `fetchINatThumbnail()`, and `enrichRecord()` shared between `claude-enrichment` and the new worker.
@@ -149,6 +143,12 @@
   - New `cache-enrichment-worker` Edge Function: processes 5 unenriched `cached_botanical_records` per run (Claude AI + iNaturalist), ordered by `cached_at DESC` (most recently searched first).
   - New pg_cron job: fires `cache-enrichment-worker` every 10 minutes.
   - Plan: `docs/plans/phase-2/PHASE_2_11_PLAN.md`
+- [x] **2.12 Library Species Grouping** | Agent: `/visualizer`
+  - Client-side grouping of library results by common name — multi-cultivar species collapse into one card with a variety count badge.
+  - Botanical detail dialog gains an inline cultivar picker (chip strip ≤5, dropdown >5) between the identity strip and the content tabs — switching cultivar updates all content tabs in-place.
+  - "Add to my greenhouse" and "Track seeds" always act on the currently selected cultivar.
+  - No DB migration — pure computed transformation of the existing `results()` signal.
+  - Plan: `docs/plans/phase-2/PHASE_2_12_PLAN.md`
 
 ### 🔒 Phase 2 QA Criteria
 

@@ -136,7 +136,7 @@
   - Reuses `SoilCheckDialogComponent` (Block C) and the shared botanical detail dialog extracted during 2.8 (Block D).
   - No new migrations — reads from existing `ZoneService` and `PlantService` signals.
   - Plan: `docs/plans/phase-2/PHASE_2_10_PLAN.md`
-- [ ] **2.11 Background Botanical Cache Enrichment Worker** | Agent: `/plumber`
+- [x] **2.11 Background Botanical Cache Enrichment Worker** | Agent: `/plumber`
   - `botanical-search` extended to paginate all Perenual pages (up to 5 pages, ~150 results max) per query — no slice limit.
   - `_shared/enrich-record.ts` extracted: `ENRICHMENT_SYSTEM_PROMPT`, `EnrichmentSchema`, `fetchINatThumbnail()`, and `enrichRecord()` shared between `claude-enrichment` and the new worker.
   - `claude-enrichment` refactored to use shared module — zero API contract change.

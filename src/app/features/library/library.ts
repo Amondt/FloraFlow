@@ -167,8 +167,11 @@ export class LibraryComponent {
   // isLoading() timing, which eliminates the signal-write race on first search.
   protected readonly searchCompleted = signal(false);
 
+  // Shows skeleton loaders whenever a load is in flight with no results on screen yet.
+  // Driven by isLoading() — set synchronously in _syncLoadingState() — rather than
+  // !searchCompleted() which depends on the effect flush and can lag behind event handlers.
   readonly isInitialLoad = computed(
-    () => this.hasSearchCriteria() && !this.searchCompleted() && this.results().length === 0,
+    () => this.hasSearchCriteria() && this.isLoading() && this.results().length === 0,
   );
   readonly hasNoResults = computed(
     () => this.hasSearchCriteria() && this.searchCompleted() && this.results().length === 0,
@@ -416,6 +419,10 @@ export class LibraryComponent {
 
   private _syncLoadingState(): void {
     if (this.searchQuery().length >= 2 || Object.keys(this.filters()).length > 0) {
+      // Reset searchCompleted synchronously so isInitialLoad evaluates correctly before
+      // the effect flush. Without this, a completed previous search leaves searchCompleted
+      // true, which would hide the skeleton on the next load cycle.
+      this.searchCompleted.set(false);
       this.isLoading.set(true);
     }
   }

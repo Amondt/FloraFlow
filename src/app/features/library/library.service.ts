@@ -147,14 +147,21 @@ export class LibraryService {
     pageSize = PAGE_SIZE,
   ): Promise<LibraryPage> {
     try {
-      const suggestions = await this.botanicalSearch.search(searchQuery);
-      const names = suggestions.map((s) => s.scientific_name);
-      if (names.length === 0) return { data: [], count: 0 };
+      // Strip PostgREST structural characters before interpolating into .or() — same
+      // sanitisation the botanical-search Edge Function applies.
+      const safeQ = searchQuery.trim().replace(/[,)(]/g, '');
+      if (safeQ.length < 2) return { data: [], count: 0 };
 
+      // Populate the Perenual cache for queries not yet seen. The return value is
+      // intentionally discarded — the library queries the full cache with ILIKE so
+      // all matching records are visible, not just the 30 the autocomplete returns.
+      await this.botanicalSearch.search(safeQ);
+
+      // ILIKE directly on the cache — no IN-list cap, all matching records surface.
       let query = this.supabase.client
         .from('cached_botanical_records')
         .select('*', { count: 'exact' })
-        .in('scientific_name', names);
+        .or(`common_name.ilike.%${safeQ}%,scientific_name.ilike.%${safeQ}%`);
 
       if (filters.watering != null) query = query.eq('watering', filters.watering);
       if (filters.sunlight != null) query = query.contains('sunlight', [filters.sunlight]);

@@ -30,35 +30,37 @@
         @if (hasPlants()) {
           <div class="flex items-center gap-2 shrink-0">
             <!-- Plant filter -->
-            <div class="w-56">
-              <app-plant-select
-                inputId="journal-plant-filter"
-                [value]="selectedPlant()"
-                (valueChange)="onPlantFilterChange($event)"
-                [options]="plantSelectOptions()"
-                [grouped]="true"
-                [ariaLabel]="'Filter journal entries by plant'"
-              />
-            </div>
-
-            <!-- Diagnose Plant -->
-            <p-button
-              label="Diagnose Plant"
-              icon="pi pi-eye"
-              variant="outlined"
-              [pt]="FloraButtonPT"
-              ariaLabel="Diagnose a plant with Leaf Doctor AI"
-              (onClick)="openDiagnosisDialog()"
+            <app-plant-select
+              inputId="journal-plant-filter"
+              [value]="selectedPlant()"
+              (valueChange)="onPlantFilterChange($event)"
+              [options]="plantSelectOptions()"
+              [grouped]="true"
+              [ariaLabel]="'Filter journal entries by plant'"
+              [ghost]="true"
             />
+
+            <!-- Diagnose plant -->
+            <button
+              type="button"
+              class="cursor-pointer inline-flex items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
+              aria-label="Diagnose a plant with Leaf Doctor AI"
+              (click)="openDiagnosisDialog()"
+            >
+              <i class="pi pi-eye text-xs" aria-hidden="true"></i>
+              Diagnose plant
+            </button>
 
             <!-- New entry -->
-            <p-button
-              label="New entry"
-              icon="pi pi-plus"
-              [pt]="FloraButtonPT"
-              ariaLabel="Log a new care event for one of your plants"
-              (onClick)="openDialog()"
-            />
+            <button
+              type="button"
+              class="cursor-pointer inline-flex items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
+              aria-label="Log a new care event for one of your plants"
+              (click)="openDialog()"
+            >
+              <i class="pi pi-plus text-xs" aria-hidden="true"></i>
+              New entry
+            </button>
           </div>
         }
       </div>

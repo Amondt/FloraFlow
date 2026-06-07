@@ -16,33 +16,15 @@
     aria-label="Seed batch details form"
   >
     <div class="flex flex-col gap-1.5">
-      <label
-        [for]="commonNameId"
-        class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
-      >
-        Seed name
-        <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
-        <span class="sr-only">(required)</span>
-        <span class="text-neutral-400 font-normal text-xs ml-1">(common or scientific name)</span>
-      </label>
-      @if (selectedPerenualId() !== null) {
-        <input
-          pInputText
-          [id]="commonNameId"
-          [ngModel]="commonNameQuery"
-          (ngModelChange)="onCommonNameChange($event)"
-          [ngModelOptions]="{ standalone: true }"
-          [pt]="FloraInputTextPT"
-          [class]="nameCtrl.invalid && nameCtrl.touched ? FLORA_ERROR : ''"
-          [attr.aria-invalid]="nameCtrl.invalid && nameCtrl.touched"
-          [attr.aria-describedby]="
-            nameCtrl.invalid && nameCtrl.touched ? commonNameId + '-error' : null
-          "
-          aria-required="true"
-          placeholder="e.g. Cherry Tomato, Sweet Basil"
-          autocomplete="off"
-        />
-      } @else {
+      @if (selectedPerenualId() === null) {
+        <label
+          [for]="commonNameId"
+          class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+        >
+          Species
+          <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
+          <span class="sr-only">(required)</span>
+        </label>
         <p-autocomplete
           #nameAC
           [inputId]="commonNameId"
@@ -60,7 +42,7 @@
             nameCtrl.invalid && nameCtrl.touched ? commonNameId + '-error' : null
           "
           aria-required="true"
-          placeholder="e.g. Cherry Tomato, Sweet Basil"
+          placeholder="Search by common or scientific name…"
           autocomplete="off"
           styleClass="w-full"
           appendTo="body"
@@ -95,57 +77,45 @@
             </div>
           </ng-template>
         </p-autocomplete>
-      }
-      @if (nameCtrl.invalid && nameCtrl.touched) {
-        <small
-          [id]="commonNameId + '-error'"
-          class="text-danger-500 text-xs font-display"
-          role="alert"
+        @if (nameCtrl.invalid && nameCtrl.touched) {
+          <small
+            [id]="commonNameId + '-error'"
+            class="text-danger-500 text-xs font-display"
+            role="alert"
+          >
+            Please select a species.
+          </small>
+        }
+      } @else {
+        <span class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display">
+          Species
+        </span>
+        <article
+          role="status"
+          [attr.aria-label]="'Selected species: ' + commonNameQuery"
+          class="flex h-control items-center gap-2 rounded-garden-sm border border-neutral-200 bg-neutral-50 px-3 dark:border-neutral-700 dark:bg-neutral-800"
         >
-          Seed name is required.
-        </small>
-      }
-      @if (lockedScientificName()) {
-        <small class="text-neutral-400 text-xs font-display" role="note">
-          <i class="pi pi-lock text-[10px] mr-1" aria-hidden="true"></i>
-          <em>{{ lockedScientificName() }}</em>
-          &nbsp;&middot;&nbsp;
+          <app-leaf-icon size="sm" class="shrink-0 text-primary-600" />
+          <span
+            class="min-w-0 flex-1 truncate text-sm font-display text-neutral-700 dark:text-neutral-200"
+          >
+            {{ commonNameQuery }}
+            @if (lockedScientificName()) {
+              <span class="mx-1 text-neutral-400 dark:text-neutral-500" aria-hidden="true">·</span
+              ><em class="text-xs text-neutral-500 dark:text-neutral-400">{{
+                lockedScientificName()
+              }}</em>
+            }
+          </span>
           <button
             type="button"
-            class="text-primary-600 hover:text-primary-700 transition-colors outline-none focus-visible:ring-1 focus-visible:ring-primary-500 rounded cursor-pointer"
-            aria-label="Clear species selection and search for a different species"
+            class="shrink-0 cursor-pointer rounded-garden-sm text-xs font-medium text-primary-600 outline-none transition-colors hover:text-primary-700 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1"
+            aria-label="Change selected species"
             (click)="clearLockedSpecies()"
           >
-            Change species
+            Change
           </button>
-        </small>
-      }
-    </div>
-
-    <div class="flex flex-col gap-1.5">
-      <label
-        [for]="scientificNameId"
-        class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
-      >
-        Latin name
-        <span class="text-neutral-400 font-normal text-xs ml-1"
-          >(optional — auto-filled on suggestion select)</span
-        >
-      </label>
-      <input
-        pInputText
-        [id]="scientificNameId"
-        formControlName="scientific_name"
-        [pt]="FloraInputTextPT"
-        [attr.readonly]="lockedScientificName() ? '' : null"
-        class="read-only:opacity-60 read-only:cursor-default"
-        placeholder="e.g. Solanum lycopersicum"
-        autocomplete="off"
-      />
-      @if (lockedScientificName()) {
-        <small class="text-neutral-400 text-xs font-display" role="note">
-          Linked to selected species — use "Change species" above to update.
-        </small>
+        </article>
       }
     </div>
 

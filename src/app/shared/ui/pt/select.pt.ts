@@ -48,6 +48,50 @@ export const FloraSelectPT = {
   },
 } satisfies SelectPassThroughOptions;
 
+// Ghost variant — used in page-header filter controls (e.g. journal plant filter).
+// No border or background; auto-width; overlay panel minimum width of 14 rem.
+export const FloraSelectGhostPT = {
+  root: {
+    class: [
+      'inline-flex items-center gap-1 cursor-pointer',
+      'px-2 py-1 text-sm font-medium font-display',
+      'bg-transparent text-neutral-600 dark:text-neutral-300',
+      'hover:text-neutral-900 dark:hover:text-neutral-100',
+      'rounded',
+      FLORA_FOCUS,
+      FLORA_DISABLED,
+      FLORA_HOVER,
+    ].join(' '),
+  },
+  label: { class: 'max-w-40 truncate outline-none' },
+  dropdown: { class: 'flex items-center shrink-0 text-neutral-400 dark:text-neutral-500' },
+  pcOverlay: {
+    root: {
+      class:
+        'mt-1 min-w-56 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md shadow-xl z-50 overflow-hidden',
+    },
+  },
+  listContainer: { class: 'max-h-64 overflow-y-auto' },
+  list: { class: 'py-1' },
+  option: ({ context = { selected: false } }: { context?: { selected: boolean } } = {}) => ({
+    class: [
+      'px-3 py-2 text-sm cursor-pointer font-display',
+      'text-neutral-700 dark:text-neutral-200',
+      FLORA_HOVER,
+      {
+        'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-medium':
+          context.selected,
+        'hover:bg-neutral-100 dark:hover:bg-neutral-700': !context.selected,
+      },
+    ],
+  }),
+  emptyMessage: { class: 'px-3 py-2 text-sm text-neutral-400 italic' },
+  optionGroup: {
+    class:
+      'sticky top-0 z-10 bg-white dark:bg-neutral-800 border-t border-neutral-200 dark:border-neutral-700 first:border-t-0',
+  },
+} satisfies SelectPassThroughOptions;
+
 export const FloraMultiSelectPT = {
   root: {
     class: [

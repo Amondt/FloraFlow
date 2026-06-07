@@ -1,7 +1,7 @@
 import { Component, input, model, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Select, SelectModule } from 'primeng/select';
-import { FloraSelectPT } from '../../ui/pt/index';
+import { FloraSelectGhostPT, FloraSelectPT } from '../../ui/pt/index';
 import { LeafIconComponent } from '../leaf-icon/leaf-icon';
 
 export interface PlantOption {
@@ -25,6 +25,7 @@ export interface PlantOptionGroup {
 })
 export class PlantSelectComponent {
   protected readonly FloraSelectPT = FloraSelectPT;
+  protected readonly FloraSelectGhostPT = FloraSelectGhostPT;
 
   readonly options = input.required<PlantOption[] | PlantOptionGroup[]>();
   readonly grouped = input<boolean>(false);
@@ -34,6 +35,7 @@ export class PlantSelectComponent {
   readonly ariaLabelledBy = input<string | undefined>(undefined);
   readonly required = input<boolean>(false);
   readonly inputId = input<string | undefined>(undefined);
+  readonly ghost = input<boolean>(false);
 
   private readonly _select = viewChild<Select>('innerSelectRef');
 

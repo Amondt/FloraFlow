@@ -31,16 +31,24 @@
           }
         </div>
         <div class="relative">
-          <p-button
-            label="Add plant"
-            icon="pi pi-plus"
-            [pt]="FloraButtonPT"
+          <button
+            type="button"
             [disabled]="!hasZones()"
+            [attr.aria-disabled]="!hasZones() || null"
             [attr.aria-label]="
               !hasZones() ? 'Add plant — add a zone first' : 'Add a new plant to your greenhouse'
             "
-            (onClick)="openAddPlant()"
-          />
+            class="inline-flex items-center gap-1.5 text-sm font-medium font-display outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1 transition-colors duration-150"
+            [class]="
+              !hasZones()
+                ? 'text-neutral-400 dark:text-neutral-500 cursor-not-allowed opacity-50'
+                : 'text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 cursor-pointer'
+            "
+            (click)="openAddPlant()"
+          >
+            <i class="pi pi-plus text-xs" aria-hidden="true"></i>
+            Add plant
+          </button>
           @if (!hasZones()) {
             <span
               class="absolute top-full left-0 right-0 mt-0.5 text-center text-xs font-display text-neutral-400 dark:text-neutral-500 pointer-events-none whitespace-nowrap"

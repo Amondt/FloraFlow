@@ -271,6 +271,8 @@
   - Update `claude-plant-id`: return `inat_taxon_id`; insert cache stub for newly identified species so the background cron picks them up.
   - Thread `inat_taxon_id` through Angular: `BotanicalSuggestion`, `Plant`, `PlantFormData`, `PlantIdentifiedEvent`, all form dialogs, and all spec fixtures.
   - Library per-page enrichment: `_enrichCurrentPage()` fires only for the visible page; `goToPage()` triggers next-page enrichment.
+  - Block G: one-shot `inat-backfill` Edge Function populates `inat_taxon_id` for all 924 existing records; `group-botanical-records.util.ts` refactored to group by `inat_taxon_id` — cultivar cards correctly collapse into one species card.
+  - `locale=en` added to all iNat queries; `thumbnail_fetched` retained as infinite-retry guard for species absent from iNat's photo database.
   - Plan: `docs/plans/phase-3/PHASE_3_16_PLAN.md`
 
 ### 🔒 Phase 3 QA Criteria

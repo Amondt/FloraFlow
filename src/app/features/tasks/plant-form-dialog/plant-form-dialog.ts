@@ -17,7 +17,12 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { AutoComplete, AutoCompleteModule, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { Select, SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
+import { MessageService } from 'primeng/api';
 import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-icon';
+import {
+  PlantIdentifierDialogComponent,
+  type PlantIdentifiedEvent,
+} from '../../../shared/components/plant-identifier/plant-identifier-dialog';
 import {
   FloraFormDialogPT,
   FloraInputTextPT,
@@ -57,12 +62,14 @@ import {
     SelectModule,
     ButtonModule,
     LeafIconComponent,
+    PlantIdentifierDialogComponent,
   ],
   templateUrl: './plant-form-dialog.html',
 })
 export class PlantFormDialogComponent {
   private readonly zoneService = inject(ZoneService);
   private readonly botanicalSearch = inject(BotanicalSearchService);
+  private readonly messageService = inject(MessageService, { optional: true });
 
   readonly plant = input<Plant | null>(null);
   readonly defaultZoneId = input<string | null>(null);
@@ -94,6 +101,7 @@ export class PlantFormDialogComponent {
   protected readonly potDiameterId = `flora-plant-pd-${crypto.randomUUID().slice(0, 8)}`;
   protected readonly growthStageId = `flora-plant-gs-${crypto.randomUUID().slice(0, 8)}`;
 
+  readonly identifierVisible = signal(false);
   protected suggestions = signal<BotanicalSuggestion[]>([]);
   protected selectedPerenualId = signal<number | null>(null);
   protected lockedScientificName = signal<string | null>(null);
@@ -200,6 +208,28 @@ export class PlantFormDialogComponent {
     this._containerSelect()?.hide();
     this._substrateSelect()?.hide();
     this._growthStageSelect()?.hide();
+    this.identifierVisible.set(false);
+  }
+
+  protected openIdentifier(): void {
+    this.identifierVisible.set(true);
+  }
+
+  protected onIdentified(event: PlantIdentifiedEvent): void {
+    this.form.patchValue({
+      common_name: event.common_name,
+      scientific_name: event.scientific_name,
+    });
+    this.speciesSearchQuery = event.common_name;
+    this.selectedPerenualId.set(event.perenual_id);
+    this.lockedScientificName.set(event.perenual_id ? event.scientific_name : null);
+    this.lockedSpeciesCommonName.set(event.perenual_id ? event.common_name : null);
+    this.identifierVisible.set(false);
+    this.messageService?.add({
+      severity: 'success',
+      summary: 'Species identified',
+      detail: 'Form pre-filled — adjust if needed.',
+    });
   }
 
   async onQuerySearch(event: AutoCompleteCompleteEvent): Promise<void> {

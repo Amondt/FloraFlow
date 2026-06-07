@@ -1,5 +1,5 @@
 import { Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { ButtonModule } from 'primeng/button';
@@ -28,6 +28,13 @@ import { ProfileService } from '../../core/services/profile.service';
 import { WeatherService } from '../../core/services/weather.service';
 import { LocationDialogComponent } from './location-dialog/location-dialog';
 import { BotanicalThumbnailService } from '../../core/services/botanical-thumbnail.service';
+import {
+  PlantIdentifierDialogComponent,
+  type PlantIdentifiedEvent,
+} from '../../shared/components/plant-identifier/plant-identifier-dialog';
+import { BotanicalDetailDialogComponent } from '../../shared/components/botanical-detail-dialog/botanical-detail-dialog';
+import { SubstrateMixWizardDialogComponent } from '../../shared/components/substrate-mix-wizard/substrate-mix-wizard-dialog';
+import { LibraryService, type CachedBotanicalRecord } from '../library/library.service';
 
 interface AttentionChip {
   plant: Plant;
@@ -50,6 +57,9 @@ interface AttentionChip {
     PlantFormDialogComponent,
     LeafIconComponent,
     LocationDialogComponent,
+    PlantIdentifierDialogComponent,
+    BotanicalDetailDialogComponent,
+    SubstrateMixWizardDialogComponent,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './dashboard.html',
@@ -60,6 +70,8 @@ export class DashboardComponent {
   protected readonly profileService = inject(ProfileService);
   protected readonly weatherService = inject(WeatherService);
   protected readonly thumbnailService = inject(BotanicalThumbnailService);
+  private readonly libraryService = inject(LibraryService);
+  private readonly router = inject(Router);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
   private readonly destroyRef = inject(DestroyRef);
@@ -137,6 +149,19 @@ export class DashboardComponent {
   );
 
   readonly locationDialogVisible = signal(false);
+
+  // ── Plant Identifier + Botanical Detail ───────────────────────
+  readonly identifierDialogOpen = signal(false);
+  readonly botanicalDetailVisible = signal(false);
+  readonly botanicalDetailRecords = signal<CachedBotanicalRecord[]>([]);
+  readonly botanicalPrefill = signal<{
+    common_name: string;
+    scientific_name: string | null;
+    perenual_id: number | null;
+  } | null>(null);
+  readonly wizardVisible = signal(false);
+  readonly wizardFromBotanicalRecord = signal<CachedBotanicalRecord | null>(null);
+  private _savedBotanicalRecords: CachedBotanicalRecord[] = [];
 
   // ── Zone stats for zone-card inputs ──────────────────────────
   readonly zoneStats = computed(() => {
@@ -220,6 +245,75 @@ export class DashboardComponent {
   openAddPlantDialog(): void {
     blurActiveElement();
     this.plantFormVisible.set(true);
+  }
+
+  // ── Plant Identifier ──────────────────────────────────────────
+  openIdentifierDialog(): void {
+    blurActiveElement();
+    this.identifierDialogOpen.set(true);
+  }
+
+  async onPlantIdentified(event: PlantIdentifiedEvent): Promise<void> {
+    const record = await this.libraryService.fetchByScientificName(event.scientific_name);
+    if (record) {
+      this.botanicalDetailRecords.set([record]);
+      this.botanicalDetailVisible.set(true);
+    } else {
+      this.messageService.add({
+        severity: 'info',
+        summary: 'Species identified',
+        detail: 'Care data is loading. Check the Library in a moment.',
+      });
+    }
+  }
+
+  onAddToMyPlants(event: PlantIdentifiedEvent): void {
+    this.botanicalPrefill.set({
+      common_name: event.common_name,
+      scientific_name: event.scientific_name,
+      perenual_id: event.perenual_id,
+    });
+    this.plantFormVisible.set(true);
+  }
+
+  protected onBotanicalAddRequested(record: CachedBotanicalRecord): void {
+    this.botanicalPrefill.set({
+      common_name: record.common_name,
+      scientific_name: record.scientific_name,
+      perenual_id: record.perenual_id,
+    });
+    this.botanicalDetailVisible.set(false);
+    this.plantFormVisible.set(true);
+  }
+
+  protected onBotanicalSeedsRequested(record: CachedBotanicalRecord): void {
+    this.botanicalDetailVisible.set(false);
+    void this.router.navigate(['/seeds'], {
+      queryParams: {
+        name: record.common_name,
+        scientific: record.scientific_name ?? null,
+      },
+    });
+  }
+
+  protected openWizardFromBotanical(record: CachedBotanicalRecord): void {
+    this._savedBotanicalRecords = this.botanicalDetailRecords();
+    this.botanicalDetailVisible.set(false);
+    this.wizardFromBotanicalRecord.set(record);
+    this.wizardVisible.set(true);
+  }
+
+  protected onBotanicalWizardClose(isVisible: boolean): void {
+    if (!isVisible) {
+      const savedRecords = this._savedBotanicalRecords;
+      this._savedBotanicalRecords = [];
+      this.wizardFromBotanicalRecord.set(null);
+      this.wizardVisible.set(false);
+      if (savedRecords.length > 0) {
+        this.botanicalDetailRecords.set(savedRecords);
+        this.botanicalDetailVisible.set(true);
+      }
+    }
   }
 
   // ── Location dialog ───────────────────────────────────────────
@@ -346,6 +440,7 @@ export class DashboardComponent {
         detail: this.plantService.error()!,
       });
     } else {
+      this.botanicalPrefill.set(null);
       this.messageService.add({
         severity: 'success',
         summary: 'Plant added',

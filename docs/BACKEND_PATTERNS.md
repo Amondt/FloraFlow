@@ -301,7 +301,7 @@ FloraFlow's core loop (soil checks, journaling, snoozing) must never be blocked 
 
 | Failure scenario | Server behaviour | User sees |
 |---|---|---|
-| Perenual returns empty or crashes | Hand off silently to AI Scribe — same code path | Nothing, enrichment proceeds |
+| iNaturalist returns empty or crashes | Cache served as-is; AI Scribe still runs on next enrichment pass | Nothing, enrichment proceeds |
 | AI Scribe also fails (quota, network) | Return partial record with enriched fields omitted | Plant created; enriched fields show `—` with tooltip "Details unavailable" |
 | Leaf Doctor fails or quota exhausted | Return `{ error: 'diagnosis_unavailable' }` with HTTP 503 | Inline soft message where result would appear; photo is still saved |
 | Open-Meteo fails | Return `{ weather: null }` | Weather widget shows `—`; dashboard loads normally |
@@ -404,25 +404,27 @@ bunx supabase functions serve --no-verify-jwt --env-file supabase/functions/.env
 
 ---
 
-## Perenual API Field Mapping
+## iNaturalist Taxa API Field Mapping
 
-When the Edge Function receives a response from `/api/v2/species/details/[id]`, apply these mappings before writing to `cached_botanical_records`:
+`botanical-search` calls this endpoint on cache miss:
 
-| Perenual field | Our column | Notes |
+```
+GET https://api.inaturalist.org/v1/taxa?q={q}&taxon_id=47126&rank=species&per_page=30&locale=en
+```
+
+`taxon_id=47126` = Plantae kingdom. `locale=en` forces English `preferred_common_name`. No API key required.
+
+| iNaturalist field | Our column | Notes |
 |---|---|---|
-| `id` | `perenual_id` | Integer — store as-is |
-| `scientific_name` | `scientific_name` | **Array of strings** — take `[0]` |
-| `common_name` | `common_name` | String — store as-is |
-| `poisonous_to_pets` | `is_toxic_to_pets` | Boolean — maps directly |
-| `propagation` | `propagation_methods` | Array of strings — **values may not match our enum**; pass to AI Scribe for normalisation |
-| `watering` | `watering` | String — store as-is |
-| `sunlight` | `sunlight` | Array of strings — store as-is |
-| `cycle` | `cycle` | String — store as-is |
-| `type` | `plant_type` | String — rename: `type` is a SQL reserved word |
+| `results[n].id` | `inat_taxon_id` | Integer taxon ID |
+| `results[n].name` | `scientific_name` | Binomial — already correctly cased |
+| `results[n].preferred_common_name` | `common_name` | Falls back to `name` when absent; apply `toSentenceCase` |
+| `results[n].default_photo.url` | `thumbnail_url` | Small square crop (~75 px) |
+| `results[n].default_photo.medium_url` | `regular_url` | Medium size (~500 px) |
 
-Fields **not** in Perenual (require AI Scribe enrichment): `ideal_min_ph`, `ideal_max_ph`, `toxicity_notes`.
+Photos arrive inline with the search result — no separate thumbnail-fetch pass is needed. The upsert sets `thumbnail_fetched = true` immediately.
 
-**PlantNet returns identification data only** (`score`, `scientific_name`, `common_names`, `family`, `genus`). It never returns care metrics. Use PlantNet output solely to resolve a species name, then query Perenual with that name.
+Fields not in iNaturalist (filled by AI Scribe): `ideal_min_ph`, `ideal_max_ph`, `watering`, `cycle`, `sunlight`, `toxicity_notes`, and all extended Phase 3.10 fields.
 
 ---
 
@@ -436,7 +438,6 @@ Create a `.env.local` file in the project root (never commit it). All secrets st
 | `SUPABASE_ANON_KEY` | Supabase project Settings → API | Angular client (`environment.ts`) — safe to expose |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase project Settings → API | Edge Functions only — **never in client** |
 | `ANTHROPIC_API_KEY` | console.anthropic.com → API Keys | Edge Functions only — **never in client** |
-| `PERENUAL_API_KEY` | perenual.com → Account → API Key | Edge Functions only — **never in client** |
 | `RESEND_API_KEY` | resend.com → API Keys | Edge Functions only — **never in client** |
 
 For local Supabase development, `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are auto-injected into Edge Functions by the CLI — you do not need to set them in `.env.local` for local dev. They are required in the Supabase dashboard Secrets panel for production deployments.

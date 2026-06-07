@@ -270,7 +270,7 @@ The inference pipeline must strictly mandate a JSON Schema response matching you
 
 ### 🔌 2.3 Edge Function Response Shape
 
-The `claude-plant-id` Edge Function wraps the Claude JSON output and appends one additional field resolved from `cached_botanical_records`:
+The `claude-plant-id` Edge Function wraps the Claude JSON output and appends two fields resolved from `cached_botanical_records`:
 
 ```ts
 // Returned by POST /functions/v1/claude-plant-id on success (HTTP 200)
@@ -278,7 +278,8 @@ interface PlantIdResponse {
   is_plant_image: true;
   species_match: { common_name: string; scientific_name: string; confidence_score: number };
   alternative_candidates: Array<{ common_name: string; scientific_name: string; confidence_score: number }>;
-  perenual_id: number | null; // from cached_botanical_records; null when enrichment is still pending
+  inat_taxon_id: number | null; // primary identifier — from cached_botanical_records; null when enrichment is still pending
+  perenual_id: number | null;   // legacy — null for all species not previously fetched from Perenual; kept for backward compat
 }
 
 // Returned when the image does not show a plant (HTTP 400)
@@ -288,7 +289,7 @@ interface PlantIdError {
 }
 ```
 
-`perenual_id` is populated from a `cached_botanical_records` lookup by `scientific_name` immediately after identification. If the species is not yet in cache, background enrichment is triggered and `perenual_id` is `null` — the Angular client must handle this gracefully (e.g. show a toast and defer the detail panel).
+`inat_taxon_id` is the primary species identifier as of Phase 3.16. Both fields are resolved from a `cached_botanical_records` lookup by `scientific_name` immediately after identification. If the species is not yet in cache, a minimal stub record is inserted so the background cron can enrich it — both IDs will be `null` in the response while enrichment is pending. The Angular client must handle this gracefully (e.g. show a toast and defer the detail panel).
 
 ---
 

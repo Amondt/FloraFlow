@@ -255,24 +255,30 @@
         >
           Try another
         </button>
-        <button
-          type="button"
-          [class]="
-            'cursor-pointer inline-flex items-center gap-1 text-sm font-medium font-display ' +
-            'text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 ' +
-            'transition-colors duration-150 rounded px-2 py-1 ' +
-            FLORA_FOCUS
-          "
-          aria-label="View full species profile"
-          (click)="viewProfile()"
-        >
-          View profile
-          <i class="pi pi-arrow-right text-xs" aria-hidden="true"></i>
-        </button>
+        @if (mode() === 'identify') {
+          <button
+            type="button"
+            [class]="
+              'cursor-pointer inline-flex items-center gap-1 text-sm font-medium font-display ' +
+              'text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 ' +
+              'transition-colors duration-150 rounded px-2 py-1 ' +
+              FLORA_FOCUS
+            "
+            aria-label="View full species profile"
+            (click)="viewProfile()"
+          >
+            View profile
+            <i class="pi pi-arrow-right text-xs" aria-hidden="true"></i>
+          </button>
+        }
         <p-button
-          label="Add to my plants"
+          [label]="mode() === 'prefill' ? 'Use this species' : 'Add to my plants'"
           [pt]="FloraButtonPT"
-          ariaLabel="Add identified species directly to my plants"
+          [ariaLabel]="
+            mode() === 'prefill'
+              ? 'Use this species to pre-fill the form'
+              : 'Add identified species directly to my plants'
+          "
           (onClick)="addToMyPlants()"
         />
       }

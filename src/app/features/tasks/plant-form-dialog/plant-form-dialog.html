@@ -1,7 +1,6 @@
 <p-dialog
   [visible]="visible()"
   (visibleChange)="onVisibleChange($event)"
-  [header]="dialogTitle()"
   [modal]="true"
   [draggable]="false"
   [resizable]="false"
@@ -9,6 +8,22 @@
   [pt]="FloraFormDialogPT"
   (onHide)="onHide()"
 >
+  <ng-template #header>
+    <div class="flex flex-1 items-center">
+      <span class="font-display text-base font-semibold">{{ dialogTitle() }}</span>
+      @if (!plant()) {
+        <button
+          type="button"
+          class="cursor-pointer ml-auto mr-3 inline-flex items-center gap-1.5 rounded px-2 py-0.5 text-sm font-medium font-display text-white/70 outline-none transition-colors duration-150 hover:text-white focus-visible:ring-2 focus-visible:ring-white"
+          aria-label="Identify this plant from a photo"
+          (click)="openIdentifier()"
+        >
+          <i class="pi pi-camera text-xs" aria-hidden="true"></i>
+          Identify
+        </button>
+      }
+    </div>
+  </ng-template>
   <form
     [formGroup]="form"
     (ngSubmit)="onSubmit()"
@@ -294,3 +309,10 @@
     />
   </ng-template>
 </p-dialog>
+
+<app-plant-identifier-dialog
+  [(visible)]="identifierVisible"
+  mode="prefill"
+  (identified)="onIdentified($event)"
+  (addToPlants)="onIdentified($event)"
+/>

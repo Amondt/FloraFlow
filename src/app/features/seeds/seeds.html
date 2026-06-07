@@ -28,13 +28,15 @@
             </p>
           }
         </div>
-        <p-button
-          label="New batch"
-          icon="pi pi-plus"
-          [pt]="FloraButtonPT"
-          ariaLabel="Add a new seed batch to your seed bank"
-          (onClick)="openCreateDialog()"
-        />
+        <button
+          type="button"
+          class="cursor-pointer inline-flex items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
+          aria-label="Add a new seed batch to your seed bank"
+          (click)="openCreateDialog()"
+        >
+          <i class="pi pi-plus text-xs" aria-hidden="true"></i>
+          New batch
+        </button>
       </div>
     </header>
 

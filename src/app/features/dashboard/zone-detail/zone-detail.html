@@ -85,7 +85,7 @@
             class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium font-display bg-neutral-100 border border-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
             [attr.aria-label]="'Humidity baseline: ' + z.humidity_baseline + ' percent'"
           >
-            <i class="pi pi-tint text-xs" aria-hidden="true"></i>
+            <i class="pi pi-cloud text-xs" aria-hidden="true"></i>
             {{ z.humidity_baseline }}% humidity
           </span>
 
@@ -313,7 +313,7 @@
                     ></button>
                   }
                   <!-- Card body: thumbnail + content -->
-                  <div class="px-4 pt-4 pb-3 flex items-center gap-4">
+                  <div class="px-4 pt-4 pb-3 flex items-start gap-4">
                     @let plantRecord = enrichedRecordFor(ep.plant.scientific_name ?? '');
                     @if (ep.plant.scientific_name && plantRecord?.thumbnail_url) {
                       <div
@@ -529,7 +529,7 @@
                       [attr.aria-label]="'Check soil for ' + ep.plant.common_name"
                       (click)="openSoilCheck(ep.plant)"
                     >
-                      <i class="pi pi-tint text-[10px]" aria-hidden="true"></i>
+                      <i class="pi pi-eye text-[10px]" aria-hidden="true"></i>
                       Check soil
                     </button>
                   </footer>

@@ -73,7 +73,6 @@ export class SeedBatchFormDialogComponent {
   protected readonly currentYear = new Date().getFullYear();
 
   protected readonly commonNameId = `flora-batch-name-${crypto.randomUUID().slice(0, 8)}`;
-  protected readonly scientificNameId = `flora-batch-sci-${crypto.randomUUID().slice(0, 8)}`;
   protected readonly brandId = `flora-batch-brand-${crypto.randomUUID().slice(0, 8)}`;
   protected readonly packetYearId = `flora-batch-year-${crypto.randomUUID().slice(0, 8)}`;
   protected readonly notesId = `flora-batch-notes-${crypto.randomUUID().slice(0, 8)}`;

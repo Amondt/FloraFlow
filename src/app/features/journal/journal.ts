@@ -1,14 +1,12 @@
 import { Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { SkeletonModule } from 'primeng/skeleton';
 import { MessageModule } from 'primeng/message';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import {
-  FloraButtonPT,
   FloraToastPT,
   FloraSkeletonPT,
   FloraMessagePT,
@@ -55,7 +53,6 @@ const CATEGORY_FILTER_OPTIONS: FilterOption[] = [
   standalone: true,
   imports: [
     FormsModule,
-    ButtonModule,
     ToastModule,
     SkeletonModule,
     PlantSelectComponent,
@@ -77,7 +74,6 @@ export class JournalComponent {
   private readonly router = inject(Router);
   protected readonly journalService = inject(JournalService);
 
-  protected readonly FloraButtonPT = FloraButtonPT;
   protected readonly FloraToastPT = FloraToastPT;
   protected readonly FloraSkeletonPT = FloraSkeletonPT;
   protected readonly FloraMessagePT = FloraMessagePT;

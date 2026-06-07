@@ -3,6 +3,7 @@ import {
   ElementRef,
   computed,
   inject,
+  input,
   model,
   output,
   signal,
@@ -40,6 +41,7 @@ export class PlantIdentifierDialogComponent {
   private readonly identifierService = inject(PlantIdentifierService);
 
   readonly visible = model<boolean>(false);
+  readonly mode = input<'identify' | 'prefill'>('identify');
   readonly identified = output<PlantIdentifiedEvent>();
   readonly addToPlants = output<PlantIdentifiedEvent>();
 

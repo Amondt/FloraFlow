@@ -8,7 +8,7 @@
   [group]="grouped()"
   optionGroupLabel="label"
   optionGroupChildren="items"
-  [pt]="FloraSelectPT"
+  [pt]="ghost() ? FloraSelectGhostPT : FloraSelectPT"
   [inputId]="inputId()"
   [ariaLabel]="ariaLabel()"
   [ariaLabelledBy]="ariaLabelledBy()"

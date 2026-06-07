@@ -250,7 +250,7 @@
   - `JournalEntryCardComponent`: card footer with Edit + Delete buttons + diagnostic "Action points" accordion toggle (zone-detail Care tips pattern); `editRequested` and `deleteRequested` outputs.
   - `JournalComponent`: `ConfirmationService` delete flow, `editingEntry` signal, wires both events to the shared form dialog.
   - Plan: `docs/plans/phase-3/PHASE_3_13_PLAN.md`
-- [ ] **3.14 Multi-Image Leaf Doctor** | Agent: `/plumber` → `/visualizer`
+- [x] **3.14 Multi-Image Leaf Doctor** | Agent: `/plumber` → `/visualizer`
   - Enhancement to 3.4: user can upload up to 3 photos per diagnosis session; all are sent to Claude as a single multi-image request for better diagnostic precision.
   - No DB migration — primary image still stored in `image_storage_path`; additional images are ephemeral (analysis only); diagnosis result in `diagnostics JSONB` already covers the full multi-image analysis.
   - `claude-vision` Edge Function: request body changes from `{ imageBase64, imageMediaType }` to `{ images: [{imageBase64, imageMediaType}, ...] }` (1–3 items); each becomes an `image` content block in Claude's `content[]` array.

@@ -129,6 +129,23 @@ export class LeafDoctorDialogComponent implements OnDestroy {
     return result;
   });
 
+  protected readonly selectedPlantContext = computed(
+    (): {
+      commonName: string;
+      scientificName: string | null;
+    } | null => {
+      const id = this.selectedPlantId();
+      if (!id) return null;
+      for (const group of this.plantOptions()) {
+        const option = group.items.find((o) => o.value === id);
+        if (option) {
+          return { commonName: option.label, scientificName: option.scientificName ?? null };
+        }
+      }
+      return null;
+    },
+  );
+
   protected readonly canSave = computed(
     () => !!this.selectedPlantId() && this.diagnosisState() === 'success' && this.hasPhotos(),
   );
@@ -149,7 +166,7 @@ export class LeafDoctorDialogComponent implements OnDestroy {
     const state = this.diagnosisState();
     if (state === 'loading') return true;
     if (state === 'success') return !this.canSave();
-    return !this.hasPhotos();
+    return !this.hasPhotos() || !this.selectedPlantId();
   });
 
   protected readonly primaryActionLoading = computed(
@@ -276,11 +293,14 @@ export class LeafDoctorDialogComponent implements OnDestroy {
 
     this.diagnosisState.set('loading');
 
+    const plantContext = this.selectedPlantContext();
+
     const { data, error } = await this.supabase.client.functions.invoke<LeafDoctorResult>(
       'claude-vision',
       {
         body: {
           images: base64s.map((imageBase64) => ({ imageBase64, imageMediaType: 'image/jpeg' })),
+          ...(plantContext ? { plantContext } : {}),
         },
       },
     );
@@ -365,7 +385,10 @@ export class LeafDoctorDialogComponent implements OnDestroy {
     for (const url of this.previewObjectUrls()) {
       URL.revokeObjectURL(url);
     }
-    this.selectedPlantId.set(null);
+    // In zone-detail mode the plant is locked — preserve the selection
+    if (!this.preselectedPlantId()) {
+      this.selectedPlantId.set(null);
+    }
     this.compressedBlobs.set([]);
     this.previewObjectUrls.set([]);
     this.compressedLabels.set([]);

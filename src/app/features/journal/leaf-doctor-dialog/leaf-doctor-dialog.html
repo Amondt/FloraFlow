@@ -21,26 +21,43 @@
       </span>
     </p>
 
-    <!-- Plant selector -->
+    <!-- Plant selector / locked badge -->
     <div class="flex flex-col gap-1.5">
       <span
         id="leaf-doctor-plant-label"
         class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
       >
         Plant
-        <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
-        <span class="sr-only">(required)</span>
+        @if (!preselectedPlantId()) {
+          <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
+          <span class="sr-only">(required)</span>
+        }
       </span>
-      <app-plant-select
-        #plantSelectRef
-        [value]="selectedPlantId()"
-        (valueChange)="selectedPlantId.set($event)"
-        [options]="plantOptions()"
-        [grouped]="true"
-        [ariaLabelledBy]="'leaf-doctor-plant-label'"
-        [required]="true"
-        placeholder="Select one of your plants"
-      />
+      @if (preselectedPlantId()) {
+        <!-- Zone-detail mode: plant is locked — show read-only badge -->
+        <div
+          class="flex items-center gap-2 px-3 h-control bg-neutral-100 dark:bg-neutral-700 rounded-garden-sm border border-neutral-200 dark:border-neutral-600"
+          role="status"
+          aria-label="Diagnosing plant: {{ selectedPlantContext()?.commonName }}"
+        >
+          <i class="pi pi-leaf text-primary-500 text-xs shrink-0" aria-hidden="true"></i>
+          <span class="text-sm font-medium font-display text-neutral-700 dark:text-neutral-200">
+            {{ selectedPlantContext()?.commonName }}
+          </span>
+        </div>
+      } @else {
+        <!-- Journal mode: plant must be chosen before analysis -->
+        <app-plant-select
+          #plantSelectRef
+          [value]="selectedPlantId()"
+          (valueChange)="selectedPlantId.set($event)"
+          [options]="plantOptions()"
+          [grouped]="true"
+          [ariaLabelledBy]="'leaf-doctor-plant-label'"
+          [required]="true"
+          placeholder="Select one of your plants"
+        />
+      }
     </div>
 
     <!-- Photo + analysis -->
@@ -160,15 +177,6 @@
               </ul>
             }
           </section>
-        }
-        @if (!selectedPlantId()) {
-          <p
-            class="text-xs text-neutral-500 dark:text-neutral-400 font-display flex items-start gap-1.5"
-            role="note"
-          >
-            <i class="pi pi-arrow-up text-primary-500 shrink-0 mt-0.5" aria-hidden="true"></i>
-            <span>Select one of your plants above to save this diagnosis to their care log.</span>
-          </p>
         }
       }
 

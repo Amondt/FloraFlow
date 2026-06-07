@@ -30,7 +30,7 @@
   - Update `docs/AI_PROMPT_MANIFEST.md §3.0` to document the optional field and the cache stub side-effect
   - Verification: `bun run format && bun run lint` then `bun run functions:serve` + `Invoke-RestMethod` with and without `plantContext`
 
-- [ ] **Block B — LeafDoctorDialogComponent: species-aware (both modes)** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **Block B — LeafDoctorDialogComponent: species-aware (both modes)** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - Add `selectedPlantContext = computed()` — flatten `plantOptions()`, find the option whose `value === selectedPlantId()`, return `{ commonName: option.label, scientificName: option.scientificName ?? null }` or `null`. One source for both modes; no extra name inputs needed (the selected option already carries the scientific name).
   - **Journal mode** (`preselectedPlantId()` is null): the existing top selector stays visible and becomes **required** — `primaryActionDisabled` returns `true` in the pre-analysis state when `!selectedPlantId()`. Remove the now-dead post-success "Select one of your plants above to save…" hint (a plant is always chosen first).
   - **Zone-detail mode** (`preselectedPlantId()` set): `@if (preselectedPlantId()) { read-only plant-name badge } @else { <app-plant-select> }`; badge label reads `selectedPlantContext()?.commonName`.

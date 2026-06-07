@@ -321,20 +321,35 @@ interface LeafDoctorRequest {
     imageBase64: string;    // raw base64 string, no data-URI prefix
     imageMediaType: string; // 'image/jpeg' | 'image/png' | 'image/webp'
   }>; // 1–3 items; HTTP 400 if missing, not an array, empty, or >3 items
+  plantContext?: {          // optional — omit for anonymous diagnosis
+    commonName: string;
+    scientificName?: string | null;
+  };
 }
 ```
 
 The Edge Function builds the Claude `content[]` array dynamically — one `image` block per item, then a single `text` block at the end.
 
-**User text block** — switches on image count (image-count dimension). 3.15 Block A layers a species dimension on top by extending the same helper:
+**User text block** — two dimensions compose independently:
+
+- **Image-count dimension:** single image vs. multi-image same-plant instruction.
+- **Species dimension (3.15):** when `plantContext` is present, the species name is woven in and a species-focus sentence is appended. When absent, the generic text is unchanged.
 
 ```ts
-// Single image → generic instruction
+// Single image, no plantContext
 'Analyze this image and return a JSON response matching the schema.'
 
-// Multiple images → same-plant instruction
+// Multiple images, no plantContext
 'These N photos show the same plant from different angles. Provide one combined diagnosis. Return a JSON response matching the schema.'
+
+// Single image, with plantContext
+'Analyze this image of a ${commonName} (${scientificName}) and return a JSON response matching the schema. Focus your diagnosis on conditions known to affect this species.'
+
+// Multiple images, with plantContext
+'These N photos show the same plant (a ${commonName} (${scientificName})) from different angles. Provide one combined diagnosis. Return a JSON response matching the schema. Focus your diagnosis on conditions known to affect this species.'
 ```
+
+**Cache stub side-effect:** when `plantContext.scientificName` is present, the function fires a background upsert into `cached_botanical_records` via `EdgeRuntime?.waitUntil`. If the species is not yet cached, the 10-minute enrichment cron picks up the stub on its next pass. If already cached, only `common_name` is refreshed — all enriched columns are left untouched.
 
 ```ts
 const msg = await anthropic.messages.create({

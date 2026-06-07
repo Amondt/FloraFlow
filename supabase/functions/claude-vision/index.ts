@@ -5,6 +5,8 @@ import { z } from 'zod/v4';
 import type { Database } from '../_shared/database.types.ts';
 import { cors, json } from '../_shared/response.ts';
 
+declare const EdgeRuntime: { waitUntil: (promise: Promise<unknown>) => void } | undefined;
+
 const SYSTEM_PROMPT = `You are the FloraFlow AI Leaf Doctor, an advanced computer vision diagnostic engine specializing in agricultural pathology, plant physiology, and soil sciences.
 
 CRITICAL GUARDRAILS:
@@ -36,20 +38,52 @@ interface ImageInput {
   imageMediaType: string;
 }
 
+interface PlantContext {
+  commonName: string;
+  scientificName?: string | null;
+}
+
 /**
  * Builds the user text block sent to Claude.
- * Image-count dimension: multi-image requests state all photos show the same plant.
- * 3.15 Block A extends this signature with an optional plantContext parameter
- * to layer the species dimension on top — do not overwrite this logic when adding it.
+ * Composes two independent dimensions:
+ *   - image-count: single image vs. multi-image same-plant instruction
+ *   - species: when plantContext is provided, names the species for targeted diagnosis
+ * Both dimensions compose — neither overwrites the other.
  */
-function buildUserText(imageCount: number): string {
+function buildUserText(imageCount: number, plantContext?: PlantContext): string {
+  const speciesDesc = plantContext
+    ? `${plantContext.commonName}${plantContext.scientificName ? ` (${plantContext.scientificName})` : ''}`
+    : null;
+
   if (imageCount > 1) {
+    const plantClause = speciesDesc ? ` of this ${speciesDesc}` : '';
+    const speciesFocus = speciesDesc
+      ? ' Focus your diagnosis on conditions known to affect this species.'
+      : '';
     return (
-      `These ${imageCount} photos show the same plant from different angles. ` +
-      `Provide one combined diagnosis. Return a JSON response matching the schema.`
+      `These ${imageCount} photos show the same plant${plantClause} from different angles. ` +
+      `Provide one combined diagnosis. Return a JSON response matching the schema.${speciesFocus}`
     );
   }
+
+  if (speciesDesc) {
+    return (
+      `Analyze this image of a ${speciesDesc} and return a JSON response matching the schema. ` +
+      `Focus your diagnosis on conditions known to affect this species.`
+    );
+  }
+
   return 'Analyze this image and return a JSON response matching the schema.';
+}
+
+function extractPlantContext(raw: unknown): PlantContext | undefined {
+  if (!raw || typeof raw !== 'object') return undefined;
+  const obj = raw as Record<string, unknown>;
+  if (typeof obj['commonName'] !== 'string' || !obj['commonName']) return undefined;
+  return {
+    commonName: obj['commonName'],
+    scientificName: typeof obj['scientificName'] === 'string' ? obj['scientificName'] : null,
+  };
 }
 
 function validateImageItems(
@@ -97,7 +131,7 @@ Deno.serve(async (req: Request) => {
     } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
     if (authError || !user) return json({ error: 'Unauthorized' }, 401);
 
-    const body = (await req.json()) as { images?: unknown };
+    const body = (await req.json()) as { images?: unknown; plantContext?: unknown };
 
     if (!body.images) {
       return json({ error: 'Missing field: images is required' }, 400);
@@ -117,6 +151,25 @@ Deno.serve(async (req: Request) => {
       return json({ error: `Invalid field: ${validation.error}` }, 400);
     }
     const images = validation.items;
+
+    const plantContext = extractPlantContext(body.plantContext);
+
+    // Fire-and-forget: queue the species for botanical enrichment if not yet cached.
+    // The 10-min cron picks up the stub and fills enriched fields on the next pass.
+    if (plantContext?.scientificName) {
+      const stubWork = supabase
+        .from('cached_botanical_records')
+        .upsert(
+          {
+            scientific_name: plantContext.scientificName,
+            common_name: plantContext.commonName,
+          },
+          { onConflict: 'scientific_name' },
+        )
+        .then(() => undefined)
+        .catch((err: unknown) => console.error('claude-vision: cache stub failed:', err));
+      EdgeRuntime?.waitUntil(stubWork);
+    }
 
     const imageBlocks = images.map((img) => {
       const rawBase64 = img.imageBase64.includes(',')
@@ -147,7 +200,7 @@ Deno.serve(async (req: Request) => {
               ...imageBlocks,
               {
                 type: 'text',
-                text: buildUserText(images.length),
+                text: buildUserText(images.length, plantContext),
               },
             ],
           },

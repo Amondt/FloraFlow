@@ -8,7 +8,7 @@
 
 ## Blocks
 
-- [ ] **Block A — claude-vision: plant context + cache stub** | Agent: `/plumber` · Model: Sonnet · Effort: mid
+- [x] **Block A — claude-vision: plant context + cache stub** | Agent: `/plumber` · Model: Sonnet · Effort: mid
   - Extend the request body type to accept `plantContext?: { commonName: string; scientificName?: string | null }` (optional, no breaking change)
   - When `plantContext` is present, replace the generic user text with: `"Analyze this image of a ${commonName}${scientificName ? ` (${scientificName})` : ''} and return a JSON response matching the schema. Focus your diagnosis on conditions known to affect this species."`
   - When absent, keep the existing generic text unchanged (defensive — covers any caller that sends no plant)

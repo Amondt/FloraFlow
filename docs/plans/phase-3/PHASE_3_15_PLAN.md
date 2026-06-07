@@ -48,7 +48,7 @@
   4. Click "Save as Observation" → entry saved, dialog closes
   5. Open DevTools Console → zero red errors
 
-- [ ] **Block C — ZoneDetailComponent: Leaf Doctor entry point** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **Block C — ZoneDetailComponent: Leaf Doctor entry point** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - Add `readonly diagnosisPlant = signal<Plant | null>(null)` and `readonly diagnosisVisible = signal(false)` to `ZoneDetailComponent`
   - Add `openDiagnosis(plant: Plant): void` method — sets `diagnosisPlant` + `diagnosisVisible.set(true)` (after `blurActiveElement()`)
   - Add `onDiagnosisClose(v: boolean): void` — mirrors `onSoilDialogVisibleChange`: sets visibility, clears plant on close

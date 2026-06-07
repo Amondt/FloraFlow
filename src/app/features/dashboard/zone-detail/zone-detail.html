@@ -525,6 +525,15 @@
                     </button>
                     <button
                       type="button"
+                      class="inline-flex items-center gap-1 text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                      [attr.aria-label]="'Diagnose ' + ep.plant.common_name + ' with Leaf Doctor'"
+                      (click)="openDiagnosis(ep.plant)"
+                    >
+                      <i class="pi pi-heart-fill text-[10px]" aria-hidden="true"></i>
+                      Diagnose
+                    </button>
+                    <button
+                      type="button"
                       class="inline-flex items-center gap-1 text-xs font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 border border-primary-200 dark:border-primary-800 hover:border-primary-400 dark:hover:border-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors cursor-pointer px-2.5 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                       [attr.aria-label]="'Check soil for ' + ep.plant.common_name"
                       (click)="openSoilCheck(ep.plant)"
@@ -601,6 +610,13 @@
       (visibleChange)="onWizardClose($event)"
       [plant]="wizardPlant()"
       [botanicalRecord]="wizardRecord()"
+    />
+
+    <app-leaf-doctor-dialog
+      [visible]="diagnosisVisible()"
+      (visibleChange)="onDiagnosisClose($event)"
+      [preselectedPlantId]="diagnosisPlant()?.id ?? null"
+      (entrySaved)="diagnosisVisible.set(false)"
     />
 
     <p-confirmdialog [pt]="FloraConfirmDialogPT" />

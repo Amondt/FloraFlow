@@ -158,7 +158,7 @@ export class LeafDoctorDialogComponent implements OnDestroy {
   });
 
   protected readonly primaryActionIcon = computed(() =>
-    this.diagnosisState() === 'success' ? 'pi pi-check' : 'pi pi-eye',
+    this.diagnosisState() === 'success' ? 'pi pi-check' : 'pi pi-heart-fill',
   );
 
   protected readonly primaryActionDisabled = computed(() => {

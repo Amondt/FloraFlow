@@ -33,6 +33,7 @@ import { PlantFormDialogComponent } from '../../tasks/plant-form-dialog/plant-fo
 import { SoilCheckDialogComponent } from '../../tasks/soil-check-dialog/soil-check-dialog';
 import { BotanicalDetailDialogComponent } from '../../../shared/components/botanical-detail-dialog/botanical-detail-dialog';
 import { SubstrateMixWizardDialogComponent } from '../../../shared/components/substrate-mix-wizard/substrate-mix-wizard-dialog';
+import { LeafDoctorDialogComponent } from '../../journal/leaf-doctor-dialog/leaf-doctor-dialog';
 import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-icon';
 import { LibraryService, CachedBotanicalRecord } from '../../library/library.service';
 import { EnrichmentPoll } from '../../../shared/utils/enrichment-poll';
@@ -65,6 +66,7 @@ interface EnrichedPlant {
     SoilCheckDialogComponent,
     BotanicalDetailDialogComponent,
     SubstrateMixWizardDialogComponent,
+    LeafDoctorDialogComponent,
     LeafIconComponent,
     CareRecommendationsPanelComponent,
     TagModule,
@@ -186,6 +188,10 @@ export class ZoneDetailComponent {
   readonly soilCheckVisible = signal(false);
   readonly plantFormVisible = signal(false);
   readonly editingPlant = signal<Plant | null>(null);
+
+  // ── Leaf Doctor state ─────────────────────────────────────────
+  readonly diagnosisPlant = signal<Plant | null>(null);
+  readonly diagnosisVisible = signal(false);
 
   // ── Mix wizard state ──────────────────────────────────────────
   readonly wizardVisible = signal(false);
@@ -368,6 +374,18 @@ export class ZoneDetailComponent {
         detail: 'Next check rescheduled.',
       });
     }
+  }
+
+  // ── Leaf Doctor actions ───────────────────────────────────────
+  openDiagnosis(plant: Plant): void {
+    blurActiveElement();
+    this.diagnosisPlant.set(plant);
+    this.diagnosisVisible.set(true);
+  }
+
+  onDiagnosisClose(v: boolean): void {
+    this.diagnosisVisible.set(v);
+    if (!v) this.diagnosisPlant.set(null);
   }
 
   // ── Species info actions ──────────────────────────────────────

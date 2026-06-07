@@ -63,7 +63,7 @@
   - If no botanical record yet (enrichment pending): show a toast "Species identified — care data is loading. Check the Library in a moment." — do not block the user.
   - Verification: click "Identify a plant" → dialog opens → upload → result shows → "View species profile" opens botanical detail.
 
-- [ ] **Block D — Add Plant dialog integration** | Agent: `/visualizer`
+- [x] **Block D — Add Plant dialog integration** | Agent: `/visualizer`
   - Add a camera icon button to the header row of `plant-form-dialog.html` (right side of the dialog header, before the close button).
   - Button is hidden in edit mode (`plant() !== null`) — identification only makes sense when adding a new plant.
   - Clicking opens `PlantIdentifierDialog` (nested, not a separate route).

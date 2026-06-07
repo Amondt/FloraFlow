@@ -4,7 +4,7 @@ import type { ConfirmDialogPassThroughOptions } from 'primeng/confirmdialog';
 export const FloraDialogPT = {
   root: {
     class:
-      'max-w-md w-full max-h-[90vh] flex flex-col bg-white dark:bg-neutral-900 rounded-garden-lg shadow-2xl overflow-hidden',
+      'max-w-md w-full max-h-[90vh] flex flex-col bg-white dark:bg-neutral-900 rounded-garden-lg shadow-2xl overflow-hidden border-0',
   },
   header: {
     class:
@@ -31,7 +31,7 @@ export const FloraDialogPT = {
 export const FloraFormDialogPT = {
   root: {
     class:
-      'max-w-lg w-full max-h-[90vh] flex flex-col bg-white dark:bg-neutral-900 rounded-garden-lg shadow-2xl overflow-hidden',
+      'max-w-lg w-full max-h-[90vh] flex flex-col bg-white dark:bg-neutral-900 rounded-garden-lg shadow-2xl overflow-hidden border-0',
   },
   header: {
     class:
@@ -58,7 +58,7 @@ export const FloraFormDialogPT = {
 export const FloraDetailDialogPT = {
   root: {
     class:
-      'max-w-2xl w-full max-h-[90vh] flex flex-col bg-white dark:bg-neutral-900 rounded-garden-lg shadow-2xl overflow-hidden',
+      'max-w-2xl w-full max-h-[90vh] flex flex-col bg-white dark:bg-neutral-900 rounded-garden-lg shadow-2xl overflow-hidden border-0',
   },
   header: {
     class:

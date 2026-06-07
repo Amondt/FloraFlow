@@ -27,9 +27,9 @@ FloraFlow's source-of-truth docs (`ANGULAR_PATTERNS.md`, `DESIGN_SYSTEM.md`, `AP
 | Agent         | Default          | Escalate to Opus when…                                                                         |
 | ------------- | ---------------- | ---------------------------------------------------------------------------------------------- |
 | `/mind`       | Sonnet · `mid`   | **Writing a new phase plan from scratch** (multi-block, cross-doc) → Opus · `max`              |
-| `/visualizer` | Sonnet · `low`   | Rarely — a novel interaction with no documented pattern → Opus · `mid`                          |
+| `/visualizer` | Sonnet · `mid`   | A novel interaction or layout with no documented pattern → Opus · `mid`                         |
 | `/plumber`    | Sonnet · `mid`   | **Multi-role RLS, a security-sensitive migration, or a complex Edge Function** → Opus · `high` |
-| `/gatekeeper` | Sonnet · `low`   | **A security audit or RLS verification** → Opus · `high`–`max`                                  |
+| `/gatekeeper` | Sonnet · `mid`   | **A security audit or RLS verification** → Opus · `high`–`max`                                  |
 
 ## Session workflow
 

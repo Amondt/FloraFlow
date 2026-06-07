@@ -48,7 +48,7 @@ App running at: http://localhost:4200/register
 
 ---
 
-- [ ] **Block C — Login → Register link** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+- [ ] **Block C — Login → Register link** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - `login.html`: add a "Don't have an account? Create one" link at the bottom of the `<article>`, below the submit button, using `routerLink="/register"`.
   - Style: `text-sm text-neutral-500 font-display text-center` with `text-primary-600 hover:underline` on the link text.
 

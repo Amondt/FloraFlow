@@ -4,7 +4,7 @@
 
 ---
 
-- [ ] **Block A — Sign-out button in nav** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+- [ ] **Block A — Sign-out button in nav** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - `nav.ts`: inject `SupabaseService` and `Router`; add `readonly loggingOut = signal(false)`; add `async signOut()` — sets `loggingOut`, calls `supabase.signOut()`, then navigates to `/login` unconditionally (Supabase clears the local session immediately regardless of network state).
   - `nav.html`: add a native `<button>` pushed to the far right of the header with `ml-auto`. Height matches nav links (`h-14`). Label "Sign out" + `pi pi-power-off` icon. Style: `text-neutral-500 hover:text-danger-500 transition-colors duration-150 cursor-pointer`. While `loggingOut()`: show a spinner in place of the icon and disable the button. Attributes: `aria-label="Sign out of FloraFlow"` and `[attr.aria-busy]="loggingOut()"`.
 

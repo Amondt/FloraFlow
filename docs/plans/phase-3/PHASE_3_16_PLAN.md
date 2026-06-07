@@ -146,7 +146,7 @@ GET https://api.inaturalist.org/v1/taxa?q={q}&taxon_id=47126&rank=species&per_pa
     3. Search a single-cultivar species (e.g. "monstera") → shows one card, no variety badge
     4. Open DevTools Console → zero red errors
 
-- [ ] **Block E — Angular models & services** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+- [ ] **Block E — Angular models & services** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - `src/app/core/services/botanical-search.service.ts` — `BotanicalSuggestion`: add `inat_taxon_id: number | null`
   - `src/app/core/services/plant-identifier.service.ts` — `PlantIdResult`: add `inat_taxon_id: number | null` (the Edge Function now returns it; the dialog's `emittableInatTaxonId` computed reads `this.identResult()?.inat_taxon_id` — TypeScript won't compile without this field declared here)
   - `src/app/core/services/offline-queue.service.ts` — `QueuedAction`: add `inat_taxon_id?: number | null` (plant.service.ts will enqueue this field in the create path; without it the enqueue call fails to compile)

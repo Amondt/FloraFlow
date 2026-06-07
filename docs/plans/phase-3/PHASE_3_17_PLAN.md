@@ -70,7 +70,7 @@ Returns `taxon_photos[]`. Each element has `photo.medium_url` (~640 px wide). No
   - Run `bun run format && bun run lint`
   - Verify in Studio SQL: `SELECT gallery_urls FROM cached_botanical_records WHERE inat_taxon_id IS NOT NULL LIMIT 5;` — after triggering one enrichment cycle, at least one row should have a non-null `gallery_urls` array
 
-- [ ] **Block B — Angular carousel** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+- [ ] **Block B — Angular carousel** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
 
   **Layout:** The identity strip changes from side-by-side (image + text) to **full-width stacked**: carousel on top, scientific name + description below it. This gives the photo room to breathe and matches the visual hierarchy of every botanical app (iNaturalist, PlantNet, RHS). The tabs and footer are unchanged.
 

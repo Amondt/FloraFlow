@@ -29,7 +29,7 @@
   - Update `docs/AI_PROMPT_MANIFEST.md §3.0` to document the optional field and the cache stub side-effect
   - Verification: `bun run format && bun run lint` then `bun run functions:serve` + `Invoke-RestMethod` with and without `plantContext`
 
-- [ ] **Block B — LeafDoctorDialogComponent: locked-plant mode** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+- [ ] **Block B — LeafDoctorDialogComponent: locked-plant mode** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - Add two optional inputs: `preselectedPlantName = input<string | null>(null)` and `preselectedScientificName = input<string | null>(null)`
   - When `preselectedPlantId()` is non-null at dialog open, show a read-only plant name badge instead of the `<app-plant-select>` — `@if (preselectedPlantId()) { … } @else { … }` guard around the selector section
   - Forward names to the Edge Function body: `plantContext: preselectedPlantName() ? { commonName: preselectedPlantName()!, scientificName: preselectedScientificName() ?? null } : undefined`
@@ -47,7 +47,7 @@
   4. Click "Save as Observation" → entry saved, dialog closes
   5. Open DevTools Console → zero red errors
 
-- [ ] **Block C — ZoneDetailComponent: Leaf Doctor entry point** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+- [ ] **Block C — ZoneDetailComponent: Leaf Doctor entry point** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - Add `readonly diagnosisPlant = signal<Plant | null>(null)` and `readonly diagnosisVisible = signal(false)` to `ZoneDetailComponent`
   - Add `openDiagnosis(plant: Plant): void` method — sets `diagnosisPlant` + `diagnosisVisible.set(true)` (after `blurActiveElement()`)
   - Add `onDiagnosisClose(v: boolean): void` — mirrors `onSoilDialogVisibleChange`: sets visibility, clears plant on close

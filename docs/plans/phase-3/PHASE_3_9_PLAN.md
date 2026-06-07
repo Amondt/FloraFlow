@@ -4,12 +4,12 @@
 
 **Entry points:**
 
-| Location | Post-identification action |
-|---|---|
-| Dashboard "Identify a plant" button | Opens `BotanicalDetailDialog` → "Add to my plants" |
-| Add Plant dialog | Pre-fills `common_name`, `scientific_name`, `perenual_id` |
-| Library page | Auto-selects identified species, opens detail panel |
-| ~~Zone Detail page~~ | ~~Opens Add Plant with zone + species pre-filled~~ — Dropped |
+| Location                            | Post-identification action                                   |
+| ----------------------------------- | ------------------------------------------------------------ |
+| Dashboard "Identify a plant" button | Opens `BotanicalDetailDialog` → "Add to my plants"           |
+| Add Plant dialog                    | Pre-fills `common_name`, `scientific_name`, `perenual_id`    |
+| Library page                        | Auto-selects identified species, opens detail panel          |
+| ~~Zone Detail page~~                | ~~Opens Add Plant with zone + species pre-filled~~ — Dropped |
 
 **No DB migration needed.** `cached_botanical_records` already exists; enrichment is triggered async via `claude-enrichment`.
 
@@ -28,8 +28,16 @@
     ```ts
     {
       is_plant_image: true;
-      species_match: { common_name: string; scientific_name: string; confidence_score: number };
-      alternative_candidates: Array<{ common_name: string; scientific_name: string; confidence_score: number }>;
+      species_match: {
+        common_name: string;
+        scientific_name: string;
+        confidence_score: number;
+      }
+      alternative_candidates: Array<{
+        common_name: string;
+        scientific_name: string;
+        confidence_score: number;
+      }>;
       perenual_id: number | null; // from cache lookup; null if enrichment is still pending
     }
     ```
@@ -64,8 +72,8 @@
   - Verification: click "Identify a plant" → dialog opens → upload → result shows → "View species profile" opens botanical detail.
 
 - [x] **Block D — Add Plant dialog integration** | Agent: `/visualizer`
-  - Add a camera icon button to the header row of `plant-form-dialog.html` (right side of the dialog header, before the close button).
-  - Button is hidden in edit mode (`plant() !== null`) — identification only makes sense when adding a new plant.
+  - Camera icon button sits adjacent to the species `<p-autocomplete>` as a flex sibling (affordance proximity — the button fills the field it acts on).
+  - Button is hidden in edit mode (`plant() !== null`) and when a species is already locked (`selectedPerenualId() !== null`) — identification only makes sense when adding a new plant with no species selected yet.
   - Clicking opens `PlantIdentifierDialog` (nested, not a separate route).
   - On `identified` output: patch the form via the existing `botanicalPrefill` mechanism — set `common_name`, `scientific_name`, and `selectedPerenualId` exactly as the autocomplete selection does.
   - Confirmation toast: "Species identified — form pre-filled."
@@ -94,9 +102,10 @@
   **Verification:** click "Identify a plant" in the library header → identifier opens → upload a plant photo → result shown → "View profile →" visible, "Add to my plants" absent → click "View profile →" → identifier closes, Library auto-searches, botanical detail panel opens.
 
 - [ ] ~~**Block F — Zone Detail integration** | Agent: `/visualizer`~~ — Dropped
-  > *Dropped after UX review: a standalone "Identify & add" button in the zone header is redundant with the camera icon already inside the Add Plant form (Block D). "New plant" → form camera covers this use case. The camera button in the form will be moved closer to the species search input (see Block D refactor).*
 
-- [ ] **Block G — Fixed photo aspect ratio** | Agent: `/visualizer`
+  > _Dropped after UX review: a standalone "Identify & add" button in the zone header is redundant with the camera icon already inside the Add Plant form (Block D). "New plant" → form camera covers this use case. The camera button in the form will be moved closer to the species search input (see Block D refactor)._
+
+- [x] **Block G — Fixed photo aspect ratio** | Agent: `/visualizer`
   - Photo always renders at `w-28 aspect-[4/5]` (112 × 140 px — standard phone portrait) regardless of card content.
   - In `plant-identifier-dialog.html` result section:
     - Remove `items-stretch` from the `flex` container; each side sizes independently.
@@ -118,6 +127,7 @@
 
   **H2 — Client enrichment display** | `/visualizer`
   - Add to `PlantIdentifierService` (`src/app/core/services/plant-identifier.service.ts`):
+
     ```ts
     import type { Database } from '../../../types/database.types';
     export type BotanicalCacheRow = Database['public']['Tables']['cached_botanical_records']['Row'];
@@ -132,6 +142,7 @@
       return map;
     }
     ```
+
   - Add to `PlantIdentifierDialogComponent`:
     - Signal: `readonly candidateRecords = signal<Map<string, BotanicalCacheRow | null>>(new Map())`.
     - Import `BotanicalCacheRow` from `plant-identifier.service`.
@@ -139,7 +150,7 @@
       ```ts
       this.identifierService
         .fetchCandidateRecords(allNames)
-        .then(map => this.candidateRecords.set(map));
+        .then((map) => this.candidateRecords.set(map));
       ```
       where `allNames` is collected before the async call (avoids reading signals inside `.then`).
     - Clear `candidateRecords` in `resetDialog()`.
@@ -176,6 +187,7 @@ bun run lint
 Run both after every block before the Manual Browser Check.
 
 **Edge Function smoke test (Block A):**
+
 ```powershell
 # Start local functions server
 bun run functions:serve
@@ -190,6 +202,7 @@ Invoke-RestMethod -Uri 'http://127.0.0.1:54321/functions/v1/claude-plant-id' `
 Expected: `{ is_plant_image: true, species_match: { ... }, alternative_candidates: [...], perenual_id: null | number }`
 
 **Manual Browser Check — PlantIdentifierDialog (Block B)**
+
 ```
 App running at: http://localhost:4200/dashboard
 

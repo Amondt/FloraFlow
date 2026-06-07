@@ -93,11 +93,11 @@
       @if (match) {
         <section aria-label="Identification result" class="flex flex-col gap-3">
           <!-- Photo (clickable, full-card height) + active species card -->
-          <div class="flex gap-3 items-stretch">
+          <div class="flex gap-3">
             @if (uploadedPhotoUrl()) {
               <button
                 type="button"
-                class="cursor-zoom-in shrink-0 w-28 rounded-garden-sm overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+                class="cursor-zoom-in shrink-0 w-28 min-h-36 rounded-garden-sm overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
                 aria-label="View uploaded photo full size"
                 (click)="showPhotoLightbox.set(true)"
               >
@@ -109,17 +109,19 @@
               </button>
             }
             <div
-              class="flex-1 rounded-garden-md border border-neutral-200 dark:border-neutral-700 p-4 flex flex-col gap-1.5"
+              class="flex-1 min-h-36 rounded-garden-md border border-neutral-200 dark:border-neutral-700 p-4 flex flex-col justify-between"
             >
-              <p class="text-base font-semibold font-display text-neutral-900 dark:text-white">
-                {{ match.common_name }}
-              </p>
-              <p class="text-sm italic font-display text-neutral-500 dark:text-neutral-400">
-                {{ match.scientific_name }}
-              </p>
+              <div class="flex flex-col gap-1">
+                <p class="text-base font-semibold font-display text-neutral-900 dark:text-white">
+                  {{ match.common_name }}
+                </p>
+                <p class="text-sm italic font-display text-neutral-500 dark:text-neutral-400">
+                  {{ match.scientific_name }}
+                </p>
+              </div>
               <span
                 [class]="
-                  'mt-1 self-start inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium font-display ' +
+                  'self-start inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium font-display ' +
                   confidenceBadgeClass()
                 "
                 role="status"

@@ -36,6 +36,7 @@
         [value]="selectedPlantId()"
         (valueChange)="selectedPlantId.set($event)"
         [options]="plantOptions()"
+        [grouped]="true"
         [ariaLabelledBy]="'leaf-doctor-plant-label'"
         [required]="true"
         placeholder="Select one of your plants"

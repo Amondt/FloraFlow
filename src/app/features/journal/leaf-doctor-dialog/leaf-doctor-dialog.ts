@@ -25,6 +25,7 @@ import {
   FLORA_FOCUS,
 } from '../../../shared/ui/pt/index';
 import { PlantService } from '../../tasks/plant.service';
+import { ZoneService } from '../../dashboard/zone.service';
 import {
   JournalService,
   type LeafDoctorDiagnostics,
@@ -34,7 +35,11 @@ import { LibraryService } from '../../library/library.service';
 import { ImageCompressorService } from '../../../core/services/image-compressor.service';
 import { SupabaseService } from '../../../core/services/supabase.service';
 import { blurActiveElement } from '../../../shared/utils/dom';
-import { PlantSelectComponent } from '../../../shared/components/plant-select/plant-select';
+import {
+  PlantSelectComponent,
+  type PlantOption,
+  type PlantOptionGroup,
+} from '../../../shared/components/plant-select/plant-select';
 import { LeafDoctorBadgesComponent } from '../leaf-doctor-badges/leaf-doctor-badges';
 import type { Json } from '../../../../types/database.types';
 
@@ -53,6 +58,7 @@ import type { Json } from '../../../../types/database.types';
 })
 export class LeafDoctorDialogComponent implements OnDestroy {
   private readonly plantService = inject(PlantService);
+  private readonly zoneService = inject(ZoneService);
   private readonly journalService = inject(JournalService);
   private readonly libraryService = inject(LibraryService);
   private readonly compressor = inject(ImageCompressorService);
@@ -83,16 +89,37 @@ export class LeafDoctorDialogComponent implements OnDestroy {
   readonly diagnosisResult = signal<LeafDoctorDiagnostics | null>(null);
   readonly saving = signal(false);
 
-  protected readonly plantOptions = computed(() =>
-    this.plantService.plants().map((p) => ({
-      label: p.common_name,
-      value: p.id,
-      scientificName: p.scientific_name ?? null,
-      thumbnailUrl: p.scientific_name
-        ? (this.plantThumbnailMap().get(p.scientific_name) ?? null)
-        : null,
-    })),
-  );
+  protected readonly plantOptions = computed((): PlantOptionGroup[] => {
+    const plants = this.plantService.plants();
+    const zones = this.zoneService.zones();
+    const thumbnailMap = this.plantThumbnailMap();
+
+    const groups = new Map<string, PlantOptionGroup>(
+      zones.map((z) => [z.id, { label: z.name, items: [] }]),
+    );
+    const ungrouped: PlantOption[] = [];
+
+    for (const p of plants) {
+      const option: PlantOption = {
+        label: p.common_name,
+        value: p.id,
+        scientificName: p.scientific_name ?? null,
+        thumbnailUrl: p.scientific_name ? (thumbnailMap.get(p.scientific_name) ?? null) : null,
+      };
+      const group = groups.get(p.zone_id);
+      if (group) {
+        group.items.push(option);
+      } else {
+        ungrouped.push(option);
+      }
+    }
+
+    const result: PlantOptionGroup[] = [...[...groups.values()].filter((g) => g.items.length > 0)];
+    if (ungrouped.length > 0) {
+      result.push({ label: 'Other', items: ungrouped });
+    }
+    return result;
+  });
 
   protected readonly canSave = computed(
     () =>

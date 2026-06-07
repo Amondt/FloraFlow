@@ -46,15 +46,15 @@
 
         <!-- Action buttons -->
         <div class="flex items-center gap-2 flex-shrink-0 pt-1">
-          <!-- Identify a plant -->
+          <!-- Identify plant -->
           <button
             type="button"
-            class="cursor-pointer inline-flex items-center gap-1.5 text-sm font-medium font-display text-neutral-600 dark:text-neutral-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
+            class="cursor-pointer inline-flex items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
             aria-label="Identify a plant from a photo"
             (click)="openIdentifierDialog()"
           >
             <i class="pi pi-camera text-xs" aria-hidden="true"></i>
-            Identify a plant
+            Identify plant
           </button>
 
           <!-- Add plant -->
@@ -340,7 +340,7 @@
     <app-botanical-detail-dialog
       [records]="botanicalDetailRecords()"
       [visible]="botanicalDetailVisible()"
-      [backLabel]="identifierDialogOpen() ? 'Identify a Plant' : null"
+      [backLabel]="identifierDialogOpen() ? 'Identify plant' : null"
       (visibleChange)="botanicalDetailVisible.set($event)"
       (addRequested)="onBotanicalAddRequested($event)"
       (seedsRequested)="onBotanicalSeedsRequested($event)"

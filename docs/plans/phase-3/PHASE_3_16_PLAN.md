@@ -10,6 +10,7 @@ Perenual's free tier is hard-capped at species IDs 1–3,000 (~37 results for an
 - Once `is_ai_enriched = true`, the AI Scribe never runs for that record again
 - All search paths hit the local cache first; the external call fires only on cache miss
 - `perenual_id` and `is_perenual_enriched` columns are kept — they hold valid data for records enriched before this migration
+- `claude-vision` (AI Leaf Doctor) — **no changes needed**. It receives an image, calls Claude, and returns health diagnostics. It has zero interaction with `cached_botanical_records`, `perenual_id`, or `inat_taxon_id`. Completely isolated from the botanical cache.
 
 **What changes:**
 - `botanical-search` Edge Function: single iNat call replaces the 5-page Perenual loop
@@ -147,6 +148,8 @@ GET https://api.inaturalist.org/v1/taxa?q={q}&taxon_id=47126&rank=species&per_pa
 
 - [ ] **Block E — Angular models & services** | Agent: `/visualizer`
   - `src/app/core/services/botanical-search.service.ts` — `BotanicalSuggestion`: add `inat_taxon_id: number | null`
+  - `src/app/core/services/plant-identifier.service.ts` — `PlantIdResult`: add `inat_taxon_id: number | null` (the Edge Function now returns it; the dialog's `emittableInatTaxonId` computed reads `this.identResult()?.inat_taxon_id` — TypeScript won't compile without this field declared here)
+  - `src/app/core/services/offline-queue.service.ts` — `QueuedAction`: add `inat_taxon_id?: number | null` (plant.service.ts will enqueue this field in the create path; without it the enqueue call fails to compile)
   - `src/app/features/tasks/plant.model.ts` — `Plant` and `PlantFormData`: add `inat_taxon_id: number | null`
   - `src/app/shared/components/plant-identifier/plant-identifier-dialog.ts` — `PlantIdentifiedEvent`: add `inat_taxon_id: number | null`; add `emittableInatTaxonId = computed(() => this.isPrimaryMatch() ? (this.identResult()?.inat_taxon_id ?? null) : null)`; update both `viewProfile()` and `addToMyPlants()` to emit `inat_taxon_id: this.emittableInatTaxonId()`
   - `src/app/features/tasks/plant.service.ts`:
@@ -159,6 +162,7 @@ GET https://api.inaturalist.org/v1/taxa?q={q}&taxon_id=47126&rank=species&per_pa
     - `src/app/features/tasks/soil-check-dialog/soil-check-dialog.spec.ts`
     - `src/app/shared/components/care-recommendations-panel/care-recommendations-panel.spec.ts`
     - `src/app/features/tasks/plant-form-dialog/plant-form-dialog.spec.ts`
+    - `src/app/core/services/botanical-thumbnail.service.spec.ts` — `makeRecord()` helper: add `inat_taxon_id: null` (cleanup; the `as unknown` cast means it won't fail, but the stub should reflect the real shape)
   - Run `bun run format && bun run lint && bun run test`
   - Manual Browser Check — Block E
     ────────────────────────────────
@@ -188,6 +192,7 @@ GET https://api.inaturalist.org/v1/taxa?q={q}&taxon_id=47126&rank=species&per_pa
   - `src/app/features/seeds/seed-batch-form-dialog/seed-batch-form-dialog.ts`:
     - Rename `selectedPerenualId` → `selectedSpeciesId` throughout (signal name only; no DB field changes needed — `seed_batches` has no `perenual_id` column)
     - On suggestion select: `this.selectedSpeciesId.set(suggestion.inat_taxon_id ?? suggestion.perenual_id ?? null)`
+  - `src/app/features/seeds/seeds.ts` — `graduatePrefill` signal type (lines 71–75): add `inat_taxon_id: number | null` to the inline type; in `onGraduateRequested()` include `inat_taxon_id: null` in the `.set()` call (seeds always graduate without an iNat ID — the species lookup happens inside the plant form if the user searches again)
   - Run `bun run format && bun run lint && bun run test`
   - Manual Browser Check — Block F
     ────────────────────────────────
@@ -212,5 +217,5 @@ GET https://api.inaturalist.org/v1/taxa?q={q}&taxon_id=47126&rank=species&per_pa
 | D | Plant Identifier photo test → response JSON has both `perenual_id` and `inat_taxon_id` |
 | G (plumber) | Backfill loop runs to `remaining = 0`; Studio SQL `COUNT(*) WHERE inat_taxon_id IS NULL` ≈ 0 |
 | G (visualizer) | Library browser check — cultivars collapse into one card; `bun run test` passes |
-| E | `bun run test` passes; Network tab shows `inat_taxon_id` in plant create payload |
+| E | `bun run test` passes; Network tab shows `inat_taxon_id` in plant create payload; `PlantIdResult` and `QueuedAction` both compile with `inat_taxon_id` |
 | F | Manual Browser Check — all 7 steps pass |

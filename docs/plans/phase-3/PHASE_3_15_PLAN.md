@@ -8,11 +8,25 @@
 
 ## Blocks
 
-- [ ] **Block A — claude-vision: plant context support** | Agent: `/plumber`
+- [ ] **Block A — claude-vision: plant context + cache stub** | Agent: `/plumber`
   - Extend the request body type to accept `plantContext?: { commonName: string; scientificName?: string | null }` (optional, no breaking change)
   - When `plantContext` is present, replace the generic user text with: `"Analyze this image of a ${commonName}${scientificName ? ` (${scientificName})` : ''} and return a JSON response matching the schema. Focus your diagnosis on conditions known to affect this species."`
   - When absent, keep the existing generic text unchanged — journal flow is unaffected
-  - Update `docs/AI_PROMPT_MANIFEST.md §3.0` to document the optional field
+  - **Background cache stub** — when `plantContext.scientificName` is present, fire a background upsert via `EdgeRuntime?.waitUntil`:
+    ```ts
+    const stubWork = supabase
+      .from('cached_botanical_records')
+      .upsert(
+        { scientific_name: plantContext.scientificName, common_name: plantContext.commonName },
+        { onConflict: 'scientific_name' },
+      )
+      .catch(err => console.error('claude-vision: cache stub failed:', err));
+    EdgeRuntime?.waitUntil(stubWork);
+    ```
+    This mirrors the `claude-plant-id` pattern: if the species is not yet cached, the 10-min cron picks up the stub for full AI enrichment; if already cached, only `common_name` is updated — all enriched columns are untouched.
+  - Add the `EdgeRuntime` declaration at the top of the file: `declare const EdgeRuntime: { waitUntil: (promise: Promise<unknown>) => void } | undefined;`
+  - Journal flow (no `plantContext`) is unchanged — no upsert fires
+  - Update `docs/AI_PROMPT_MANIFEST.md §3.0` to document the optional field and the cache stub side-effect
   - Verification: `bun run format && bun run lint` then `bun run functions:serve` + `Invoke-RestMethod` with and without `plantContext`
 
 - [ ] **Block B — LeafDoctorDialogComponent: locked-plant mode** | Agent: `/visualizer`

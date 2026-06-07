@@ -256,7 +256,7 @@
   - `claude-vision` Edge Function: request body changes from `{ imageBase64, imageMediaType }` to `{ images: [{imageBase64, imageMediaType}, ...] }` (1–3 items); each becomes an `image` content block in Claude's `content[]` array.
   - Angular dialog: three scalar signals become arrays (`compressedBlobs`, `previewObjectUrls`, `compressedLabels`); "Add photo" button hidden at 3; per-thumbnail remove button; adding/removing a photo resets diagnosis state.
   - `docs/AI_PROMPT_MANIFEST.md §3.0` updated to document the new `images[]` request shape.
-  - Plan: `docs/plans/phase-3/PHASE_3_4_MULTI_IMAGE_PLAN.md`
+  - Plan: `docs/plans/phase-3/PHASE_3_14_PLAN.md`
 - [ ] **3.15 Leaf Doctor from Zone Detail** | Agent: `/plumber` → `/visualizer`
   - Leaf Doctor accessible from every plant card in zone-detail, not only from the Journal.
   - Because the plant is already known, the dialog locks the plant selector and shows a read-only name badge instead.

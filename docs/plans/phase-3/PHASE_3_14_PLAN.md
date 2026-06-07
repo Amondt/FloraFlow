@@ -1,4 +1,4 @@
-# Phase 3.4 Enhancement — Multi-Image Leaf Doctor (up to 3 photos)
+# 3.14 — Multi-Image Leaf Doctor (enhancement to 3.4, up to 3 photos)
 
 ---
 
@@ -40,15 +40,15 @@ Each item becomes one `image` content block in Claude's `messages[0].content[]` 
 
 ## Blocks
 
-- [ ] **Block A — Edge Function: multi-image contract** | Agent: `/plumber`
+- [ ] **Block A — Edge Function: multi-image contract** | Agent: `/plumber` · Model: Sonnet · Effort: mid
   - Change the `claude-vision` request body: replace `imageBase64` + `imageMediaType` scalars with `images: Array<{ imageBase64: string; imageMediaType: string }>` (1–3 items)
-  - Validation: reject if `images` is missing, not an array, empty, has more than 3 items, or any item has an invalid media type
+  - Validation (HTTP 400): reject if `images` is missing, not an array, empty, has more than 3 items, or any item is missing `imageBase64` or has an invalid media type
   - Build Claude `content[]` array dynamically: one `image` block per item (strip data-URI prefix per item), then one `text` block at the end
   - Response contract unchanged (`LeafDoctorSchema`)
   - Update `docs/AI_PROMPT_MANIFEST.md §3.0` to document the new `images[]` request shape (replacing the old single-field example)
   - Verification: run the Edge Function locally with `bun run functions:serve`; call via `Invoke-RestMethod` with 1, 2, and 3 images — confirm all return a valid diagnostic result; call with 0 or 4 images — confirm HTTP 400
 
-- [ ] **Block B — Dialog: multi-image state, UI and request** | Agent: `/visualizer`
+- [ ] **Block B — Dialog: multi-image state, UI and request** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - Replace three scalar signals with arrays: `compressedBlobs`, `previewObjectUrls`, `compressedLabels`
   - Add `hasPhotos = computed(() => compressedBlobs().length > 0)`
   - Add `canAddPhoto = computed(() => compressedBlobs().length < 3)`
@@ -56,12 +56,14 @@ Each item becomes one `image` content block in Claude's `messages[0].content[]` 
   - New `removePhoto(index: number)`: revoke the object URL at that index, splice all three arrays, reset diagnosis state
   - `primaryActionDisabled`: replace `!compressedBlob()` with `!hasPhotos()`
   - `canSave`: replace `!!compressedBlob()` with `hasPhotos()`
-  - `analyzePlant`: convert every blob in `compressedBlobs()` to base64; send `{ images: [{ imageBase64, imageMediaType: 'image/jpeg' }, ...] }` to the Edge Function
+  - Extract the inline FileReader logic into a private `_blobToBase64(blob: Blob): Promise<string>` helper (it now runs once per photo, not once total)
+  - `analyzePlant`: `Promise.all(compressedBlobs().map((b) => this._blobToBase64(b)))`; send `{ images: base64s.map((imageBase64) => ({ imageBase64, imageMediaType: 'image/jpeg' })) }` to the Edge Function
   - `saveAsObservation`: upload only `compressedBlobs()[0]` to storage as the journal image
   - `resetDialog`: revoke all URLs in `previewObjectUrls()`; set all three arrays to `[]`
+  - `ngOnDestroy`: revoke **every** URL in `previewObjectUrls()` (currently revokes only the single scalar URL — must follow the signal becoming an array)
   - Template — replace the single thumbnail row with a multi-thumbnail grid:
-    - "Add photo" button shows when `canAddPhoto()`; label shows current count: "Add photo ({{ compressedBlobs().length }}/3)"
-    - `@for (url of previewObjectUrls(); track $index)` — thumbnail + remove button per image; remove button: `aria-label="Remove photo {{ $index + 1 }}"`, `cursor-pointer`
+    - "Add photo" button shows when `canAddPhoto()`; label shows current count: "Add photo ({{ compressedBlobs().length }}/3)". This native `<button>` (and every remove button) **must** carry `cursor-pointer` — `FLORA_FOCUS` does not include it and the current "Choose photo" button omits it
+    - `@for (url of previewObjectUrls(); track url; let i = $index)` — thumbnail + remove button per image (track by the unique object URL, not `$index`, so removal does not re-key trailing thumbnails); remove button calls `removePhoto(i)` with `aria-label="Remove photo {{ i + 1 }}"`
     - Status line below thumbnails: "{{ compressedBlobs().length }} photo{{ compressedBlobs().length > 1 ? 's' : '' }} ready to analyze" when `hasPhotos()` and `diagnosisState() === 'idle'`
   - Verification: Manual Browser Check (see below)
 
@@ -83,7 +85,7 @@ App running at: http://localhost:4200/journal
 3. Remove the photo → thumbnail disappears → analyze button disabled again
 4. Upload three photos → three thumbnails appear → "Add photo" button disappears → "3 photos ready to analyze"
 5. Click "Analyze" → loading state → success result renders
-6. Add a fourth photo attempt (by re-showing the button if present) → not possible, button is hidden — confirmed
+6. With three photos loaded → the "Add photo" button is gone — no way to add a fourth
 7. After diagnosis success, remove one photo → diagnosis result clears → state returns to idle
 8. Save as Observation (select a plant first) → toast "Entry logged" → dialog closes
 9. Open DevTools Console → zero red errors

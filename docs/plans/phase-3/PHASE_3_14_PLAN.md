@@ -40,7 +40,7 @@ Each item becomes one `image` content block in Claude's `messages[0].content[]` 
 
 ## Blocks
 
-- [ ] **Block A — Edge Function: multi-image contract** | Agent: `/plumber` · Model: Sonnet · Effort: mid
+- [x] **Block A — Edge Function: multi-image contract** | Agent: `/plumber` · Model: Sonnet · Effort: mid
   - Change the `claude-vision` request body: replace `imageBase64` + `imageMediaType` scalars with `images: Array<{ imageBase64: string; imageMediaType: string }>` (1–3 items)
   - Validation (HTTP 400): reject if `images` is missing, not an array, empty, has more than 3 items, or any item is missing `imageBase64` or has an invalid media type
   - Build Claude `content[]` array dynamically: one `image` block per item (strip data-URI prefix per item), then one `text` block at the end

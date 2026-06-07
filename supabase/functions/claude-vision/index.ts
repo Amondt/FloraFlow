@@ -31,6 +31,38 @@ function isValidMediaType(mt: string): mt is ImageMediaType {
   return (VALID_MEDIA_TYPES as readonly string[]).includes(mt);
 }
 
+interface ImageInput {
+  imageBase64: string;
+  imageMediaType: string;
+}
+
+function validateImageItems(
+  images: unknown[],
+): { valid: true; items: ImageInput[] } | { valid: false; error: string } {
+  const items: ImageInput[] = [];
+  for (let i = 0; i < images.length; i++) {
+    const item = images[i];
+    if (item === null || typeof item !== 'object') {
+      return { valid: false, error: `images[${i}] must be an object` };
+    }
+    const { imageBase64, imageMediaType } = item as Record<string, unknown>;
+    if (!imageBase64 || typeof imageBase64 !== 'string') {
+      return { valid: false, error: `images[${i}].imageBase64 is required` };
+    }
+    if (!imageMediaType || typeof imageMediaType !== 'string') {
+      return { valid: false, error: `images[${i}].imageMediaType is required` };
+    }
+    if (!isValidMediaType(imageMediaType)) {
+      return {
+        valid: false,
+        error: `images[${i}].imageMediaType must be image/jpeg, image/png, or image/webp`,
+      };
+    }
+    items.push({ imageBase64, imageMediaType });
+  }
+  return { valid: true, items };
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
 
@@ -49,22 +81,40 @@ Deno.serve(async (req: Request) => {
     } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
     if (authError || !user) return json({ error: 'Unauthorized' }, 401);
 
-    const body = (await req.json()) as { imageBase64?: string; imageMediaType?: string };
-    const { imageBase64, imageMediaType } = body;
+    const body = (await req.json()) as { images?: unknown };
 
-    if (!imageBase64 || !imageMediaType) {
-      return json({ error: 'Missing fields: imageBase64 and imageMediaType are required' }, 400);
+    if (!body.images) {
+      return json({ error: 'Missing field: images is required' }, 400);
+    }
+    if (!Array.isArray(body.images)) {
+      return json({ error: 'Invalid field: images must be an array' }, 400);
+    }
+    if (body.images.length === 0) {
+      return json({ error: 'Invalid field: images must contain at least 1 item' }, 400);
+    }
+    if (body.images.length > 3) {
+      return json({ error: 'Invalid field: images must contain at most 3 items' }, 400);
     }
 
-    if (!isValidMediaType(imageMediaType)) {
-      return json(
-        { error: 'Invalid imageMediaType. Must be image/jpeg, image/png, or image/webp' },
-        400,
-      );
+    const validation = validateImageItems(body.images);
+    if (!validation.valid) {
+      return json({ error: `Invalid field: ${validation.error}` }, 400);
     }
+    const images = validation.items;
 
-    // Strip the data URI prefix if the client accidentally included it
-    const rawBase64 = imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64;
+    const imageBlocks = images.map((img) => {
+      const rawBase64 = img.imageBase64.includes(',')
+        ? img.imageBase64.split(',')[1]
+        : img.imageBase64;
+      return {
+        type: 'image' as const,
+        source: {
+          type: 'base64' as const,
+          media_type: img.imageMediaType as ImageMediaType,
+          data: rawBase64,
+        },
+      };
+    });
 
     const anthropic = new Anthropic({ apiKey: Deno.env.get('ANTHROPIC_API_KEY')! });
 
@@ -78,14 +128,7 @@ Deno.serve(async (req: Request) => {
           {
             role: 'user',
             content: [
-              {
-                type: 'image',
-                source: {
-                  type: 'base64',
-                  media_type: imageMediaType,
-                  data: rawBase64,
-                },
-              },
+              ...imageBlocks,
               {
                 type: 'text',
                 text: 'Analyze this image and return a JSON response matching the schema.',

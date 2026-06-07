@@ -310,27 +310,37 @@ interface PlantIdError {
 
 ### 📡 3.0 Vision API Call Format
 
-Both the Plant Identifier and the Leaf Doctor send an image to Claude. The image must be base64-encoded and passed as an `image` content block — not as a URL or plain text.
+Both the Plant Identifier and the Leaf Doctor send images to Claude. Images must be base64-encoded and passed as `image` content blocks — not as URLs or plain text.
 
-The Edge Function receives the image as a base64 string from the Angular client. Here is the exact `messages` array shape to use with the Anthropic SDK:
+**`claude-vision` request body** (1–3 images):
+
+```ts
+// POST /functions/v1/claude-vision
+interface LeafDoctorRequest {
+  images: Array<{
+    imageBase64: string;    // raw base64 string, no data-URI prefix
+    imageMediaType: string; // 'image/jpeg' | 'image/png' | 'image/webp'
+  }>; // 1–3 items; HTTP 400 if missing, not an array, empty, or >3 items
+}
+```
+
+The Edge Function builds the Claude `content[]` array dynamically — one `image` block per item, then a single `text` block at the end:
 
 ```ts
 const msg = await anthropic.messages.create({
   model:      'claude-sonnet-4-6',
   max_tokens: 1024,
-  system:     '...system prompt from section 2.1 or 3.1...',
+  system:     '...system prompt from section 3.1...',
   messages: [
     {
       role: 'user',
       content: [
+        // one block per image (1–3)
         {
           type:   'image',
-          source: {
-            type:       'base64',
-            media_type: imageMediaType, // 'image/jpeg' | 'image/png' | 'image/webp'
-            data:        imageBase64,   // raw base64 string, no data-URI prefix
-          },
+          source: { type: 'base64', media_type: imageMediaType, data: rawBase64 },
         },
+        // ... additional image blocks ...
         {
           type: 'text',
           text: 'Analyze this image and return a JSON response matching the schema.',
@@ -341,7 +351,17 @@ const msg = await anthropic.messages.create({
 });
 ```
 
-The Angular client must strip the `data:image/jpeg;base64,` prefix before sending `imageBase64` to the Edge Function — only the raw base64 payload is valid here.
+The Angular client must strip the `data:image/jpeg;base64,` prefix from each image before including it in the `images[]` array — only the raw base64 payload is valid.
+
+**`claude-plant-id` request body** (single image — unchanged):
+
+```ts
+// POST /functions/v1/claude-plant-id
+interface PlantIdRequest {
+  imageBase64: string;
+  imageMediaType: string;
+}
+```
 
 ### 📝 3.2 Outbound JSON Schema Structure
 

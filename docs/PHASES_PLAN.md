@@ -214,7 +214,7 @@
   - When opened from a plant profile that has `ideal_min_ph`/`ideal_max_ph` in `cached_botanical_records`, the wizard compares the estimated mix pH against the plant's ideal range and surfaces either a "pH compatible" badge or a mismatch warning (e.g. "This mix sits at ~6.5–7.0 — too alkaline for a plant needing pH 4.5–5.5").
   - A one-line caveat is shown alongside the estimate: "Estimated pH — not a lab measurement." No new DB migration needed — client-side computation only.
   - **Phase 3.10 integration:** when `preferred_soil_type` is available from the botanical record, pre-select the genus profile that most closely matches those soil descriptors (e.g. `['Well-draining', 'Sandy']` → Desert Succulent profile).
-- [ ] **3.9** AI Plant Identifier (Photo-to-Species) | Agent: `/plumber` → `/visualizer`
+- [x] **3.9** AI Plant Identifier (Photo-to-Species) | Agent: `/plumber` → `/visualizer`
   - Upload / camera action inside the Add Plant form triggers `claude-plant-id` Edge Function.
   - Claude Sonnet multimodal call; system prompt and JSON schema from `docs/AI_PROMPT_MANIFEST.md §2`.
   - Returns: `species_match` (common name, scientific name, confidence score) + up to 3 `alternative_candidates`.

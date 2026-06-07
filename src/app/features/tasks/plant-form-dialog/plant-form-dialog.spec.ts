@@ -42,6 +42,7 @@ describe('PlantFormDialogComponent', () => {
         common_name: 'Monstera',
         scientific_name: 'Monstera deliciosa',
         perenual_id: 42,
+        thumbnail_url: null,
       };
 
       comp.form.controls.common_name.setValue('');
@@ -59,6 +60,7 @@ describe('PlantFormDialogComponent', () => {
         common_name: 'Monstera',
         scientific_name: 'Monstera deliciosa',
         perenual_id: 42,
+        thumbnail_url: null,
       };
 
       comp.form.controls.common_name.setValue('My Monstera');

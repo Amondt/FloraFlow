@@ -21,6 +21,10 @@ import {
   type PlantIdResult,
 } from '../../../core/services/plant-identifier.service';
 import { blurActiveElement } from '../../utils/dom';
+import {
+  getConfidenceBadgeClass,
+  getConfidenceBadgeLabel,
+} from '../../utils/plant-identifier.util';
 
 export interface PlantIdentifiedEvent {
   common_name: string;
@@ -78,21 +82,13 @@ export class PlantIdentifierDialogComponent {
     this.isPrimaryMatch() ? (this.identResult()?.perenual_id ?? null) : null,
   );
 
-  protected readonly confidenceBadgeClass = computed(() => {
-    const score = this.activeMatch()?.confidence_score ?? 0;
-    if (score > 0.75) return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300';
-    if (score >= 0.5)
-      return 'bg-neutral-100 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300';
-    return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300';
-  });
+  protected readonly confidenceBadgeClass = computed(() =>
+    getConfidenceBadgeClass(this.activeMatch()?.confidence_score ?? 0),
+  );
 
-  protected readonly confidenceBadgeLabel = computed(() => {
-    const score = this.activeMatch()?.confidence_score ?? 0;
-    const pct = Math.round(score * 100);
-    if (score > 0.75) return `${pct}% confident`;
-    if (score >= 0.5) return `${pct}% — low confidence`;
-    return `${pct}% — uncertain`;
-  });
+  protected readonly confidenceBadgeLabel = computed(() =>
+    getConfidenceBadgeLabel(this.activeMatch()?.confidence_score ?? 0),
+  );
 
   protected readonly errorMessage = computed(() =>
     this.identErrorKind() === 'invalid-image'
@@ -101,14 +97,11 @@ export class PlantIdentifierDialogComponent {
   );
 
   protected candidateChipBadgeClass(score: number): string {
-    if (score > 0.75) return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300';
-    if (score >= 0.5)
-      return 'bg-neutral-100 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300';
-    return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300';
+    return getConfidenceBadgeClass(score);
   }
 
   protected candidateChipBadgeLabel(score: number): string {
-    return `${Math.round(score * 100)}%`;
+    return getConfidenceBadgeLabel(score, false);
   }
 
   protected triggerPhotoInput(): void {

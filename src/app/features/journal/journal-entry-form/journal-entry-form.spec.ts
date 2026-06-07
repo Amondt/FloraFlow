@@ -4,6 +4,8 @@ import { signal } from '@angular/core';
 import { JournalEntryFormComponent } from './journal-entry-form';
 import { JournalService, type JournalEntryWithPlant } from '../journal.service';
 import { PlantService } from '../../tasks/plant.service';
+import { ZoneService } from '../../dashboard/zone.service';
+import { PlantThumbnailService } from '../../../core/services/plant-thumbnail.service';
 import { MessageService } from 'primeng/api';
 import { SupabaseService } from '../../../core/services/supabase.service';
 import { ImageCompressorService } from '../../../core/services/image-compressor.service';
@@ -55,6 +57,11 @@ describe('JournalEntryFormComponent — onSubmit() branching', () => {
         { provide: MessageService, useValue: { add: mockMessageAdd } },
         { provide: SupabaseService, useValue: { getUser: mockGetUser } },
         { provide: ImageCompressorService, useValue: { compress: vi.fn() } },
+        { provide: ZoneService, useValue: { zones: signal([]), loadZones: vi.fn() } },
+        {
+          provide: PlantThumbnailService,
+          useValue: { getThumbnailUrl: vi.fn().mockReturnValue(null) },
+        },
       ],
     })
       .overrideTemplate(JournalEntryFormComponent, '')

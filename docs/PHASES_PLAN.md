@@ -123,7 +123,7 @@
   - New `/library` route with filter controls: watering frequency, sunlight, pet toxicity, lifecycle type.
   - Filters query `cached_botanical_records`; cache miss triggers Perenual fetch + AI Scribe (requires 2.4).
   - Species detail panel shows pH range, propagation methods, toxicity flags, watering/sunlight/cycle.
-  - "Add to my greenhouse" action pre-fills Add Plant form with `common_name`, `scientific_name`, `perenual_id`.
+  - "Add to my plants" action pre-fills Add Plant form with `common_name`, `scientific_name`, `perenual_id`.
 - [x] **2.9 Journal Feed** | Agent: `/visualizer`
   - New `/journal` route listing all `plant_journals` entries for the authenticated user.
   - Grouped by plant, ordered by `logged_at DESC`; filterable by `log_category_type`.
@@ -146,7 +146,7 @@
 - [x] **2.12 Library Species Grouping** | Agent: `/visualizer`
   - Client-side grouping of library results by common name — multi-cultivar species collapse into one card with a variety count badge.
   - Botanical detail dialog gains an inline cultivar picker (chip strip ≤5, dropdown >5) between the identity strip and the content tabs — switching cultivar updates all content tabs in-place.
-  - "Add to my greenhouse" and "Track seeds" always act on the currently selected cultivar.
+  - "Add to my plants" and "Track seeds" always act on the currently selected cultivar.
   - No DB migration — pure computed transformation of the existing `results()` signal.
   - Plan: `docs/plans/phase-2/PHASE_2_12_PLAN.md`
 
@@ -263,6 +263,15 @@
   - Optional `plantContext` field added to the `claude-vision` request body; when present, Claude receives the species name in the prompt and can tailor its diagnosis to that species. Journal flow is unchanged (no `plantContext` sent, selector still visible).
   - No DB migration — pure frontend + Edge Function enhancement.
   - Plan: `docs/plans/phase-3/PHASE_3_15_PLAN.md`
+- [ ] **3.16 iNaturalist Migration & Botanical Cache Hardening** | Agents: `/plumber` → `/visualizer`
+  - Retire Perenual API (free tier capped at species IDs 1–3,000); adopt iNaturalist taxa API as primary search source (no key, 10M+ species, inline thumbnails, common names included).
+  - DB migration: `inat_taxon_id INTEGER NULL` on `cached_botanical_records` and `plants`; existing `perenual_id` and `is_perenual_enriched` columns kept for backward compat.
+  - Rewrite `botanical-search` Edge Function: single iNat call replaces the 5-page Perenual loop; `thumbnail_fetched = true` set on upsert (photos are inline).
+  - Update `_shared/enrich-record.ts`: skip iNat thumbnail HTTP call when already populated; populate `inat_taxon_id` from all enrichment paths.
+  - Update `claude-plant-id`: return `inat_taxon_id`; insert cache stub for newly identified species so the background cron picks them up.
+  - Thread `inat_taxon_id` through Angular: `BotanicalSuggestion`, `Plant`, `PlantFormData`, `PlantIdentifiedEvent`, all form dialogs, and all spec fixtures.
+  - Library per-page enrichment: `_enrichCurrentPage()` fires only for the visible page; `goToPage()` triggers next-page enrichment.
+  - Plan: `docs/plans/phase-3/PHASE_3_16_PLAN.md`
 
 ### 🔒 Phase 3 QA Criteria
 

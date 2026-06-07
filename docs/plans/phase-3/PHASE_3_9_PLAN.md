@@ -6,7 +6,7 @@
 
 | Location | Post-identification action |
 |---|---|
-| Dashboard "Identify a plant" button | Opens `BotanicalDetailDialog` → "Add to greenhouse" |
+| Dashboard "Identify a plant" button | Opens `BotanicalDetailDialog` → "Add to my plants" |
 | Add Plant dialog | Pre-fills `common_name`, `scientific_name`, `perenual_id` |
 | Library page | Auto-selects identified species, opens detail panel |
 | Zone Detail page | Opens Add Plant with zone + species pre-filled |
@@ -37,7 +37,7 @@
   - No new secrets required — uses `ANTHROPIC_API_KEY` already present in `_shared`.
   - Verification: `bun run functions:serve`, `Invoke-RestMethod` with a real plant JPEG → confirm JSON shape.
 
-- [ ] **Block B — Shared dialog + service** | Agent: `/visualizer`
+- [x] **Block B — Shared dialog + service** | Agent: `/visualizer`
   - Extract canvas compression into `src/app/shared/utils/image-compression.ts` (reused by journal, Leaf Doctor, and now the identifier — DRY threshold reached).
   - New `PlantIdentifierService` at `src/app/core/services/plant-identifier.service.ts`:
     - `identify(file: File): Promise<PlantIdResult>` — compresses via shared util, strips data-URI prefix, calls `claude-plant-id`.
@@ -55,7 +55,7 @@
     - ARIA: `role="dialog"`, focus trapped, Escape closes.
   - Verification: Manual Browser Check — idle → upload non-plant image → error state; upload plant → result with badge; use alternative → emits correct species.
 
-- [ ] **Block C — Dashboard integration** | Agent: `/visualizer`
+- [x] **Block C — Dashboard integration** | Agent: `/visualizer`
   - Activate the disabled "Identify a plant" button in `dashboard.html` (remove `disabled` + "Coming soon" tooltip).
   - Wire `(click)` to `openIdentifierDialog()`.
   - Add `<app-plant-identifier-dialog>` to the template; bind `visible` signal.
@@ -81,6 +81,74 @@
   - Add a secondary "Identify & add" icon button to the zone detail header, next to the existing "Add plant" button.
   - On `identified` output: close identifier dialog, open `PlantFormDialog` with both `botanicalPrefill` (from result) and `defaultZoneId` (from the current zone) pre-set.
   - Verification: navigate to a zone, click "Identify & add", upload, confirm Add Plant opens with zone and species pre-filled.
+
+- [ ] **Block G — Fixed photo aspect ratio** | Agent: `/visualizer`
+  - Photo always renders at `w-28 aspect-[4/5]` (112 × 140 px — standard phone portrait) regardless of card content.
+  - In `plant-identifier-dialog.html` result section:
+    - Remove `items-stretch` from the `flex` container; each side sizes independently.
+    - Add `aspect-[4/5] self-start` to the photo `<button>` wrapper (keep `w-28 shrink-0 rounded-garden-sm overflow-hidden`).
+    - Image class stays `w-full h-full object-cover`.
+  - No TypeScript changes.
+  - Verification: Manual Browser Check — identify a plant, confirm the photo thumbnail is always portrait-shaped (taller than wide) regardless of how many text lines the species card has.
+
+- [ ] **Block H — Candidate botanical enrichment** | Agent: `/plumber` then `/visualizer`
+
+  **H1 — Edge Function** | `/plumber`
+  - In `claude-plant-id/index.ts`, replace the single-row cache lookup (steps 6–7) with a batch approach:
+    1. Collect all candidate names: `[species_match, ...alternative_candidates]`.
+    2. One `SELECT scientific_name, perenual_id FROM cached_botanical_records WHERE scientific_name IN (...)`.
+    3. Build a `Map<string, { perenual_id }>` from the result.
+    4. For every candidate **not** in the map, call `EdgeRuntime?.waitUntil(enrichRecord(...))` — one call per missing species.
+  - `perenual_id` in the response remains the primary match value (response shape unchanged).
+  - Verification: start `bun run functions:serve`, identify a plant with alternatives, open Supabase Studio → `cached_botanical_records` → confirm rows are created for both primary and any missing alternatives within ~5 s.
+
+  **H2 — Client enrichment display** | `/visualizer`
+  - Add to `PlantIdentifierService` (`src/app/core/services/plant-identifier.service.ts`):
+    ```ts
+    import type { Database } from '../../../types/database.types';
+    export type BotanicalCacheRow = Database['public']['Tables']['cached_botanical_records']['Row'];
+
+    async fetchCandidateRecords(scientificNames: string[]): Promise<Map<string, BotanicalCacheRow | null>> {
+      const { data } = await this.supabase.client
+        .from('cached_botanical_records')
+        .select('*')
+        .in('scientific_name', scientificNames);
+      const map = new Map<string, BotanicalCacheRow | null>(scientificNames.map(n => [n, null]));
+      data?.forEach(r => map.set(r.scientific_name, r));
+      return map;
+    }
+    ```
+  - Add to `PlantIdentifierDialogComponent`:
+    - Signal: `readonly candidateRecords = signal<Map<string, BotanicalCacheRow | null>>(new Map())`.
+    - Import `BotanicalCacheRow` from `plant-identifier.service`.
+    - After `this.identState.set('result')` in `runIdentification()`, fire without await:
+      ```ts
+      this.identifierService
+        .fetchCandidateRecords(allNames)
+        .then(map => this.candidateRecords.set(map));
+      ```
+      where `allNames` is collected before the async call (avoids reading signals inside `.then`).
+    - Clear `candidateRecords` in `resetDialog()`.
+  - In `plant-identifier-dialog.html`:
+    - **Active match card**: below the confidence badge, `@if` the cached row is available, show the first 80 chars of `description` as a small muted paragraph.
+    - **Candidate chips**: below the scientific name, `@if` the cached row is available for that candidate, show a watering badge (`💧 {{ record.watering }}`) and a 14 × 14 px `<img>` thumbnail.
+  - Verification: Manual Browser Check — identify a plant twice (second time the cache should be warm from H1 enrichment); on the second attempt, description and watering data should appear in the active card and chips.
+
+- [x] **Block I — Contextual back navigation** | Agent: `/visualizer`
+
+  **Problem:** "View Profile" closes the identifier, then closing `BotanicalDetailDialog` loses the identification result.
+
+  **Solution:** the identifier stays open behind the botanical detail; any dismiss action (✕, Escape, backdrop click) naturally reveals the identifier. A "← Back to Identify a Plant" label in the botanical detail makes the context clear.
+
+  **Changes:**
+  1. `plant-identifier-dialog.ts` — `viewProfile()`: remove `this.resetDialog()` and `this.visible.set(false)`. Only emit `identified`. Dialog stays open.
+  2. `botanical-detail-dialog.ts` — add `readonly backLabel = input<string | null>(null)`.
+  3. `botanical-detail-dialog.html` — when `backLabel()` is non-null, render "← {{ backLabel() }}" as a text button on the left side of the dialog footer; clicking it calls the existing close/visibleChange action. The ✕ button remains.
+  4. `dashboard.html` — pass `[backLabel]="'Identify a Plant'"` on the `<app-botanical-detail-dialog>`. No other logic changes needed: when botanical detail closes the identifier is already visible.
+
+  **Follow-up (out of scope for this block):** apply the same `backLabel` pattern when `SubstrateMixWizardDialog` opens from `BotanicalDetailDialog` — pass `backLabel="Plant Profile"`.
+
+  Verification: identify a plant → "View Profile" → botanical detail opens with "← Identify a Plant" in footer → close botanical detail (any method) → identifier result is still shown → "Add to my plants" closes identifier normally.
 
 ---
 

@@ -232,7 +232,7 @@ FloraFlow targets **WCAG 2.1 Level AA**. Validate every template before marking 
 - **2.1.1** All actions keyboard-reachable: Tab, Enter/Space, Arrow keys in selects, Escape closes dialogs.
 - **2.4.3** DOM order matches visual order. No `tabindex > 0`.
 - **2.4.7** `FLORA_FOCUS` on every interactive PT slot. Never `outline-none` without `focus-visible:ring-*`.
-- **2.5.3** `ariaLabel` must contain the visible label text (e.g., `"Save plant to greenhouse"` not `"Submit"`).
+- **2.5.3** `ariaLabel` must contain the visible label text (e.g., `"Add Monstera deliciosa to my plants"` not `"Submit"`).
 
 ### Understandable
 - **3.1.1** `<html lang="en">` in `index.html`.
@@ -371,26 +371,67 @@ Three required elements:
 ```html
 <div class="flex flex-col items-center justify-center py-20 text-center" role="status">
   <p class="text-neutral-500 dark:text-neutral-400 font-display text-base">
-    No zones yet. Add your first greenhouse zone to get started.
+    No zones yet. Add your first zone to get started.
   </p>
   <p-button label="Add your first zone" variant="outlined" [pt]="FloraButtonPT"
-    class="mt-4" ariaLabel="Add your first greenhouse zone" (onClick)="openCreateDialog()" />
+    class="mt-4" ariaLabel="Add your first zone" (onClick)="openCreateDialog()" />
 </div>
 ```
 
 ### 6.7 Page Header Patterns
 
-**Standard header** (management pages — dashboard zones):
+**Page header action button** — ghost style, used on every page header regardless of page type. Semantic HTML `<button>`, never `<p-button>`.
+
+```html
+<button
+  type="button"
+  class="cursor-pointer inline-flex items-center gap-1.5 text-sm font-medium font-display
+         text-primary-600 dark:text-primary-400
+         hover:text-primary-700 dark:hover:text-primary-300
+         transition-colors duration-150 outline-none
+         focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
+  aria-label="…"
+  (click)="…"
+>
+  <i class="pi pi-plus text-xs" aria-hidden="true"></i>
+  New entry
+</button>
+```
+
+Disabled / coming-soon variant — swap color and cursor, add `opacity-50`:
+```html
+<button type="button" disabled aria-disabled="true" aria-label="…"
+  class="inline-flex items-center gap-1.5 text-sm font-medium font-display
+         text-neutral-400 dark:text-neutral-500 cursor-not-allowed opacity-50
+         outline-none rounded px-2 py-1">
+  …
+</button>
+```
+
+Conditionally disabled (use `[class]` ternary to keep base classes DRY):
+```html
+<button type="button" [disabled]="condition"
+  class="inline-flex items-center gap-1.5 text-sm font-medium font-display
+         outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1
+         transition-colors duration-150"
+  [class]="condition
+    ? 'text-neutral-400 dark:text-neutral-500 cursor-not-allowed opacity-50'
+    : 'text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 cursor-pointer'">
+  …
+</button>
+```
+
+Empty-state CTAs (`<p-button>`) are exempt — a new user who has not learned the page needs the stronger visual affordance of a filled or outlined button.
+
+**Standard header** (management sub-pages — zone detail):
 ```html
 <header class="flex items-center justify-between mb-6">
   <h1 class="text-xs font-semibold uppercase tracking-widest font-display text-neutral-500">Your zones</h1>
-  <button class="inline-flex items-center gap-1.5 text-sm font-medium font-display text-primary-600 …">
-    <i class="pi pi-plus text-xs" aria-hidden="true"></i> New zone
-  </button>
+  <!-- ghost button as above -->
 </header>
 ```
 
-**Eyebrow header** (engine/task pages with live stats — tasks):
+**Eyebrow header** (feature/engine pages with live stats — tasks, seeds, journal):
 ```html
 <header class="mb-8">
   <p class="text-xs font-semibold uppercase tracking-widest text-primary-600 font-display mb-1">Anti-Root-Rot Engine</p>
@@ -399,7 +440,7 @@ Three required elements:
 </header>
 ```
 
-Use eyebrow pattern for real-time data state pages. Use standard pattern for CRUD management pages.
+The header type determines the heading treatment; both use the same ghost button style for actions.
 
 ---
 

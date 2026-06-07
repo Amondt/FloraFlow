@@ -1,0 +1,296 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="onVisibleChange($event)"
+  header="Identify a Plant"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [dismissableMask]="true"
+  [pt]="FloraFormDialogPT"
+>
+  <div class="flex flex-col gap-5" [attr.aria-busy]="identState() === 'loading'">
+    <!-- Idle: drag-drop zone + hidden file input -->
+    @if (identState() === 'idle') {
+      <input
+        type="file"
+        #photoInputRef
+        accept="image/*"
+        class="sr-only"
+        aria-label="Choose a plant photo to identify"
+        (change)="onFileChange($event)"
+      />
+      <button
+        type="button"
+        [class]="
+          FLORA_FOCUS +
+          ' cursor-pointer w-full flex flex-col items-center justify-center gap-3 py-10 border-2 border-dashed rounded-garden-md transition-colors duration-150 ' +
+          (isDragOver()
+            ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/10'
+            : 'border-neutral-200 dark:border-neutral-600 hover:border-primary-400 hover:bg-neutral-50 dark:hover:bg-neutral-800')
+        "
+        aria-label="Click or drag a plant photo here to identify it"
+        (click)="triggerPhotoInput()"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave()"
+        (drop)="onDrop($event)"
+      >
+        <!-- pointer-events-none prevents drag events landing on children, fixing dragleave flicker -->
+        <span class="pointer-events-none flex flex-col items-center gap-3">
+          <i
+            class="pi pi-camera text-3xl text-neutral-400 dark:text-neutral-500"
+            aria-hidden="true"
+          ></i>
+          <span class="text-center">
+            <span
+              class="block text-sm font-medium font-display text-neutral-700 dark:text-neutral-200"
+            >
+              Choose a photo or take one
+            </span>
+            <span class="block text-xs font-display text-neutral-400 dark:text-neutral-500 mt-0.5">
+              JPG, PNG or WEBP · compressed to &lt; 300 KB
+            </span>
+          </span>
+        </span>
+      </button>
+    }
+
+    <!-- Loading: spinner -->
+    @if (identState() === 'loading') {
+      <div
+        class="flex flex-col items-center justify-center gap-4 py-10"
+        role="status"
+        aria-label="Identifying plant species, please wait"
+      >
+        <svg
+          class="w-8 h-8 animate-spin text-primary-500"
+          fill="none"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+          ></path>
+        </svg>
+        <p class="text-sm font-display text-neutral-500 dark:text-neutral-400">
+          Identifying species…
+        </p>
+      </div>
+    }
+
+    <!-- Result: photo thumbnail + species card, then candidate chips -->
+    @if (identState() === 'result') {
+      @let match = activeMatch();
+      @if (match) {
+        <section aria-label="Identification result" class="flex flex-col gap-3">
+          <!-- Photo (clickable, full-card height) + active species card -->
+          <div class="flex gap-3 items-stretch">
+            @if (uploadedPhotoUrl()) {
+              <button
+                type="button"
+                class="cursor-zoom-in shrink-0 w-28 rounded-garden-sm overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+                aria-label="View uploaded photo full size"
+                (click)="showPhotoLightbox.set(true)"
+              >
+                <img
+                  [src]="uploadedPhotoUrl()"
+                  alt="Uploaded plant photo"
+                  class="w-full h-full object-cover"
+                />
+              </button>
+            }
+            <div
+              class="flex-1 rounded-garden-md border border-neutral-200 dark:border-neutral-700 p-4 flex flex-col gap-1.5"
+            >
+              <p class="text-base font-semibold font-display text-neutral-900 dark:text-white">
+                {{ match.common_name }}
+              </p>
+              <p class="text-sm italic font-display text-neutral-500 dark:text-neutral-400">
+                {{ match.scientific_name }}
+              </p>
+              <span
+                [class]="
+                  'mt-1 self-start inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium font-display ' +
+                  confidenceBadgeClass()
+                "
+                role="status"
+              >
+                {{ confidenceBadgeLabel() }}
+              </span>
+            </div>
+          </div>
+
+          <!-- All candidates — primary first, then alternatives -->
+          @if (allCandidates().length > 1) {
+            <div class="flex flex-col gap-1.5">
+              <p
+                class="text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 uppercase tracking-wider"
+              >
+                Candidates
+              </p>
+              <div class="flex flex-wrap gap-2" role="group" aria-label="Species candidates">
+                @for (candidate of allCandidates(); track candidate.scientific_name) {
+                  <button
+                    type="button"
+                    [class]="
+                      'cursor-pointer inline-flex flex-col items-start px-3 py-2 rounded-garden-sm border text-left transition-colors duration-150 ' +
+                      FLORA_FOCUS +
+                      (activeMatch()?.scientific_name === candidate.scientific_name
+                        ? ' border-primary-500 bg-primary-50 dark:bg-primary-900/20'
+                        : ' border-neutral-200 dark:border-neutral-600 hover:border-primary-300 hover:bg-neutral-50 dark:hover:bg-neutral-800')
+                    "
+                    [attr.aria-pressed]="
+                      activeMatch()?.scientific_name === candidate.scientific_name
+                    "
+                    [attr.aria-label]="
+                      'Select ' +
+                      candidate.common_name +
+                      ' — ' +
+                      candidateChipBadgeLabel(candidate.confidence_score) +
+                      ' confidence'
+                    "
+                    (click)="selectAlternative(candidate)"
+                  >
+                    <span
+                      class="text-sm font-medium font-display text-neutral-800 dark:text-neutral-100"
+                      >{{ candidate.common_name }}</span
+                    >
+                    <span
+                      class="text-xs italic font-display text-neutral-500 dark:text-neutral-400"
+                    >
+                      {{ candidate.scientific_name }}
+                    </span>
+                    <span
+                      [class]="
+                        'mt-1 inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium font-display ' +
+                        candidateChipBadgeClass(candidate.confidence_score)
+                      "
+                      aria-hidden="true"
+                    >
+                      {{ candidateChipBadgeLabel(candidate.confidence_score) }}
+                    </span>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </section>
+      }
+    }
+
+    <!-- Error: invalid image or API failure -->
+    @if (identState() === 'error') {
+      <p-message severity="error" [text]="errorMessage()" [pt]="FloraMessagePT" />
+    }
+
+    <!-- Photo lightbox — renders above everything when open -->
+    @if (showPhotoLightbox() && uploadedPhotoUrl()) {
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Uploaded photo full size"
+        class="fixed inset-0 z-[9999] flex items-center justify-center bg-neutral-900/90 cursor-zoom-out"
+        tabindex="-1"
+        (click)="showPhotoLightbox.set(false)"
+        (keydown.escape)="showPhotoLightbox.set(false)"
+      >
+        <img
+          [src]="uploadedPhotoUrl()"
+          alt="Uploaded plant photo — full size"
+          class="max-h-[90vh] max-w-[90vw] rounded-garden-md shadow-2xl object-contain cursor-default"
+          (click)="$event.stopPropagation()"
+        />
+        <button
+          type="button"
+          class="cursor-pointer absolute top-4 right-4 flex items-center justify-center w-9 h-9 rounded-full bg-neutral-800/70 text-white hover:bg-neutral-700/90 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-white"
+          aria-label="Close full-size photo"
+          (click)="showPhotoLightbox.set(false)"
+        >
+          <i class="pi pi-times text-sm" aria-hidden="true"></i>
+        </button>
+      </div>
+    }
+  </div>
+
+  <ng-template #footer>
+    @switch (identState()) {
+      @case ('idle') {
+        <p-button
+          label="Cancel"
+          variant="text"
+          [pt]="FloraButtonPT"
+          ariaLabel="Cancel and close dialog"
+          (onClick)="onVisibleChange(false)"
+        />
+      }
+      @case ('loading') {
+        <p-button
+          label="Cancel"
+          variant="text"
+          [pt]="FloraButtonPT"
+          ariaLabel="Cancel and close dialog"
+          [disabled]="true"
+        />
+      }
+      @case ('result') {
+        <button
+          type="button"
+          [class]="
+            'cursor-pointer inline-flex items-center text-sm font-medium font-display ' +
+            'text-neutral-500 hover:text-primary-600 dark:text-neutral-400 dark:hover:text-primary-400 ' +
+            'transition-colors duration-150 rounded px-2 py-1 ' +
+            FLORA_FOCUS
+          "
+          aria-label="Try another photo"
+          (click)="tryAnother()"
+        >
+          Try another
+        </button>
+        <button
+          type="button"
+          [class]="
+            'cursor-pointer inline-flex items-center gap-1 text-sm font-medium font-display ' +
+            'text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 ' +
+            'transition-colors duration-150 rounded px-2 py-1 ' +
+            FLORA_FOCUS
+          "
+          aria-label="View full species profile"
+          (click)="viewProfile()"
+        >
+          View profile
+          <i class="pi pi-arrow-right text-xs" aria-hidden="true"></i>
+        </button>
+        <p-button
+          label="Add to my plants"
+          [pt]="FloraButtonPT"
+          ariaLabel="Add identified species directly to my plants"
+          (onClick)="addToMyPlants()"
+        />
+      }
+      @case ('error') {
+        <button
+          type="button"
+          [class]="
+            'cursor-pointer inline-flex items-center text-sm font-medium font-display ' +
+            'text-neutral-500 hover:text-primary-600 dark:text-neutral-400 dark:hover:text-primary-400 ' +
+            'transition-colors duration-150 rounded px-2 py-1 ' +
+            FLORA_FOCUS
+          "
+          aria-label="Try another photo"
+          (click)="tryAnother()"
+        >
+          Try another
+        </button>
+      }
+    }
+  </ng-template>
+</p-dialog>

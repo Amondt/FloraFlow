@@ -274,6 +274,16 @@
   - Block G: one-shot `inat-backfill` Edge Function populates `inat_taxon_id` for all 924 existing records; `group-botanical-records.util.ts` refactored to group by `inat_taxon_id` — cultivar cards correctly collapse into one species card.
   - `locale=en` added to all iNat queries; `thumbnail_fetched` retained as infinite-retry guard for species absent from iNat's photo database.
   - Plan: `docs/plans/phase-3/PHASE_3_16_PLAN.md`
+- [ ] **3.17 Species Photo Gallery (iNaturalist Carousel)** | Agent: `/plumber` → `/visualizer`
+  - Depends on 3.16 complete — `inat_taxon_id` must be populated on all records before the gallery fetch can run.
+  - iNat's `/v1/taxa/{id}` endpoint returns `taxon_photos[]` (typically 6–12 photos per species); no API key required.
+  - DB migration: `gallery_urls TEXT[] NULL` on `cached_botanical_records` — stores up to 6 medium-sized photo URLs.
+  - `_shared/enrich-record.ts`: new `fetchINatGallery()` helper; `enrichRecord()` extended to populate `gallery_urls` when `inat_taxon_id` is known and `gallery_urls IS NULL`.
+  - `inat-backfill` extended: populates `gallery_urls` alongside `inat_taxon_id` in the same pass.
+  - New `SpeciesPhotoCarouselComponent`: prev/next arrows + dot pagination; falls back to leaf icon when empty.
+  - Botanical detail dialog: lightbox removed; identity strip replaced with the carousel (feeds `regular_url` + `gallery_urls`).
+  - Library cards and zone detail cards keep their single `thumbnail_url` — carousel is dialog-only.
+  - Plan: `docs/plans/phase-3/PHASE_3_17_PLAN.md`
 
 ### 🔒 Phase 3 QA Criteria
 

@@ -8,7 +8,7 @@
 
 ## Blocks
 
-- [ ] **Block A — claude-vision: plant context + cache stub** | Agent: `/plumber`
+- [ ] **Block A — claude-vision: plant context + cache stub** | Agent: `/plumber` · Model: Sonnet · Effort: mid
   - Extend the request body type to accept `plantContext?: { commonName: string; scientificName?: string | null }` (optional, no breaking change)
   - When `plantContext` is present, replace the generic user text with: `"Analyze this image of a ${commonName}${scientificName ? ` (${scientificName})` : ''} and return a JSON response matching the schema. Focus your diagnosis on conditions known to affect this species."`
   - When absent, keep the existing generic text unchanged — journal flow is unaffected
@@ -29,7 +29,7 @@
   - Update `docs/AI_PROMPT_MANIFEST.md §3.0` to document the optional field and the cache stub side-effect
   - Verification: `bun run format && bun run lint` then `bun run functions:serve` + `Invoke-RestMethod` with and without `plantContext`
 
-- [ ] **Block B — LeafDoctorDialogComponent: locked-plant mode** | Agent: `/visualizer`
+- [ ] **Block B — LeafDoctorDialogComponent: locked-plant mode** | Agent: `/visualizer` · Model: Sonnet · Effort: low
   - Add two optional inputs: `preselectedPlantName = input<string | null>(null)` and `preselectedScientificName = input<string | null>(null)`
   - When `preselectedPlantId()` is non-null at dialog open, show a read-only plant name badge instead of the `<app-plant-select>` — `@if (preselectedPlantId()) { … } @else { … }` guard around the selector section
   - Forward names to the Edge Function body: `plantContext: preselectedPlantName() ? { commonName: preselectedPlantName()!, scientificName: preselectedScientificName() ?? null } : undefined`
@@ -47,7 +47,7 @@
   4. Click "Save as Observation" → entry saved, dialog closes
   5. Open DevTools Console → zero red errors
 
-- [ ] **Block C — ZoneDetailComponent: Leaf Doctor entry point** | Agent: `/visualizer`
+- [ ] **Block C — ZoneDetailComponent: Leaf Doctor entry point** | Agent: `/visualizer` · Model: Sonnet · Effort: low
   - Add `readonly diagnosisPlant = signal<Plant | null>(null)` and `readonly diagnosisVisible = signal(false)` to `ZoneDetailComponent`
   - Add `openDiagnosis(plant: Plant): void` method — sets `diagnosisPlant` + `diagnosisVisible.set(true)` (after `blurActiveElement()`)
   - Add `onDiagnosisClose(v: boolean): void` — mirrors `onSoilDialogVisibleChange`: sets visibility, clears plant on close

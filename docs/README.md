@@ -99,6 +99,8 @@ These slot in around the standard flow — they don't replace it.
 | `/plumber` | **The Plumber** — Supabase, migrations, Edge Functions | `DB_SCHEMA_MATRIX.md`, `BACKEND_PATTERNS.md`, `AI_PROMPT_MANIFEST.md` |
 | `/gatekeeper` | **The Gatekeeper** — QA, tests, security | `PHASES_PLAN.md`, `DB_SCHEMA_MATRIX.md` |
 
+> Which **model and effort** to run each agent at — and when to escalate from Sonnet to Opus — is documented in `AGENT_MODEL_STRATEGY.md`.
+
 ### 3.4 Agent Source Files
 
 All agent definitions live in `.claude/commands/`. Edit them directly to adjust any agent's behaviour:
@@ -159,5 +161,6 @@ When operating inside this workspace, adhere strictly to this standardized layou
     │   ├── AI_PROMPT_MANIFEST.md # Claude System Prompts & Strict JSON Schemas
     │   ├── PHASES_PLAN.md        # Iterative Build Roadmap & QA Verification Checklists
     │   ├── ANGULAR_PATTERNS.md   # Angular 21 Required Syntax & Pattern Reference
-    │   └── BACKEND_PATTERNS.md   # Supabase JS v2 & Deno Edge Function Patterns
+    │   ├── BACKEND_PATTERNS.md   # Supabase JS v2 & Deno Edge Function Patterns
+    │   └── AGENT_MODEL_STRATEGY.md # Which model + effort to run each agent at
     └── package.json              # Client Dependency and Testing Script Declarations

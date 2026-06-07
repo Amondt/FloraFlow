@@ -43,7 +43,7 @@ GET https://api.inaturalist.org/v1/taxa?q={q}&taxon_id=47126&rank=species&per_pa
 
 ## Blocks
 
-- [ ] **Block A — DB migration: `inat_taxon_id` column** | Agent: `/plumber`
+- [ ] **Block A — DB migration: `inat_taxon_id` column** | Agent: `/plumber` · Model: Sonnet · Effort: mid
   - New migration file: add `inat_taxon_id INTEGER NULL` to `cached_botanical_records`
   - New migration file: add `inat_taxon_id INTEGER NULL` to `plants`
   - Index both: `CREATE INDEX IF NOT EXISTS idx_cbr_inat_taxon_id ON cached_botanical_records(inat_taxon_id)` and `CREATE INDEX IF NOT EXISTS idx_plants_inat_taxon_id ON plants(inat_taxon_id)`
@@ -51,7 +51,7 @@ GET https://api.inaturalist.org/v1/taxa?q={q}&taxon_id=47126&rank=species&per_pa
   - Run `bunx supabase migration up`, then `bun run types`, then `Copy-Item src/types/database.types.ts supabase/functions/_shared/database.types.ts`
   - Verify in Studio SQL (`http://127.0.0.1:54323/`): `SELECT column_name FROM information_schema.columns WHERE table_name = 'cached_botanical_records' AND column_name = 'inat_taxon_id';` — must return one row
 
-- [ ] **Block B — Rewrite `botanical-search/index.ts`** | Agent: `/plumber`
+- [ ] **Block B — Rewrite `botanical-search/index.ts`** | Agent: `/plumber` · Model: Sonnet · Effort: high
   - Remove `MAX_PAGES` constant, `PERENUAL_API_KEY` env read, the `while (page <= MAX_PAGES)` pagination loop, and `pageRecords` accumulator
   - Rename `BotanicalResult.perenual_id` → `inat_taxon_id: number | null`
   - Cache query: replace `perenual_id` with `inat_taxon_id`; keep `thumbnail_url` in the select (already there)
@@ -76,7 +76,7 @@ GET https://api.inaturalist.org/v1/taxa?q={q}&taxon_id=47126&rank=species&per_pa
     ```
     Expect ≥30 results with `inat_taxon_id` populated and `thumbnail_url` present on most entries
 
-- [ ] **Block C — Update `_shared/enrich-record.ts`** | Agent: `/plumber`
+- [ ] **Block C — Update `_shared/enrich-record.ts`** | Agent: `/plumber` · Model: Sonnet · Effort: mid
   - `queryINat()` return type: add `taxon_id: number` — extract from `data.results[0].id`
   - `fetchINatThumbnail()` return type: add `taxon_id: number | null`
   - In `enrichRecord()` full path: check `cached?.thumbnail_url && cached?.thumbnail_fetched` before calling `fetchINatThumbnail`. If already set, skip the iNat HTTP request and use existing values:
@@ -91,7 +91,7 @@ GET https://api.inaturalist.org/v1/taxa?q={q}&taxon_id=47126&rank=species&per_pa
   - Run `bun run format && bun run lint`
   - Verify: trigger `cache-enrichment-worker` manually in Studio. Confirm the updated record has `inat_taxon_id` populated.
 
-- [ ] **Block D — Update `claude-plant-id/index.ts` & `AI_PROMPT_MANIFEST.md §2.3`** | Agent: `/plumber`
+- [ ] **Block D — Update `claude-plant-id/index.ts` & `AI_PROMPT_MANIFEST.md §2.3`** | Agent: `/plumber` · Model: Sonnet · Effort: mid
   - Cache lookup: change `.select('perenual_id')` → `.select('perenual_id, inat_taxon_id')`
   - When `!cachedRecord` (species unknown): insert a minimal stub **before** triggering background enrichment, so the cron will pick it up even when `EdgeRuntime.waitUntil` is absent:
     ```ts
@@ -106,7 +106,7 @@ GET https://api.inaturalist.org/v1/taxa?q={q}&taxon_id=47126&rank=species&per_pa
   - Run `bun run format && bun run lint`
   - Verify: run the Plant Identifier on a photo of a known common plant. Response JSON must include both `perenual_id` (may be null) and `inat_taxon_id`.
 
-- [ ] **Block G — iNat species backfill & library grouping refactor** | Agent: `/plumber` + `/visualizer`
+- [ ] **Block G — iNat species backfill & library grouping refactor** | Agent: `/plumber` + `/visualizer` · Model: Sonnet · Effort: high
 
   **Why this block exists:** the 924 existing records were stored by Perenual with inconsistent scientific names — cultivar suffixes (`'Marble Queen'`, `'Variegata'`) are included as part of `scientific_name`. The current grouping util works around this by grouping by `common_name`, which Perenual also made inconsistent. iNaturalist uses canonical species-level binomials. Grouping by `inat_taxon_id` is authoritative: two records with the same taxon ID are definitively the same species, regardless of what Perenual named them.
 
@@ -146,7 +146,7 @@ GET https://api.inaturalist.org/v1/taxa?q={q}&taxon_id=47126&rank=species&per_pa
     3. Search a single-cultivar species (e.g. "monstera") → shows one card, no variety badge
     4. Open DevTools Console → zero red errors
 
-- [ ] **Block E — Angular models & services** | Agent: `/visualizer`
+- [ ] **Block E — Angular models & services** | Agent: `/visualizer` · Model: Sonnet · Effort: low
   - `src/app/core/services/botanical-search.service.ts` — `BotanicalSuggestion`: add `inat_taxon_id: number | null`
   - `src/app/core/services/plant-identifier.service.ts` — `PlantIdResult`: add `inat_taxon_id: number | null` (the Edge Function now returns it; the dialog's `emittableInatTaxonId` computed reads `this.identResult()?.inat_taxon_id` — TypeScript won't compile without this field declared here)
   - `src/app/core/services/offline-queue.service.ts` — `QueuedAction`: add `inat_taxon_id?: number | null` (plant.service.ts will enqueue this field in the create path; without it the enqueue call fails to compile)
@@ -171,7 +171,7 @@ GET https://api.inaturalist.org/v1/taxa?q={q}&taxon_id=47126&rank=species&per_pa
     2. Open DevTools Console → confirm zero red errors
     3. Open DevTools Network tab → confirm the POST to `plants` includes `inat_taxon_id` in the request body
 
-- [ ] **Block F — Form dialogs & Library per-page enrichment** | Agent: `/visualizer`
+- [ ] **Block F — Form dialogs & Library per-page enrichment** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - `src/app/features/tasks/plant-form-dialog/plant-form-dialog.ts`:
     - Add `selectedInatTaxonId = signal<number | null>(null)`
     - Input type for `botanicalPrefill`: add `inat_taxon_id: number | null`

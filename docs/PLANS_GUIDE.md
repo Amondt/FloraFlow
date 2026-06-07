@@ -7,13 +7,17 @@ Phase plan files live in `docs/plans/` and are ephemeral — they track active w
 The checkbox goes on the **block title line** itself. Implementation details live as a plain bullet list inside the block — no checkboxes on sub-points:
 
 ```markdown
-- [ ] **Block A — Descriptive title** | Agent: `/plumber`
+- [ ] **Block A — Descriptive title** | Agent: `/plumber` · Model: Sonnet · Effort: mid
   - Sub-point one
   - Sub-point two
   - Sub-point three
 ```
 
 Use `- [x]` (lowercase x, no spaces inside brackets) to mark a block done. Do **not** reword it — check the box in place.
+
+## Model & effort tag
+
+After the `|` separator, every block title names three things: the **agent**, the **model** (`Sonnet` or `Opus`), and the **effort** (`low` / `mid` / `high` / `max`). `/mind` assigns these per block — default to Sonnet at `low`/`mid` and escalate only where `docs/AGENT_MODEL_STRATEGY.md` says it pays off. The target is the cheapest setting that still produces production-ready work.
 
 ## When to mark done
 

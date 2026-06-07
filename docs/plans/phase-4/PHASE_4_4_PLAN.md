@@ -4,7 +4,7 @@
 
 ---
 
-- [ ] **Block A — `SupabaseService.signUp()`** | Agent: `/plumber`
+- [ ] **Block A — `SupabaseService.signUp()`** | Agent: `/plumber` · Model: Sonnet · Effort: mid
   - Add `async signUp(email, password)` to `src/app/core/services/supabase.service.ts`.
   - Returns `{ error: AuthError | null; needsEmailConfirmation: boolean }`.
   - `needsEmailConfirmation` is `true` when `data.user` is set but `data.session` is `null` — this happens when Supabase requires the user to click a confirmation link before the account is active. In local dev with auto-confirm enabled, `data.session` will be set and this flag stays `false`.
@@ -18,7 +18,7 @@ No browser check needed — service method only.
 
 ---
 
-- [ ] **Block B — Register component & route** | Agent: `/visualizer`
+- [ ] **Block B — Register component & route** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - New files: `src/app/features/auth/register.ts` + `register.html`.
   - `app.routes.ts`: add `{ path: 'register', loadComponent: () => import('./features/auth/register').then(m => m.RegisterComponent) }` before the shell route (public, no guard).
   - Form fields: Email (required, email format), Password (required, minLength 8), Confirm Password (required, must match Password via a cross-field validator).
@@ -48,7 +48,7 @@ App running at: http://localhost:4200/register
 
 ---
 
-- [ ] **Block C — Login → Register link** | Agent: `/visualizer`
+- [ ] **Block C — Login → Register link** | Agent: `/visualizer` · Model: Sonnet · Effort: low
   - `login.html`: add a "Don't have an account? Create one" link at the bottom of the `<article>`, below the submit button, using `routerLink="/register"`.
   - Style: `text-sm text-neutral-500 font-display text-center` with `text-primary-600 hover:underline` on the link text.
 

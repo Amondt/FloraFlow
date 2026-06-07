@@ -17,7 +17,7 @@
 
 ## Blocks
 
-- [ ] **Block A — `claude-plant-id` Edge Function** | Agent: `/plumber`
+- [x] **Block A — `claude-plant-id` Edge Function** | Agent: `/plumber`
   - New file: `supabase/functions/claude-plant-id/index.ts`
   - Request body: `{ imageBase64: string, imageMediaType: 'image/jpeg' | 'image/png' | 'image/webp' }`
   - Calls `claude-sonnet-4-6` with the §2.1 system prompt and §2.2 JSON schema from `docs/AI_PROMPT_MANIFEST.md`.

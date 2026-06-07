@@ -71,16 +71,70 @@
   - Confirmation toast: "Species identified — form pre-filled."
   - Verification: open Add Plant, click camera, upload a plant photo, confirm form fields pre-fill correctly.
 
-- [ ] **Block E — Library integration** | Agent: `/visualizer`
-  - Add an "Identify a plant" secondary button to the Library search area (`library.html`), inline next to or below the search bar.
-  - On `identified` output: set `searchQuery` to `species_match.common_name` (triggers existing search pipeline) and — once results load — call `selectedRecord.set(matchedRecord)` to open the botanical detail panel.
-  - If no record exists yet (enrichment pending): set the search query and let the existing enrichment-progress indicator do its job.
-  - Verification: click "Identify a plant" → dialog opens → upload → result shown → Library auto-searches and opens botanical detail.
+- [x] **Block E — Library integration** | Agent: `/visualizer`
+
+  **Shared component change — extend `mode` type** (`plant-identifier-dialog.ts` + `.html`):
+  - Extend the `mode` input type: `'identify' | 'prefill' | 'browse'`.
+  - In the result-state footer (`plant-identifier-dialog.html`):
+    - "View profile →" button: change `@if (mode() === 'identify')` → `@if (mode() !== 'prefill')` — shown in both `identify` and `browse`.
+    - "Add to my plants" `<p-button>`: wrap in `@if (mode() !== 'browse')` — hidden in `browse`.
+
+  **Mode map** (reference for all entry points):
+  | Entry point | `mode` | "View profile →" | "Add to my plants" / "Use this species" |
+  |---|---|---|---|
+  | Dashboard | `identify` | ✓ | ✓ "Add to my plants" |
+  | Library | `browse` | ✓ | ✗ hidden |
+  | Add Plant form | `prefill` | ✗ hidden | ✓ "Use this species" |
+  | Zone Detail | `prefill` | ✗ hidden | ✓ "Use this species" |
+
+  **Library-specific changes** (`library.html` + `library.ts`):
+  - Move "Identify a plant" button into the `<header>` toolbar as a peer of the "Mix substrate" secondary button — it is a library-level tool, not a search refinement.
+  - `<app-plant-identifier-dialog>`: use `mode="browse"`, bind only `(identified)="onLibraryIdentified($event)"` — no `(addToPlants)` binding ("Add to my plants" is not rendered in `browse` mode).
+  - `onLibraryIdentified(event: PlantIdentifiedEvent)`: close identifier immediately (`identifierVisible.set(false)`), set `_pendingAutoOpenName` to `event.scientific_name`, set `searchQuery` to `event.common_name`, call `_syncLoadingState()`. The existing auto-open effect handles the rest.
+
+  **Verification:** click "Identify a plant" in the library header → identifier opens → upload a plant photo → result shown → "View profile →" visible, "Add to my plants" absent → click "View profile →" → identifier closes, Library auto-searches, botanical detail panel opens.
 
 - [ ] **Block F — Zone Detail integration** | Agent: `/visualizer`
-  - Add a secondary "Identify & add" icon button to the zone detail header, next to the existing "Add plant" button.
-  - On `identified` output: close identifier dialog, open `PlantFormDialog` with both `botanicalPrefill` (from result) and `defaultZoneId` (from the current zone) pre-set.
-  - Verification: navigate to a zone, click "Identify & add", upload, confirm Add Plant opens with zone and species pre-filled.
+
+  **`zone-detail.ts` changes:**
+  - Import `PlantIdentifierDialogComponent`, `type PlantIdentifiedEvent` from `plant-identifier-dialog`; add to `imports` array.
+  - Add to the dialog-state signal block:
+    ```ts
+    readonly identifierVisible = signal(false);
+    protected readonly identifierPrefill = signal<{
+      common_name: string;
+      scientific_name: string | null;
+      perenual_id: number | null;
+    } | null>(null);
+    ```
+  - Update `openAddPlant()` — add `this.identifierPrefill.set(null)` before opening the form so normal adds never carry stale prefill.
+  - Add method:
+    ```ts
+    protected onZoneIdentified(event: PlantIdentifiedEvent): void {
+      this.identifierVisible.set(false);
+      this.identifierPrefill.set({
+        common_name: event.common_name,
+        scientific_name: event.scientific_name,
+        perenual_id: event.perenual_id,
+      });
+      this.editingPlant.set(null);
+      this.plantFormVisible.set(true);
+    }
+    ```
+
+  **`zone-detail.html` changes:**
+  - In the plants section header flex row, add an "Identify & add" button immediately before the existing "New plant" button (same row, same visual weight — secondary style with `pi-camera` icon).
+  - On `<app-plant-form-dialog>`: add `[botanicalPrefill]="identifierPrefill()"` (`defaultZoneId` is already wired with `[defaultZoneId]="id()"`).
+  - Add at the bottom of the template (after `<app-plant-form-dialog>`):
+    ```html
+    <app-plant-identifier-dialog
+      [(visible)]="identifierVisible"
+      mode="prefill"
+      (addToPlants)="onZoneIdentified($event)"
+    />
+    ```
+
+  **Verification:** navigate to a zone → click "Identify & add" → identifier opens → upload a plant photo → "Use this species" is the only CTA → click it → identifier closes → Add Plant form opens with species and zone pre-filled.
 
 - [ ] **Block G — Fixed photo aspect ratio** | Agent: `/visualizer`
   - Photo always renders at `w-28 aspect-[4/5]` (112 × 140 px — standard phone portrait) regardless of card content.

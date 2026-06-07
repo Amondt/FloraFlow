@@ -255,7 +255,7 @@
         >
           Try another
         </button>
-        @if (mode() === 'identify') {
+        @if (mode() !== 'prefill') {
           <button
             type="button"
             [class]="
@@ -271,16 +271,18 @@
             <i class="pi pi-arrow-right text-xs" aria-hidden="true"></i>
           </button>
         }
-        <p-button
-          [label]="mode() === 'prefill' ? 'Use this species' : 'Add to my plants'"
-          [pt]="FloraButtonPT"
-          [ariaLabel]="
-            mode() === 'prefill'
-              ? 'Use this species to pre-fill the form'
-              : 'Add identified species directly to my plants'
-          "
-          (onClick)="addToMyPlants()"
-        />
+        @if (mode() !== 'browse') {
+          <p-button
+            [label]="mode() === 'prefill' ? 'Use this species' : 'Add to my plants'"
+            [pt]="FloraButtonPT"
+            [ariaLabel]="
+              mode() === 'prefill'
+                ? 'Use this species to pre-fill the form'
+                : 'Add identified species directly to my plants'
+            "
+            (onClick)="addToMyPlants()"
+          />
+        }
       }
       @case ('error') {
         <button

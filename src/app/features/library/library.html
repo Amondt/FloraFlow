@@ -16,19 +16,29 @@
             Plant browser
           </h1>
           <p class="text-sm text-neutral-500 dark:text-neutral-400 font-display mt-1">
-            A shared species database. Search or filter to find a plant, then add it to your
-            greenhouse.
+            A shared species database. Search or filter to find a plant, then add it to your garden.
           </p>
         </div>
-        <button
-          type="button"
-          class="mt-1 cursor-pointer inline-flex flex-shrink-0 items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
-          aria-label="Open substrate mix guide"
-          (click)="wizardVisible.set(true)"
-        >
-          <i class="pi pi-list-check text-xs" aria-hidden="true"></i>
-          Mix substrate
-        </button>
+        <div class="flex items-center gap-3 mt-1">
+          <button
+            type="button"
+            class="cursor-pointer inline-flex flex-shrink-0 items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
+            aria-label="Identify a plant from a photo"
+            (click)="identifierVisible.set(true)"
+          >
+            <i class="pi pi-camera text-xs" aria-hidden="true"></i>
+            Identify a plant
+          </button>
+          <button
+            type="button"
+            class="cursor-pointer inline-flex flex-shrink-0 items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
+            aria-label="Open substrate mix guide"
+            (click)="wizardVisible.set(true)"
+          >
+            <i class="pi pi-list-check text-xs" aria-hidden="true"></i>
+            Mix substrate
+          </button>
+        </div>
       </div>
     </header>
 
@@ -759,4 +769,10 @@
   />
 
   <p-toast position="bottom-right" [pt]="FloraToastPT" />
+
+  <app-plant-identifier-dialog
+    [(visible)]="identifierVisible"
+    mode="browse"
+    (identified)="onLibraryIdentified($event)"
+  />
 </main>

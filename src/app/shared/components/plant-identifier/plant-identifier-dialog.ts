@@ -41,7 +41,7 @@ export class PlantIdentifierDialogComponent {
   private readonly identifierService = inject(PlantIdentifierService);
 
   readonly visible = model<boolean>(false);
-  readonly mode = input<'identify' | 'prefill'>('identify');
+  readonly mode = input<'identify' | 'prefill' | 'browse'>('identify');
   readonly identified = output<PlantIdentifiedEvent>();
   readonly addToPlants = output<PlantIdentifiedEvent>();
 

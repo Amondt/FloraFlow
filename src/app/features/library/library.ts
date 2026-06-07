@@ -49,6 +49,10 @@ import { PlantService } from '../tasks/plant.service';
 import { PlantFormData } from '../tasks/plant.model';
 import { plantAddedDetail } from '../../shared/utils/plant-message.util';
 import { EnrichmentPoll } from '../../shared/utils/enrichment-poll';
+import {
+  PlantIdentifierDialogComponent,
+  type PlantIdentifiedEvent,
+} from '../../shared/components/plant-identifier/plant-identifier-dialog';
 
 @Component({
   selector: 'app-library',
@@ -64,6 +68,7 @@ import { EnrichmentPoll } from '../../shared/utils/enrichment-poll';
     BotanicalDetailDialogComponent,
     BotanicalRecordCardComponent,
     PlantFormDialogComponent,
+    PlantIdentifierDialogComponent,
     SubstrateMixWizardDialogComponent,
   ],
   providers: [MessageService],
@@ -113,6 +118,8 @@ export class LibraryComponent {
   } | null>(null);
   readonly wizardVisible = signal(false);
   readonly wizardFromBotanicalRecord = signal<CachedBotanicalRecord | null>(null);
+  readonly identifierVisible = signal(false);
+  private readonly _pendingAutoOpenName = signal<string | null>(null);
   private _savedGroupKey: string[] | null = null;
 
   readonly groupedResults = computed(() => groupBotanicalRecords(this.results()));
@@ -262,6 +269,17 @@ export class LibraryComponent {
         this.currentPage.set(0);
         void this._load(q, f);
       }, 300);
+    });
+
+    effect(() => {
+      const pendingName = this._pendingAutoOpenName();
+      if (!pendingName || !this.searchCompleted()) return;
+
+      const matchingGroup = this.groupedResults().find((g) =>
+        g.varieties.some((v) => v.scientific_name?.toLowerCase() === pendingName.toLowerCase()),
+      );
+      this._pendingAutoOpenName.set(null);
+      if (matchingGroup) this.openGroup(matchingGroup);
     });
   }
 
@@ -476,6 +494,29 @@ export class LibraryComponent {
 
   protected onDetailClose(visible: boolean): void {
     if (!visible) this.selectedGroupKey.set(null);
+  }
+
+  protected async onLibraryIdentified(event: PlantIdentifiedEvent): Promise<void> {
+    this.identifierVisible.set(false);
+
+    const record = await this.libraryService.fetchByScientificName(event.scientific_name);
+
+    if (record) {
+      // Fast path: record is cached — open detail immediately without waiting for search
+      this.results.set([record]);
+      const group = this.groupedResults().find((g) =>
+        g.varieties.some((v) => v.scientific_name === event.scientific_name),
+      );
+      if (group) this.openGroup(group);
+      // Background: run the full search so the library populates behind the open dialog
+      this.searchQuery.set(event.common_name);
+      this._syncLoadingState();
+    } else {
+      // Slow path: record not in cache yet — search and auto-open when it lands
+      this._pendingAutoOpenName.set(event.scientific_name);
+      this.searchQuery.set(event.common_name);
+      this._syncLoadingState();
+    }
   }
 
   protected openWizardFromBotanical(record: CachedBotanicalRecord): void {

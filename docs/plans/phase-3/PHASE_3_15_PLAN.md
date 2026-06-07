@@ -1,8 +1,8 @@
 # Phase 3.15 — Leaf Doctor from Zone Detail
 
-**Goal:** Surface the AI Leaf Doctor on every plant card in zone-detail. Because the plant is already known at that point, the dialog locks the plant selector and passes the species name to Claude for more targeted, species-aware diagnostics.
+**Goal:** Make the AI Leaf Doctor **species-aware everywhere** and reachable from zone detail. The dialog always knows which plant it is diagnosing before analysis: the **journal** flow requires the user to pick one of their plants first; the **zone-detail** flow opens with the plant already locked. Both pass the species to Claude for more targeted diagnostics.
 
-**No DB migration.** All changes are purely frontend and Edge Function.
+**No DB migration.** All changes are purely frontend and Edge Function. (Per the 3.14 design pass: journal flow is plant-first + species-aware, and only the primary photo is stored — see `PHASE_3_14_PLAN.md`.)
 
 ---
 
@@ -11,7 +11,8 @@
 - [ ] **Block A — claude-vision: plant context + cache stub** | Agent: `/plumber` · Model: Sonnet · Effort: mid
   - Extend the request body type to accept `plantContext?: { commonName: string; scientificName?: string | null }` (optional, no breaking change)
   - When `plantContext` is present, replace the generic user text with: `"Analyze this image of a ${commonName}${scientificName ? ` (${scientificName})` : ''} and return a JSON response matching the schema. Focus your diagnosis on conditions known to affect this species."`
-  - When absent, keep the existing generic text unchanged — journal flow is unaffected
+  - When absent, keep the existing generic text unchanged (defensive — covers any caller that sends no plant)
+  - Compose the user text from parts: the image-count / same-plant dimension lands in `PHASE_3_14_PLAN.md` Block C; this block layers the species dimension on top — the two must compose, not overwrite
   - **Background cache stub** — when `plantContext.scientificName` is present, fire a background upsert via `EdgeRuntime?.waitUntil`:
     ```ts
     const stubWork = supabase
@@ -25,25 +26,25 @@
     ```
     This mirrors the `claude-plant-id` pattern: if the species is not yet cached, the 10-min cron picks up the stub for full AI enrichment; if already cached, only `common_name` is updated — all enriched columns are untouched.
   - Add the `EdgeRuntime` declaration at the top of the file: `declare const EdgeRuntime: { waitUntil: (promise: Promise<unknown>) => void } | undefined;`
-  - Journal flow (no `plantContext`) is unchanged — no upsert fires
+  - Both flows now send `plantContext` (journal + zone detail), so the stub fires from either — beneficial: more searched species get queued for enrichment
   - Update `docs/AI_PROMPT_MANIFEST.md §3.0` to document the optional field and the cache stub side-effect
   - Verification: `bun run format && bun run lint` then `bun run functions:serve` + `Invoke-RestMethod` with and without `plantContext`
 
-- [ ] **Block B — LeafDoctorDialogComponent: locked-plant mode** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
-  - Add two optional inputs: `preselectedPlantName = input<string | null>(null)` and `preselectedScientificName = input<string | null>(null)`
-  - When `preselectedPlantId()` is non-null at dialog open, show a read-only plant name badge instead of the `<app-plant-select>` — `@if (preselectedPlantId()) { … } @else { … }` guard around the selector section
-  - Forward names to the Edge Function body: `plantContext: preselectedPlantName() ? { commonName: preselectedPlantName()!, scientificName: preselectedScientificName() ?? null } : undefined`
-  - `resetDialog()` must not clear the `selectedPlantId` when in locked mode (i.e. when `preselectedPlantId()` is set)
-  - Journal usage (no `preselectedPlantId`) is unchanged — selector still shown, no `plantContext` sent
-  - Verification: `bun run format && bun run lint`
+- [ ] **Block B — LeafDoctorDialogComponent: species-aware (both modes)** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+  - Add `selectedPlantContext = computed()` — flatten `plantOptions()`, find the option whose `value === selectedPlantId()`, return `{ commonName: option.label, scientificName: option.scientificName ?? null }` or `null`. One source for both modes; no extra name inputs needed (the selected option already carries the scientific name).
+  - **Journal mode** (`preselectedPlantId()` is null): the existing top selector stays visible and becomes **required** — `primaryActionDisabled` returns `true` in the pre-analysis state when `!selectedPlantId()`. Remove the now-dead post-success "Select one of your plants above to save…" hint (a plant is always chosen first).
+  - **Zone-detail mode** (`preselectedPlantId()` set): `@if (preselectedPlantId()) { read-only plant-name badge } @else { <app-plant-select> }`; badge label reads `selectedPlantContext()?.commonName`.
+  - `analyzePlant`: send `plantContext: selectedPlantContext() ?? undefined` in the request body (fires in both modes).
+  - `resetDialog()` must not clear `selectedPlantId` when `preselectedPlantId()` is set (locked); journal mode clears it as today.
+  - Verification: Manual Browser Check (below)
 
-  Manual Browser Check — LeafDoctorDialogComponent locked mode
+  Manual Browser Check — LeafDoctorDialogComponent species-aware
   ────────────────────────────────────────────────────────────
   App running at: http://localhost:4200/journal
 
-  1. Open Leaf Doctor from Journal → plant selector is visible → works as before
-  2. (After Block C) Open Leaf Doctor from a zone-detail plant card → plant selector is hidden; plant name badge shown
-  3. Upload a photo and click Analyze → diagnosis result appears
+  1. Open Leaf Doctor from Journal → selector visible at top → Analyze stays disabled until a plant is selected
+  2. Select a plant, upload a photo, click Analyze → diagnosis appears (DevTools Network: request body carries `plantContext`)
+  3. (After Block C) Open from a zone-detail plant card → selector hidden; plant-name badge shown; Analyze enabled once a photo is added
   4. Click "Save as Observation" → entry saved, dialog closes
   5. Open DevTools Console → zero red errors
 
@@ -56,9 +57,8 @@
     - `[visible]="diagnosisVisible()"`
     - `(visibleChange)="onDiagnosisClose($event)"`
     - `[preselectedPlantId]="diagnosisPlant()?.id ?? null"`
-    - `[preselectedPlantName]="diagnosisPlant()?.common_name ?? null"`
-    - `[preselectedScientificName]="diagnosisPlant()?.scientific_name ?? null"`
     - `(entrySaved)="diagnosisVisible.set(false)"`
+  - No name inputs to pass — the badge label and `plantContext` resolve from `selectedPlantId` via `plantOptions` (Block B)
   - Add "Diagnose" button to the plant card footer, between "Mix substrate" and "Check soil":
     ```html
     <button type="button"
@@ -81,5 +81,5 @@
   3. Upload any non-plant image → "doesn't look like a plant photo" warning shown
   4. Upload a plant photo → AI analyzes; result panel shows condition + badges
   5. Click "Save as Observation" → success toast; dialog closes; plant name badge still correct if reopened
-  6. Open Leaf Doctor from /journal → plant selector still appears (not locked)
+  6. Open Leaf Doctor from /journal → selector appears (not locked) and is required before Analyze
   7. Open DevTools Console → zero red errors

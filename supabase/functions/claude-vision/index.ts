@@ -36,6 +36,22 @@ interface ImageInput {
   imageMediaType: string;
 }
 
+/**
+ * Builds the user text block sent to Claude.
+ * Image-count dimension: multi-image requests state all photos show the same plant.
+ * 3.15 Block A extends this signature with an optional plantContext parameter
+ * to layer the species dimension on top — do not overwrite this logic when adding it.
+ */
+function buildUserText(imageCount: number): string {
+  if (imageCount > 1) {
+    return (
+      `These ${imageCount} photos show the same plant from different angles. ` +
+      `Provide one combined diagnosis. Return a JSON response matching the schema.`
+    );
+  }
+  return 'Analyze this image and return a JSON response matching the schema.';
+}
+
 function validateImageItems(
   images: unknown[],
 ): { valid: true; items: ImageInput[] } | { valid: false; error: string } {
@@ -131,7 +147,7 @@ Deno.serve(async (req: Request) => {
               ...imageBlocks,
               {
                 type: 'text',
-                text: 'Analyze this image and return a JSON response matching the schema.',
+                text: buildUserText(images.length),
               },
             ],
           },

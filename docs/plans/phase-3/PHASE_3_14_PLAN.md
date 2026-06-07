@@ -48,7 +48,7 @@ Each item becomes one `image` content block in Claude's `messages[0].content[]` 
   - Update `docs/AI_PROMPT_MANIFEST.md §3.0` to document the new `images[]` request shape (replacing the old single-field example)
   - Verification: run the Edge Function locally with `bun run functions:serve`; call via `Invoke-RestMethod` with 1, 2, and 3 images — confirm all return a valid diagnostic result; call with 0 or 4 images — confirm HTTP 400
 
-- [ ] **Block B — Dialog: multi-image state, UI and request** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **Block B — Dialog: multi-image state, UI and request** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - Replace three scalar signals with arrays: `compressedBlobs`, `previewObjectUrls`, `compressedLabels`
   - Add `hasPhotos = computed(() => compressedBlobs().length > 0)`
   - Add `canAddPhoto = computed(() => compressedBlobs().length < 3)`
@@ -65,7 +65,17 @@ Each item becomes one `image` content block in Claude's `messages[0].content[]` 
     - "Add photo" button shows when `canAddPhoto()`; label shows current count: "Add photo ({{ compressedBlobs().length }}/3)". This native `<button>` (and every remove button) **must** carry `cursor-pointer` — `FLORA_FOCUS` does not include it and the current "Choose photo" button omits it
     - `@for (url of previewObjectUrls(); track url; let i = $index)` — thumbnail + remove button per image (track by the unique object URL, not `$index`, so removal does not re-key trailing thumbnails); remove button calls `removePhoto(i)` with `aria-label="Remove photo {{ i + 1 }}"`
     - Status line below thumbnails: "{{ compressedBlobs().length }} photo{{ compressedBlobs().length > 1 ? 's' : '' }} ready to analyze" when `hasPhotos()` and `diagnosisState() === 'idle'`
+  - Loading state: an `isCompressing` signal disables the "Add photo" button (spinner + "Processing photo…") during canvas compression and keeps Analyze disabled until it resolves
+  - Same-plant user notice under the photo controls — photos must be the same plant from different angles; the AI-side enforcement is Block C
   - Verification: Manual Browser Check (see below)
+
+- [x] **Block C — claude-vision: same-plant instruction (multi-image)** | Agent: `/plumber` · Model: Sonnet · Effort: low
+  - Surfaced during Block B testing: 3 photos of _different_ plants made Claude merge them into one nonsensical diagnosis (a Dieffenbachia result saved onto a Snake Plant entry).
+  - When `images.length > 1`, the user `text` block must state the photos show the **same plant** from different angles and instruct a single combined diagnosis — e.g. "These N photos show the same plant from different angles. Provide one combined diagnosis."
+  - Single-image requests keep the existing generic text — no behaviour change.
+  - Build the text from parts: the image-count dimension lands here; 3.15 Block A layers the species dimension on top — the two must compose, not overwrite.
+  - Update `docs/AI_PROMPT_MANIFEST.md §3.0` to document the multi-image instruction.
+  - Verification: `bun run format && bun run lint`; `bun run functions:serve` + `Invoke-RestMethod` with 2–3 images → one combined diagnosis returned.
 
 ---
 

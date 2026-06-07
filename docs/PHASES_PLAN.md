@@ -260,7 +260,7 @@
 - [ ] **3.15 Leaf Doctor from Zone Detail** | Agent: `/plumber` → `/visualizer`
   - Leaf Doctor accessible from every plant card in zone-detail, not only from the Journal.
   - Because the plant is already known, the dialog locks the plant selector and shows a read-only name badge instead.
-  - Optional `plantContext` field added to the `claude-vision` request body; when present, Claude receives the species name in the prompt and can tailor its diagnosis to that species. Journal flow is unchanged (no `plantContext` sent, selector still visible).
+  - Optional `plantContext` field added to the `claude-vision` request body; Claude receives the species name in the prompt and tailors its diagnosis to that species. Both flows send it — the journal flow requires the user to pick a plant first; the zone-detail flow locks the preselected plant.
   - No DB migration — pure frontend + Edge Function enhancement.
   - Plan: `docs/plans/phase-3/PHASE_3_15_PLAN.md`
 - [ ] **3.16 iNaturalist Migration & Botanical Cache Hardening** | Agents: `/plumber` → `/visualizer`

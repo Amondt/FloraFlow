@@ -324,7 +324,17 @@ interface LeafDoctorRequest {
 }
 ```
 
-The Edge Function builds the Claude `content[]` array dynamically — one `image` block per item, then a single `text` block at the end:
+The Edge Function builds the Claude `content[]` array dynamically — one `image` block per item, then a single `text` block at the end.
+
+**User text block** — switches on image count (image-count dimension). 3.15 Block A layers a species dimension on top by extending the same helper:
+
+```ts
+// Single image → generic instruction
+'Analyze this image and return a JSON response matching the schema.'
+
+// Multiple images → same-plant instruction
+'These N photos show the same plant from different angles. Provide one combined diagnosis. Return a JSON response matching the schema.'
+```
 
 ```ts
 const msg = await anthropic.messages.create({
@@ -336,15 +346,9 @@ const msg = await anthropic.messages.create({
       role: 'user',
       content: [
         // one block per image (1–3)
-        {
-          type:   'image',
-          source: { type: 'base64', media_type: imageMediaType, data: rawBase64 },
-        },
+        { type: 'image', source: { type: 'base64', media_type: imageMediaType, data: rawBase64 } },
         // ... additional image blocks ...
-        {
-          type: 'text',
-          text: 'Analyze this image and return a JSON response matching the schema.',
-        },
+        { type: 'text', text: buildUserText(images.length) },
       ],
     },
   ],

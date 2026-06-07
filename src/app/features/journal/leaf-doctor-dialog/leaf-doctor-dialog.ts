@@ -23,6 +23,7 @@ import {
   FloraButtonPT,
   FloraMessagePT,
   FLORA_FOCUS,
+  FLORA_DISABLED,
 } from '../../../shared/ui/pt/index';
 import { PlantService } from '../../tasks/plant.service';
 import { ZoneService } from '../../dashboard/zone.service';
@@ -74,20 +75,27 @@ export class LeafDoctorDialogComponent implements OnDestroy {
   protected readonly FloraButtonPT = FloraButtonPT;
   protected readonly FloraMessagePT = FloraMessagePT;
   protected readonly FLORA_FOCUS = FLORA_FOCUS;
+  protected readonly FLORA_DISABLED = FLORA_DISABLED;
 
   protected readonly photoInputRef = viewChild<ElementRef<HTMLInputElement>>('photoInputRef');
   private readonly _plantSelect = viewChild<PlantSelectComponent>('plantSelectRef');
 
   readonly selectedPlantId = signal<string | null>(null);
   private readonly plantThumbnailMap = signal<Map<string, string | null>>(new Map());
-  readonly compressedBlob = signal<Blob | null>(null);
-  readonly previewObjectUrl = signal<string | null>(null);
-  readonly compressedLabel = signal<string | null>(null);
+
+  readonly compressedBlobs = signal<Blob[]>([]);
+  readonly previewObjectUrls = signal<string[]>([]);
+  readonly compressedLabels = signal<string[]>([]);
+  readonly isCompressing = signal(false);
+
   readonly diagnosisState = signal<'idle' | 'loading' | 'success' | 'error' | 'not-botanical'>(
     'idle',
   );
   readonly diagnosisResult = signal<LeafDoctorDiagnostics | null>(null);
   readonly saving = signal(false);
+
+  protected readonly hasPhotos = computed(() => this.compressedBlobs().length > 0);
+  protected readonly canAddPhoto = computed(() => this.compressedBlobs().length < 3);
 
   protected readonly plantOptions = computed((): PlantOptionGroup[] => {
     const plants = this.plantService.plants();
@@ -122,8 +130,7 @@ export class LeafDoctorDialogComponent implements OnDestroy {
   });
 
   protected readonly canSave = computed(
-    () =>
-      !!this.selectedPlantId() && this.diagnosisState() === 'success' && !!this.compressedBlob(),
+    () => !!this.selectedPlantId() && this.diagnosisState() === 'success' && this.hasPhotos(),
   );
 
   protected readonly primaryActionLabel = computed(() => {
@@ -138,10 +145,11 @@ export class LeafDoctorDialogComponent implements OnDestroy {
   );
 
   protected readonly primaryActionDisabled = computed(() => {
+    if (this.isCompressing()) return true;
     const state = this.diagnosisState();
     if (state === 'loading') return true;
     if (state === 'success') return !this.canSave();
-    return !this.compressedBlob();
+    return !this.hasPhotos();
   });
 
   protected readonly primaryActionLoading = computed(
@@ -150,9 +158,9 @@ export class LeafDoctorDialogComponent implements OnDestroy {
 
   protected readonly primaryActionAriaLabel = computed(() => {
     const state = this.diagnosisState();
-    if (state === 'loading') return 'Leaf Doctor is analyzing the photo, please wait';
+    if (state === 'loading') return 'Leaf Doctor is analyzing the photos, please wait';
     if (state === 'success') return 'Save Leaf Doctor diagnosis as a journal Observation entry';
-    return 'Analyze this photo with Leaf Doctor AI';
+    return 'Analyze photos with Leaf Doctor AI';
   });
 
   constructor() {
@@ -185,7 +193,6 @@ export class LeafDoctorDialogComponent implements OnDestroy {
       for (const r of records) {
         updated.set(r.scientific_name, r.thumbnail_url ?? null);
       }
-      // Mark unfound names as null to prevent repeated fetches
       for (const name of toFetch) {
         if (!updated.has(name)) updated.set(name, null);
       }
@@ -193,9 +200,19 @@ export class LeafDoctorDialogComponent implements OnDestroy {
     });
   }
 
+  private _blobToBase64(blob: Blob): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve((reader.result as string).split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
   ngOnDestroy(): void {
-    const url = this.previewObjectUrl();
-    if (url) URL.revokeObjectURL(url);
+    for (const url of this.previewObjectUrls()) {
+      URL.revokeObjectURL(url);
+    }
   }
 
   protected triggerPhotoInput(): void {
@@ -203,30 +220,44 @@ export class LeafDoctorDialogComponent implements OnDestroy {
   }
 
   async onFileChange(event: Event): Promise<void> {
+    if (!this.canAddPhoto() || this.isCompressing()) return;
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
+    input.value = '';
 
-    this.compressedBlob.set(null);
-    this.compressedLabel.set(null);
-    const oldUrl = this.previewObjectUrl();
-    if (oldUrl) URL.revokeObjectURL(oldUrl);
-    this.previewObjectUrl.set(null);
     this.diagnosisState.set('idle');
     this.diagnosisResult.set(null);
+    this.isCompressing.set(true);
 
     try {
       const blob = await this.compressor.compress(file);
-      this.compressedBlob.set(blob);
-      this.compressedLabel.set(`${Math.round(blob.size / 1024)} KB`);
-      this.previewObjectUrl.set(URL.createObjectURL(blob));
+      const url = URL.createObjectURL(blob);
+      const label = `${Math.round(blob.size / 1024)} KB`;
+      this.compressedBlobs.update((blobs) => [...blobs, blob]);
+      this.previewObjectUrls.update((urls) => [...urls, url]);
+      this.compressedLabels.update((labels) => [...labels, label]);
     } catch {
       this.messageService.add({
         severity: 'error',
         summary: 'Image error',
         detail: 'Could not process the selected image.',
       });
+    } finally {
+      this.isCompressing.set(false);
     }
+  }
+
+  protected removePhoto(index: number): void {
+    const urls = this.previewObjectUrls();
+    if (index >= 0 && index < urls.length) {
+      URL.revokeObjectURL(urls[index]);
+    }
+    this.compressedBlobs.update((blobs) => blobs.filter((_, i) => i !== index));
+    this.previewObjectUrls.update((urls) => urls.filter((_, i) => i !== index));
+    this.compressedLabels.update((labels) => labels.filter((_, i) => i !== index));
+    this.diagnosisState.set('idle');
+    this.diagnosisResult.set(null);
   }
 
   protected primaryAction(): void {
@@ -238,21 +269,20 @@ export class LeafDoctorDialogComponent implements OnDestroy {
   }
 
   async analyzePlant(): Promise<void> {
-    const blob = this.compressedBlob();
-    if (!blob) return;
+    const blobs = this.compressedBlobs();
+    if (blobs.length === 0) return;
 
-    const base64 = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve((reader.result as string).split(',')[1]);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
+    const base64s = await Promise.all(blobs.map((b) => this._blobToBase64(b)));
 
     this.diagnosisState.set('loading');
 
     const { data, error } = await this.supabase.client.functions.invoke<LeafDoctorResult>(
       'claude-vision',
-      { body: { imageBase64: base64, imageMediaType: 'image/jpeg' } },
+      {
+        body: {
+          images: base64s.map((imageBase64) => ({ imageBase64, imageMediaType: 'image/jpeg' })),
+        },
+      },
     );
 
     if (error || !data) {
@@ -271,9 +301,9 @@ export class LeafDoctorDialogComponent implements OnDestroy {
 
   async saveAsObservation(): Promise<void> {
     const result = this.diagnosisResult();
-    const blob = this.compressedBlob();
+    const blobs = this.compressedBlobs();
     const plantId = this.selectedPlantId();
-    if (!result || !blob || !plantId) return;
+    if (!result || blobs.length === 0 || !plantId) return;
 
     this.saving.set(true);
 
@@ -281,7 +311,7 @@ export class LeafDoctorDialogComponent implements OnDestroy {
       const user = await this.supabase.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      const imagePath = await this.journalService.uploadImage(user.id, plantId, blob);
+      const imagePath = await this.journalService.uploadImage(user.id, plantId, blobs[0]);
       const notes = `Leaf Doctor: ${result.primary_condition}\n${result.immediate_remedial_actions.join('\n')}`;
 
       await this.journalService.createEntry({
@@ -332,12 +362,13 @@ export class LeafDoctorDialogComponent implements OnDestroy {
   }
 
   private resetDialog(): void {
-    const oldUrl = this.previewObjectUrl();
-    if (oldUrl) URL.revokeObjectURL(oldUrl);
+    for (const url of this.previewObjectUrls()) {
+      URL.revokeObjectURL(url);
+    }
     this.selectedPlantId.set(null);
-    this.compressedBlob.set(null);
-    this.previewObjectUrl.set(null);
-    this.compressedLabel.set(null);
+    this.compressedBlobs.set([]);
+    this.previewObjectUrls.set([]);
+    this.compressedLabels.set([]);
     this.diagnosisState.set('idle');
     this.diagnosisResult.set(null);
     const photoEl = this.photoInputRef()?.nativeElement;

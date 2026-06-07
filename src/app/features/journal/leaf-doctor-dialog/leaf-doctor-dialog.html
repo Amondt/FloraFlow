@@ -46,12 +46,12 @@
     <!-- Photo + analysis -->
     <div class="flex flex-col gap-2">
       <span class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display">
-        Photo
+        Photos
         <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
         <span class="sr-only">(required)</span>
       </span>
 
-      <!-- Hidden native file input -->
+      <!-- Hidden native file input — reused for each photo addition -->
       <input
         type="file"
         #photoInputRef
@@ -61,33 +61,78 @@
         (change)="onFileChange($event)"
       />
 
-      <!-- Custom styled trigger -->
-      <button
-        type="button"
-        [class]="
-          FLORA_FOCUS +
-          ' flex w-full items-center gap-2 px-3 h-control text-sm font-medium font-display text-neutral-600 dark:text-neutral-200 bg-neutral-50 dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 rounded-garden-sm hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-150'
-        "
-        aria-label="Choose a plant photo to analyze"
-        (click)="triggerPhotoInput()"
-      >
-        <i class="pi pi-paperclip text-xs" aria-hidden="true"></i>
-        Choose photo
-      </button>
+      <!-- "Add photo" button — hidden once 3 photos are loaded -->
+      @if (canAddPhoto()) {
+        <button
+          type="button"
+          [disabled]="isCompressing()"
+          [class]="
+            FLORA_FOCUS +
+            ' ' +
+            FLORA_DISABLED +
+            ' cursor-pointer flex w-full items-center gap-2 px-3 h-control text-sm font-medium font-display text-neutral-600 dark:text-neutral-200 bg-neutral-50 dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 rounded-garden-sm hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-150'
+          "
+          [attr.aria-label]="isCompressing() ? 'Processing photo' : 'Add a plant photo to analyze'"
+          [attr.aria-busy]="isCompressing()"
+          (click)="triggerPhotoInput()"
+        >
+          @if (isCompressing()) {
+            <i class="pi pi-spinner animate-spin text-xs" aria-hidden="true"></i>
+            Processing photo…
+          } @else {
+            <i class="pi pi-paperclip text-xs" aria-hidden="true"></i>
+            Add photo ({{ compressedBlobs().length }}/3)
+          }
+        </button>
+      }
 
-      <!-- Thumbnail row -->
-      @if (compressedBlob()) {
-        <div class="flex items-center gap-3">
-          <img
-            [src]="previewObjectUrl()"
-            alt="Compressed photo preview"
-            class="w-16 h-16 rounded-garden-sm object-cover border border-neutral-200 dark:border-neutral-700"
-          />
+      <!-- Same-plant guidance: multi-image is one plant, many angles -->
+      <small
+        class="text-xs text-neutral-500 dark:text-neutral-400 font-display flex items-start gap-1.5"
+        role="note"
+      >
+        <i class="pi pi-info-circle text-primary-500 shrink-0 mt-0.5" aria-hidden="true"></i>
+        <span>
+          Add up to 3 photos of the
+          <strong class="font-semibold text-neutral-700 dark:text-neutral-200">same plant</strong>
+          from different angles (leaf, stem, soil). Mixing different plants will confuse the
+          diagnosis.
+        </span>
+      </small>
+
+      <!-- Multi-thumbnail row -->
+      @if (hasPhotos()) {
+        <div class="flex flex-wrap gap-3" role="list" aria-label="Uploaded photos">
+          @for (url of previewObjectUrls(); track url; let i = $index) {
+            <div class="relative" role="listitem">
+              <img
+                [src]="url"
+                [alt]="'Photo ' + (i + 1) + ' preview'"
+                class="w-16 h-16 rounded-garden-sm object-cover border border-neutral-200 dark:border-neutral-700"
+              />
+              <button
+                type="button"
+                [class]="
+                  FLORA_FOCUS +
+                  ' cursor-pointer absolute -top-1.5 -right-1.5 size-5 flex items-center justify-center rounded-full bg-neutral-800 text-white hover:bg-danger-500 transition-colors duration-150'
+                "
+                [attr.aria-label]="'Remove photo ' + (i + 1)"
+                (click)="removePhoto(i)"
+              >
+                <i class="pi pi-times text-[10px]" aria-hidden="true"></i>
+              </button>
+            </div>
+          }
+        </div>
+
+        <!-- Status line: N photo(s) ready to analyze -->
+        @if (diagnosisState() === 'idle') {
           <p class="text-xs font-display text-success-500 flex items-center gap-1" role="status">
             <i class="pi pi-check-circle" aria-hidden="true"></i>
-            {{ compressedLabel() }} — ready to analyze
+            {{ compressedBlobs().length }}
+            photo{{ compressedBlobs().length > 1 ? 's' : '' }} ready to analyze
           </p>
-        </div>
+        }
       }
 
       <!-- Result panel — success state -->

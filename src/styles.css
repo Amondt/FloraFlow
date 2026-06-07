@@ -299,6 +299,9 @@
   .inset-0 {
     inset: calc(var(--spacing) * 0);
   }
+  .-top-1\.5 {
+    top: calc(var(--spacing) * -1.5);
+  }
   .top-0 {
     top: calc(var(--spacing) * 0);
   }
@@ -322,6 +325,9 @@
   }
   .top-full {
     top: 100%;
+  }
+  .-right-1\.5 {
+    right: calc(var(--spacing) * -1.5);
   }
   .right-0 {
     right: calc(var(--spacing) * 0);
@@ -541,6 +547,10 @@
   }
   .aspect-\[4\/5\] {
     aspect-ratio: 4/5;
+  }
+  .size-5 {
+    width: calc(var(--spacing) * 5);
+    height: calc(var(--spacing) * 5);
   }
   .size-11 {
     width: calc(var(--spacing) * 11);
@@ -1875,6 +1885,13 @@
         @supports (color: color-mix(in lab, red, red)) {
           background-color: color-mix(in oklab, var(--color-black) 10%, transparent);
         }
+      }
+    }
+  }
+  .hover\:bg-danger-500 {
+    &:hover {
+      @media (hover: hover) {
+        background-color: var(--color-danger-500);
       }
     }
   }

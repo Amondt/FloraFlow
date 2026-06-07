@@ -114,7 +114,7 @@
   - No TypeScript changes.
   - Verification: Manual Browser Check — identify a plant, confirm the photo thumbnail is always portrait-shaped (taller than wide) regardless of how many text lines the species card has.
 
-- [ ] **Block H — Candidate botanical enrichment** | Agent: `/plumber` then `/visualizer`
+- [x] **Block H — Candidate botanical enrichment** | Agent: `/plumber` then `/visualizer`
 
   **H1 — Edge Function** | `/plumber`
   - In `claude-plant-id/index.ts`, replace the single-row cache lookup (steps 6–7) with a batch approach:

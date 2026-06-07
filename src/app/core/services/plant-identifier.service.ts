@@ -4,6 +4,9 @@ import { firstValueFrom } from 'rxjs';
 import { ImageCompressorService } from './image-compressor.service';
 import { SupabaseService } from './supabase.service';
 import { environment } from '../../../environments/environment';
+import type { Database } from '../../../types/database.types';
+
+export type BotanicalCacheRow = Database['public']['Tables']['cached_botanical_records']['Row'];
 
 export interface PlantIdCandidate {
   common_name: string;
@@ -65,5 +68,17 @@ export class PlantIdentifierService {
       }
       throw err;
     }
+  }
+
+  async fetchCandidateRecords(
+    scientificNames: string[],
+  ): Promise<Map<string, BotanicalCacheRow | null>> {
+    const { data } = await this.supabase.client
+      .from('cached_botanical_records')
+      .select('*')
+      .in('scientific_name', scientificNames);
+    const map = new Map<string, BotanicalCacheRow | null>(scientificNames.map((n) => [n, null]));
+    data?.forEach((r) => map.set(r.scientific_name, r));
+    return map;
   }
 }

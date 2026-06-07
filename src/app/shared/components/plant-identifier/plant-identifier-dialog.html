@@ -119,15 +119,25 @@
                   {{ match.scientific_name }}
                 </p>
               </div>
-              <span
-                [class]="
-                  'self-start inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium font-display ' +
-                  confidenceBadgeClass()
-                "
-                role="status"
-              >
-                {{ confidenceBadgeLabel() }}
-              </span>
+              <div class="flex flex-col gap-0.5">
+                <span
+                  [class]="
+                    'self-start inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium font-display ' +
+                    confidenceBadgeClass()
+                  "
+                  role="status"
+                >
+                  {{ confidenceBadgeLabel() }}
+                </span>
+                @let matchRecord = candidateRecords().get(match.scientific_name);
+                @if (matchRecord?.description) {
+                  <p
+                    class="line-clamp-2 text-xs font-display leading-snug text-neutral-500 dark:text-neutral-400"
+                  >
+                    {{ matchRecord?.description?.slice(0, 80) }}
+                  </p>
+                }
+              </div>
             </div>
           </div>
 
@@ -171,6 +181,25 @@
                     >
                       {{ candidate.scientific_name }}
                     </span>
+                    @let chipRecord = candidateRecords().get(candidate.scientific_name);
+                    @if (chipRecord?.watering || chipRecord?.thumbnail_url) {
+                      <div class="mt-0.5 flex items-center gap-1.5">
+                        @if (chipRecord?.watering) {
+                          <span class="text-xs font-display text-neutral-500 dark:text-neutral-400">
+                            💧 {{ chipRecord?.watering }}
+                          </span>
+                        }
+                        @if (chipRecord?.thumbnail_url) {
+                          <img
+                            [src]="chipRecord?.thumbnail_url"
+                            alt=""
+                            aria-hidden="true"
+                            loading="lazy"
+                            class="h-3.5 w-3.5 shrink-0 rounded-full object-cover"
+                          />
+                        }
+                      </div>
+                    }
                     <span
                       [class]="
                         'mt-1 inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium font-display ' +

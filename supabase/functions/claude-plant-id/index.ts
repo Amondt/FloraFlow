@@ -130,27 +130,43 @@ Deno.serve(async (req: Request) => {
     // species_match is guaranteed non-null when is_plant_image is true
     const { common_name, scientific_name, confidence_score } = parsed.species_match!;
 
-    // 6. Cache lookup — resolve perenual_id for the identified species
-    const { data: cachedRecord } = await supabase
-      .from('cached_botanical_records')
-      .select('perenual_id')
-      .eq('scientific_name', scientific_name)
-      .maybeSingle();
+    // 6. Batch cache lookup — primary match + all alternative candidates in one query
+    const allCandidates = [parsed.species_match!, ...parsed.alternative_candidates];
+    const allScientificNames = allCandidates.map((c) => c.scientific_name);
 
-    // 7. Background enrichment — fires only when the species is not yet in cache
-    if (!cachedRecord) {
-      const enrichmentWork = enrichRecord(supabase, anthropic, scientific_name, common_name).catch(
-        (err) => console.error('claude-plant-id: background enrichment failed:', err),
-      );
-      EdgeRuntime?.waitUntil(enrichmentWork);
+    const { data: cachedRows } = await supabase
+      .from('cached_botanical_records')
+      .select('scientific_name, perenual_id')
+      .in('scientific_name', allScientificNames);
+
+    const cacheMap = new Map<string, number | null>(
+      (cachedRows ?? []).map((r) => [r.scientific_name, r.perenual_id]),
+    );
+
+    // 7. Background enrichment — one job per candidate that is not yet in cache
+    for (const candidate of allCandidates) {
+      if (!cacheMap.has(candidate.scientific_name)) {
+        const enrichmentWork = enrichRecord(
+          supabase,
+          anthropic,
+          candidate.scientific_name,
+          candidate.common_name,
+        ).catch((err) =>
+          console.error(
+            `claude-plant-id: background enrichment failed for ${candidate.scientific_name}:`,
+            err,
+          ),
+        );
+        EdgeRuntime?.waitUntil(enrichmentWork);
+      }
     }
 
-    // 8. Respond — perenual_id is null when enrichment is still pending
+    // 8. Respond — perenual_id is null when enrichment is still pending for the primary match
     return json({
       is_plant_image: true,
       species_match: { common_name, scientific_name, confidence_score },
       alternative_candidates: parsed.alternative_candidates,
-      perenual_id: cachedRecord?.perenual_id ?? null,
+      perenual_id: cacheMap.get(scientific_name) ?? null,
     });
   } catch (err) {
     return json({ error: (err as Error).message }, 500);

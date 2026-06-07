@@ -16,6 +16,7 @@ import { FloraFormDialogPT, FloraButtonPT, FloraMessagePT, FLORA_FOCUS } from '.
 import {
   PlantIdentifierService,
   InvalidPlantImageError,
+  type BotanicalCacheRow,
   type PlantIdCandidate,
   type PlantIdResult,
 } from '../../../core/services/plant-identifier.service';
@@ -56,6 +57,7 @@ export class PlantIdentifierDialogComponent {
   private readonly identErrorKind = signal<IdentErrorKind>('api-error');
   readonly identResult = signal<PlantIdResult | null>(null);
   readonly activeMatch = signal<PlantIdCandidate | null>(null);
+  readonly candidateRecords = signal<Map<string, BotanicalCacheRow | null>>(new Map());
   readonly isDragOver = signal(false);
   readonly uploadedPhotoUrl = signal<string | null>(null);
   readonly showPhotoLightbox = signal(false);
@@ -151,6 +153,15 @@ export class PlantIdentifierDialogComponent {
       this.identResult.set(result);
       this.activeMatch.set(result.species_match);
       this.identState.set('result');
+
+      // Collect names before entering the .then callback — avoids reading signals in async context
+      const allCandidateNames = [result.species_match, ...result.alternative_candidates].map(
+        (c) => c.scientific_name,
+      );
+      this.identifierService
+        .fetchCandidateRecords(allCandidateNames)
+        .then((map) => this.candidateRecords.set(map))
+        .catch((err) => console.warn('plant-identifier: candidate record fetch failed:', err));
     } catch (err) {
       this.identErrorKind.set(
         err instanceof InvalidPlantImageError ? 'invalid-image' : 'api-error',
@@ -206,6 +217,7 @@ export class PlantIdentifierDialogComponent {
     this.identErrorKind.set('api-error');
     this.identResult.set(null);
     this.activeMatch.set(null);
+    this.candidateRecords.set(new Map());
     this.isDragOver.set(false);
     const photoEl = this.photoInputRef()?.nativeElement;
     if (photoEl) photoEl.value = '';

@@ -125,21 +125,24 @@ export class LibraryService {
     if (!token) return;
 
     const url = `${environment.supabaseUrl}/functions/v1/claude-enrichment`;
-    const BATCH = 3;
-    for (let i = 0; i < records.length; i += BATCH) {
+    // Cap at 10 per trigger so broad searches don't flood the API queue.
+    // Remaining records enrich on the next page navigation or search.
+    const MAX_PER_TRIGGER = 10;
+    const toEnrich = records.slice(0, MAX_PER_TRIGGER);
+
+    for (let i = 0; i < toEnrich.length; i++) {
       if (signal?.aborted) return;
-      for (const r of records.slice(i, i + BATCH)) {
-        void fetch(url, {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ scientificName: r.scientific_name, commonName: r.common_name }),
-        }).catch(() => {});
-      }
-      if (i + BATCH < records.length) {
-        await new Promise<void>((resolve) => setTimeout(resolve, 1000));
+      const r = toEnrich[i];
+      void fetch(url, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ scientificName: r.scientific_name, commonName: r.common_name }),
+      }).catch(() => {});
+      if (i < toEnrich.length - 1) {
+        await new Promise<void>((resolve) => setTimeout(resolve, 2000));
       }
     }
   }

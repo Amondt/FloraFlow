@@ -133,12 +133,31 @@ Deno.serve(async (req: Request) => {
         }
       }
 
+      // Deduplicate by scientific_name before upserting. iNaturalist can return the
+      // same binomial twice (e.g. a hybrid and its cultivar share a name). Postgres
+      // raises "ON CONFLICT DO UPDATE command cannot affect row a second time" when
+      // the same primary key appears more than once in a single batch, aborting the
+      // entire upsert and leaving the cache empty.
+      const seenNames = new Set<string>();
+      const dedupedBatch = upsertBatch.filter(({ scientific_name }) => {
+        if (seenNames.has(scientific_name)) return false;
+        seenNames.add(scientific_name);
+        return true;
+      });
+
       // Persist all records in one batch. Care fields (watering, pH, toxicity) are written
       // later by the background cache-enrichment-worker — never during search.
-      if (upsertBatch.length > 0) {
-        await supabase
+      if (dedupedBatch.length > 0) {
+        const { error: upsertError } = await supabase
           .from('cached_botanical_records')
-          .upsert(upsertBatch, { onConflict: 'scientific_name' });
+          .upsert(dedupedBatch, { onConflict: 'scientific_name' });
+        if (upsertError) {
+          console.error(
+            '[botanical-search] cache upsert failed:',
+            upsertError.message,
+            upsertError.details,
+          );
+        }
       }
     } catch (err) {
       console.error('iNaturalist fetch failed — returning cached results only:', err);

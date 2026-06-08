@@ -76,7 +76,7 @@ GET https://api.inaturalist.org/v1/taxa?q={q}&taxon_id=47126&rank=species&per_pa
     ```
     Expect ≥30 results with `inat_taxon_id` populated and `thumbnail_url` present on most entries
 
-- [ ] **Block C — Update `_shared/enrich-record.ts`** | Agent: `/plumber` · Model: Sonnet · Effort: mid
+- [x] **Block C — Update `_shared/enrich-record.ts`** | Agent: `/plumber` · Model: Sonnet · Effort: mid
   - `queryINat()` return type: add `taxon_id: number` — extract from `data.results[0].id`
   - `fetchINatThumbnail()` return type: add `taxon_id: number | null`
   - In `enrichRecord()` full path: check `cached?.thumbnail_url && cached?.thumbnail_fetched` before calling `fetchINatThumbnail`. If already set, skip the iNat HTTP request and use existing values:

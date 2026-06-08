@@ -123,17 +123,18 @@ export const EnrichmentSchema = z.object({
 export async function queryINat(
   query: string,
   signal: AbortSignal,
-): Promise<{ thumbnail_url: string; regular_url: string | null } | null> {
+): Promise<{ taxon_id: number; thumbnail_url: string; regular_url: string | null } | null> {
   try {
     const url = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(query)}&rank=species&per_page=1`;
     const res = await fetch(url, { signal });
     if (!res.ok) return null;
     const data = (await res.json()) as {
-      results?: Array<{ default_photo?: { url?: string; medium_url?: string } }>;
+      results?: Array<{ id?: number; default_photo?: { url?: string; medium_url?: string } }>;
     };
-    const photo = data?.results?.[0]?.default_photo;
-    if (!photo?.url) return null;
-    return { thumbnail_url: photo.url, regular_url: photo.medium_url ?? null };
+    const first = data?.results?.[0];
+    const photo = first?.default_photo;
+    if (!photo?.url || !first?.id) return null;
+    return { taxon_id: first.id, thumbnail_url: photo.url, regular_url: photo.medium_url ?? null };
   } catch {
     return null;
   }
@@ -142,7 +143,7 @@ export async function queryINat(
 export async function fetchINatThumbnail(
   scientificName: string,
   commonName: string,
-): Promise<{ thumbnail_url: string | null; regular_url: string | null }> {
+): Promise<{ taxon_id: number | null; thumbnail_url: string | null; regular_url: string | null }> {
   // Cultivar suffixes (e.g. "'Variegata'") are not indexed by iNaturalist — strip them.
   const queryName = scientificName.split("'")[0].trim();
   const controller = new AbortController();
@@ -152,7 +153,7 @@ export async function fetchINatThumbnail(
     const result =
       (await queryINat(queryName, controller.signal)) ??
       (await queryINat(commonName, controller.signal));
-    return result ?? { thumbnail_url: null, regular_url: null };
+    return result ?? { taxon_id: null, thumbnail_url: null, regular_url: null };
   } finally {
     clearTimeout(timeout);
   }
@@ -193,6 +194,7 @@ export async function enrichRecord(
     const { data: updated, error: thumbError } = await supabase
       .from('cached_botanical_records')
       .update({
+        inat_taxon_id: inat.taxon_id ?? null,
         thumbnail_url: inat.thumbnail_url,
         regular_url: inat.regular_url,
         thumbnail_fetched: true,
@@ -205,10 +207,20 @@ export async function enrichRecord(
     return updated as CachedBotanicalRow;
   }
 
-  // Full enrichment path — Claude AI and iNaturalist run in parallel.
+  // Full enrichment path — Claude AI always runs; iNat skipped when the search pass
+  // already populated thumbnail_url (Block B sets thumbnail_fetched=true at search time).
   let parsed: z.infer<typeof EnrichmentSchema>;
-  let inat: { thumbnail_url: string | null; regular_url: string | null };
+  let inat: { taxon_id: number | null; thumbnail_url: string | null; regular_url: string | null };
   try {
+    const inatFetch =
+      cached?.thumbnail_url && cached?.thumbnail_fetched
+        ? Promise.resolve({
+            taxon_id: cached.inat_taxon_id ?? null,
+            thumbnail_url: cached.thumbnail_url,
+            regular_url: cached.regular_url ?? null,
+          })
+        : fetchINatThumbnail(scientificName, commonName);
+
     const [msg, inatResult] = await Promise.all([
       anthropic.messages.parse({
         model: 'claude-haiku-4-5-20251001',
@@ -217,7 +229,7 @@ export async function enrichRecord(
         messages: [{ role: 'user', content: `${scientificName} / ${commonName}` }],
         output_config: { format: zodOutputFormat(EnrichmentSchema) },
       }),
-      fetchINatThumbnail(scientificName, commonName),
+      inatFetch,
     ]);
 
     if (!msg.parsed_output) {
@@ -282,6 +294,7 @@ export async function enrichRecord(
         max_height_cm: parsed.max_height_cm,
         max_spread_cm: parsed.max_spread_cm,
         air_purifying: parsed.air_purifying,
+        inat_taxon_id: inat.taxon_id ?? cached?.inat_taxon_id ?? null,
         thumbnail_url: inat.thumbnail_url,
         regular_url: inat.regular_url,
         thumbnail_fetched: true,

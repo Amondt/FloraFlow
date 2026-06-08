@@ -60,7 +60,7 @@ function extractCultivarLabel(scientificName: string): string {
   // infraspecific descriptor (e.g. "subsp. adansonii", "var. borsigiana").
   // A plain binomial with no infraspecific part is the base species.
   const words = scientificName.trim().split(/\s+/);
-  if (words.length <= 2) return 'Species';
+  if (words.length <= 2) return 'Typical';
   const infraspecific = words.slice(2).join(' ');
   return infraspecific.charAt(0).toUpperCase() + infraspecific.slice(1);
 }

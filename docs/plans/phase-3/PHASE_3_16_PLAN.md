@@ -185,7 +185,7 @@ The first backfill pass exposed two problems the original Block G did not antici
     2. Search a plain species (e.g. "monstera deliciosa") → **no** rank badge
     3. Open DevTools Console → zero red errors
 
-- [ ] **Block E — Angular models & services** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **Block E — Angular models & services** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - `src/app/core/services/botanical-search.service.ts` — `BotanicalSuggestion`: add `inat_taxon_id: number | null`
   - `src/app/core/services/plant-identifier.service.ts` — `PlantIdResult`: add `inat_taxon_id: number | null` (the Edge Function now returns it; the dialog's `emittableInatTaxonId` computed reads `this.identResult()?.inat_taxon_id` — TypeScript won't compile without this field declared here)
   - `src/app/core/services/offline-queue.service.ts` — `QueuedAction`: add `inat_taxon_id?: number | null` (plant.service.ts will enqueue this field in the create path; without it the enqueue call fails to compile)
@@ -210,7 +210,7 @@ The first backfill pass exposed two problems the original Block G did not antici
     2. Open DevTools Console → confirm zero red errors
     3. Open DevTools Network tab → confirm the POST to `plants` includes `inat_taxon_id` in the request body
 
-- [ ] **Block F — Form dialogs & Library per-page enrichment** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **Block F — Form dialogs & Library per-page enrichment** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - `src/app/features/tasks/plant-form-dialog/plant-form-dialog.ts`:
     - Add `selectedInatTaxonId = signal<number | null>(null)`
     - Input type for `botanicalPrefill`: add `inat_taxon_id: number | null`

@@ -79,7 +79,7 @@ export class SeedBatchFormDialogComponent {
 
   protected readonly saving = signal(false);
   protected suggestions = signal<BotanicalSuggestion[]>([]);
-  protected selectedPerenualId = signal<number | null>(null);
+  protected selectedSpeciesId = signal<number | null>(null);
   protected lockedScientificName = signal<string | null>(null);
   protected commonNameQuery = '';
 
@@ -119,7 +119,7 @@ export class SeedBatchFormDialogComponent {
 
       if (!justOpened) return;
 
-      this.selectedPerenualId.set(null);
+      this.selectedSpeciesId.set(null);
       this.lockedScientificName.set(null);
 
       const target = this.editTarget();
@@ -161,7 +161,7 @@ export class SeedBatchFormDialogComponent {
   }
 
   async onQuerySearch(event: AutoCompleteCompleteEvent): Promise<void> {
-    if (this.selectedPerenualId() !== null) {
+    if (this.selectedSpeciesId() !== null) {
       this.suggestions.set([]);
       return;
     }
@@ -172,21 +172,21 @@ export class SeedBatchFormDialogComponent {
     if (!value || typeof value === 'string') {
       this.commonNameQuery = value ?? '';
       this.form.controls.common_name.setValue(value ?? '');
-      if (this.selectedPerenualId() === null) {
+      if (this.selectedSpeciesId() === null) {
         this.lockedScientificName.set(null);
       }
     } else {
       this.commonNameQuery = value.common_name;
       this.form.controls.common_name.setValue(value.common_name);
       this.form.controls.scientific_name.setValue(value.scientific_name);
-      this.selectedPerenualId.set(value.perenual_id);
+      this.selectedSpeciesId.set(value.inat_taxon_id ?? value.perenual_id ?? null);
       this.lockedScientificName.set(value.scientific_name);
       this.suggestions.set([]);
     }
   }
 
   clearLockedSpecies(): void {
-    this.selectedPerenualId.set(null);
+    this.selectedSpeciesId.set(null);
     this.lockedScientificName.set(null);
     this.commonNameQuery = '';
     this.form.controls.common_name.setValue('');

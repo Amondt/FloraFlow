@@ -77,6 +77,7 @@ export class PlantFormDialogComponent {
     common_name: string;
     scientific_name: string | null;
     perenual_id: number | null;
+    inat_taxon_id: number | null;
   } | null>(null);
   readonly visible = model<boolean>(false);
   readonly saved = output<PlantFormData>();
@@ -104,6 +105,7 @@ export class PlantFormDialogComponent {
   readonly identifierVisible = signal(false);
   protected suggestions = signal<BotanicalSuggestion[]>([]);
   protected selectedPerenualId = signal<number | null>(null);
+  protected selectedInatTaxonId = signal<number | null>(null);
   protected lockedScientificName = signal<string | null>(null);
   protected readonly lockedSpeciesCommonName = signal<string | null>(null);
   protected speciesSearchQuery = '';
@@ -153,10 +155,12 @@ export class PlantFormDialogComponent {
       if (!justOpened) return;
 
       if (p) {
-        this.speciesSearchQuery = p.perenual_id ? p.common_name : '';
+        const hasSpeciesLink = !!(p.perenual_id || p.inat_taxon_id);
+        this.speciesSearchQuery = hasSpeciesLink ? p.common_name : '';
         this.selectedPerenualId.set(p.perenual_id);
-        this.lockedScientificName.set(p.perenual_id ? p.scientific_name : null);
-        this.lockedSpeciesCommonName.set(p.perenual_id ? p.common_name : null);
+        this.selectedInatTaxonId.set(p.inat_taxon_id);
+        this.lockedScientificName.set(hasSpeciesLink ? p.scientific_name : null);
+        this.lockedSpeciesCommonName.set(hasSpeciesLink ? p.common_name : null);
         this.form.patchValue({
           common_name: p.common_name,
           scientific_name: p.scientific_name,
@@ -179,10 +183,12 @@ export class PlantFormDialogComponent {
 
         const prefill = this.botanicalPrefill();
         if (prefill) {
+          const hasSpeciesLink = !!(prefill.perenual_id || prefill.inat_taxon_id);
           this.speciesSearchQuery = prefill.common_name;
           this.selectedPerenualId.set(prefill.perenual_id);
-          this.lockedScientificName.set(prefill.perenual_id ? prefill.scientific_name : null);
-          this.lockedSpeciesCommonName.set(prefill.perenual_id ? prefill.common_name : null);
+          this.selectedInatTaxonId.set(prefill.inat_taxon_id);
+          this.lockedScientificName.set(hasSpeciesLink ? prefill.scientific_name : null);
+          this.lockedSpeciesCommonName.set(hasSpeciesLink ? prefill.common_name : null);
           this.form.patchValue({
             common_name: prefill.common_name,
             scientific_name: prefill.scientific_name,
@@ -190,6 +196,7 @@ export class PlantFormDialogComponent {
         } else {
           this.speciesSearchQuery = '';
           this.selectedPerenualId.set(null);
+          this.selectedInatTaxonId.set(null);
           this.lockedScientificName.set(null);
           this.lockedSpeciesCommonName.set(null);
         }
@@ -216,14 +223,16 @@ export class PlantFormDialogComponent {
   }
 
   protected onIdentified(event: PlantIdentifiedEvent): void {
+    const hasSpeciesLink = !!(event.perenual_id || event.inat_taxon_id);
     this.form.patchValue({
       common_name: event.common_name,
       scientific_name: event.scientific_name,
     });
     this.speciesSearchQuery = event.common_name;
     this.selectedPerenualId.set(event.perenual_id);
-    this.lockedScientificName.set(event.perenual_id ? event.scientific_name : null);
-    this.lockedSpeciesCommonName.set(event.perenual_id ? event.common_name : null);
+    this.selectedInatTaxonId.set(event.inat_taxon_id);
+    this.lockedScientificName.set(hasSpeciesLink ? event.scientific_name : null);
+    this.lockedSpeciesCommonName.set(hasSpeciesLink ? event.common_name : null);
     this.identifierVisible.set(false);
     this.messageService?.add({
       severity: 'success',
@@ -233,7 +242,7 @@ export class PlantFormDialogComponent {
   }
 
   async onQuerySearch(event: AutoCompleteCompleteEvent): Promise<void> {
-    if (this.selectedPerenualId() !== null) {
+    if (this.selectedPerenualId() !== null || this.selectedInatTaxonId() !== null) {
       this.suggestions.set([]);
       return;
     }
@@ -254,6 +263,7 @@ export class PlantFormDialogComponent {
       }
       this.form.controls.scientific_name.setValue(value.scientific_name);
       this.selectedPerenualId.set(value.perenual_id);
+      this.selectedInatTaxonId.set(value.inat_taxon_id);
       this.lockedSpeciesCommonName.set(value.common_name);
       this.lockedScientificName.set(value.scientific_name);
       this.suggestions.set([]);
@@ -262,6 +272,7 @@ export class PlantFormDialogComponent {
 
   clearLockedSpecies(): void {
     this.selectedPerenualId.set(null);
+    this.selectedInatTaxonId.set(null);
     this.lockedScientificName.set(null);
     this.lockedSpeciesCommonName.set(null);
     this.speciesSearchQuery = '';
@@ -279,7 +290,7 @@ export class PlantFormDialogComponent {
       common_name: this.form.controls.common_name.value,
       scientific_name: this.form.controls.scientific_name.value || null,
       perenual_id: this.selectedPerenualId(),
-      inat_taxon_id: null,
+      inat_taxon_id: this.selectedInatTaxonId(),
       zone_id: this.form.controls.zone_id.value,
       container_vector: this.form.controls.container_vector.value,
       substrate_factor: this.form.controls.substrate_factor.value,

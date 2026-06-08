@@ -115,6 +115,7 @@ export class LibraryComponent {
     common_name: string;
     scientific_name: string | null;
     perenual_id: number | null;
+    inat_taxon_id: number | null;
   } | null>(null);
   readonly wizardVisible = signal(false);
   readonly wizardFromBotanicalRecord = signal<CachedBotanicalRecord | null>(null);
@@ -409,8 +410,9 @@ export class LibraryComponent {
   protected goToPage(page: number): void {
     this.selectedGroupKey.set(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    this._poll.stop();
     this.currentPage.set(page);
-    // No re-fetch — all records are loaded at once; pagedGroupedResults() slices the window.
+    this._enrichCurrentPage();
   }
 
   private _activeHandle: 0 | 1 | null = null;
@@ -553,6 +555,7 @@ export class LibraryComponent {
       common_name: record.common_name,
       scientific_name: record.scientific_name,
       perenual_id: record.perenual_id,
+      inat_taxon_id: record.inat_taxon_id,
     });
     this.selectedGroupKey.set(null);
     this.showAddDialog.set(true);
@@ -578,6 +581,33 @@ export class LibraryComponent {
     }
   }
 
+  // Starts the enrichment poll and triggers enrichment for records on the current
+  // page only — avoids firing AI/iNat calls for all 1,000 loaded results at once.
+  private _enrichCurrentPage(): void {
+    const pageRecords = this.pagedGroupedResults().flatMap((g) => g.varieties);
+    const needsEnrichment = pageRecords.filter(
+      (r) => !r.is_ai_enriched || r.description == null || !r.thumbnail_fetched,
+    );
+    if (needsEnrichment.length === 0) return;
+    this._poll.start(
+      needsEnrichment.map((r) => r.scientific_name),
+      async (pending) => {
+        const refreshed = await this.libraryService.refetchByScientificNames(pending);
+        if (refreshed.length === 0) return new Set(pending);
+        const refreshedMap = new Map(refreshed.map((r) => [r.scientific_name, r]));
+        this.results.update((current) =>
+          current.map((r) => refreshedMap.get(r.scientific_name) ?? r),
+        );
+        return new Set(
+          refreshed
+            .filter((r) => !r.is_ai_enriched || r.description == null || !r.thumbnail_fetched)
+            .map((r) => r.scientific_name),
+        );
+      },
+    );
+    void this.libraryService.triggerEnrichment(needsEnrichment, this._poll.controller?.signal);
+  }
+
   private async _load(query: string, f: LibraryFilters): Promise<void> {
     this._poll.stop();
     this.isLoading.set(true);
@@ -591,28 +621,7 @@ export class LibraryComponent {
 
       this.results.set(result.data);
       this.totalCount.set(result.count);
-
-      // Include records missing AI enrichment, description, or an attempted thumbnail fetch
-      const needsEnrichment = result.data.filter(
-        (r) => !r.is_ai_enriched || r.description == null || !r.thumbnail_fetched,
-      );
-      this._poll.start(
-        needsEnrichment.map((r) => r.scientific_name),
-        async (pending) => {
-          const refreshed = await this.libraryService.refetchByScientificNames(pending);
-          if (refreshed.length === 0) return new Set(pending);
-          const refreshedMap = new Map(refreshed.map((r) => [r.scientific_name, r]));
-          this.results.update((current) =>
-            current.map((r) => refreshedMap.get(r.scientific_name) ?? r),
-          );
-          return new Set(
-            refreshed
-              .filter((r) => !r.is_ai_enriched || r.description == null || !r.thumbnail_fetched)
-              .map((r) => r.scientific_name),
-          );
-        },
-      );
-      void this.libraryService.triggerEnrichment(needsEnrichment, this._poll.controller?.signal);
+      this._enrichCurrentPage();
     } finally {
       this.isLoading.set(false);
       this.searchCompleted.set(true);

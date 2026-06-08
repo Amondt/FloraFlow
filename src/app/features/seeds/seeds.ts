@@ -72,6 +72,7 @@ export class SeedsComponent implements OnInit {
     common_name: string;
     scientific_name: string | null;
     perenual_id: number | null;
+    inat_taxon_id: number | null;
   } | null>(null);
 
   protected readonly filteredBatches = computed(() => {
@@ -224,6 +225,7 @@ export class SeedsComponent implements OnInit {
       common_name: batch.common_name,
       scientific_name: batch.scientific_name,
       perenual_id: null,
+      inat_taxon_id: null,
     });
     this.plantFormVisible.set(true);
   }

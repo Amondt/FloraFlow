@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '../_shared/database.types.ts';
 import { cors, json } from '../_shared/response.ts';
+import { deriveSpeciesId } from '../_shared/inat.ts';
 
 type BackfillRecord = {
   scientific_name: string;
@@ -12,6 +13,9 @@ type BackfillRecord = {
 type InatTaxon = {
   id?: number;
   name?: string;
+  rank?: string;
+  rank_level?: number;
+  parent_id?: number;
   default_photo?: { url?: string; medium_url?: string };
 };
 
@@ -51,7 +55,7 @@ function isSameSpecies(candidateName: string, inatName: string): boolean {
 async function lookupInat(q: string): Promise<InatTaxon | null> {
   try {
     const resp = await fetch(
-      `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(q)}&taxon_id=47126&per_page=1&locale=en`,
+      `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(q)}&taxon_id=47126&is_active=true&per_page=1&locale=en`,
       { signal: AbortSignal.timeout(8_000) },
     );
     if (!resp.ok) {
@@ -136,10 +140,22 @@ Deno.serve(async (req: Request) => {
 
       if (isVerified) {
         const photo = taxon!.default_photo;
+        const speciesId =
+          taxon!.rank_level != null
+            ? deriveSpeciesId({
+                id: taxon!.id!,
+                rank_level: taxon!.rank_level,
+                parent_id: taxon!.parent_id,
+              })
+            : null;
+        const rank = taxon!.rank ?? null;
+
         const { error: updateError } = await supabase
           .from('cached_botanical_records')
           .update({
             inat_taxon_id: taxon!.id!,
+            inat_species_id: speciesId,
+            inat_rank: rank,
             thumbnail_url: record.thumbnail_url ?? photo?.url ?? null,
             regular_url: record.regular_url ?? photo?.medium_url ?? null,
             thumbnail_fetched: true,

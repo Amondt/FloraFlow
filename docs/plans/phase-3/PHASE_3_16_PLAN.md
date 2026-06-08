@@ -143,7 +143,7 @@ The first backfill pass exposed two problems the original Block G did not antici
   - Run `bun run format && bun run lint`
   - Verify (PowerShell, authed JWT): search "ros" → ≥30 returned, and Studio SQL shows ≥30 newly-cached "ros%" rows carrying `inat_taxon_id`, `inat_species_id`, and `inat_rank`; search a hybrid ("× freemanii") returns a match with `inat_rank = 'hybrid'`
 
-- [ ] **Block I — `inat-backfill` v2: canonicalize, verify, species_id** | Agent: `/plumber` · Model: Sonnet · Effort: high
+- [x] **Block I — `inat-backfill` v2: canonicalize, verify, species_id** | Agent: `/plumber` · Model: Sonnet · Effort: high
   - `canonicalizeScientificName()`: strip cultivar quotes → authority parens → infraspecific markers (`var.` `f.` `subsp.` `ssp.`) → trailing ALL-CAPS trademark words (already drafted)
   - `isSameSpecies(candidate, inatName)`: genus AND species epithet must match after normalising hybrid markers — rejects wrong-species matches that would mislink enrichment (already drafted)
   - Drop `rank=species`; `taxon_id=47126`; `is_active=true`; `x`-stripping retry for hybrids

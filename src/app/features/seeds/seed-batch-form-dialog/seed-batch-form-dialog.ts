@@ -36,6 +36,8 @@ import {
   BotanicalSuggestion,
 } from '../../../core/services/botanical-search.service';
 import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-icon';
+import { BotanicalTagsComponent } from '../../../shared/components/botanical-tags/botanical-tags';
+import { LibraryService, type CachedBotanicalRecord } from '../../library/library.service';
 import { SeedBatchService } from '../seed-batch.service';
 import { SeedBatch, SeedBatchFormData } from '../seed-batch.model';
 
@@ -51,6 +53,7 @@ import { SeedBatch, SeedBatchFormData } from '../seed-batch.model';
     TextareaModule,
     ButtonModule,
     LeafIconComponent,
+    BotanicalTagsComponent,
   ],
   templateUrl: './seed-batch-form-dialog.html',
 })
@@ -58,6 +61,7 @@ export class SeedBatchFormDialogComponent {
   private readonly batchService = inject(SeedBatchService);
   private readonly messageService = inject(MessageService);
   private readonly botanicalSearch = inject(BotanicalSearchService);
+  private readonly _libraryService = inject(LibraryService);
 
   readonly visible = model<boolean>(false);
   readonly prefill = input<SeedBatchFormData | null>(null);
@@ -81,6 +85,10 @@ export class SeedBatchFormDialogComponent {
   protected suggestions = signal<BotanicalSuggestion[]>([]);
   protected selectedSpeciesId = signal<number | null>(null);
   protected lockedScientificName = signal<string | null>(null);
+  protected readonly lockedThumbnailUrl = signal<string | null>(null);
+  protected readonly lockedBotanicalRecord = signal<CachedBotanicalRecord | null>(null);
+  protected readonly isLoadingBotanicalRecord = signal(false);
+  private _botanicalFetchGeneration = 0;
   protected commonNameQuery = '';
 
   private readonly _nameAC = viewChild<AutoComplete>('nameAC');
@@ -94,7 +102,7 @@ export class SeedBatchFormDialogComponent {
   });
 
   protected readonly dialogTitle = computed(() =>
-    this.editTarget() ? 'Edit Batch' : 'New Seed Batch',
+    this.editTarget() ? 'Edit Batch' : 'Add a Seed Batch',
   );
 
   protected readonly submitLabel = computed(() =>
@@ -121,6 +129,10 @@ export class SeedBatchFormDialogComponent {
 
       this.selectedSpeciesId.set(null);
       this.lockedScientificName.set(null);
+      this.lockedThumbnailUrl.set(null);
+      this.lockedBotanicalRecord.set(null);
+      this.isLoadingBotanicalRecord.set(false);
+      ++this._botanicalFetchGeneration;
 
       const target = this.editTarget();
       if (target) {
@@ -174,6 +186,7 @@ export class SeedBatchFormDialogComponent {
       this.form.controls.common_name.setValue(value ?? '');
       if (this.selectedSpeciesId() === null) {
         this.lockedScientificName.set(null);
+        this.lockedThumbnailUrl.set(null);
       }
     } else {
       this.commonNameQuery = value.common_name;
@@ -181,17 +194,42 @@ export class SeedBatchFormDialogComponent {
       this.form.controls.scientific_name.setValue(value.scientific_name);
       this.selectedSpeciesId.set(value.inat_taxon_id ?? value.perenual_id ?? null);
       this.lockedScientificName.set(value.scientific_name);
+      this.lockedThumbnailUrl.set(value.thumbnail_url);
+      this._fetchBotanicalRecord(value.scientific_name);
       this.suggestions.set([]);
     }
   }
 
   clearLockedSpecies(): void {
+    ++this._botanicalFetchGeneration;
     this.selectedSpeciesId.set(null);
     this.lockedScientificName.set(null);
+    this.lockedThumbnailUrl.set(null);
+    this.lockedBotanicalRecord.set(null);
+    this.isLoadingBotanicalRecord.set(false);
     this.commonNameQuery = '';
     this.form.controls.common_name.setValue('');
     this.form.controls.scientific_name.setValue(null);
     this.suggestions.set([]);
+  }
+
+  private _fetchBotanicalRecord(scientificName: string): void {
+    const myGeneration = ++this._botanicalFetchGeneration;
+    this.isLoadingBotanicalRecord.set(true);
+    this._libraryService
+      .fetchByScientificName(scientificName)
+      .then((record) => {
+        if (myGeneration !== this._botanicalFetchGeneration) return;
+        this.lockedBotanicalRecord.set(record);
+      })
+      .catch(() => {
+        if (myGeneration !== this._botanicalFetchGeneration) return;
+        this.lockedBotanicalRecord.set(null);
+      })
+      .finally(() => {
+        if (myGeneration !== this._botanicalFetchGeneration) return;
+        this.isLoadingBotanicalRecord.set(false);
+      });
   }
 
   async onSubmit(): Promise<void> {

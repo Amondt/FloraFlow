@@ -95,28 +95,64 @@
         <article
           role="status"
           [attr.aria-label]="'Selected species: ' + (lockedSpeciesCommonName() ?? '')"
-          class="flex h-control items-center gap-2 rounded-garden-sm border border-neutral-200 bg-neutral-50 px-3 dark:border-neutral-700 dark:bg-neutral-800"
+          class="flex gap-3"
         >
-          <app-leaf-icon size="sm" class="shrink-0 text-primary-600" />
-          <span
-            class="min-w-0 flex-1 truncate text-sm font-display text-neutral-700 dark:text-neutral-200"
+          <!-- Image strip -->
+          <div
+            class="shrink-0 w-28 min-h-36 rounded-garden-sm overflow-hidden bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center"
+            aria-hidden="true"
           >
-            {{ lockedSpeciesCommonName() }}
-            @if (lockedScientificName()) {
-              <span class="mx-1 text-neutral-400 dark:text-neutral-500" aria-hidden="true">·</span
-              ><em class="text-xs text-neutral-500 dark:text-neutral-400">{{
-                lockedScientificName()
-              }}</em>
+            @let imageUrl =
+              lockedBotanicalRecord()?.regular_url ??
+              lockedBotanicalRecord()?.thumbnail_url ??
+              lockedThumbnailUrl();
+            @if (imageUrl) {
+              <img [src]="imageUrl" alt="" class="w-full h-full object-cover" />
+            } @else {
+              <app-leaf-icon size="lg" class="text-primary-500 dark:text-primary-400" />
             }
-          </span>
-          <button
-            type="button"
-            class="shrink-0 cursor-pointer rounded-garden-sm text-xs font-medium text-primary-600 outline-none transition-colors hover:text-primary-700 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1"
-            aria-label="Change selected species"
-            (click)="clearLockedSpecies()"
+          </div>
+          <!-- Details card -->
+          <div
+            class="flex-1 min-h-36 rounded-garden-md border border-neutral-200 dark:border-neutral-700 p-4 flex flex-col justify-between"
           >
-            Change
-          </button>
+            <div class="flex flex-col gap-1">
+              <p class="text-base font-semibold font-display text-neutral-900 dark:text-white">
+                {{ lockedSpeciesCommonName() }}
+              </p>
+              @if (lockedScientificName()) {
+                <em class="text-sm italic font-display text-neutral-500 dark:text-neutral-400">
+                  {{ lockedScientificName() }}
+                </em>
+              }
+            </div>
+            <div class="flex flex-col gap-2 mt-2">
+              @if (lockedBotanicalRecord(); as record) {
+                <div class="flex flex-wrap gap-1" aria-label="Species traits">
+                  <app-botanical-tags
+                    [placement]="record.placement"
+                    [isToxicToPets]="record.is_toxic_to_pets"
+                    [isToxicToHumans]="record.is_toxic_to_humans"
+                    [careDifficulty]="record.care_difficulty"
+                  />
+                </div>
+              } @else if (isLoadingBotanicalRecord()) {
+                <div class="flex flex-wrap gap-1" role="status" aria-label="Loading species traits">
+                  <app-botanical-tags [isEnriching]="true" />
+                </div>
+              }
+              <div class="flex justify-end">
+                <button
+                  type="button"
+                  class="cursor-pointer rounded-garden-sm text-xs font-medium text-primary-600 outline-none transition-colors hover:text-primary-700 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1"
+                  aria-label="Change selected species"
+                  (click)="clearLockedSpecies()"
+                >
+                  Change
+                </button>
+              </div>
+            </div>
+          </div>
         </article>
       }
     </div>

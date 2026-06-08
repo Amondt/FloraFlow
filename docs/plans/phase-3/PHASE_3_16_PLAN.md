@@ -248,7 +248,7 @@ The first backfill pass exposed two problems the original Block G did not antici
 
 With `inat_taxon_id` fully threaded (Blocks E + F) and the cache iNat-canonical (Block J), Perenual is removed entirely. The cache's `perenual_id` + `is_perenual_enriched` are dropped; `plants.perenual_id` is dropped and replaced as the species link by `inat_taxon_id` (the column already exists on `plants` from Block A's migration). `is_perenual_enriched` already has **zero functional readers** — it survives only in the generated types. No production data exists — only the developer's test garden — so test data is regenerated fresh from the iNat-canonical cache rather than migrated. **Ordering constraint:** the frontend must stop _selecting_ `plants.perenual_id` (Block M) **before** the column is dropped (Block N), or every plant query returns 400.
 
-- [ ] **Block M — Frontend Perenual removal** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **Block M — Frontend Perenual removal** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - **Gated behind E + F** — `inat_taxon_id` must already be the wired species link before `perenual_id` is torn out, so each file ends iNat-only and compiling
   - Remove the `perenual_id` field from every model/type: `BotanicalSuggestion` (`botanical-search.service.ts`), `PlantIdResult` (`plant-identifier.service.ts`), `QueuedAction` (`offline-queue.service.ts`), `Plant` + `PlantFormData` (`plant.model.ts`), `PlantIdentifiedEvent` (`plant-identifier-dialog.ts`)
   - `plant.service.ts`: drop `perenual_id` from both `.select()` column strings (keep `inat_taxon_id`); remove it from the offline-queue item, the offline-optimistic plant, and the enqueue payload

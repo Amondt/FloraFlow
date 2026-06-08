@@ -19,10 +19,12 @@ import { Select, SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
 import { MessageService } from 'primeng/api';
 import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-icon';
+import { BotanicalTagsComponent } from '../../../shared/components/botanical-tags/botanical-tags';
 import {
   PlantIdentifierDialogComponent,
   type PlantIdentifiedEvent,
 } from '../../../shared/components/plant-identifier/plant-identifier-dialog';
+import { LibraryService, type CachedBotanicalRecord } from '../../library/library.service';
 import {
   FloraFormDialogPT,
   FloraInputTextPT,
@@ -62,6 +64,7 @@ import {
     SelectModule,
     ButtonModule,
     LeafIconComponent,
+    BotanicalTagsComponent,
     PlantIdentifierDialogComponent,
   ],
   templateUrl: './plant-form-dialog.html',
@@ -69,6 +72,7 @@ import {
 export class PlantFormDialogComponent {
   private readonly zoneService = inject(ZoneService);
   private readonly botanicalSearch = inject(BotanicalSearchService);
+  private readonly _libraryService = inject(LibraryService);
   private readonly messageService = inject(MessageService, { optional: true });
 
   readonly plant = input<Plant | null>(null);
@@ -108,6 +112,10 @@ export class PlantFormDialogComponent {
   protected selectedInatTaxonId = signal<number | null>(null);
   protected lockedScientificName = signal<string | null>(null);
   protected readonly lockedSpeciesCommonName = signal<string | null>(null);
+  protected readonly lockedThumbnailUrl = signal<string | null>(null);
+  protected readonly lockedBotanicalRecord = signal<CachedBotanicalRecord | null>(null);
+  protected readonly isLoadingBotanicalRecord = signal(false);
+  private _botanicalFetchGeneration = 0;
   protected speciesSearchQuery = '';
 
   readonly form = new FormGroup({
@@ -120,7 +128,7 @@ export class PlantFormDialogComponent {
     growth_stage: new FormControl<GrowthStage>('Mature', { nonNullable: true }),
   });
 
-  readonly dialogTitle = computed(() => (this.plant() ? 'Edit Plant' : 'Add Plant'));
+  readonly dialogTitle = computed(() => (this.plant() ? 'Edit Plant' : 'Add a Plant'));
   readonly zoneOptions = computed(() =>
     this.zoneService.zones().map((z) => ({ label: z.name, value: z.id })),
   );
@@ -154,6 +162,11 @@ export class PlantFormDialogComponent {
 
       if (!justOpened) return;
 
+      this.lockedThumbnailUrl.set(null);
+      this.lockedBotanicalRecord.set(null);
+      this.isLoadingBotanicalRecord.set(false);
+      ++this._botanicalFetchGeneration;
+
       if (p) {
         const hasSpeciesLink = !!(p.perenual_id || p.inat_taxon_id);
         this.speciesSearchQuery = hasSpeciesLink ? p.common_name : '';
@@ -170,6 +183,9 @@ export class PlantFormDialogComponent {
           pot_diameter_cm: p.pot_diameter_cm ?? null,
           growth_stage: p.growth_stage,
         });
+        if (hasSpeciesLink && p.scientific_name) {
+          this._fetchBotanicalRecord(p.scientific_name);
+        }
       } else {
         this.form.reset({
           common_name: '',
@@ -193,6 +209,9 @@ export class PlantFormDialogComponent {
             common_name: prefill.common_name,
             scientific_name: prefill.scientific_name,
           });
+          if (hasSpeciesLink && prefill.scientific_name) {
+            this._fetchBotanicalRecord(prefill.scientific_name);
+          }
         } else {
           this.speciesSearchQuery = '';
           this.selectedPerenualId.set(null);
@@ -233,6 +252,10 @@ export class PlantFormDialogComponent {
     this.selectedInatTaxonId.set(event.inat_taxon_id);
     this.lockedScientificName.set(hasSpeciesLink ? event.scientific_name : null);
     this.lockedSpeciesCommonName.set(hasSpeciesLink ? event.common_name : null);
+    this.lockedThumbnailUrl.set(null);
+    if (event.scientific_name) {
+      this._fetchBotanicalRecord(event.scientific_name);
+    }
     this.identifierVisible.set(false);
     this.messageService?.add({
       severity: 'success',
@@ -266,18 +289,43 @@ export class PlantFormDialogComponent {
       this.selectedInatTaxonId.set(value.inat_taxon_id);
       this.lockedSpeciesCommonName.set(value.common_name);
       this.lockedScientificName.set(value.scientific_name);
+      this.lockedThumbnailUrl.set(value.thumbnail_url);
+      this._fetchBotanicalRecord(value.scientific_name);
       this.suggestions.set([]);
     }
   }
 
   clearLockedSpecies(): void {
+    ++this._botanicalFetchGeneration;
     this.selectedPerenualId.set(null);
     this.selectedInatTaxonId.set(null);
     this.lockedScientificName.set(null);
     this.lockedSpeciesCommonName.set(null);
+    this.lockedThumbnailUrl.set(null);
+    this.lockedBotanicalRecord.set(null);
+    this.isLoadingBotanicalRecord.set(false);
     this.speciesSearchQuery = '';
     this.form.controls.scientific_name.setValue(null);
     this.suggestions.set([]);
+  }
+
+  private _fetchBotanicalRecord(scientificName: string): void {
+    const myGeneration = ++this._botanicalFetchGeneration;
+    this.isLoadingBotanicalRecord.set(true);
+    this._libraryService
+      .fetchByScientificName(scientificName)
+      .then((record) => {
+        if (myGeneration !== this._botanicalFetchGeneration) return;
+        this.lockedBotanicalRecord.set(record);
+      })
+      .catch(() => {
+        if (myGeneration !== this._botanicalFetchGeneration) return;
+        this.lockedBotanicalRecord.set(null);
+      })
+      .finally(() => {
+        if (myGeneration !== this._botanicalFetchGeneration) return;
+        this.isLoadingBotanicalRecord.set(false);
+      });
   }
 
   onSubmit(): void {

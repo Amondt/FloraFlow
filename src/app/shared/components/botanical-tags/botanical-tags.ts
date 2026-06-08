@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { TagModule } from 'primeng/tag';
 import { FloraTagPT } from '../../ui/pt/index';
 
@@ -27,15 +27,4 @@ export class BotanicalTagsComponent {
   readonly isEnriching = input<boolean>(false);
 
   protected readonly FloraTagPT = FloraTagPT;
-
-  /** Show skeleton pills only when actively enriching and nothing has populated yet. */
-  protected readonly shouldShowSkeleton = computed(
-    () =>
-      this.isEnriching() &&
-      this.isToxicToPets() === null &&
-      this.isTropical() === null &&
-      !this.placement() &&
-      !this.careDifficulty() &&
-      !this.maintenanceLevel(),
-  );
 }

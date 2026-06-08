@@ -135,6 +135,10 @@ export class LibraryComponent {
     );
     return group?.varieties ?? [];
   });
+
+  readonly dialogIsEnriching = computed(() =>
+    this.dialogRecords().some((r) => this.enrichingNames().has(r.scientific_name)),
+  );
   readonly detailVisible = computed(() => this.selectedGroupKey() !== null);
   readonly hasActiveFilters = computed(() => Object.keys(this.filters()).length > 0);
   readonly hasSearchCriteria = computed(

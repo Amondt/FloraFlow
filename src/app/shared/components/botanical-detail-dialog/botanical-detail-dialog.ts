@@ -42,18 +42,27 @@ function inatRankLabel(rank: string | null): string | null {
 }
 
 function extractCultivarLabel(scientificName: string): string {
-  // Anchor on the first cultivar-name quote — handles multi-word species bases such as
-  // 'Juniperus x media' and 'Beta vulgaris (Garden Beet Group)', genus-only entries, and
-  // standard 'Genus species' forms. DB data uses ASCII apostrophes throughout.
+  // Perenual-style cultivar in apostrophes — extract the cultivar name.
+  // Anchoring on the first quote handles multi-word bases such as 'Juniperus x media'
+  // and 'Beta vulgaris (Garden Beet Group)'. DB data uses ASCII apostrophes throughout.
   const quoteIdx = scientificName.indexOf("'");
-  if (quoteIdx === -1) return 'Original';
-  const cultivarPart = scientificName.slice(quoteIdx);
-  // Strip opening delimiter; strip closing delimiter before a space or end-of-string.
-  // Preserves internal apostrophes (e.g. Dart's Gold) and trade names after the close quote.
-  return cultivarPart
-    .replace(/^'/, '')
-    .replace(/'(?=[ \t\n\r]|$)/, '')
-    .trim();
+  if (quoteIdx !== -1) {
+    const cultivarPart = scientificName.slice(quoteIdx);
+    // Strip opening delimiter; strip closing delimiter before a space or end-of-string.
+    // Preserves internal apostrophes (e.g. Dart's Gold) and trade names after the close quote.
+    return cultivarPart
+      .replace(/^'/, '')
+      .replace(/'(?=[ \t\n\r]|$)/, '')
+      .trim();
+  }
+
+  // iNat-style trinomial — everything after the first two words (genus + epithet) is the
+  // infraspecific descriptor (e.g. "subsp. adansonii", "var. borsigiana").
+  // A plain binomial with no infraspecific part is the base species.
+  const words = scientificName.trim().split(/\s+/);
+  if (words.length <= 2) return 'Species';
+  const infraspecific = words.slice(2).join(' ');
+  return infraspecific.charAt(0).toUpperCase() + infraspecific.slice(1);
 }
 
 @Component({
@@ -87,6 +96,18 @@ export class BotanicalDetailDialogComponent {
 
   protected readonly hasVarieties = computed(() => this.records().length > 1);
 
+  // When all non-base-species records share the same rank, returns that label once
+  // for the section header (e.g. "Subspecies"). Null when ranks are mixed — each chip
+  // then shows its own rank so the user can tell them apart.
+  protected readonly uniformVarietyRank = computed((): string | null => {
+    const nonBaseRanks = this.records()
+      .map((r) => inatRankLabel(r.inat_rank))
+      .filter((label): label is string => label !== null);
+    if (nonBaseRanks.length === 0) return null;
+    const first = nonBaseRanks[0];
+    return nonBaseRanks.every((l) => l === first) ? first : null;
+  });
+
   protected readonly cultivarChips = computed(() => {
     const activeIdx = this.selectedVarietyIndex();
     const base =
@@ -95,9 +116,10 @@ export class BotanicalDetailDialogComponent {
       'bg-primary-100 text-primary-700 border-primary-300 dark:bg-primary-900/40 dark:text-primary-300 dark:border-primary-600';
     const inactiveClass =
       'bg-neutral-50 text-neutral-600 border-neutral-200 hover:bg-neutral-100 dark:bg-neutral-800 dark:text-neutral-300 dark:border-neutral-700 dark:hover:bg-neutral-700';
+    const isUniform = this.uniformVarietyRank() !== null;
     return this.records().map((r, i) => ({
       label: extractCultivarLabel(r.scientific_name),
-      rankLabel: inatRankLabel(r.inat_rank),
+      rankLabel: isUniform ? null : inatRankLabel(r.inat_rank),
       index: i,
       scientificName: r.scientific_name,
       chipClass: `${base} ${activeIdx === i ? activeClass : inactiveClass}`,

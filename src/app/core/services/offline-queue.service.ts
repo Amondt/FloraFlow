@@ -10,6 +10,7 @@ export interface QueuedAction {
   common_name?: string;
   scientific_name?: string | null;
   perenual_id?: number | null;
+  inat_taxon_id?: number | null;
   zone_id?: string;
   container_vector?: string;
   substrate_factor?: string;

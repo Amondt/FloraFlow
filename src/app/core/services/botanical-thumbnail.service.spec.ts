@@ -39,6 +39,9 @@ function makeRecord(scientificName: string, thumbnailUrl: string | null): Cached
     max_height_cm: null,
     flowering_season: null,
     dormancy_season: null,
+    inat_taxon_id: null,
+    inat_species_id: null,
+    inat_rank: null,
     created_at: '',
     updated_at: '',
   } as unknown as CachedBotanicalRecord;

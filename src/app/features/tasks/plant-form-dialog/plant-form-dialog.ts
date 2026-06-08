@@ -279,6 +279,7 @@ export class PlantFormDialogComponent {
       common_name: this.form.controls.common_name.value,
       scientific_name: this.form.controls.scientific_name.value || null,
       perenual_id: this.selectedPerenualId(),
+      inat_taxon_id: null,
       zone_id: this.form.controls.zone_id.value,
       container_vector: this.form.controls.container_vector.value,
       substrate_factor: this.form.controls.substrate_factor.value,

@@ -31,6 +31,7 @@ export interface PlantIdentifiedEvent {
   common_name: string;
   scientific_name: string;
   perenual_id: number | null;
+  inat_taxon_id: number | null;
   confidence_score: number;
 }
 
@@ -81,6 +82,10 @@ export class PlantIdentifierDialogComponent {
 
   protected readonly emittablePerenualId = computed(() =>
     this.isPrimaryMatch() ? (this.identResult()?.perenual_id ?? null) : null,
+  );
+
+  protected readonly emittableInatTaxonId = computed(() =>
+    this.isPrimaryMatch() ? (this.identResult()?.inat_taxon_id ?? null) : null,
   );
 
   protected readonly confidenceBadgeClass = computed(() =>
@@ -175,6 +180,7 @@ export class PlantIdentifierDialogComponent {
       common_name: match.common_name,
       scientific_name: match.scientific_name,
       perenual_id: this.emittablePerenualId(),
+      inat_taxon_id: this.emittableInatTaxonId(),
       confidence_score: match.confidence_score,
     });
   }
@@ -186,6 +192,7 @@ export class PlantIdentifierDialogComponent {
       common_name: match.common_name,
       scientific_name: match.scientific_name,
       perenual_id: this.emittablePerenualId(),
+      inat_taxon_id: this.emittableInatTaxonId(),
       confidence_score: match.confidence_score,
     });
   }

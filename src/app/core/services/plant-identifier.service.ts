@@ -19,6 +19,7 @@ export interface PlantIdResult {
   species_match: PlantIdCandidate;
   alternative_candidates: PlantIdCandidate[];
   perenual_id: number | null;
+  inat_taxon_id: number | null;
 }
 
 export class InvalidPlantImageError extends Error {

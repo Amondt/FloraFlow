@@ -42,6 +42,7 @@ describe('PlantFormDialogComponent', () => {
         common_name: 'Monstera',
         scientific_name: 'Monstera deliciosa',
         perenual_id: 42,
+        inat_taxon_id: null,
         thumbnail_url: null,
       };
 
@@ -60,6 +61,7 @@ describe('PlantFormDialogComponent', () => {
         common_name: 'Monstera',
         scientific_name: 'Monstera deliciosa',
         perenual_id: 42,
+        inat_taxon_id: null,
         thumbnail_url: null,
       };
 

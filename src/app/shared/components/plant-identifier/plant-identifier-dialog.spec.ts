@@ -37,6 +37,7 @@ const MOCK_RESULT: import('../../../core/services/plant-identifier.service').Pla
   species_match: PRIMARY,
   alternative_candidates: [ALTERNATIVE],
   perenual_id: 42,
+  inat_taxon_id: null,
 };
 
 describe('PlantIdentifierDialogComponent', () => {

@@ -38,6 +38,7 @@ function makePlant(overrides: Partial<Plant> = {}): Plant {
     common_name: 'Test Plant',
     scientific_name: 'Testus botanicus',
     perenual_id: null,
+    inat_taxon_id: null,
     container_vector: 'Plastic',
     substrate_factor: 'Standard Potting',
     growth_stage: 'Mature',

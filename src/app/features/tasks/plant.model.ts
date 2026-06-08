@@ -41,6 +41,7 @@ export interface Plant {
   common_name: string;
   scientific_name: string | null;
   perenual_id: number | null;
+  inat_taxon_id: number | null;
   container_vector: ContainerVector;
   substrate_factor: SubstrateFactor;
   growth_stage: GrowthStage;
@@ -56,6 +57,7 @@ export interface PlantFormData {
   common_name: string;
   scientific_name: string | null;
   perenual_id: number | null;
+  inat_taxon_id: number | null;
   zone_id: string;
   container_vector: ContainerVector;
   substrate_factor: SubstrateFactor;

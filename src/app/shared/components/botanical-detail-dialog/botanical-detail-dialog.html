@@ -60,6 +60,11 @@
           class="mb-2 font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
         >
           Varieties
+          @if (uniformVarietyRank(); as rank) {
+            <span class="ml-1 normal-case tracking-normal font-normal"
+              >·<span class="ml-1">{{ rank }}</span></span
+            >
+          }
         </p>
         <div class="flex max-h-32 flex-wrap gap-2 overflow-y-auto">
           @for (chip of cultivarChips(); track chip.scientificName) {

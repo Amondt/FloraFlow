@@ -113,6 +113,9 @@ export class PlantFormDialogComponent {
   protected readonly lockedThumbnailUrl = signal<string | null>(null);
   protected readonly lockedBotanicalRecord = signal<CachedBotanicalRecord | null>(null);
   protected readonly isLoadingBotanicalRecord = signal(false);
+  protected readonly isSpeciesLocked = computed(
+    () => this.selectedInatTaxonId() !== null || this.lockedScientificName() !== null,
+  );
   private _botanicalFetchGeneration = 0;
   protected speciesSearchQuery = '';
 
@@ -196,7 +199,7 @@ export class PlantFormDialogComponent {
 
         const prefill = this.botanicalPrefill();
         if (prefill) {
-          const hasSpeciesLink = !!prefill.inat_taxon_id;
+          const hasSpeciesLink = !!prefill.inat_taxon_id || !!prefill.scientific_name;
           this.speciesSearchQuery = prefill.common_name;
           this.selectedInatTaxonId.set(prefill.inat_taxon_id);
           this.lockedScientificName.set(hasSpeciesLink ? prefill.scientific_name : null);

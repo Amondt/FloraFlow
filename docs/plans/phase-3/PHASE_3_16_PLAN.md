@@ -152,7 +152,7 @@ The first backfill pass exposed two problems the original Block G did not antici
   - Return `{ processed, remaining, absent }`
   - Run `bun run format && bun run lint`
 
-- [ ] **Block J — Reset, re-verify & cleanup (operational)** | Agent: `/plumber` · Model: Sonnet · Effort: mid
+- [x] **Block J — Reset, re-verify & cleanup (operational)** | Agent: `/plumber` · Model: Sonnet · Effort: mid
   - **Reset for trustworthy re-match** (Studio SQL): `UPDATE cached_botanical_records SET inat_taxon_id = NULL, inat_species_id = NULL;` — discards unverified early-pass matches
   - Re-run the Block I backfill loop to `remaining = 0` (every row now matched with the genus+epithet guard, or marked `-1`)
   - **Delete iNat-absent rows:** `DELETE FROM cached_botanical_records WHERE inat_taxon_id = -1;`

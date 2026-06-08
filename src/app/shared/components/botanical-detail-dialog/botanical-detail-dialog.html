@@ -70,6 +70,9 @@
               (click)="selectedVarietyIndex.set(chip.index)"
             >
               {{ chip.label }}
+              @if (chip.rankLabel) {
+                <span class="ml-1 text-[10px] font-normal opacity-60">{{ chip.rankLabel }}</span>
+              }
             </button>
           }
         </div>

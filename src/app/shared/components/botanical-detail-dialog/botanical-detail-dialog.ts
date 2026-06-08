@@ -25,6 +25,22 @@ const DIALOG_TABS: { id: DialogTab; label: string; icon: string }[] = [
   { id: 'safety', label: 'Safety', icon: 'pi pi-shield' },
 ];
 
+function inatRankLabel(rank: string | null): string | null {
+  switch (rank) {
+    case 'subspecies':
+      return 'Subspecies';
+    case 'variety':
+      return 'Variety';
+    case 'form':
+      return 'Form';
+    case 'hybrid':
+    case 'genushybrid':
+      return 'Hybrid';
+    default:
+      return null;
+  }
+}
+
 function extractCultivarLabel(scientificName: string): string {
   // Anchor on the first cultivar-name quote — handles multi-word species bases such as
   // 'Juniperus x media' and 'Beta vulgaris (Garden Beet Group)', genus-only entries, and
@@ -81,6 +97,7 @@ export class BotanicalDetailDialogComponent {
       'bg-neutral-50 text-neutral-600 border-neutral-200 hover:bg-neutral-100 dark:bg-neutral-800 dark:text-neutral-300 dark:border-neutral-700 dark:hover:bg-neutral-700';
     return this.records().map((r, i) => ({
       label: extractCultivarLabel(r.scientific_name),
+      rankLabel: inatRankLabel(r.inat_rank),
       index: i,
       scientificName: r.scientific_name,
       chipClass: `${base} ${activeIdx === i ? activeClass : inactiveClass}`,

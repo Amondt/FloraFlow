@@ -76,6 +76,22 @@ export class BotanicalRecordCardComponent {
     }
   });
 
+  protected readonly rankBadge = computed((): string | null => {
+    switch (this.record().inat_rank) {
+      case 'subspecies':
+        return 'Subspecies';
+      case 'variety':
+        return 'Variety';
+      case 'form':
+        return 'Form';
+      case 'hybrid':
+      case 'genushybrid':
+        return 'Hybrid';
+      default:
+        return null;
+    }
+  });
+
   protected onSpaceKey(event: Event): void {
     event.preventDefault();
     this.cardSelect.emit();

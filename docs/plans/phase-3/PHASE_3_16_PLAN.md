@@ -172,7 +172,7 @@ The first backfill pass exposed two problems the original Block G did not antici
     3. Search a plain species (e.g. "monstera deliciosa") → one card, no variety badge
     4. Open DevTools Console → zero red errors
 
-- [ ] **Block L — Rank badge (`botanical-record-card` + botanical detail dialog)** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+- [x] **Block L — Rank badge (`botanical-record-card` + botanical detail dialog)** | Agent: `/visualizer` · Model: Sonnet · Effort: low
   - Reads `inat_rank` directly off the record — `CachedBotanicalRecord` carries it automatically after Block G's `bun run types`; **no grouping-util or model change needed**
   - Library card: render a rank badge **only when** `inat_rank` is present and not `'species'` (Hybrid / Subspecies / Variety / Form) — reuse the existing `placement` / `care_difficulty` badge pattern already in `botanical-record-card`; **no new PT object**
   - Detail dialog variety chips: label each non-species variety with its rank (the chip text already shows the trinomial; the badge adds the rank word)

@@ -127,6 +127,9 @@
       @if (maintenanceTag(); as tag) {
         <p-tag [value]="tag.label" [severity]="tag.severity" [pt]="FloraTagPT" />
       }
+      @if (rankBadge(); as rank) {
+        <p-tag [value]="rank" severity="secondary" [pt]="FloraTagPT" />
+      }
       @if (
         isEnriching() &&
         record().is_toxic_to_pets === null &&

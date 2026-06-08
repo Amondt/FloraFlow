@@ -766,6 +766,7 @@
     [visible]="wizardFromBotanicalRecord() !== null"
     (visibleChange)="onBotanicalWizardClose($event)"
     [botanicalRecord]="wizardFromBotanicalRecord()"
+    backLabel="Plant details"
   />
 
   <p-toast position="bottom-right" [pt]="FloraToastPT" />

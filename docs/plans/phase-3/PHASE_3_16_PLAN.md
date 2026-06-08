@@ -24,20 +24,28 @@ Perenual's free tier is hard-capped at species IDs 1–3,000 (~37 results for an
 ## iNaturalist Taxa API — field mapping reference
 
 ```
-GET https://api.inaturalist.org/v1/taxa?q={q}&taxon_id=47126&rank=species&per_page=30&locale=en
+GET https://api.inaturalist.org/v1/taxa?q={q}&taxon_id=47126&is_active=true&per_page={n}&locale=en
 ```
 
-`taxon_id=47126` = Plantae kingdom. `locale=en` forces English `preferred_common_name` regardless of server locale — confirmed via live API call. No API key required.
+`taxon_id=47126` = Plantae kingdom. `is_active=true` excludes deprecated/merged taxa (cleaner matches). `locale=en` forces English `preferred_common_name`. **No `rank=species` filter** — dropping it admits hybrids (`hybrid` / `genushybrid` rank, rank_level 10) and infraspecific taxa (`subspecies` / `variety` / `form`, rank_level 5) that gardeners legitimately grow. No API key required. Endpoint `/taxa` is chosen over `/taxa/autocomplete` because only `/taxa` accepts a high `per_page` (max 200) for cache-warming — both return identical `ancestor_ids` / `rank_level` fields.
 
-| iNat field | Our column |
-|---|---|
-| `results[n].id` | `inat_taxon_id` |
-| `results[n].name` | `scientific_name` |
-| `results[n].preferred_common_name ?? results[n].name` | `common_name` (apply `toSentenceCase`) |
-| `results[n].default_photo.url` | `thumbnail_url` |
-| `results[n].default_photo.medium_url` | `regular_url` |
+| iNat field | Our column | Notes |
+|---|---|---|
+| `results[n].id` | `inat_taxon_id` | exact leaf taxon — identity + dedup key |
+| species-rank ancestor (rule below) | `inat_species_id` | grouping key |
+| `results[n].rank` | `inat_rank` | `species` / `hybrid` / `subspecies` / `variety` / `form` — drives the rank badge |
+| `results[n].name` | `scientific_name` | binomial, already cased |
+| `results[n].preferred_common_name ?? name` | `common_name` | apply `toSentenceCase`; falls back to `name` for obscure taxa |
+| `results[n].default_photo.url` | `thumbnail_url` | |
+| `results[n].default_photo.medium_url` | `regular_url` | |
 
-`preferred_common_name` is absent for some obscure taxa — fall back to `name` (the scientific name).
+**Two-tier identity model.** `inat_taxon_id` is the exact leaf taxon (species, subspecies, variety, or hybrid) — used for identity, photos, and as the dedup key. `inat_species_id` is the species-rank ancestor — used as the grouping key so real iNat varieties/subspecies collapse under their parent species (e.g. _Brassica oleracea_ var. _italica_ + var. _capitata_ → one "Brassica oleracea" card). iNaturalist has **no concept of cultivars**, so the old cultivar-string grouping is replaced by this botanically authoritative hierarchy.
+
+**Species-ancestor rule** — computes `inat_species_id` with no extra API call (`rank_level` and `parent_id` are in the same taxon object):
+
+- `rank_level === 10` (species or hybrid) → `inat_species_id = id` (itself)
+- `rank_level < 10` (subspecies / variety / form) → `inat_species_id = parent_id`
+- `rank_level > 10` (genus or coarser match) → `inat_species_id = null` (not a species — grouping falls back to `inat_taxon_id`, then `common_name`)
 
 ---
 
@@ -106,45 +114,69 @@ GET https://api.inaturalist.org/v1/taxa?q={q}&taxon_id=47126&rank=species&per_pa
   - Run `bun run format && bun run lint`
   - Verify: run the Plant Identifier on a photo of a known common plant. Response JSON must include both `perenual_id` (may be null) and `inat_taxon_id`.
 
-- [ ] **Block G — iNat species backfill & library grouping refactor** | Agent: `/plumber` + `/visualizer` · Model: Sonnet · Effort: high
+### Canonicalization addendum (decision 2026-06-08)
 
-  **Why this block exists:** the 924 existing records were stored by Perenual with inconsistent scientific names — cultivar suffixes (`'Marble Queen'`, `'Variegata'`) are included as part of `scientific_name`. The current grouping util works around this by grouping by `common_name`, which Perenual also made inconsistent. iNaturalist uses canonical species-level binomials. Grouping by `inat_taxon_id` is authoritative: two records with the same taxon ID are definitively the same species, regardless of what Perenual named them.
+The first backfill pass exposed two problems the original Block G did not anticipate: (1) early runs matched `results[0]` from a `rank=species` query with **no verification**, so some `inat_taxon_id` values may point at the wrong species while the AI-enriched care data describes a different one; (2) iNaturalist has no cultivars, so grouping by `inat_taxon_id` leaves real botanical varieties as separate cards instead of collapsing them under their species. **User decision: "Canonical iNat"** — re-verify every match with a genus+epithet guard, delete iNat-absent rows, deduplicate to one row per iNat taxon, and group by the species-rank ancestor (`inat_species_id`). Blocks G–K below replace the original Block G.
 
-  **Plumber — one-shot backfill Edge Function (`supabase/functions/inat-backfill/index.ts`):**
-  - Auth: standard user JWT (user-facing, runs once)
-  - Query: `SELECT scientific_name, common_name, thumbnail_url, regular_url FROM cached_botanical_records WHERE inat_taxon_id IS NULL LIMIT 50`
-  - For each record:
-    - Strip cultivar suffix: `const baseName = scientificName.split("'")[0].trim()`
-    - Call `GET https://api.inaturalist.org/v1/taxa?q={baseName}&rank=species&per_page=1&locale=en`
-    - If result found: `UPDATE cached_botanical_records SET inat_taxon_id = taxon.id, thumbnail_url = COALESCE(existing_url, taxon.default_photo?.url), regular_url = COALESCE(existing_url, taxon.default_photo?.medium_url), thumbnail_fetched = true WHERE scientific_name = record.scientific_name`
-    - If not found: leave record unchanged (grouping falls back to `common_name`)
-  - Rate limit: `await delay(200)` between calls to respect iNat fair-use (~5 req/sec)
-  - Return `{ processed: N, remaining: M }` — user calls the function repeatedly until `remaining = 0`
-  - At 50 records/call × 200ms throttle: each invocation takes ~10s; ~924 records / 50 = ~19 calls to complete
+- [ ] **Block G — Migration: `inat_species_id` + `inat_rank` columns** | Agent: `/plumber` · Model: Sonnet · Effort: mid
+  - New migration file (one file, both columns):
+    - `ALTER TABLE public.cached_botanical_records ADD COLUMN IF NOT EXISTS inat_species_id INTEGER NULL;`
+    - `ALTER TABLE public.cached_botanical_records ADD COLUMN IF NOT EXISTS inat_rank TEXT NULL;`
+    - `CREATE INDEX IF NOT EXISTS idx_cbr_inat_species_id ON public.cached_botanical_records (inat_species_id);`
+  - `inat_rank` holds the leaf taxon's iNat rank (`species` / `hybrid` / `subspecies` / `variety` / `form`) — drives the rank badge (Block L). No index (display-only, never filtered server-side)
+  - Update `docs/DB_SCHEMA_MATRIX.md §2.4` — add `inat_species_id INTEGER NULL` and `inat_rank TEXT NULL` after `inat_taxon_id`; add the `inat_species_id` index to §3
+  - `bunx supabase migration up` → `bun run types` → `Copy-Item src/types/database.types.ts supabase/functions/_shared/database.types.ts`
+  - Verify in Studio SQL: both columns exist on `cached_botanical_records`
+
+- [ ] **Block H — iNat query hardening (`botanical-search` + `_shared/enrich-record.ts`)** | Agent: `/plumber` · Model: Sonnet · Effort: high
+  - Shared helper `deriveSpeciesId(taxon)` in `_shared/` implementing the species-ancestor rule (rank_level 10 → self id; <10 → parent_id; >10 → null)
+  - Both functions: drop `rank=species`; keep `taxon_id=47126`; add `is_active=true`
+  - `botanical-search`: fetch `per_page=100` (constant `MAX_UPSERT`) to warm the cache widely; upsert all 100 with `inat_species_id` **and** `inat_rank` (from `taxon.rank`) populated; **return only the top 30** (`MAX_RESULTS`) to the caller so the autocomplete dropdown stays usable — this solves "too few results" for the library without flooding the dropdown
+  - `enrich-record.ts` (`queryINat` / `fetchINatThumbnail`): capture and return `species_id` + `rank`; full + thumbnail-only upsert paths write `inat_species_id` and `inat_rank`
   - Run `bun run format && bun run lint`
-  - Trigger via PowerShell until done:
-    ```powershell
-    do {
-      $r = Invoke-RestMethod -Uri "http://127.0.0.1:54321/functions/v1/inat-backfill" `
-        -Method POST -Headers @{ Authorization = "Bearer <anon-key>" }
-      Write-Host "processed $($r.processed), remaining $($r.remaining)"
-    } while ($r.remaining -gt 0)
-    ```
-  - Verify in Studio SQL: `SELECT COUNT(*) FROM cached_botanical_records WHERE inat_taxon_id IS NULL;` — should be 0 or very close (only truly iNat-absent species remain)
+  - Verify (PowerShell, authed JWT): search "ros" → ≥30 returned, and Studio SQL shows ≥30 newly-cached "ros%" rows carrying `inat_taxon_id`, `inat_species_id`, and `inat_rank`; search a hybrid ("× freemanii") returns a match with `inat_rank = 'hybrid'`
 
-  **Visualizer — grouping util refactor (`src/app/shared/utils/group-botanical-records.util.ts`):**
-  - Change grouping key from `common_name.toLowerCase()` → `record.inat_taxon_id ?? record.common_name.toLowerCase().trim()`
-    - Records with the same `inat_taxon_id` collapse into one `SpeciesGroup` — cultivar cards correctly merged
-    - Records without `inat_taxon_id` fall back to `common_name` grouping (backward compat during partial backfill)
-  - Add `inatTaxonId: number | null` to `SpeciesGroup` interface — set from `representative.inat_taxon_id`
+- [ ] **Block I — `inat-backfill` v2: canonicalize, verify, species_id** | Agent: `/plumber` · Model: Sonnet · Effort: high
+  - `canonicalizeScientificName()`: strip cultivar quotes → authority parens → infraspecific markers (`var.` `f.` `subsp.` `ssp.`) → trailing ALL-CAPS trademark words (already drafted)
+  - `isSameSpecies(candidate, inatName)`: genus AND species epithet must match after normalising hybrid markers — rejects wrong-species matches that would mislink enrichment (already drafted)
+  - Drop `rank=species`; `taxon_id=47126`; `is_active=true`; `x`-stripping retry for hybrids
+  - Populate `inat_species_id` via the shared `deriveSpeciesId` helper and `inat_rank` from `taxon.rank` on every match
+  - No-match (incl. genus-only after canonicalize) → `inat_taxon_id = -1` sentinel (excluded from future batches; grouping/cleanup treat `> 0` as a real id)
+  - Return `{ processed, remaining, absent }`
+  - Run `bun run format && bun run lint`
+
+- [ ] **Block J — Reset, re-verify & cleanup (operational)** | Agent: `/plumber` · Model: Sonnet · Effort: mid
+  - **Reset for trustworthy re-match** (Studio SQL): `UPDATE cached_botanical_records SET inat_taxon_id = NULL, inat_species_id = NULL;` — discards unverified early-pass matches
+  - Re-run the Block I backfill loop to `remaining = 0` (every row now matched with the genus+epithet guard, or marked `-1`)
+  - **Delete iNat-absent rows:** `DELETE FROM cached_botanical_records WHERE inat_taxon_id = -1;`
+  - **Deduplicate** rows sharing an `inat_taxon_id`, keeping the richest enrichment (`is_ai_enriched`, then non-null `description`, then non-null `thumbnail_url`). Provide a dry-run `SELECT` of the delete set **first**; never link one species' enrichment to another (user constraint)
+  - Verify: `SELECT COUNT(*) FROM cached_botanical_records WHERE inat_taxon_id IS NULL OR inat_taxon_id = -1;` → 0; and no `inat_taxon_id` appears more than once
+
+- [ ] **Block K — Grouping refactor (`group-botanical-records.util.ts`)** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+  - Grouping key: `record.inat_species_id ?? (record.inat_taxon_id && record.inat_taxon_id > 0 ? record.inat_taxon_id : null) ?? record.common_name.toLowerCase().trim()`
+  - Add `inatSpeciesId: number | null` to `SpeciesGroup`, set from `representative.inat_species_id`
+  - Real iNat varieties/subspecies of one species collapse into one card; standalone species show one card, no variety badge (honest — cultivar chips are gone by design)
   - Run `bun run format && bun run lint && bun run test`
-  - Manual Browser Check — Block G
+  - Manual Browser Check — Block K
     ────────────────────────────────
     App running at: http://localhost:4200/library
-    1. Search "pothos" — "Epipremnum aureum" and all its cultivars ("Marble Queen", "Golden Pothos" etc.) must appear as **one card** with a variety count badge, not separate cards
-    2. Click the card → detail dialog shows all cultivars in the varieties section
-    3. Search a single-cultivar species (e.g. "monstera") → shows one card, no variety badge
+    1. Search a species with iNat varieties (e.g. "brassica oleracea") → varieties collapse into **one** card with a variety badge
+    2. Click the card → detail dialog lists the varieties
+    3. Search a plain species (e.g. "monstera deliciosa") → one card, no variety badge
     4. Open DevTools Console → zero red errors
+
+- [ ] **Block L — Rank badge (`botanical-record-card` + botanical detail dialog)** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+  - Reads `inat_rank` directly off the record — `CachedBotanicalRecord` carries it automatically after Block G's `bun run types`; **no grouping-util or model change needed**
+  - Library card: render a rank badge **only when** `inat_rank` is present and not `'species'` (Hybrid / Subspecies / Variety / Form) — reuse the existing `placement` / `care_difficulty` badge pattern already in `botanical-record-card`; **no new PT object**
+  - Detail dialog variety chips: label each non-species variety with its rank (the chip text already shows the trinomial; the badge adds the rank word)
+  - Human-readable label map (`subspecies → "Subspecies"`, `variety → "Variety"`, `form → "Form"`, `hybrid`/`genushybrid → "Hybrid"`) — never surface the raw ENUM-style value (UX-First rule)
+  - Run `bun run format && bun run lint && bun run test`
+  - Manual Browser Check — Block L
+    ────────────────────────────────
+    App running at: http://localhost:4200/library
+    1. Search a hybrid (e.g. "× freemanii") or variety → card shows the correct rank badge
+    2. Search a plain species (e.g. "monstera deliciosa") → **no** rank badge
+    3. Open DevTools Console → zero red errors
 
 - [ ] **Block E — Angular models & services** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - `src/app/core/services/botanical-search.service.ts` — `BotanicalSuggestion`: add `inat_taxon_id: number | null`
@@ -215,7 +247,11 @@ GET https://api.inaturalist.org/v1/taxa?q={q}&taxon_id=47126&rank=species&per_pa
 | B | PowerShell Invoke-RestMethod — ≥30 results, `inat_taxon_id` + `thumbnail_url` + English `preferred_common_name` present |
 | C | Manual cron trigger in Studio → DB record has `inat_taxon_id` |
 | D | Plant Identifier photo test → response JSON has both `perenual_id` and `inat_taxon_id` |
-| G (plumber) | Backfill loop runs to `remaining = 0`; Studio SQL `COUNT(*) WHERE inat_taxon_id IS NULL` ≈ 0 |
-| G (visualizer) | Library browser check — cultivars collapse into one card; `bun run test` passes |
 | E | `bun run test` passes; Network tab shows `inat_taxon_id` in plant create payload; `PlantIdResult` and `QueuedAction` both compile with `inat_taxon_id` |
 | F | Manual Browser Check — all 7 steps pass |
+| G | Studio SQL — `inat_species_id` + `inat_rank` columns present on `cached_botanical_records` |
+| H | Search warms ≥30 cached rows carrying `inat_taxon_id` + `inat_species_id` + `inat_rank`; hybrid query returns `inat_rank = 'hybrid'` |
+| I | `bun run lint`; function returns `{ processed, remaining, absent }` |
+| J | Backfill loop to `remaining = 0`; `COUNT(*) WHERE inat_taxon_id IS NULL OR = -1` → 0; no duplicate `inat_taxon_id` |
+| K | Library browser check — iNat varieties collapse into one card; `bun run test` passes |
+| L | Library browser check — hybrid/variety shows correct rank badge, plain species shows none; `bun run test` passes |

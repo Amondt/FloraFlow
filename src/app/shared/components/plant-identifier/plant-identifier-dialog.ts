@@ -25,6 +25,7 @@ import {
   getConfidenceBadgeClass,
   getConfidenceBadgeLabel,
 } from '../../utils/plant-identifier.util';
+import { LeafIconComponent } from '../leaf-icon/leaf-icon';
 
 export interface PlantIdentifiedEvent {
   common_name: string;
@@ -39,7 +40,7 @@ type IdentErrorKind = 'invalid-image' | 'api-error';
 @Component({
   selector: 'app-plant-identifier-dialog',
   standalone: true,
-  imports: [DialogModule, ButtonModule, MessageModule],
+  imports: [DialogModule, ButtonModule, MessageModule, LeafIconComponent],
   templateUrl: './plant-identifier-dialog.html',
 })
 export class PlantIdentifierDialogComponent {

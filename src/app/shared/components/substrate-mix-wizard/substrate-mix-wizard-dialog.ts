@@ -41,6 +41,7 @@ export class SubstrateMixWizardDialogComponent {
   readonly plant = input<Plant | null>(null);
   readonly botanicalRecord = input<CachedBotanicalRecord | null>(null);
   readonly substratePreset = input<SubstrateFactor | null>(null);
+  readonly backLabel = input<string | null>(null);
 
   protected readonly FloraDetailDialogPT = FloraDetailDialogPT;
   protected readonly FloraInputNumberPT = FloraInputNumberPT;

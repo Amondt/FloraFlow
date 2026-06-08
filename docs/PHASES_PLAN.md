@@ -257,7 +257,7 @@
   - Angular dialog: three scalar signals become arrays (`compressedBlobs`, `previewObjectUrls`, `compressedLabels`); "Add photo" button hidden at 3; per-thumbnail remove button; adding/removing a photo resets diagnosis state.
   - `docs/AI_PROMPT_MANIFEST.md §3.0` updated to document the new `images[]` request shape.
   - Plan: `docs/plans/phase-3/PHASE_3_14_PLAN.md`
-- [ ] **3.15 Leaf Doctor from Zone Detail** | Agent: `/plumber` → `/visualizer`
+- [x] **3.15 Leaf Doctor from Zone Detail** | Agent: `/plumber` → `/visualizer`
   - Leaf Doctor accessible from every plant card in zone-detail, not only from the Journal.
   - Because the plant is already known, the dialog locks the plant selector and shows a read-only name badge instead.
   - Optional `plantContext` field added to the `claude-vision` request body; Claude receives the species name in the prompt and tailors its diagnosis to that species. Both flows send it — the journal flow requires the user to pick a plant first; the zone-detail flow locks the preselected plant.

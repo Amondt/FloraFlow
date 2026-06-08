@@ -37,7 +37,7 @@ export class EnrichmentPoll {
         return;
       }
       void this._tick();
-    }, 6000);
+    }, 3000);
   }
 
   stop(): void {

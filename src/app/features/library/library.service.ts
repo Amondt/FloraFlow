@@ -142,7 +142,7 @@ export class LibraryService {
         body: JSON.stringify({ scientificName: r.scientific_name, commonName: r.common_name }),
       }).catch(() => {});
       if (i < toEnrich.length - 1) {
-        await new Promise<void>((resolve) => setTimeout(resolve, 2000));
+        await new Promise<void>((resolve) => setTimeout(resolve, 800));
       }
     }
   }

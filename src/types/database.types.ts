@@ -51,6 +51,8 @@ export type Database = {
           ideal_humidity_min: number | null
           ideal_max_ph: number | null
           ideal_min_ph: number | null
+          inat_rank: string | null
+          inat_species_id: number | null
           inat_taxon_id: number | null
           is_ai_enriched: boolean
           is_perenual_enriched: boolean
@@ -93,6 +95,8 @@ export type Database = {
           ideal_humidity_min?: number | null
           ideal_max_ph?: number | null
           ideal_min_ph?: number | null
+          inat_rank?: string | null
+          inat_species_id?: number | null
           inat_taxon_id?: number | null
           is_ai_enriched?: boolean
           is_perenual_enriched?: boolean
@@ -135,6 +139,8 @@ export type Database = {
           ideal_humidity_min?: number | null
           ideal_max_ph?: number | null
           ideal_min_ph?: number | null
+          inat_rank?: string | null
+          inat_species_id?: number | null
           inat_taxon_id?: number | null
           is_ai_enriched?: boolean
           is_perenual_enriched?: boolean

@@ -86,6 +86,8 @@ The Anti-Hallucination Cache & Enrichment Sink. This table buffers raw external 
         scientific_name TEXT PRIMARY KEY,
         perenual_id INT,
         inat_taxon_id INTEGER NULL,
+        inat_species_id INTEGER NULL,  -- species-rank ancestor; grouping key
+        inat_rank TEXT NULL,           -- leaf taxon rank ('species','hybrid','subspecies','variety','form'); badge display only
         common_name TEXT NOT NULL,
         ideal_min_ph NUMERIC(3,1) DEFAULT 6.0,
         ideal_max_ph NUMERIC(3,1) DEFAULT 7.0,
@@ -142,6 +144,7 @@ To keep query computations lightweight and protect database limits from throttli
     CREATE INDEX idx_journals_plant_date ON public.plant_journals(plant_id, logged_at DESC);
     CREATE INDEX idx_botanical_cache_id ON public.cached_botanical_records(perenual_id);
     CREATE INDEX IF NOT EXISTS idx_cbr_inat_taxon_id ON public.cached_botanical_records(inat_taxon_id);
+    CREATE INDEX IF NOT EXISTS idx_cbr_inat_species_id ON public.cached_botanical_records(inat_species_id);
     CREATE INDEX IF NOT EXISTS idx_plants_inat_taxon_id ON public.plants(inat_taxon_id);
 
 ---

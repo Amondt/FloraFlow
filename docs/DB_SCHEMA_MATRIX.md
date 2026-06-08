@@ -63,6 +63,7 @@ Represents individual plant instances located inside specific ecosystem zones.
         common_name TEXT NOT NULL,
         scientific_name TEXT,
         perenual_id INT,
+        inat_taxon_id INTEGER NULL,
 
         -- Structural Care Matrix
         container_vector container_vector_type DEFAULT 'Plastic'::container_vector_type NOT NULL,
@@ -84,6 +85,7 @@ The Anti-Hallucination Cache & Enrichment Sink. This table buffers raw external 
     CREATE TABLE public.cached_botanical_records (
         scientific_name TEXT PRIMARY KEY,
         perenual_id INT,
+        inat_taxon_id INTEGER NULL,
         common_name TEXT NOT NULL,
         ideal_min_ph NUMERIC(3,1) DEFAULT 6.0,
         ideal_max_ph NUMERIC(3,1) DEFAULT 7.0,
@@ -139,6 +141,8 @@ To keep query computations lightweight and protect database limits from throttli
     CREATE INDEX idx_plants_zone ON public.plants(zone_id);
     CREATE INDEX idx_journals_plant_date ON public.plant_journals(plant_id, logged_at DESC);
     CREATE INDEX idx_botanical_cache_id ON public.cached_botanical_records(perenual_id);
+    CREATE INDEX IF NOT EXISTS idx_cbr_inat_taxon_id ON public.cached_botanical_records(inat_taxon_id);
+    CREATE INDEX IF NOT EXISTS idx_plants_inat_taxon_id ON public.plants(inat_taxon_id);
 
 ---
 

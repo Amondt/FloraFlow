@@ -51,6 +51,7 @@ export type Database = {
           ideal_humidity_min: number | null
           ideal_max_ph: number | null
           ideal_min_ph: number | null
+          inat_taxon_id: number | null
           is_ai_enriched: boolean
           is_perenual_enriched: boolean
           is_toxic_to_humans: boolean | null
@@ -92,6 +93,7 @@ export type Database = {
           ideal_humidity_min?: number | null
           ideal_max_ph?: number | null
           ideal_min_ph?: number | null
+          inat_taxon_id?: number | null
           is_ai_enriched?: boolean
           is_perenual_enriched?: boolean
           is_toxic_to_humans?: boolean | null
@@ -133,6 +135,7 @@ export type Database = {
           ideal_humidity_min?: number | null
           ideal_max_ph?: number | null
           ideal_min_ph?: number | null
+          inat_taxon_id?: number | null
           is_ai_enriched?: boolean
           is_perenual_enriched?: boolean
           is_toxic_to_humans?: boolean | null
@@ -252,6 +255,7 @@ export type Database = {
           current_snooze_interval_days: number
           growth_stage: Database["public"]["Enums"]["growth_stage_type"]
           id: string
+          inat_taxon_id: number | null
           last_checked_at: string | null
           next_check_due_at: string
           perenual_id: number | null
@@ -269,6 +273,7 @@ export type Database = {
           current_snooze_interval_days?: number
           growth_stage?: Database["public"]["Enums"]["growth_stage_type"]
           id?: string
+          inat_taxon_id?: number | null
           last_checked_at?: string | null
           next_check_due_at?: string
           perenual_id?: number | null
@@ -286,6 +291,7 @@ export type Database = {
           current_snooze_interval_days?: number
           growth_stage?: Database["public"]["Enums"]["growth_stage_type"]
           id?: string
+          inat_taxon_id?: number | null
           last_checked_at?: string | null
           next_check_due_at?: string
           perenual_id?: number | null

@@ -43,7 +43,7 @@ GET https://api.inaturalist.org/v1/taxa?q={q}&taxon_id=47126&rank=species&per_pa
 
 ## Blocks
 
-- [ ] **Block A — DB migration: `inat_taxon_id` column** | Agent: `/plumber` · Model: Sonnet · Effort: mid
+- [x] **Block A — DB migration: `inat_taxon_id` column** | Agent: `/plumber` · Model: Sonnet · Effort: mid
   - New migration file: add `inat_taxon_id INTEGER NULL` to `cached_botanical_records`
   - New migration file: add `inat_taxon_id INTEGER NULL` to `plants`
   - Index both: `CREATE INDEX IF NOT EXISTS idx_cbr_inat_taxon_id ON cached_botanical_records(inat_taxon_id)` and `CREATE INDEX IF NOT EXISTS idx_plants_inat_taxon_id ON plants(inat_taxon_id)`

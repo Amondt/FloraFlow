@@ -5,19 +5,21 @@
 Perenual's free tier is hard-capped at species IDs 1–3,000 (~37 results for any search). The iNaturalist taxa API is free, requires no API key, covers 10M+ species, and returns `preferred_common_name` + `default_photo` inline — eliminating the separate thumbnail-fetch pass that enrichment currently performs.
 
 **What stays the same:**
+
 - `cached_botanical_records` is still the plant encyclopedia; PK is `scientific_name`
 - `cache-enrichment-worker` pg_cron job (every 10 min) is unchanged
 - Once `is_ai_enriched = true`, the AI Scribe never runs for that record again
 - All search paths hit the local cache first; the external call fires only on cache miss
-- `perenual_id` and `is_perenual_enriched` columns are kept — they hold valid data for records enriched before this migration
 - `claude-vision` (AI Leaf Doctor) — **no changes needed**. It receives an image, calls Claude, and returns health diagnostics. It has zero interaction with `cached_botanical_records`, `perenual_id`, or `inat_taxon_id`. Completely isolated from the botanical cache.
 
 **What changes:**
+
 - `botanical-search` Edge Function: single iNat call replaces the 5-page Perenual loop
 - `_shared/enrich-record.ts`: skips iNat thumbnail fetch when already populated from search; populates `inat_taxon_id` from all enrichment paths
 - `claude-plant-id`: returns `inat_taxon_id`; inserts a stub record for newly identified species so the cron picks them up
 - Angular layer: `inat_taxon_id` threaded through every model, service, and form dialog that touches `perenual_id`
 - Library: enrichment triggers only for the currently visible page, not the full 1,000-record result set
+- **Perenual fully removed at the end** (Blocks M + N): the cache's `perenual_id` + `is_perenual_enriched` and the `plants.perenual_id` column are all dropped. `inat_taxon_id` becomes the sole species link on `plants`; `inat_species_id` is the cache grouping key. Test data is regenerated from the iNat-canonical cache (no production data exists — only the developer's test garden)
 
 ---
 
@@ -29,15 +31,15 @@ GET https://api.inaturalist.org/v1/taxa?q={q}&taxon_id=47126&is_active=true&per_
 
 `taxon_id=47126` = Plantae kingdom. `is_active=true` excludes deprecated/merged taxa (cleaner matches). `locale=en` forces English `preferred_common_name`. **No `rank=species` filter** — dropping it admits hybrids (`hybrid` / `genushybrid` rank, rank_level 10) and infraspecific taxa (`subspecies` / `variety` / `form`, rank_level 5) that gardeners legitimately grow. No API key required. Endpoint `/taxa` is chosen over `/taxa/autocomplete` because only `/taxa` accepts a high `per_page` (max 200) for cache-warming — both return identical `ancestor_ids` / `rank_level` fields.
 
-| iNat field | Our column | Notes |
-|---|---|---|
-| `results[n].id` | `inat_taxon_id` | exact leaf taxon — identity + dedup key |
-| species-rank ancestor (rule below) | `inat_species_id` | grouping key |
-| `results[n].rank` | `inat_rank` | `species` / `hybrid` / `subspecies` / `variety` / `form` — drives the rank badge |
-| `results[n].name` | `scientific_name` | binomial, already cased |
-| `results[n].preferred_common_name ?? name` | `common_name` | apply `toSentenceCase`; falls back to `name` for obscure taxa |
-| `results[n].default_photo.url` | `thumbnail_url` | |
-| `results[n].default_photo.medium_url` | `regular_url` | |
+| iNat field                                 | Our column        | Notes                                                                            |
+| ------------------------------------------ | ----------------- | -------------------------------------------------------------------------------- |
+| `results[n].id`                            | `inat_taxon_id`   | exact leaf taxon — identity + dedup key                                          |
+| species-rank ancestor (rule below)         | `inat_species_id` | grouping key                                                                     |
+| `results[n].rank`                          | `inat_rank`       | `species` / `hybrid` / `subspecies` / `variety` / `form` — drives the rank badge |
+| `results[n].name`                          | `scientific_name` | binomial, already cased                                                          |
+| `results[n].preferred_common_name ?? name` | `common_name`     | apply `toSentenceCase`; falls back to `name` for obscure taxa                    |
+| `results[n].default_photo.url`             | `thumbnail_url`   |                                                                                  |
+| `results[n].default_photo.medium_url`      | `regular_url`     |                                                                                  |
 
 **Two-tier identity model.** `inat_taxon_id` is the exact leaf taxon (species, subspecies, variety, or hybrid) — used for identity, photos, and as the dedup key. `inat_species_id` is the species-rank ancestor — used as the grouping key so real iNat varieties/subspecies collapse under their parent species (e.g. _Brassica oleracea_ var. _italica_ + var. _capitata_ → one "Brassica oleracea" card). iNaturalist has **no concept of cultivars**, so the old cultivar-string grouping is replaced by this botanically authoritative hierarchy.
 
@@ -89,9 +91,14 @@ GET https://api.inaturalist.org/v1/taxa?q={q}&taxon_id=47126&is_active=true&per_
   - `fetchINatThumbnail()` return type: add `taxon_id: number | null`
   - In `enrichRecord()` full path: check `cached?.thumbnail_url && cached?.thumbnail_fetched` before calling `fetchINatThumbnail`. If already set, skip the iNat HTTP request and use existing values:
     ```ts
-    const inat = (cached?.thumbnail_url && cached?.thumbnail_fetched)
-      ? { taxon_id: cached?.inat_taxon_id ?? null, thumbnail_url: cached.thumbnail_url, regular_url: cached.regular_url ?? null }
-      : await fetchINatThumbnail(scientificName, commonName);
+    const inat =
+      cached?.thumbnail_url && cached?.thumbnail_fetched
+        ? {
+            taxon_id: cached?.inat_taxon_id ?? null,
+            thumbnail_url: cached.thumbnail_url,
+            regular_url: cached.regular_url ?? null,
+          }
+        : await fetchINatThumbnail(scientificName, commonName);
     ```
   - Full path upsert: add `inat_taxon_id: inat.taxon_id ?? cached?.inat_taxon_id ?? null`; keep `thumbnail_url: inat.thumbnail_url`, `regular_url: inat.regular_url`, `thumbnail_fetched: true` — unchanged
   - Thumbnail-only path (AI-enriched, thumbnail missing): add `inat_taxon_id: inat.taxon_id ?? null` to the `.update()` call
@@ -118,7 +125,7 @@ GET https://api.inaturalist.org/v1/taxa?q={q}&taxon_id=47126&is_active=true&per_
 
 The first backfill pass exposed two problems the original Block G did not anticipate: (1) early runs matched `results[0]` from a `rank=species` query with **no verification**, so some `inat_taxon_id` values may point at the wrong species while the AI-enriched care data describes a different one; (2) iNaturalist has no cultivars, so grouping by `inat_taxon_id` leaves real botanical varieties as separate cards instead of collapsing them under their species. **User decision: "Canonical iNat"** — re-verify every match with a genus+epithet guard, delete iNat-absent rows, deduplicate to one row per iNat taxon, and group by the species-rank ancestor (`inat_species_id`). Blocks G–K below replace the original Block G.
 
-- [ ] **Block G — Migration: `inat_species_id` + `inat_rank` columns** | Agent: `/plumber` · Model: Sonnet · Effort: mid
+- [x] **Block G — Migration: `inat_species_id` + `inat_rank` columns** | Agent: `/plumber` · Model: Sonnet · Effort: mid
   - New migration file (one file, both columns):
     - `ALTER TABLE public.cached_botanical_records ADD COLUMN IF NOT EXISTS inat_species_id INTEGER NULL;`
     - `ALTER TABLE public.cached_botanical_records ADD COLUMN IF NOT EXISTS inat_rank TEXT NULL;`
@@ -128,7 +135,7 @@ The first backfill pass exposed two problems the original Block G did not antici
   - `bunx supabase migration up` → `bun run types` → `Copy-Item src/types/database.types.ts supabase/functions/_shared/database.types.ts`
   - Verify in Studio SQL: both columns exist on `cached_botanical_records`
 
-- [ ] **Block H — iNat query hardening (`botanical-search` + `_shared/enrich-record.ts`)** | Agent: `/plumber` · Model: Sonnet · Effort: high
+- [x] **Block H — iNat query hardening (`botanical-search` + `_shared/enrich-record.ts`)** | Agent: `/plumber` · Model: Sonnet · Effort: high
   - Shared helper `deriveSpeciesId(taxon)` in `_shared/` implementing the species-ancestor rule (rank_level 10 → self id; <10 → parent_id; >10 → null)
   - Both functions: drop `rank=species`; keep `taxon_id=47126`; add `is_active=true`
   - `botanical-search`: fetch `per_page=100` (constant `MAX_UPSERT`) to warm the cache widely; upsert all 100 with `inat_species_id` **and** `inat_rank` (from `taxon.rank`) populated; **return only the top 30** (`MAX_RESULTS`) to the caller so the autocomplete dropdown stays usable — this solves "too few results" for the library without flooding the dropdown
@@ -237,21 +244,60 @@ The first backfill pass exposed two problems the original Block G did not antici
     6. Navigate to Dashboard → use AI Plant Identifier → identify a plant → "Add to My Plants" pre-fills the form → confirm `inat_taxon_id` is wired (plant saves without error)
     7. Open DevTools Console → confirm zero red errors across all steps
 
+### Perenual removal addendum (decision 2026-06-08)
+
+With `inat_taxon_id` fully threaded (Blocks E + F) and the cache iNat-canonical (Block J), Perenual is removed entirely. The cache's `perenual_id` + `is_perenual_enriched` are dropped; `plants.perenual_id` is dropped and replaced as the species link by `inat_taxon_id` (the column already exists on `plants` from Block A's migration). `is_perenual_enriched` already has **zero functional readers** — it survives only in the generated types. No production data exists — only the developer's test garden — so test data is regenerated fresh from the iNat-canonical cache rather than migrated. **Ordering constraint:** the frontend must stop _selecting_ `plants.perenual_id` (Block M) **before** the column is dropped (Block N), or every plant query returns 400.
+
+- [ ] **Block M — Frontend Perenual removal** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+  - **Gated behind E + F** — `inat_taxon_id` must already be the wired species link before `perenual_id` is torn out, so each file ends iNat-only and compiling
+  - Remove the `perenual_id` field from every model/type: `BotanicalSuggestion` (`botanical-search.service.ts`), `PlantIdResult` (`plant-identifier.service.ts`), `QueuedAction` (`offline-queue.service.ts`), `Plant` + `PlantFormData` (`plant.model.ts`), `PlantIdentifiedEvent` (`plant-identifier-dialog.ts`)
+  - `plant.service.ts`: drop `perenual_id` from both `.select()` column strings (keep `inat_taxon_id`); remove it from the offline-queue item, the offline-optimistic plant, and the enqueue payload
+  - `plant-form-dialog.ts`: delete the `selectedPerenualId` signal and every reference; the lock guard, prefill `effect`, `onSuggestionSelect`, clear action, and `buildSubmitPayload` all use `selectedInatTaxonId` only (added in F); remove `perenual_id` from the `botanicalPrefill` input type
+  - `plant-identifier-dialog.ts`: delete `emittablePerenualId`; `viewProfile()` + `addToMyPlants()` emit `inat_taxon_id` only (via `emittableInatTaxonId` from E)
+  - `dashboard.ts` + `library.ts`: remove `perenual_id` from the `prefillRecord` signal type and both `.set()` / `openAddDialog()` call sites (keep `inat_taxon_id` from F)
+  - `seeds.ts`: remove `perenual_id` from the `graduatePrefill` inline type and `onGraduateRequested()`
+  - `seed-batch-form-dialog.ts`: simplify the F fallback `suggestion.inat_taxon_id ?? suggestion.perenual_id ?? null` → `suggestion.inat_taxon_id ?? null` (`BotanicalSuggestion` no longer carries `perenual_id`)
+  - Spec files: remove every `perenual_id` and `is_perenual_enriched` key from mock objects in `tasks.spec.ts`, `zone-detail.spec.ts`, `soil-check-dialog.spec.ts`, `care-recommendations-panel.spec.ts`, `plant-form-dialog.spec.ts`, `plant-identifier-dialog.spec.ts`, `plant-identifier.service.spec.ts`, `botanical-thumbnail.service.spec.ts`
+  - Verify zero functional references remain: `Grep "perenual" src/app` returns nothing outside comments
+  - Run `bun run format && bun run lint && bun run test`
+  - Manual Browser Check — Block M
+    ────────────────────────────────
+    App running at: http://localhost:4200
+    1. Add a plant via species autocomplete → saves without error (now iNat-only)
+    2. AI Plant Identifier → "Add to My Plants" → form pre-fills and saves
+    3. Open DevTools Console → zero red errors
+
+- [ ] **Block N — Drop Perenual columns + regenerate test data** | Agent: `/plumber` · Model: Sonnet · Effort: mid
+  - **Gated behind M + J** — frontend no longer references `plants.perenual_id`; cache is iNat-canonical
+  - `claude-plant-id/index.ts`: drop `perenual_id` from the cache `.select()`, the `cacheMap` value type, and the response (returns `inat_taxon_id` only). Update `docs/AI_PROMPT_MANIFEST.md §2.3` — remove `perenual_id` from `PlantIdResponse` and its explanatory note
+  - New migration file `20260608000003_phase_3_16_drop_perenual.sql` (one file):
+    - `ALTER TABLE public.cached_botanical_records DROP COLUMN IF EXISTS perenual_id;`
+    - `ALTER TABLE public.cached_botanical_records DROP COLUMN IF EXISTS is_perenual_enriched;`
+    - `DROP INDEX IF EXISTS public.idx_botanical_cache_id;` (was on cache `perenual_id`)
+    - `ALTER TABLE public.plants DROP COLUMN IF EXISTS perenual_id;`
+  - Update `docs/DB_SCHEMA_MATRIX.md`: remove `perenual_id` from §2.3 `plants`; remove `perenual_id` + `is_perenual_enriched` from §2.4 `cached_botanical_records`; remove `idx_botanical_cache_id` from §3
+  - Regenerate test-data snippets so plants link via `inat_taxon_id` (real IDs from the canonical cache), with **no** `perenual_id` anywhere — covering all test cases: indoor + outdoor zones, plants across growth stages and check-due states, seed batches across stages, journals across categories incl. Leaf Doctor diagnostics. Reconcile both the reset snippets (`supabase/snippets/reset_*.sql`) and the populate scripts (`supabase/dev/seed_dev_user.sql`, `supabase/dev/populate_journal.sql`); delete the junk `supabase/snippets/Untitled query 908.sql`. Run them to rebuild the test garden
+  - `bunx supabase migration up` → `bun run types` → `Copy-Item src/types/database.types.ts supabase/functions/_shared/database.types.ts`
+  - **Refresh `supabase/seed.sql`** after the drop — it still carries `perenual_id` INSERT columns; a stale replay during `bun run db-reset-safe` would fail against the new schema. Re-run the cache export (`supabase/scripts/export-botanical-seed.ts`) so `seed.sql` matches the post-drop columns
+  - Verify in Studio SQL: `perenual_id` / `is_perenual_enriched` absent from both tables; `SELECT COUNT(*) FROM plants WHERE inat_taxon_id IS NOT NULL` matches the regenerated plant count
+
 ---
 
 ## Verification summary (per block)
 
-| Block | Verification |
-|---|---|
-| A | Studio SQL column check on both tables |
-| B | PowerShell Invoke-RestMethod — ≥30 results, `inat_taxon_id` + `thumbnail_url` + English `preferred_common_name` present |
-| C | Manual cron trigger in Studio → DB record has `inat_taxon_id` |
-| D | Plant Identifier photo test → response JSON has both `perenual_id` and `inat_taxon_id` |
-| E | `bun run test` passes; Network tab shows `inat_taxon_id` in plant create payload; `PlantIdResult` and `QueuedAction` both compile with `inat_taxon_id` |
-| F | Manual Browser Check — all 7 steps pass |
-| G | Studio SQL — `inat_species_id` + `inat_rank` columns present on `cached_botanical_records` |
-| H | Search warms ≥30 cached rows carrying `inat_taxon_id` + `inat_species_id` + `inat_rank`; hybrid query returns `inat_rank = 'hybrid'` |
-| I | `bun run lint`; function returns `{ processed, remaining, absent }` |
-| J | Backfill loop to `remaining = 0`; `COUNT(*) WHERE inat_taxon_id IS NULL OR = -1` → 0; no duplicate `inat_taxon_id` |
-| K | Library browser check — iNat varieties collapse into one card; `bun run test` passes |
-| L | Library browser check — hybrid/variety shows correct rank badge, plain species shows none; `bun run test` passes |
+| Block | Verification                                                                                                                                           |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| A     | Studio SQL column check on both tables                                                                                                                 |
+| B     | PowerShell Invoke-RestMethod — ≥30 results, `inat_taxon_id` + `thumbnail_url` + English `preferred_common_name` present                                |
+| C     | Manual cron trigger in Studio → DB record has `inat_taxon_id`                                                                                          |
+| D     | Plant Identifier photo test → response JSON has both `perenual_id` and `inat_taxon_id`                                                                 |
+| E     | `bun run test` passes; Network tab shows `inat_taxon_id` in plant create payload; `PlantIdResult` and `QueuedAction` both compile with `inat_taxon_id` |
+| F     | Manual Browser Check — all 7 steps pass                                                                                                                |
+| G     | Studio SQL — `inat_species_id` + `inat_rank` columns present on `cached_botanical_records`                                                             |
+| H     | Search warms ≥30 cached rows carrying `inat_taxon_id` + `inat_species_id` + `inat_rank`; hybrid query returns `inat_rank = 'hybrid'`                   |
+| I     | `bun run lint`; function returns `{ processed, remaining, absent }`                                                                                    |
+| J     | Backfill loop to `remaining = 0`; `COUNT(*) WHERE inat_taxon_id IS NULL OR = -1` → 0; no duplicate `inat_taxon_id`                                     |
+| K     | Library browser check — iNat varieties collapse into one card; `bun run test` passes                                                                   |
+| L     | Library browser check — hybrid/variety shows correct rank badge, plain species shows none; `bun run test` passes                                       |
+| M     | `Grep "perenual" src/app` returns zero functional hits; `bun run test` passes; Manual Browser Check — plant add + identifier both save iNat-only        |
+| N     | Studio SQL — `perenual_id` / `is_perenual_enriched` gone from both tables; regenerated test garden loads; `plants.inat_taxon_id` populated             |

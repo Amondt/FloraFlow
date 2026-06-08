@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from '../_shared/database.types.ts';
 import { cors, json } from '../_shared/response.ts';
 import { toSentenceCase } from '../_shared/text.ts';
+import { deriveSpeciesId } from '../_shared/inat.ts';
 
 type BotanicalResult = {
   scientific_name: string;
@@ -10,8 +11,13 @@ type BotanicalResult = {
   thumbnail_url: string | null;
 };
 
-// How many results to request from iNaturalist and how many cached results to serve.
+// How many results to return to the autocomplete caller.
 const MAX_RESULTS = 30;
+
+// How many records to fetch from iNaturalist for cache warming.
+// Larger than MAX_RESULTS so the cache fills deeply on first search;
+// subsequent queries for similar terms hit the warm cache immediately.
+const MAX_UPSERT = 100;
 
 // Only skip the iNaturalist round-trip when the cache holds at least a full page's
 // worth of results. If the cache has fewer, it may be a partial result set and the
@@ -56,13 +62,15 @@ Deno.serve(async (req: Request) => {
     // Cache is warm enough — serve immediately and skip the iNaturalist round-trip
     if ((cached?.length ?? 0) >= CACHE_THRESHOLD) return json(cached);
 
-    // Cache miss or partial cache — fetch from iNaturalist (Plantae kingdom, species rank,
-    // English common names). Photos are returned inline so no separate thumbnail pass is needed.
+    // Cache miss or partial cache — fetch from iNaturalist.
+    // No rank=species so hybrids are included; taxon_id=47126 restricts to Plantae;
+    // is_active=true excludes deprecated/merged taxa; locale=en forces English common names.
+    // Fetch MAX_UPSERT records to warm the cache widely; return only MAX_RESULTS to caller.
     const fresh: BotanicalResult[] = [];
 
     try {
       const resp = await fetch(
-        `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(q)}&taxon_id=47126&rank=species&per_page=${MAX_RESULTS}&locale=en`,
+        `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(q)}&taxon_id=47126&is_active=true&per_page=${MAX_UPSERT}&locale=en`,
         { signal: AbortSignal.timeout(8000) },
       );
       if (!resp.ok) throw new Error(`iNaturalist responded ${resp.status}`);
@@ -73,6 +81,8 @@ Deno.serve(async (req: Request) => {
         scientific_name: string;
         common_name: string;
         inat_taxon_id: number;
+        inat_species_id: number | null;
+        inat_rank: string | null;
         thumbnail_url: string | null;
         regular_url: string | null;
         thumbnail_fetched: boolean;
@@ -85,6 +95,14 @@ Deno.serve(async (req: Request) => {
         const preferredCommonName = taxon['preferred_common_name'] as string | undefined;
         const commonName = toSentenceCase(preferredCommonName ?? scientificName);
         const inatTaxonId = taxon['id'] as number;
+        const rankLevel = taxon['rank_level'] as number | undefined;
+        const parentId = taxon['parent_id'] as number | undefined;
+        const rank = (taxon['rank'] as string | undefined) ?? null;
+
+        const speciesId =
+          rankLevel != null
+            ? deriveSpeciesId({ id: inatTaxonId, rank_level: rankLevel, parent_id: parentId })
+            : null;
 
         const defaultPhoto = taxon['default_photo'] as Record<string, unknown> | null | undefined;
         const thumbnailUrl = (defaultPhoto?.['url'] as string | undefined) ?? null;
@@ -94,6 +112,8 @@ Deno.serve(async (req: Request) => {
           scientific_name: scientificName,
           common_name: commonName,
           inat_taxon_id: inatTaxonId,
+          inat_species_id: speciesId,
+          inat_rank: rank,
           thumbnail_url: thumbnailUrl,
           regular_url: regularUrl,
           // Photos arrive inline — mark as fetched so the enrichment cron skips the
@@ -101,12 +121,16 @@ Deno.serve(async (req: Request) => {
           thumbnail_fetched: true,
         });
 
-        fresh.push({
-          scientific_name: scientificName,
-          common_name: commonName,
-          inat_taxon_id: inatTaxonId,
-          thumbnail_url: thumbnailUrl,
-        });
+        // Only the first MAX_RESULTS entries go back to the caller.
+        // The rest are cache-warming only — they never reach the autocomplete dropdown.
+        if (fresh.length < MAX_RESULTS) {
+          fresh.push({
+            scientific_name: scientificName,
+            common_name: commonName,
+            inat_taxon_id: inatTaxonId,
+            thumbnail_url: thumbnailUrl,
+          });
+        }
       }
 
       // Persist all records in one batch. Care fields (watering, pH, toxicity) are written
@@ -120,11 +144,12 @@ Deno.serve(async (req: Request) => {
       console.error('iNaturalist fetch failed — returning cached results only:', err);
     }
 
-    // Merge cached hits with newly fetched results; deduplicate by scientific_name
+    // Merge cached hits with newly fetched results; deduplicate by scientific_name.
+    // Slice to MAX_RESULTS so the response is always bounded even when cache + fresh overlap.
     const seen = new Set((cached ?? []).map((r) => r.scientific_name));
     const merged = [...(cached ?? []), ...fresh.filter((r) => !seen.has(r.scientific_name))];
 
-    return json(merged);
+    return json(merged.slice(0, MAX_RESULTS));
   } catch (err) {
     return json({ error: (err as Error).message }, 500);
   }

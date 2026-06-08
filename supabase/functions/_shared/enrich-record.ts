@@ -4,6 +4,7 @@ import { z } from 'zod/v4';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './database.types.ts';
 import { toSentenceCase } from './text.ts';
+import { deriveSpeciesId } from './inat.ts';
 
 // ─── Row type alias ──────────────────────────────────────────────────────────
 
@@ -118,23 +119,53 @@ export const EnrichmentSchema = z.object({
   is_ai_enriched: z.literal(true),
 });
 
+// ─── iNaturalist result type ──────────────────────────────────────────────────
+
+type InatLookupResult = {
+  taxon_id: number;
+  species_id: number | null;
+  rank: string | null;
+  thumbnail_url: string | null;
+  regular_url: string | null;
+};
+
 // ─── iNaturalist helpers ──────────────────────────────────────────────────────
 
+// Fetches the best iNat match for a query. No rank=species filter so hybrids are found.
+// taxon_id=47126 restricts to Plantae; is_active=true excludes deprecated/merged taxa.
+// Returns null when iNat has no matching taxon (not just missing photo).
 export async function queryINat(
   query: string,
   signal: AbortSignal,
-): Promise<{ taxon_id: number; thumbnail_url: string; regular_url: string | null } | null> {
+): Promise<InatLookupResult | null> {
   try {
-    const url = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(query)}&rank=species&per_page=1`;
+    const url = `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(query)}&taxon_id=47126&is_active=true&per_page=1&locale=en`;
     const res = await fetch(url, { signal });
     if (!res.ok) return null;
     const data = (await res.json()) as {
-      results?: Array<{ id?: number; default_photo?: { url?: string; medium_url?: string } }>;
+      results?: Array<{
+        id?: number;
+        rank?: string;
+        rank_level?: number;
+        parent_id?: number;
+        default_photo?: { url?: string; medium_url?: string };
+      }>;
     };
     const first = data?.results?.[0];
-    const photo = first?.default_photo;
-    if (!photo?.url || !first?.id) return null;
-    return { taxon_id: first.id, thumbnail_url: photo.url, regular_url: photo.medium_url ?? null };
+    if (!first?.id) return null;
+    const photo = first.default_photo;
+    const speciesId = deriveSpeciesId({
+      id: first.id,
+      rank_level: first.rank_level ?? 10,
+      parent_id: first.parent_id,
+    });
+    return {
+      taxon_id: first.id,
+      species_id: speciesId,
+      rank: first.rank ?? null,
+      thumbnail_url: photo?.url ?? null,
+      regular_url: photo?.medium_url ?? null,
+    };
   } catch {
     return null;
   }
@@ -143,7 +174,7 @@ export async function queryINat(
 export async function fetchINatThumbnail(
   scientificName: string,
   commonName: string,
-): Promise<{ taxon_id: number | null; thumbnail_url: string | null; regular_url: string | null }> {
+): Promise<InatLookupResult & { taxon_id: number | null }> {
   // Cultivar suffixes (e.g. "'Variegata'") are not indexed by iNaturalist — strip them.
   const queryName = scientificName.split("'")[0].trim();
   const controller = new AbortController();
@@ -153,7 +184,15 @@ export async function fetchINatThumbnail(
     const result =
       (await queryINat(queryName, controller.signal)) ??
       (await queryINat(commonName, controller.signal));
-    return result ?? { taxon_id: null, thumbnail_url: null, regular_url: null };
+    return (
+      result ?? {
+        taxon_id: null,
+        species_id: null,
+        rank: null,
+        thumbnail_url: null,
+        regular_url: null,
+      }
+    );
   } finally {
     clearTimeout(timeout);
   }
@@ -195,6 +234,8 @@ export async function enrichRecord(
       .from('cached_botanical_records')
       .update({
         inat_taxon_id: inat.taxon_id ?? null,
+        inat_species_id: inat.species_id ?? null,
+        inat_rank: inat.rank ?? null,
         thumbnail_url: inat.thumbnail_url,
         regular_url: inat.regular_url,
         thumbnail_fetched: true,
@@ -210,12 +251,14 @@ export async function enrichRecord(
   // Full enrichment path — Claude AI always runs; iNat skipped when the search pass
   // already populated thumbnail_url (Block B sets thumbnail_fetched=true at search time).
   let parsed: z.infer<typeof EnrichmentSchema>;
-  let inat: { taxon_id: number | null; thumbnail_url: string | null; regular_url: string | null };
+  let inat: InatLookupResult & { taxon_id: number | null };
   try {
     const inatFetch =
       cached?.thumbnail_url && cached?.thumbnail_fetched
         ? Promise.resolve({
             taxon_id: cached.inat_taxon_id ?? null,
+            species_id: cached.inat_species_id ?? null,
+            rank: cached.inat_rank ?? null,
             thumbnail_url: cached.thumbnail_url,
             regular_url: cached.regular_url ?? null,
           })
@@ -295,6 +338,8 @@ export async function enrichRecord(
         max_spread_cm: parsed.max_spread_cm,
         air_purifying: parsed.air_purifying,
         inat_taxon_id: inat.taxon_id ?? cached?.inat_taxon_id ?? null,
+        inat_species_id: inat.species_id ?? cached?.inat_species_id ?? null,
+        inat_rank: inat.rank ?? cached?.inat_rank ?? null,
         thumbnail_url: inat.thumbnail_url,
         regular_url: inat.regular_url,
         thumbnail_fetched: true,

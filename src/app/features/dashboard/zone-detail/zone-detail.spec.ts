@@ -91,6 +91,9 @@ function makeRecord(overrides: Partial<CachedBotanicalRecord> = {}): CachedBotan
     thumbnail_url: null,
     regular_url: null,
     thumbnail_fetched: false,
+    inat_taxon_id: null,
+    inat_species_id: null,
+    inat_rank: null,
     ...overrides,
   };
 }

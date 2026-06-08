@@ -16,6 +16,24 @@ function rec(
   } as unknown as CachedBotanicalRecord;
 }
 
+function inatRec(
+  scientific_name: string,
+  common_name: string,
+  inat_species_id: number | null,
+  inat_taxon_id: number | null,
+  description: string | null = null,
+  thumbnail_url: string | null = null,
+): CachedBotanicalRecord {
+  return {
+    scientific_name,
+    common_name,
+    inat_species_id,
+    inat_taxon_id,
+    description,
+    thumbnail_url,
+  } as unknown as CachedBotanicalRecord;
+}
+
 describe('groupBotanicalRecords', () => {
   it('returns an empty array for no input', () => {
     expect(groupBotanicalRecords([])).toEqual([]);
@@ -46,6 +64,52 @@ describe('groupBotanicalRecords', () => {
       rec('Rosa canina', 'Dog rose'),
     ]);
     expect(result.map((g) => g.commonName)).toEqual(['Corn', 'Dog rose', 'Japanese maple']);
+  });
+
+  describe('iNat-based grouping', () => {
+    it('collapses records sharing inat_species_id into one group', () => {
+      const result = groupBotanicalRecords([
+        inatRec('Beta vulgaris', 'Beet', 54498, 54498),
+        inatRec('Beta vulgaris subsp. vulgaris', 'Beet', 54498, 55000),
+      ]);
+      expect(result).toHaveLength(1);
+      expect(result[0].varieties).toHaveLength(2);
+    });
+
+    it('keeps records with different inat_species_id in separate groups', () => {
+      const result = groupBotanicalRecords([
+        inatRec('Rosa canina', 'Dog rose', 50000, 50000),
+        inatRec('Acer palmatum', 'Japanese maple', 60000, 60000),
+      ]);
+      expect(result).toHaveLength(2);
+    });
+
+    it('sets inatSpeciesId on the group from the representative', () => {
+      const result = groupBotanicalRecords([inatRec('Beta vulgaris', 'Beet', 54498, 54498)]);
+      expect(result[0].inatSpeciesId).toBe(54498);
+    });
+
+    it('falls back to inat_taxon_id grouping when inat_species_id is null', () => {
+      const result = groupBotanicalRecords([
+        inatRec('Acer', 'Maple', null, 12345),
+        inatRec('Betula', 'Birch', null, 67890),
+      ]);
+      expect(result).toHaveLength(2);
+    });
+
+    it('groups two records sharing an inat_taxon_id fallback when inat_species_id is null', () => {
+      const result = groupBotanicalRecords([
+        inatRec('Acer palmatum', 'Japanese maple', null, 12345),
+        inatRec('Acer palmatum var. dissectum', 'Japanese maple', null, 12345),
+      ]);
+      expect(result).toHaveLength(1);
+      expect(result[0].varieties).toHaveLength(2);
+    });
+
+    it('sets inatSpeciesId to null when grouping falls back to common_name', () => {
+      const result = groupBotanicalRecords([rec('Rosa canina', 'Dog rose')]);
+      expect(result[0].inatSpeciesId).toBeNull();
+    });
   });
 
   describe('representative selection', () => {

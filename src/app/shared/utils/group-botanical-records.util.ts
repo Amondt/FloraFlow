@@ -5,6 +5,7 @@ export interface SpeciesGroup {
   baseScientificName: string;
   representative: CachedBotanicalRecord;
   varieties: CachedBotanicalRecord[];
+  inatSpeciesId: number | null;
 }
 
 function hasNoCultivar(record: CachedBotanicalRecord): boolean {
@@ -41,11 +42,21 @@ function sortVarieties(records: CachedBotanicalRecord[]): CachedBotanicalRecord[
   });
 }
 
+// Computes the grouping key for a record.
+// inat_species_id is the authoritative key — collapses botanical varieties and subspecies under
+// their species-rank ancestor. Falls back to inat_taxon_id (positive match only) for records
+// without a species ancestor, then to common_name for records not yet matched to iNat.
+function groupingKey(record: CachedBotanicalRecord): number | string {
+  if (record.inat_species_id != null) return record.inat_species_id;
+  if (record.inat_taxon_id != null && record.inat_taxon_id > 0) return record.inat_taxon_id;
+  return record.common_name.toLowerCase().trim();
+}
+
 export function groupBotanicalRecords(records: CachedBotanicalRecord[]): SpeciesGroup[] {
-  const groupMap = new Map<string, CachedBotanicalRecord[]>();
+  const groupMap = new Map<number | string, CachedBotanicalRecord[]>();
 
   for (const record of records) {
-    const key = record.common_name.toLowerCase().trim();
+    const key = groupingKey(record);
     const existing = groupMap.get(key);
     if (existing) {
       existing.push(record);
@@ -62,6 +73,7 @@ export function groupBotanicalRecords(records: CachedBotanicalRecord[]): Species
       baseScientificName: extractBaseScientificName(representative.scientific_name),
       representative,
       varieties: sortVarieties(groupRecords),
+      inatSpeciesId: representative.inat_species_id ?? null,
     });
   }
 

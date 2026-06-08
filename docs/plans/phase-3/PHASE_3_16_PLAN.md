@@ -159,7 +159,7 @@ The first backfill pass exposed two problems the original Block G did not antici
   - **Deduplicate** rows sharing an `inat_taxon_id`, keeping the richest enrichment (`is_ai_enriched`, then non-null `description`, then non-null `thumbnail_url`). Provide a dry-run `SELECT` of the delete set **first**; never link one species' enrichment to another (user constraint)
   - Verify: `SELECT COUNT(*) FROM cached_botanical_records WHERE inat_taxon_id IS NULL OR inat_taxon_id = -1;` → 0; and no `inat_taxon_id` appears more than once
 
-- [ ] **Block K — Grouping refactor (`group-botanical-records.util.ts`)** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **Block K — Grouping refactor (`group-botanical-records.util.ts`)** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - Grouping key: `record.inat_species_id ?? (record.inat_taxon_id && record.inat_taxon_id > 0 ? record.inat_taxon_id : null) ?? record.common_name.toLowerCase().trim()`
   - Add `inatSpeciesId: number | null` to `SpeciesGroup`, set from `representative.inat_species_id`
   - Real iNat varieties/subspecies of one species collapse into one card; standalone species show one card, no variety badge (honest — cultivar chips are gone by design)

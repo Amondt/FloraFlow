@@ -12,7 +12,7 @@ function makeRow(scientificName: string): BotanicalCacheRow {
     id: crypto.randomUUID(),
     scientific_name: scientificName,
     common_name: scientificName,
-    perenual_id: 1,
+
     watering: 'Average',
     sunlight: null,
     cycle: null,
@@ -27,7 +27,6 @@ function makeRow(scientificName: string): BotanicalCacheRow {
     ideal_humidity_max: null,
     care_difficulty: null,
     is_ai_enriched: false,
-    is_perenual_enriched: false,
     cached_at: new Date().toISOString(),
     description: null,
     placement: null,
@@ -49,6 +48,8 @@ function makeRow(scientificName: string): BotanicalCacheRow {
     regular_url: null,
     thumbnail_fetched: false,
     inat_taxon_id: null,
+    inat_species_id: null,
+    inat_rank: null,
   } as unknown as BotanicalCacheRow;
 }
 

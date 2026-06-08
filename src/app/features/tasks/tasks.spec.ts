@@ -23,7 +23,6 @@ function makePlant(id: string, offsetDays: number): Plant {
     zone_id: 'z',
     common_name: `Plant ${id}`,
     scientific_name: null,
-    perenual_id: null,
     inat_taxon_id: null,
     container_vector: 'Terracotta',
     substrate_factor: 'Standard Potting',

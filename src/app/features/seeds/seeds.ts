@@ -71,7 +71,6 @@ export class SeedsComponent implements OnInit {
   protected readonly graduatePrefill = signal<{
     common_name: string;
     scientific_name: string | null;
-    perenual_id: number | null;
     inat_taxon_id: number | null;
   } | null>(null);
 
@@ -224,7 +223,6 @@ export class SeedsComponent implements OnInit {
     this.graduatePrefill.set({
       common_name: batch.common_name,
       scientific_name: batch.scientific_name,
-      perenual_id: null,
       inat_taxon_id: null,
     });
     this.plantFormVisible.set(true);

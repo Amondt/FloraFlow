@@ -21,7 +21,6 @@ function makeRecord(overrides: Partial<CachedBotanicalRecord> = {}): CachedBotan
     ideal_max_ph: null,
     ideal_min_ph: null,
     is_ai_enriched: false,
-    is_perenual_enriched: false,
     is_toxic_to_humans: null,
     is_toxic_to_pets: null,
     is_tropical: null,
@@ -29,7 +28,7 @@ function makeRecord(overrides: Partial<CachedBotanicalRecord> = {}): CachedBotan
     max_height_cm: null,
     max_spread_cm: null,
     native_region: null,
-    perenual_id: null,
+
     placement: null,
     plant_type: null,
     preferred_soil_type: null,

@@ -62,7 +62,6 @@ Represents individual plant instances located inside specific ecosystem zones.
         -- Taxonomy Links & Fallbacks
         common_name TEXT NOT NULL,
         scientific_name TEXT,
-        perenual_id INT,
         inat_taxon_id INTEGER NULL,
 
         -- Structural Care Matrix
@@ -84,7 +83,6 @@ The Anti-Hallucination Cache & Enrichment Sink. This table buffers raw external 
 
     CREATE TABLE public.cached_botanical_records (
         scientific_name TEXT PRIMARY KEY,
-        perenual_id INT,
         inat_taxon_id INTEGER NULL,
         inat_species_id INTEGER NULL,  -- species-rank ancestor; grouping key
         inat_rank TEXT NULL,           -- leaf taxon rank ('species','hybrid','subspecies','variety','form'); badge display only
@@ -103,7 +101,6 @@ The Anti-Hallucination Cache & Enrichment Sink. This table buffers raw external 
         ideal_humidity_min INT,              -- species-specific RH % lower bound
         ideal_humidity_max INT,              -- species-specific RH % upper bound
         care_difficulty TEXT,               -- 'Beginner' | 'Intermediate' | 'Advanced'
-        is_perenual_enriched BOOLEAN DEFAULT FALSE NOT NULL, -- set true after the Perenual species/details call completes
         is_ai_enriched BOOLEAN DEFAULT FALSE NOT NULL,
         raw_api_payload JSONB,
         cached_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
@@ -142,7 +139,6 @@ To keep query computations lightweight and protect database limits from throttli
     CREATE INDEX idx_plants_scheduling ON public.plants(user_id, next_check_due_at ASC);
     CREATE INDEX idx_plants_zone ON public.plants(zone_id);
     CREATE INDEX idx_journals_plant_date ON public.plant_journals(plant_id, logged_at DESC);
-    CREATE INDEX idx_botanical_cache_id ON public.cached_botanical_records(perenual_id);
     CREATE INDEX IF NOT EXISTS idx_cbr_inat_taxon_id ON public.cached_botanical_records(inat_taxon_id);
     CREATE INDEX IF NOT EXISTS idx_cbr_inat_species_id ON public.cached_botanical_records(inat_species_id);
     CREATE INDEX IF NOT EXISTS idx_plants_inat_taxon_id ON public.plants(inat_taxon_id);
@@ -241,98 +237,11 @@ Enable RLS explicitly on all tables. This mandates that client queries passing t
 
 ---
 
-## 🧠 Strategic Notes for the Smart Snooze Loop
+## 🧠 Smart Snooze RPCs
 
-When **The Plumber Agent** writes the database execution script for user interaction events, the **Smart Snooze Logic** must be implemented as a **PostgreSQL stored procedure (RPC)** — not as a raw update inside an Edge Function.
+`confirm_plant_check` and `snooze_plant_check` are SECURITY DEFINER RPCs called by the client. The client computes the full snooze interval (`SNOOZE_MATRIX[container × substrate] × watering multiplier × growth-stage multiplier`) and passes the final `p_snooze_days` value. Both RPCs are simple writers — no server-side lookup, no multiplier.
 
-**Why RPC, not a direct Edge Function update?**
-Edge Functions use the `service_role` key, which bypasses RLS. Calling `auth.uid()` inside raw SQL run by the service role returns `null` — there is no JWT context. Wrap the logic in a stored procedure instead: the client calls `supabase.rpc('snooze_plant_check', { p_plant_id })`, which executes under the caller's JWT so `auth.uid()` resolves correctly.
-
-### 2.6 Table: `snooze_interval_rules`
-
-A seed-only lookup table. Rows are inserted at migration time and never modified by users. The procedure reads from it to derive snooze days from a plant's container × substrate combination.
-
-    CREATE TABLE public.snooze_interval_rules (
-        container_vector container_vector_type NOT NULL,
-        substrate_factor substrate_factor_type NOT NULL,
-        snooze_days      INT                   NOT NULL CHECK (snooze_days BETWEEN 1 AND 14),
-        PRIMARY KEY (container_vector, substrate_factor)
-    );
-
-    -- Direct client access blocked. The snooze_plant_check RPC is SECURITY DEFINER
-    -- and bypasses RLS, so no SELECT policy is needed — the function still works.
-    ALTER TABLE public.snooze_interval_rules ENABLE ROW LEVEL SECURITY;
-
-    -- Seed data — full 6 × 5 matrix
-    -- ⚠️ Heuristic note: snooze_days values are informed estimates, not empirical measurements.
-    -- The relative ordering (Terracotta < Plastic < Self-Watering; High-Drainage < Standard < Heavy Peat)
-    -- is directionally validated by published horticultural research (Colorado State University Extension,
-    -- Nebraska Extension, Perlite Institute 2018). The absolute integer values are approximations.
-    -- The UI surfaces them as recommendations, never as prescriptions.
-    INSERT INTO public.snooze_interval_rules (container_vector, substrate_factor, snooze_days) VALUES
-        ('Terracotta',    'High-Drainage Aroid', 2),
-        ('Terracotta',    'Standard Potting',    3),
-        ('Terracotta',    'Heavy Peat',          5),
-        ('Terracotta',    'Desert Succulent',    2),
-        ('Terracotta',    'Sphagnum Moss Mix',   4),
-        ('Plastic',       'High-Drainage Aroid', 3),
-        ('Plastic',       'Standard Potting',    5),
-        ('Plastic',       'Heavy Peat',          7),
-        ('Plastic',       'Desert Succulent',    3),
-        ('Plastic',       'Sphagnum Moss Mix',   6),
-        ('Ceramic',       'High-Drainage Aroid', 2),
-        ('Ceramic',       'Standard Potting',    4),
-        ('Ceramic',       'Heavy Peat',          6),
-        ('Ceramic',       'Desert Succulent',    2),
-        ('Ceramic',       'Sphagnum Moss Mix',   5),
-        ('Fabric',        'High-Drainage Aroid', 2),
-        ('Fabric',        'Standard Potting',    3),
-        ('Fabric',        'Heavy Peat',          5),
-        ('Fabric',        'Desert Succulent',    2),
-        ('Fabric',        'Sphagnum Moss Mix',   4),
-        ('Self-Watering', 'High-Drainage Aroid', 7),
-        ('Self-Watering', 'Standard Potting',    7),
-        ('Self-Watering', 'Heavy Peat',          7),
-        ('Self-Watering', 'Desert Succulent',    7),
-        ('Self-Watering', 'Sphagnum Moss Mix',   7),
-        ('Ground',        'High-Drainage Aroid', 5),
-        ('Ground',        'Standard Potting',    5),
-        ('Ground',        'Heavy Peat',          7),
-        ('Ground',        'Desert Succulent',    5),
-        ('Ground',        'Sphagnum Moss Mix',   7);
-
-### Stored Procedure
-
-The procedure no longer accepts `p_days` from the caller — it derives the value internally from the plant's own `container_vector` and `substrate_factor`, then falls back to 3 days if the combination has no rule.
-
-    -- Called from the client via supabase.rpc('snooze_plant_check', { p_plant_id })
-    CREATE OR REPLACE FUNCTION public.snooze_plant_check(
-      p_plant_id UUID
-    ) RETURNS VOID LANGUAGE plpgsql SECURITY DEFINER AS $$
-    DECLARE
-      v_days INT;
-    BEGIN
-      -- Derive snooze interval from the plant's own container × substrate combination
-      SELECT r.snooze_days INTO v_days
-      FROM   public.plants p
-      JOIN   public.snooze_interval_rules r
-               ON  r.container_vector = p.container_vector
-               AND r.substrate_factor = p.substrate_factor
-      WHERE  p.id      = p_plant_id
-        AND  p.user_id = auth.uid(); -- resolves from the caller's JWT
-
-      v_days := COALESCE(v_days, 3); -- fallback: 3 days if no rule matched
-
-      UPDATE public.plants
-      SET
-          last_checked_at              = NOW(),
-          next_check_due_at            = NOW() + (v_days * INTERVAL '1 day'),
-          current_snooze_interval_days = v_days,
-          updated_at                   = NOW()
-      WHERE id      = p_plant_id
-        AND user_id = auth.uid();
-    END;
-    $$;
+**Why RPC, not a direct Edge Function update?** Edge Functions use the `service_role` key, which bypasses RLS. `auth.uid()` inside raw SQL run by service role returns `null`. The RPC executes under the caller's JWT so `auth.uid()` resolves correctly.
 
 ---
 

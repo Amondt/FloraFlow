@@ -263,7 +263,7 @@
   - Optional `plantContext` field added to the `claude-vision` request body; Claude receives the species name in the prompt and tailors its diagnosis to that species. Both flows send it — the journal flow requires the user to pick a plant first; the zone-detail flow locks the preselected plant.
   - No DB migration — pure frontend + Edge Function enhancement.
   - Plan: `docs/plans/phase-3/PHASE_3_15_PLAN.md`
-- [ ] **3.16 iNaturalist Migration & Botanical Cache Hardening** | Agents: `/plumber` → `/visualizer`
+- [x] **3.16 iNaturalist Migration & Botanical Cache Hardening** | Agents: `/plumber` → `/visualizer`
   - Retire Perenual API (free tier capped at species IDs 1–3,000); adopt iNaturalist taxa API as primary search source (no key, 10M+ species, inline thumbnails, common names included).
   - DB migration: `inat_taxon_id INTEGER NULL` on `cached_botanical_records` and `plants`; existing `perenual_id` and `is_perenual_enriched` columns kept for backward compat.
   - Rewrite `botanical-search` Edge Function: single iNat call replaces the 5-page Perenual loop; `thumbnail_fetched = true` set on upsert (photos are inline).

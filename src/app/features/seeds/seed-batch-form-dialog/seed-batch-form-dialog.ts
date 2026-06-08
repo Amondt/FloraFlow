@@ -192,7 +192,7 @@ export class SeedBatchFormDialogComponent {
       this.commonNameQuery = value.common_name;
       this.form.controls.common_name.setValue(value.common_name);
       this.form.controls.scientific_name.setValue(value.scientific_name);
-      this.selectedSpeciesId.set(value.inat_taxon_id ?? value.perenual_id ?? null);
+      this.selectedSpeciesId.set(value.inat_taxon_id ?? null);
       this.lockedScientificName.set(value.scientific_name);
       this.lockedThumbnailUrl.set(value.thumbnail_url);
       this._fetchBotanicalRecord(value.scientific_name);

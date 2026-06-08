@@ -41,8 +41,7 @@ describe('PlantFormDialogComponent', () => {
       const suggestion: BotanicalSuggestion = {
         common_name: 'Monstera',
         scientific_name: 'Monstera deliciosa',
-        perenual_id: 42,
-        inat_taxon_id: null,
+        inat_taxon_id: 42,
         thumbnail_url: null,
       };
 
@@ -50,7 +49,7 @@ describe('PlantFormDialogComponent', () => {
       comp['onCommonNameChange'](suggestion);
 
       expect(comp.form.controls.common_name.value).toBe('Monstera');
-      expect(comp['selectedPerenualId']()).toBe(42);
+      expect(comp['selectedInatTaxonId']()).toBe(42);
       expect(comp['lockedSpeciesCommonName']()).toBe('Monstera');
       expect(comp['lockedScientificName']()).toBe('Monstera deliciosa');
     });
@@ -60,8 +59,7 @@ describe('PlantFormDialogComponent', () => {
       const suggestion: BotanicalSuggestion = {
         common_name: 'Monstera',
         scientific_name: 'Monstera deliciosa',
-        perenual_id: 42,
-        inat_taxon_id: null,
+        inat_taxon_id: 42,
         thumbnail_url: null,
       };
 
@@ -73,14 +71,14 @@ describe('PlantFormDialogComponent', () => {
 
     it('clears locked state when string value typed (species deselected)', () => {
       const comp = setup();
-      comp['selectedPerenualId'].set(42);
+      comp['selectedInatTaxonId'].set(42);
       comp['lockedSpeciesCommonName'].set('Monstera');
       comp['lockedScientificName'].set('Monstera deliciosa');
 
       comp['onCommonNameChange']('mon');
 
       expect(comp['speciesSearchQuery']).toBe('mon');
-      // locked state stays because selectedPerenualId is still set (chip keeps it)
+      // locked state stays because selectedInatTaxonId is still set (chip keeps it)
       // clearing only happens via clearLockedSpecies
     });
   });
@@ -88,7 +86,7 @@ describe('PlantFormDialogComponent', () => {
   describe('clearLockedSpecies', () => {
     it('clears species state without touching the nickname field', () => {
       const comp = setup();
-      comp['selectedPerenualId'].set(42);
+      comp['selectedInatTaxonId'].set(42);
       comp['lockedSpeciesCommonName'].set('Monstera');
       comp['lockedScientificName'].set('Monstera deliciosa');
       comp.form.controls.common_name.setValue('My Monstera');
@@ -96,7 +94,7 @@ describe('PlantFormDialogComponent', () => {
 
       comp['clearLockedSpecies']();
 
-      expect(comp['selectedPerenualId']()).toBeNull();
+      expect(comp['selectedInatTaxonId']()).toBeNull();
       expect(comp['lockedSpeciesCommonName']()).toBeNull();
       expect(comp['lockedScientificName']()).toBeNull();
       expect(comp['speciesSearchQuery']).toBe('');
@@ -107,27 +105,27 @@ describe('PlantFormDialogComponent', () => {
   });
 
   describe('edit mode effect — speciesSearchQuery', () => {
-    it('leaves species search empty for a manually-named plant with no perenual_id', () => {
+    it('leaves species search empty for a manually-named plant with no inat_taxon_id', () => {
       const comp = setup();
       TestBed.runInInjectionContext(() => {
         // Simulate the effect logic directly
         const p = {
           common_name: 'Office cactus',
           scientific_name: null,
-          perenual_id: null,
+          inat_taxon_id: null,
           zone_id: 'z1',
           container_vector: 'Plastic' as const,
           substrate_factor: 'Standard Potting' as const,
           growth_stage: 'Mature' as const,
         };
 
-        comp['speciesSearchQuery'] = p.perenual_id ? p.common_name : '';
-        comp['selectedPerenualId'].set(p.perenual_id);
-        comp['lockedSpeciesCommonName'].set(p.perenual_id ? p.common_name : null);
+        comp['speciesSearchQuery'] = p.inat_taxon_id ? p.common_name : '';
+        comp['selectedInatTaxonId'].set(p.inat_taxon_id);
+        comp['lockedSpeciesCommonName'].set(p.inat_taxon_id ? p.common_name : null);
       });
 
       expect(comp['speciesSearchQuery']).toBe('');
-      expect(comp['selectedPerenualId']()).toBeNull();
+      expect(comp['selectedInatTaxonId']()).toBeNull();
       expect(comp['lockedSpeciesCommonName']()).toBeNull();
     });
 
@@ -136,19 +134,19 @@ describe('PlantFormDialogComponent', () => {
       const p = {
         common_name: 'Monstera',
         scientific_name: 'Monstera deliciosa',
-        perenual_id: 42,
+        inat_taxon_id: 42,
         zone_id: 'z1',
         container_vector: 'Plastic' as const,
         substrate_factor: 'Standard Potting' as const,
         growth_stage: 'Mature' as const,
       };
 
-      comp['speciesSearchQuery'] = p.perenual_id ? p.common_name : '';
-      comp['selectedPerenualId'].set(p.perenual_id);
-      comp['lockedSpeciesCommonName'].set(p.perenual_id ? p.common_name : null);
+      comp['speciesSearchQuery'] = p.inat_taxon_id ? p.common_name : '';
+      comp['selectedInatTaxonId'].set(p.inat_taxon_id);
+      comp['lockedSpeciesCommonName'].set(p.inat_taxon_id ? p.common_name : null);
 
       expect(comp['speciesSearchQuery']).toBe('Monstera');
-      expect(comp['selectedPerenualId']()).toBe(42);
+      expect(comp['selectedInatTaxonId']()).toBe(42);
       expect(comp['lockedSpeciesCommonName']()).toBe('Monstera');
     });
   });
@@ -163,11 +161,11 @@ describe('PlantFormDialogComponent', () => {
       expect(spy).not.toHaveBeenCalled();
     });
 
-    it('emits PlantFormData with selectedPerenualId when valid', () => {
+    it('emits PlantFormData with selectedInatTaxonId when valid', () => {
       const comp = setup();
       const spy = vi.fn();
       comp.saved.subscribe(spy);
-      comp['selectedPerenualId'].set(42);
+      comp['selectedInatTaxonId'].set(42);
       comp.form.patchValue({
         common_name: 'My Monstera',
         scientific_name: 'Monstera deliciosa',
@@ -183,7 +181,7 @@ describe('PlantFormDialogComponent', () => {
         expect.objectContaining({
           common_name: 'My Monstera',
           scientific_name: 'Monstera deliciosa',
-          perenual_id: 42,
+          inat_taxon_id: 42,
         }),
       );
     });

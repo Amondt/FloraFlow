@@ -130,9 +130,10 @@ describe('LeafDoctorDialogComponent — photo signals and computed gates', () =>
       expect(component['primaryActionDisabled']()).toBe(true);
     });
 
-    it('is false in idle state once a photo is loaded', () => {
+    it('is false in idle state once a photo is loaded and a plant is selected', () => {
       component.diagnosisState.set('idle');
       component.compressedBlobs.set([new Blob()]);
+      component.selectedPlantId.set('plant-1');
       fixture.detectChanges();
       expect(component['primaryActionDisabled']()).toBe(false);
     });

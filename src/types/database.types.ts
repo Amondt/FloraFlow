@@ -55,7 +55,6 @@ export type Database = {
           inat_species_id: number | null
           inat_taxon_id: number | null
           is_ai_enriched: boolean
-          is_perenual_enriched: boolean
           is_toxic_to_humans: boolean | null
           is_toxic_to_pets: boolean | null
           is_tropical: boolean | null
@@ -63,7 +62,6 @@ export type Database = {
           max_height_cm: number | null
           max_spread_cm: number | null
           native_region: string | null
-          perenual_id: number | null
           placement: string | null
           plant_type: string | null
           preferred_soil_type: string[] | null
@@ -99,7 +97,6 @@ export type Database = {
           inat_species_id?: number | null
           inat_taxon_id?: number | null
           is_ai_enriched?: boolean
-          is_perenual_enriched?: boolean
           is_toxic_to_humans?: boolean | null
           is_toxic_to_pets?: boolean | null
           is_tropical?: boolean | null
@@ -107,7 +104,6 @@ export type Database = {
           max_height_cm?: number | null
           max_spread_cm?: number | null
           native_region?: string | null
-          perenual_id?: number | null
           placement?: string | null
           plant_type?: string | null
           preferred_soil_type?: string[] | null
@@ -143,7 +139,6 @@ export type Database = {
           inat_species_id?: number | null
           inat_taxon_id?: number | null
           is_ai_enriched?: boolean
-          is_perenual_enriched?: boolean
           is_toxic_to_humans?: boolean | null
           is_toxic_to_pets?: boolean | null
           is_tropical?: boolean | null
@@ -151,7 +146,6 @@ export type Database = {
           max_height_cm?: number | null
           max_spread_cm?: number | null
           native_region?: string | null
-          perenual_id?: number | null
           placement?: string | null
           plant_type?: string | null
           preferred_soil_type?: string[] | null
@@ -264,7 +258,6 @@ export type Database = {
           inat_taxon_id: number | null
           last_checked_at: string | null
           next_check_due_at: string
-          perenual_id: number | null
           pot_diameter_cm: number | null
           scientific_name: string | null
           substrate_factor: Database["public"]["Enums"]["substrate_factor_type"]
@@ -282,7 +275,6 @@ export type Database = {
           inat_taxon_id?: number | null
           last_checked_at?: string | null
           next_check_due_at?: string
-          perenual_id?: number | null
           pot_diameter_cm?: number | null
           scientific_name?: string | null
           substrate_factor?: Database["public"]["Enums"]["substrate_factor_type"]
@@ -300,7 +292,6 @@ export type Database = {
           inat_taxon_id?: number | null
           last_checked_at?: string | null
           next_check_due_at?: string
-          perenual_id?: number | null
           pot_diameter_cm?: number | null
           scientific_name?: string | null
           substrate_factor?: Database["public"]["Enums"]["substrate_factor_type"]
@@ -419,24 +410,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      snooze_interval_rules: {
-        Row: {
-          container_vector: Database["public"]["Enums"]["container_vector_type"]
-          snooze_days: number
-          substrate_factor: Database["public"]["Enums"]["substrate_factor_type"]
-        }
-        Insert: {
-          container_vector: Database["public"]["Enums"]["container_vector_type"]
-          snooze_days: number
-          substrate_factor: Database["public"]["Enums"]["substrate_factor_type"]
-        }
-        Update: {
-          container_vector?: Database["public"]["Enums"]["container_vector_type"]
-          snooze_days?: number
-          substrate_factor?: Database["public"]["Enums"]["substrate_factor_type"]
-        }
-        Relationships: []
       }
       weather_cache: {
         Row: {

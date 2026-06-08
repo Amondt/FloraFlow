@@ -18,7 +18,6 @@ function makePlant(overrides: Partial<Plant> = {}): Plant {
     zone_id: 'z1',
     common_name: 'Monstera',
     scientific_name: null,
-    perenual_id: null,
     inat_taxon_id: null,
     container_vector: 'Terracotta',
     substrate_factor: 'Standard Potting',

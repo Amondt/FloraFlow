@@ -34,7 +34,7 @@ export class PlantService {
     const { data, error } = await this.supabase.client
       .from('plants')
       .select(
-        'id, common_name, scientific_name, perenual_id, inat_taxon_id, zone_id, next_check_due_at, last_checked_at, current_snooze_interval_days, container_vector, substrate_factor, growth_stage, pot_diameter_cm',
+        'id, common_name, scientific_name, inat_taxon_id, zone_id, next_check_due_at, last_checked_at, current_snooze_interval_days, container_vector, substrate_factor, growth_stage, pot_diameter_cm',
       )
       .order('next_check_due_at', { ascending: true });
 
@@ -126,7 +126,7 @@ export class PlantService {
     const { data, error } = await this.supabase.client
       .from('plants')
       .select(
-        'id, common_name, scientific_name, perenual_id, inat_taxon_id, zone_id, next_check_due_at, last_checked_at, current_snooze_interval_days, container_vector, substrate_factor, growth_stage, pot_diameter_cm',
+        'id, common_name, scientific_name, inat_taxon_id, zone_id, next_check_due_at, last_checked_at, current_snooze_interval_days, container_vector, substrate_factor, growth_stage, pot_diameter_cm',
       )
       .eq('id', plantId)
       .single();
@@ -172,7 +172,6 @@ export class PlantService {
             const { error } = await this.supabase.client.from('plants').insert({
               common_name: item.common_name!,
               scientific_name: item.scientific_name ?? null,
-              perenual_id: item.perenual_id ?? null,
               inat_taxon_id: item.inat_taxon_id ?? null,
               zone_id: item.zone_id!,
               container_vector: item.container_vector as ContainerVector,
@@ -212,7 +211,6 @@ export class PlantService {
         zone_id: data.zone_id,
         common_name: data.common_name,
         scientific_name: data.scientific_name,
-        perenual_id: null,
         inat_taxon_id: null,
         container_vector: data.container_vector,
         substrate_factor: data.substrate_factor,
@@ -233,7 +231,6 @@ export class PlantService {
         queued_at: now,
         common_name: data.common_name,
         scientific_name: data.scientific_name,
-        perenual_id: data.perenual_id,
         inat_taxon_id: data.inat_taxon_id,
         zone_id: data.zone_id,
         container_vector: data.container_vector,

@@ -157,7 +157,6 @@ export class DashboardComponent {
   readonly botanicalPrefill = signal<{
     common_name: string;
     scientific_name: string | null;
-    perenual_id: number | null;
     inat_taxon_id: number | null;
   } | null>(null);
   readonly wizardVisible = signal(false);
@@ -272,7 +271,6 @@ export class DashboardComponent {
     this.botanicalPrefill.set({
       common_name: event.common_name,
       scientific_name: event.scientific_name,
-      perenual_id: event.perenual_id,
       inat_taxon_id: event.inat_taxon_id,
     });
     this.plantFormVisible.set(true);
@@ -282,7 +280,6 @@ export class DashboardComponent {
     this.botanicalPrefill.set({
       common_name: record.common_name,
       scientific_name: record.scientific_name,
-      perenual_id: record.perenual_id,
       inat_taxon_id: record.inat_taxon_id,
     });
     this.botanicalDetailVisible.set(false);

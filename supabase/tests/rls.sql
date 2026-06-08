@@ -11,7 +11,7 @@
 BEGIN;
 
 SELECT
-  plan (48);
+  plan (49);
 
 -- ── SETUP ─────────────────────────────────────────────────────────────────
 -- Disable FK triggers so we can insert profiles without auth.users rows.
@@ -81,16 +81,15 @@ VALUES
   );
 
 -- Synthetic test row for Phase 2.1 RLS tests — fake species name avoids PK
--- conflicts with any real Perenual data inserted during manual testing.
+-- conflicts with any real seed data inserted during dev resets.
 -- ON CONFLICT DO UPDATE ensures the row always has the expected values.
 INSERT INTO
-  public.cached_botanical_records (scientific_name, common_name, perenual_id)
+  public.cached_botanical_records (scientific_name, common_name)
 VALUES
-  ('Testus planticus pgTAP', 'Test Plant', 99999)
+  ('Testus planticus pgTAP', 'Test Plant')
 ON CONFLICT (scientific_name) DO UPDATE
 SET
-  common_name = 'Test Plant',
-  perenual_id = 99999;
+  common_name = 'Test Plant';
 
 -- ── AS ALICE — positive read access ────────────────────────────────────────
 SET
@@ -287,8 +286,9 @@ RESET ROLE;
 -- ═══════════════════════════════════════════════════════════════════════════
 -- Phase 2.1 — cached_botanical_records RLS
 -- ═══════════════════════════════════════════════════════════════════════════
--- ── TEST 12: is_perenual_enriched defaults to false ─────────────────────────
--- Verifies the migration default — catches any accidental DEFAULT TRUE regression.
+-- ── TEST 12: Perenual columns absent (Phase 3.16 drop) ──────────────────────
+-- Regression guard — ensures the Phase 3.16 migration stayed applied and nothing
+-- accidentally re-added perenual_id / is_perenual_enriched to either table.
 RESET ROLE;
 
 SELECT
@@ -298,14 +298,32 @@ SELECT
   IS (
     (
       SELECT
-        is_perenual_enriched
+        COUNT(*)::INTEGER
       FROM
-        public.cached_botanical_records
+        information_schema.columns
       WHERE
-        scientific_name = 'Testus planticus pgTAP'
+        table_schema = 'public'
+        AND table_name = 'cached_botanical_records'
+        AND column_name IN ('perenual_id', 'is_perenual_enriched')
     ),
-    FALSE,
-    'is_perenual_enriched defaults to false on new cached_botanical_records rows'
+    0,
+    'perenual columns absent from cached_botanical_records'
+  );
+
+SELECT
+  IS (
+    (
+      SELECT
+        COUNT(*)::INTEGER
+      FROM
+        information_schema.columns
+      WHERE
+        table_schema = 'public'
+        AND table_name = 'plants'
+        AND column_name = 'perenual_id'
+    ),
+    0,
+    'perenual_id absent from plants'
   );
 
 -- ── TEST 13: Authenticated SELECT succeeds ──────────────────────────────────
@@ -475,7 +493,10 @@ ON CONFLICT (latitude, longitude) DO UPDATE
 SET
   temperature_celsius = 18.5,
   relative_humidity_percent = 72,
-  precipitation_probability_percent = 10;
+  precipitation_probability_percent = 10,
+  -- Reset fields that may carry live data from weather-proxy calls so the
+  -- default-value tests always start from a clean known state.
+  min_temp_next_24h = NULL;
 
 -- ── TEST 18: Authenticated SELECT succeeds ──────────────────────────────────
 SET

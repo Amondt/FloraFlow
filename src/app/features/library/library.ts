@@ -114,7 +114,6 @@ export class LibraryComponent {
   readonly prefillRecord = signal<{
     common_name: string;
     scientific_name: string | null;
-    perenual_id: number | null;
     inat_taxon_id: number | null;
   } | null>(null);
   readonly wizardVisible = signal(false);
@@ -554,7 +553,6 @@ export class LibraryComponent {
     this.prefillRecord.set({
       common_name: record.common_name,
       scientific_name: record.scientific_name,
-      perenual_id: record.perenual_id,
       inat_taxon_id: record.inat_taxon_id,
     });
     this.selectedGroupKey.set(null);

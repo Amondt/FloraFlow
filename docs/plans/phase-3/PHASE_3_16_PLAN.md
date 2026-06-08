@@ -267,7 +267,7 @@ With `inat_taxon_id` fully threaded (Blocks E + F) and the cache iNat-canonical 
     2. AI Plant Identifier → "Add to My Plants" → form pre-fills and saves
     3. Open DevTools Console → zero red errors
 
-- [ ] **Block N — Drop Perenual columns + regenerate test data** | Agent: `/plumber` · Model: Sonnet · Effort: mid
+- [x] **Block N — Drop Perenual columns + regenerate test data** | Agent: `/plumber` · Model: Sonnet · Effort: mid
   - **Gated behind M + J** — frontend no longer references `plants.perenual_id`; cache is iNat-canonical
   - `claude-plant-id/index.ts`: drop `perenual_id` from the cache `.select()`, the `cacheMap` value type, and the response (returns `inat_taxon_id` only). Update `docs/AI_PROMPT_MANIFEST.md §2.3` — remove `perenual_id` from `PlantIdResponse` and its explanatory note
   - New migration file `20260608000003_phase_3_16_drop_perenual.sql` (one file):

@@ -156,7 +156,7 @@ export class LibraryService {
       const safeQ = searchQuery.trim().replace(/[,)(]/g, '');
       if (safeQ.length < 2) return { data: [], count: 0 };
 
-      // Populate the Perenual cache for queries not yet seen. The return value is
+      // Warm the iNaturalist cache for queries not yet seen. The return value is
       // intentionally discarded — the library queries the full cache with ILIKE so
       // all matching records are visible, not just the 30 the autocomplete returns.
       await this.botanicalSearch.search(safeQ);

@@ -5,7 +5,6 @@ import { SupabaseService } from './supabase.service';
 export interface BotanicalSuggestion {
   scientific_name: string;
   common_name: string;
-  perenual_id: number | null;
   inat_taxon_id: number | null;
   thumbnail_url: string | null;
 }

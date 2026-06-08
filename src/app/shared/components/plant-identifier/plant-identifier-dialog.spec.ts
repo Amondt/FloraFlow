@@ -46,7 +46,6 @@ const MOCK_RESULT: import('../../../core/services/plant-identifier.service').Pla
   is_plant_image: true,
   species_match: PRIMARY,
   alternative_candidates: [ALTERNATIVE],
-  perenual_id: null,
   inat_taxon_id: 42,
 };
 

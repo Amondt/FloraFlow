@@ -9,7 +9,7 @@
 --
 -- Coverage matrix:
 --   Urgency:    OVERDUE (3) | DUE TODAY (2) | DUE THIS WEEK (3) | UPCOMING (4)
---   Enrichment: AI-enriched (7) | Perenual-only (2) | Unenriched (3)
+--   Enrichment: AI-enriched (7) | iNat-linked, not AI-enriched (2) | Unenriched (3)
 --   Stage:      Seedling (2) | Juvenile (2) | Mature (7) | Dormant (1)
 -- =====================================================================
 BEGIN;
@@ -25,7 +25,7 @@ INSERT INTO
     zone_id,
     common_name,
     scientific_name,
-    perenual_id,
+    inat_taxon_id,
     container_vector,
     substrate_factor,
     growth_stage,
@@ -35,14 +35,25 @@ INSERT INTO
   )
 VALUES
   -- ═══ LIVING ROOM ═════════════════════════════════════════════════
-  -- AI-enriched | Mature | OVERDUE 5 days
+  -- iNat-linked | Mature | OVERDUE 5 days
+  -- Neon Pothos is a cultivar; iNaturalist records at species level only.
+  -- Uses 'Epipremnum aureum' (same species as Golden Pothos, different pot + zone).
   (
     'bb000001-0000-0000-0000-000000000001'::uuid,
     '00000000-0000-0000-0000-000000000001',
     'aa000001-0000-0000-0000-000000000001'::uuid,
     'Neon Pothos',
-    'Epipremnum aureum ''Neon''',
-    2774,
+    'Epipremnum aureum',
+    (
+      SELECT
+        inat_taxon_id
+      FROM
+        public.cached_botanical_records
+      WHERE
+        scientific_name = 'Epipremnum aureum'
+      LIMIT
+        1
+    ),
     'Plastic',
     'High-Drainage Aroid',
     'Mature',
@@ -57,7 +68,16 @@ VALUES
     'aa000001-0000-0000-0000-000000000001'::uuid,
     'Snake Plant',
     'Sansevieria trifasciata',
-    NULL,
+    (
+      SELECT
+        inat_taxon_id
+      FROM
+        public.cached_botanical_records
+      WHERE
+        scientific_name = 'Sansevieria trifasciata'
+      LIMIT
+        1
+    ),
     'Ceramic',
     'Desert Succulent',
     'Dormant',
@@ -88,7 +108,16 @@ VALUES
     'aa000002-0000-0000-0000-000000000001'::uuid,
     'Peace Lily',
     'Spathiphyllum wallisii',
-    NULL,
+    (
+      SELECT
+        inat_taxon_id
+      FROM
+        public.cached_botanical_records
+      WHERE
+        scientific_name = 'Spathiphyllum wallisii'
+      LIMIT
+        1
+    ),
     'Ceramic',
     'Heavy Peat',
     'Mature',
@@ -103,7 +132,16 @@ VALUES
     'aa000002-0000-0000-0000-000000000001'::uuid,
     'Spider Plant',
     'Chlorophytum comosum',
-    NULL,
+    (
+      SELECT
+        inat_taxon_id
+      FROM
+        public.cached_botanical_records
+      WHERE
+        scientific_name = 'Chlorophytum comosum'
+      LIMIT
+        1
+    ),
     'Plastic',
     'Standard Potting',
     'Seedling',
@@ -111,14 +149,24 @@ VALUES
     NOW() - INTERVAL '3 days',
     2
   ),
-  -- AI-enriched | Mature | Upcoming (+10 days)
+  -- iNat-linked | Mature | Upcoming (+10 days)
+  -- Satin Pothos (Argyraeus) is a cultivar; iNaturalist records at species level only.
   (
     'bb000006-0000-0000-0000-000000000001'::uuid,
     '00000000-0000-0000-0000-000000000001',
     'aa000002-0000-0000-0000-000000000001'::uuid,
     'Satin Pothos',
-    'Scindapsus pictus ''Argyraeus''',
-    7276,
+    'Scindapsus pictus',
+    (
+      SELECT
+        inat_taxon_id
+      FROM
+        public.cached_botanical_records
+      WHERE
+        scientific_name = 'Scindapsus pictus'
+      LIMIT
+        1
+    ),
     'Self-Watering',
     'Standard Potting',
     'Mature',
@@ -134,7 +182,16 @@ VALUES
     'aa000003-0000-0000-0000-000000000001'::uuid,
     'Aloe Vera',
     'Aloe vera',
-    NULL,
+    (
+      SELECT
+        inat_taxon_id
+      FROM
+        public.cached_botanical_records
+      WHERE
+        scientific_name = 'Aloe vera'
+      LIMIT
+        1
+    ),
     'Terracotta',
     'Desert Succulent',
     'Mature',
@@ -149,7 +206,16 @@ VALUES
     'aa000003-0000-0000-0000-000000000001'::uuid,
     'English Lavender',
     'Lavandula angustifolia',
-    NULL,
+    (
+      SELECT
+        inat_taxon_id
+      FROM
+        public.cached_botanical_records
+      WHERE
+        scientific_name = 'Lavandula angustifolia'
+      LIMIT
+        1
+    ),
     'Ground',
     'Standard Potting',
     'Mature',
@@ -157,14 +223,24 @@ VALUES
     NOW() - INTERVAL '7 days',
     5
   ),
-  -- Perenual-only | Dormant | Upcoming (+15 days)
+  -- iNat-linked, not AI-enriched | Dormant | Upcoming (+15 days)
+  -- Tests: inat_taxon_id set, cache row exists, is_ai_enriched = false, Dormant+long snooze
   (
     'bb000009-0000-0000-0000-000000000001'::uuid,
     '00000000-0000-0000-0000-000000000001',
     'aa000003-0000-0000-0000-000000000001'::uuid,
     'Desert Rose',
     'Adenium obesum',
-    540,
+    (
+      SELECT
+        inat_taxon_id
+      FROM
+        public.cached_botanical_records
+      WHERE
+        scientific_name = 'Adenium obesum'
+      LIMIT
+        1
+    ),
     'Terracotta',
     'Desert Succulent',
     'Dormant',
@@ -173,14 +249,24 @@ VALUES
     14
   ),
   -- ═══ KITCHEN WINDOWSILL ══════════════════════════════════════════
-  -- Perenual-only | Juvenile | DUE TODAY
+  -- iNat-linked, not AI-enriched | Juvenile | DUE TODAY
+  -- Tests: inat_taxon_id set, cache row exists, is_ai_enriched = false, Juvenile stage
   (
     'bb000010-0000-0000-0000-000000000001'::uuid,
     '00000000-0000-0000-0000-000000000001',
     'aa000004-0000-0000-0000-000000000001'::uuid,
     'Golden Pothos',
     'Epipremnum aureum',
-    2773,
+    (
+      SELECT
+        inat_taxon_id
+      FROM
+        public.cached_botanical_records
+      WHERE
+        scientific_name = 'Epipremnum aureum'
+      LIMIT
+        1
+    ),
     'Plastic',
     'Standard Potting',
     'Juvenile',
@@ -204,12 +290,13 @@ VALUES
     14
   ),
   -- Unenriched | Mature | Upcoming (+20 days)
+  -- Truly unenriched: no scientific_name, no inat_taxon_id — tests the no-species-data path.
   (
     'bb000012-0000-0000-0000-000000000001'::uuid,
     '00000000-0000-0000-0000-000000000001',
     'aa000004-0000-0000-0000-000000000001'::uuid,
     'Fiddle-Leaf Fig',
-    'Ficus lyrata',
+    NULL,
     NULL,
     'Terracotta',
     'Standard Potting',

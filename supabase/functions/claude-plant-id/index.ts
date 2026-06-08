@@ -136,16 +136,28 @@ Deno.serve(async (req: Request) => {
 
     const { data: cachedRows } = await supabase
       .from('cached_botanical_records')
-      .select('scientific_name, perenual_id')
+      .select('scientific_name, perenual_id, inat_taxon_id')
       .in('scientific_name', allScientificNames);
 
-    const cacheMap = new Map<string, number | null>(
-      (cachedRows ?? []).map((r) => [r.scientific_name, r.perenual_id]),
+    const cacheMap = new Map<string, { perenual_id: number | null; inat_taxon_id: number | null }>(
+      (cachedRows ?? []).map((r) => [
+        r.scientific_name,
+        { perenual_id: r.perenual_id, inat_taxon_id: r.inat_taxon_id },
+      ]),
     );
 
-    // 7. Background enrichment — one job per candidate that is not yet in cache
+    // 7. Background enrichment — one job per candidate that is not yet in cache.
+    //    Stub inserted first so the enrichment cron picks it up even when
+    //    EdgeRuntime.waitUntil is absent (e.g. local dev without the runtime).
     for (const candidate of allCandidates) {
       if (!cacheMap.has(candidate.scientific_name)) {
+        await supabase
+          .from('cached_botanical_records')
+          .upsert(
+            { scientific_name: candidate.scientific_name, common_name: candidate.common_name },
+            { onConflict: 'scientific_name' },
+          );
+
         const enrichmentWork = enrichRecord(
           supabase,
           anthropic,
@@ -161,12 +173,14 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    // 8. Respond — perenual_id is null when enrichment is still pending for the primary match
+    // 8. Respond — both IDs are null when enrichment is still pending for the primary match
+    const primaryIds = cacheMap.get(scientific_name);
     return json({
       is_plant_image: true,
       species_match: { common_name, scientific_name, confidence_score },
       alternative_candidates: parsed.alternative_candidates,
-      perenual_id: cacheMap.get(scientific_name) ?? null,
+      inat_taxon_id: primaryIds?.inat_taxon_id ?? null,
+      perenual_id: primaryIds?.perenual_id ?? null,
     });
   } catch (err) {
     return json({ error: (err as Error).message }, 500);

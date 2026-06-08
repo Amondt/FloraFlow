@@ -91,7 +91,7 @@ GET https://api.inaturalist.org/v1/taxa?q={q}&taxon_id=47126&rank=species&per_pa
   - Run `bun run format && bun run lint`
   - Verify: trigger `cache-enrichment-worker` manually in Studio. Confirm the updated record has `inat_taxon_id` populated.
 
-- [ ] **Block D — Update `claude-plant-id/index.ts` & `AI_PROMPT_MANIFEST.md §2.3`** | Agent: `/plumber` · Model: Sonnet · Effort: mid
+- [x] **Block D — Update `claude-plant-id/index.ts` & `AI_PROMPT_MANIFEST.md §2.3`** | Agent: `/plumber` · Model: Sonnet · Effort: mid
   - Cache lookup: change `.select('perenual_id')` → `.select('perenual_id, inat_taxon_id')`
   - When `!cachedRecord` (species unknown): insert a minimal stub **before** triggering background enrichment, so the cron will pick it up even when `EdgeRuntime.waitUntil` is absent:
     ```ts

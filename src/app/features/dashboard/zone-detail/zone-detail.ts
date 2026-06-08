@@ -13,14 +13,9 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { SkeletonModule } from 'primeng/skeleton';
-import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
-import {
-  FloraConfirmDialogPT,
-  FloraSkeletonPT,
-  FloraTagPT,
-  FloraToastPT,
-} from '../../../shared/ui/pt/index';
+import { FloraConfirmDialogPT, FloraSkeletonPT, FloraToastPT } from '../../../shared/ui/pt/index';
+import { BotanicalTagsComponent } from '../../../shared/components/botanical-tags/botanical-tags';
 import { PendingDeleteManager } from '../../../shared/utils/pending-delete';
 import { daysSince } from '../../../shared/utils/date.util';
 import { ZoneService } from '../zone.service';
@@ -69,7 +64,7 @@ interface EnrichedPlant {
     LeafDoctorDialogComponent,
     LeafIconComponent,
     CareRecommendationsPanelComponent,
-    TagModule,
+    BotanicalTagsComponent,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './zone-detail.html',
@@ -87,7 +82,6 @@ export class ZoneDetailComponent {
 
   protected readonly FloraConfirmDialogPT = FloraConfirmDialogPT;
   protected readonly FloraSkeletonPT = FloraSkeletonPT;
-  protected readonly FloraTagPT = FloraTagPT;
   protected readonly FloraToastPT = FloraToastPT;
   protected readonly loadingPlaceholders = [1, 2, 3, 4];
 

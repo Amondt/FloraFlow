@@ -1,0 +1,65 @@
+@if (placement() === 'Indoor' || placement() === 'Both') {
+  <p-tag value="Indoor" severity="secondary" icon="pi pi-home" [pt]="FloraTagPT" />
+}
+@if (placement() === 'Outdoor' || placement() === 'Both') {
+  <p-tag value="Outdoor" severity="secondary" icon="pi pi-sun" [pt]="FloraTagPT" />
+}
+@if (isTropical() === true) {
+  <p-tag value="Tropical" severity="secondary" icon="pi pi-globe" [pt]="FloraTagPT" />
+}
+@if (isToxicToPets() === true) {
+  <p-tag
+    value="Toxic (pets)"
+    severity="danger"
+    icon="pi pi-exclamation-triangle"
+    [pt]="FloraTagPT"
+  />
+} @else if (isToxicToPets() === false) {
+  <p-tag value="Pet-safe" severity="success" icon="pi pi-check-circle" [pt]="FloraTagPT" />
+}
+@if (isToxicToHumans() === true) {
+  <p-tag
+    value="Toxic (humans)"
+    severity="danger"
+    icon="pi pi-exclamation-triangle"
+    [pt]="FloraTagPT"
+  />
+} @else if (isToxicToHumans() === false) {
+  <p-tag value="Child-safe" severity="success" icon="pi pi-check-circle" [pt]="FloraTagPT" />
+}
+@switch (careDifficulty()) {
+  @case ('Beginner') {
+    <p-tag value="Easy care" severity="success" icon="pi pi-star" [pt]="FloraTagPT" />
+  }
+  @case ('Intermediate') {
+    <p-tag value="Moderate care" severity="warn" icon="pi pi-star" [pt]="FloraTagPT" />
+  }
+  @case ('Advanced') {
+    <p-tag value="Expert care" severity="danger" icon="pi pi-star" [pt]="FloraTagPT" />
+  }
+}
+@switch (maintenanceLevel()) {
+  @case ('Low') {
+    <p-tag value="Easy upkeep" severity="success" icon="pi pi-clock" [pt]="FloraTagPT" />
+  }
+  @case ('Medium') {
+    <p-tag value="Moderate upkeep" severity="warn" icon="pi pi-clock" [pt]="FloraTagPT" />
+  }
+  @case ('High') {
+    <p-tag value="High upkeep" severity="danger" icon="pi pi-clock" [pt]="FloraTagPT" />
+  }
+}
+@if (shouldShowSkeleton()) {
+  <span
+    class="h-5 w-14 rounded-full bg-neutral-200 dark:bg-neutral-700 animate-[flora-skeleton_1.5s_ease-in-out_infinite]"
+    aria-hidden="true"
+  ></span>
+  <span
+    class="h-5 w-10 rounded-full bg-neutral-200 dark:bg-neutral-700 animate-[flora-skeleton_1.5s_ease-in-out_infinite] [animation-delay:200ms]"
+    aria-hidden="true"
+  ></span>
+  <span
+    class="h-5 w-16 rounded-full bg-neutral-200 dark:bg-neutral-700 animate-[flora-skeleton_1.5s_ease-in-out_infinite] [animation-delay:400ms]"
+    aria-hidden="true"
+  ></span>
+}

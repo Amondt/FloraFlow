@@ -20,12 +20,15 @@ import {
   type PlantIdCandidate,
   type PlantIdResult,
 } from '../../../core/services/plant-identifier.service';
+import { LibraryService } from '../../../features/library/library.service';
 import { blurActiveElement } from '../../utils/dom';
 import {
   getConfidenceBadgeClass,
   getConfidenceBadgeLabel,
 } from '../../utils/plant-identifier.util';
+import { EnrichmentPoll } from '../../utils/enrichment-poll';
 import { LeafIconComponent } from '../leaf-icon/leaf-icon';
+import { BotanicalTagsComponent } from '../botanical-tags/botanical-tags';
 
 export interface PlantIdentifiedEvent {
   common_name: string;
@@ -41,11 +44,13 @@ type IdentErrorKind = 'invalid-image' | 'api-error';
 @Component({
   selector: 'app-plant-identifier-dialog',
   standalone: true,
-  imports: [DialogModule, ButtonModule, MessageModule, LeafIconComponent],
+  imports: [DialogModule, ButtonModule, MessageModule, LeafIconComponent, BotanicalTagsComponent],
   templateUrl: './plant-identifier-dialog.html',
 })
 export class PlantIdentifierDialogComponent {
   private readonly identifierService = inject(PlantIdentifierService);
+  private readonly _libraryService = inject(LibraryService);
+  private readonly _poll = new EnrichmentPoll();
 
   readonly visible = model<boolean>(false);
   readonly mode = input<'identify' | 'prefill' | 'browse'>('identify');
@@ -68,6 +73,10 @@ export class PlantIdentifierDialogComponent {
   readonly uploadedPhotoUrl = signal<string | null>(null);
   readonly showPhotoLightbox = signal(false);
 
+  // Enrichment — exposed as readonly for template skeleton state
+  protected readonly enrichingNames = this._poll.enrichingNames;
+  protected readonly isEnrichingCandidates = computed(() => this._poll.enrichingCount() > 0);
+
   protected readonly isPrimaryMatch = computed(() => {
     const active = this.activeMatch();
     const primary = this.identResult()?.species_match;
@@ -84,9 +93,18 @@ export class PlantIdentifierDialogComponent {
     this.isPrimaryMatch() ? (this.identResult()?.perenual_id ?? null) : null,
   );
 
-  protected readonly emittableInatTaxonId = computed(() =>
-    this.isPrimaryMatch() ? (this.identResult()?.inat_taxon_id ?? null) : null,
-  );
+  protected readonly emittableInatTaxonId = computed(() => {
+    const match = this.activeMatch();
+    if (!match) return null;
+    // Prefer the cached botanical record's inat_taxon_id — populated by fetchCandidateRecords
+    // (and updated reactively by the enrichment poll). This recovers the taxon link even when
+    // claude-plant-id failed to resolve it, and works for both primary and alternative candidates.
+    const record = this.candidateRecords().get(match.scientific_name);
+    if (record?.inat_taxon_id) return record.inat_taxon_id;
+    // Fallback: use the AI result's taxon id, but only for the primary match (the result only
+    // carries one top-level inat_taxon_id which corresponds to the primary species).
+    return this.isPrimaryMatch() ? (this.identResult()?.inat_taxon_id ?? null) : null;
+  });
 
   protected readonly confidenceBadgeClass = computed(() =>
     getConfidenceBadgeClass(this.activeMatch()?.confidence_score ?? 0),
@@ -153,13 +171,14 @@ export class PlantIdentifierDialogComponent {
       this.activeMatch.set(result.species_match);
       this.identState.set('result');
 
-      // Collect names before entering the .then callback — avoids reading signals in async context
-      const allCandidateNames = [result.species_match, ...result.alternative_candidates].map(
-        (c) => c.scientific_name,
-      );
+      // Collect candidates before entering .then — avoids reading signals in async context
+      const allCandidates = [result.species_match, ...result.alternative_candidates];
       this.identifierService
-        .fetchCandidateRecords(allCandidateNames)
-        .then((map) => this.candidateRecords.set(map))
+        .fetchCandidateRecords(allCandidates.map((c) => c.scientific_name))
+        .then((map) => {
+          this.candidateRecords.set(map);
+          this._startEnrichmentIfNeeded(allCandidates, map);
+        })
         .catch((err) => console.warn('plant-identifier: candidate record fetch failed:', err));
     } catch (err) {
       this.identErrorKind.set(
@@ -167,6 +186,49 @@ export class PlantIdentifierDialogComponent {
       );
       this.identState.set('error');
     }
+  }
+
+  private _startEnrichmentIfNeeded(
+    allCandidates: PlantIdCandidate[],
+    recordMap: Map<string, BotanicalCacheRow | null>,
+  ): void {
+    const candidateByName = new Map(allCandidates.map((c) => [c.scientific_name, c]));
+
+    const pendingNames = allCandidates
+      .map((c) => c.scientific_name)
+      .filter((name) => {
+        const r = recordMap.get(name);
+        return r == null || !r.is_ai_enriched || !r.thumbnail_fetched;
+      });
+
+    if (pendingNames.length === 0) return;
+
+    const enrichmentTargets = pendingNames.map((name) => {
+      const r = recordMap.get(name);
+      return {
+        scientific_name: name,
+        common_name: r?.common_name ?? candidateByName.get(name)?.common_name ?? name,
+      };
+    });
+
+    this._poll.start(pendingNames, async (pending) => {
+      const refreshed = await this._libraryService.refetchByScientificNames(pending);
+      if (refreshed.length > 0) {
+        this.candidateRecords.update((current) => {
+          const next = new Map(current);
+          for (const r of refreshed) next.set(r.scientific_name, r);
+          return next;
+        });
+      }
+      return new Set(
+        pending.filter((name) => {
+          const r = refreshed.find((row) => row.scientific_name === name);
+          return !r || !r.is_ai_enriched || !r.thumbnail_fetched;
+        }),
+      );
+    });
+
+    void this._libraryService.triggerEnrichment(enrichmentTargets, this._poll.controller?.signal);
   }
 
   protected selectAlternative(candidate: PlantIdCandidate): void {
@@ -210,6 +272,7 @@ export class PlantIdentifierDialogComponent {
   }
 
   private resetDialog(): void {
+    this._poll.stop();
     const url = this.uploadedPhotoUrl();
     if (url) URL.revokeObjectURL(url);
     this.uploadedPhotoUrl.set(null);

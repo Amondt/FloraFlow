@@ -12,13 +12,12 @@ import { TagModule } from 'primeng/tag';
 import { CachedBotanicalRecord } from '../library.service';
 import { FloraTagPT } from '../../../shared/ui/pt/index';
 import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-icon';
-
-type TagState = { label: string; severity: 'success' | 'warn' | 'danger' };
+import { BotanicalTagsComponent } from '../../../shared/components/botanical-tags/botanical-tags';
 
 @Component({
   selector: 'app-botanical-record-card',
   standalone: true,
-  imports: [TagModule, LeafIconComponent],
+  imports: [TagModule, LeafIconComponent, BotanicalTagsComponent],
   templateUrl: './botanical-record-card.html',
 })
 export class BotanicalRecordCardComponent {
@@ -48,32 +47,6 @@ export class BotanicalRecordCardComponent {
         ? `${r.common_name}, scientific name ${r.scientific_name}`
         : (r.common_name ?? r.scientific_name ?? 'Unknown species');
     return count > 1 ? `${base}, ${count} varieties` : base;
-  });
-
-  protected readonly difficultyTag = computed((): TagState | null => {
-    switch (this.record().care_difficulty) {
-      case 'Beginner':
-        return { label: 'Easy care', severity: 'success' };
-      case 'Intermediate':
-        return { label: 'Moderate care', severity: 'warn' };
-      case 'Advanced':
-        return { label: 'Expert care', severity: 'danger' };
-      default:
-        return null;
-    }
-  });
-
-  protected readonly maintenanceTag = computed((): TagState | null => {
-    switch (this.record().maintenance_level) {
-      case 'Low':
-        return { label: 'Easy upkeep', severity: 'success' };
-      case 'Medium':
-        return { label: 'Moderate upkeep', severity: 'warn' };
-      case 'High':
-        return { label: 'High upkeep', severity: 'danger' };
-      default:
-        return null;
-    }
   });
 
   protected readonly rankBadge = computed((): string | null => {

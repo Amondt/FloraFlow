@@ -95,60 +95,17 @@
       </p>
     }
     <div class="flex flex-wrap gap-1.5 mt-auto" [attr.aria-busy]="isEnriching()">
-      @if (record().placement === 'Indoor' || record().placement === 'Both') {
-        <p-tag value="Indoor" severity="secondary" [pt]="FloraTagPT" />
-      }
-      @if (record().placement === 'Outdoor' || record().placement === 'Both') {
-        <p-tag value="Outdoor" severity="secondary" [pt]="FloraTagPT" />
-      }
-      @if (record().is_toxic_to_pets === true) {
-        <p-tag
-          value="Toxic (pets)"
-          severity="danger"
-          icon="pi pi-exclamation-triangle"
-          [pt]="FloraTagPT"
-        />
-      } @else if (record().is_toxic_to_pets === false) {
-        <p-tag value="Pet-safe" severity="success" icon="pi pi-check-circle" [pt]="FloraTagPT" />
-      }
-      @if (record().is_toxic_to_humans === true) {
-        <p-tag
-          value="Toxic (humans)"
-          severity="danger"
-          icon="pi pi-exclamation-triangle"
-          [pt]="FloraTagPT"
-        />
-      } @else if (record().is_toxic_to_humans === false) {
-        <p-tag value="Child-safe" severity="success" icon="pi pi-check-circle" [pt]="FloraTagPT" />
-      }
-      @if (difficultyTag(); as tag) {
-        <p-tag [value]="tag.label" [severity]="tag.severity" [pt]="FloraTagPT" />
-      }
-      @if (maintenanceTag(); as tag) {
-        <p-tag [value]="tag.label" [severity]="tag.severity" [pt]="FloraTagPT" />
-      }
+      <app-botanical-tags
+        [placement]="record().placement"
+        [isTropical]="record().is_tropical"
+        [isToxicToPets]="record().is_toxic_to_pets"
+        [isToxicToHumans]="record().is_toxic_to_humans"
+        [careDifficulty]="record().care_difficulty"
+        [maintenanceLevel]="record().maintenance_level"
+        [isEnriching]="isEnriching()"
+      />
       @if (rankBadge(); as rank) {
         <p-tag [value]="rank" severity="secondary" [pt]="FloraTagPT" />
-      }
-      @if (
-        isEnriching() &&
-        record().is_toxic_to_pets === null &&
-        !record().placement &&
-        !record().care_difficulty &&
-        !record().maintenance_level
-      ) {
-        <span
-          class="h-5 w-14 rounded-full bg-neutral-200 dark:bg-neutral-700 animate-[flora-skeleton_1.5s_ease-in-out_infinite]"
-          aria-hidden="true"
-        ></span>
-        <span
-          class="h-5 w-10 rounded-full bg-neutral-200 dark:bg-neutral-700 animate-[flora-skeleton_1.5s_ease-in-out_infinite] [animation-delay:200ms]"
-          aria-hidden="true"
-        ></span>
-        <span
-          class="h-5 w-16 rounded-full bg-neutral-200 dark:bg-neutral-700 animate-[flora-skeleton_1.5s_ease-in-out_infinite] [animation-delay:400ms]"
-          aria-hidden="true"
-        ></span>
       }
     </div>
   </div>

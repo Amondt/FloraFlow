@@ -2,16 +2,26 @@ import { TestBed } from '@angular/core/testing';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { PlantIdentifierDialogComponent } from './plant-identifier-dialog';
 import { PlantIdentifierService } from '../../../core/services/plant-identifier.service';
+import type { BotanicalCacheRow } from '../../../core/services/plant-identifier.service';
+import { LibraryService } from '../../../features/library/library.service';
 
 const mockIdentifierService = {
   identify: vi.fn(),
   fetchCandidateRecords: vi.fn().mockResolvedValue(new Map()),
 };
 
+const mockLibraryService = {
+  refetchByScientificNames: vi.fn().mockResolvedValue([]),
+  triggerEnrichment: vi.fn().mockResolvedValue(undefined),
+};
+
 function setup() {
   TestBed.configureTestingModule({
     imports: [PlantIdentifierDialogComponent],
-    providers: [{ provide: PlantIdentifierService, useValue: mockIdentifierService }],
+    providers: [
+      { provide: PlantIdentifierService, useValue: mockIdentifierService },
+      { provide: LibraryService, useValue: mockLibraryService },
+    ],
   }).overrideTemplate(PlantIdentifierDialogComponent, '');
 
   const fixture = TestBed.createComponent(PlantIdentifierDialogComponent);
@@ -36,8 +46,8 @@ const MOCK_RESULT: import('../../../core/services/plant-identifier.service').Pla
   is_plant_image: true,
   species_match: PRIMARY,
   alternative_candidates: [ALTERNATIVE],
-  perenual_id: 42,
-  inat_taxon_id: null,
+  perenual_id: null,
+  inat_taxon_id: 42,
 };
 
 describe('PlantIdentifierDialogComponent', () => {
@@ -78,28 +88,43 @@ describe('PlantIdentifierDialogComponent', () => {
     });
   });
 
-  // ── emittablePerenualId ────────────────────────────────────────────────────
+  // ── emittableInatTaxonId ──────────────────────────────────────────────────
 
-  describe('emittablePerenualId', () => {
-    it('returns the perenual_id from the result when the primary match is active', () => {
+  describe('emittableInatTaxonId', () => {
+    it('returns the inat_taxon_id from the result when the primary match is active and not cached', () => {
       const comp = setup();
       comp.identResult.set(MOCK_RESULT);
       comp.activeMatch.set(PRIMARY);
-      expect(comp['emittablePerenualId']()).toBe(42);
+      // candidateRecords is empty — falls back to identResult.inat_taxon_id
+      expect(comp['emittableInatTaxonId']()).toBe(42);
     });
 
-    it('returns null when an alternative is active (perenual_id is for primary only)', () => {
+    it('returns null when an alternative is active and not in the botanical cache', () => {
       const comp = setup();
       comp.identResult.set(MOCK_RESULT);
       comp.activeMatch.set(ALTERNATIVE);
-      expect(comp['emittablePerenualId']()).toBeNull();
+      // identResult.inat_taxon_id only covers the primary; no cache entry for ALTERNATIVE
+      expect(comp['emittableInatTaxonId']()).toBeNull();
     });
 
-    it('returns null when result has no perenual_id', () => {
+    it('returns inat_taxon_id from candidateRecords for an alternative when cached', () => {
       const comp = setup();
-      comp.identResult.set({ ...MOCK_RESULT, perenual_id: null });
+      comp.identResult.set(MOCK_RESULT);
+      comp.activeMatch.set(ALTERNATIVE);
+      // Simulate the enrichment poll populating the botanical cache for the alternative
+      comp.candidateRecords.set(
+        new Map([
+          [ALTERNATIVE.scientific_name, { inat_taxon_id: 99 } as unknown as BotanicalCacheRow],
+        ]),
+      );
+      expect(comp['emittableInatTaxonId']()).toBe(99);
+    });
+
+    it('returns null when result has no inat_taxon_id and plant is not cached', () => {
+      const comp = setup();
+      comp.identResult.set({ ...MOCK_RESULT, inat_taxon_id: null });
       comp.activeMatch.set(PRIMARY);
-      expect(comp['emittablePerenualId']()).toBeNull();
+      expect(comp['emittableInatTaxonId']()).toBeNull();
     });
   });
 

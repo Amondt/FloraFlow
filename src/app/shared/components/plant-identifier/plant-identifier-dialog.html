@@ -127,51 +127,29 @@
                   >
                     {{ matchRecord?.description?.slice(0, 80) }}
                   </p>
+                } @else if (enrichingNames().has(match.scientific_name)) {
+                  <div class="flex flex-col gap-1" aria-hidden="true">
+                    <div
+                      class="h-2.5 w-full rounded bg-neutral-200 dark:bg-neutral-700 animate-pulse"
+                    ></div>
+                    <div
+                      class="h-2.5 w-4/5 rounded bg-neutral-200 dark:bg-neutral-700 animate-pulse"
+                    ></div>
+                  </div>
                 }
-                @if (
-                  matchRecord?.placement ||
+                @let matchHasTags =
+                  !!matchRecord?.placement ||
                   matchRecord?.is_tropical === true ||
-                  matchRecord?.is_toxic_to_pets === true ||
-                  matchRecord?.is_toxic_to_humans === true
-                ) {
+                  (matchRecord?.is_toxic_to_pets ?? null) !== null ||
+                  (matchRecord?.is_toxic_to_humans ?? null) !== null;
+                @if (matchHasTags) {
                   <div class="flex flex-wrap gap-1">
-                    @if (matchRecord?.placement === 'Indoor' || matchRecord?.placement === 'Both') {
-                      <span
-                        class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-xs font-medium font-display bg-neutral-100 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300"
-                      >
-                        <i class="pi pi-home text-[10px]" aria-hidden="true"></i>
-                        Indoor
-                      </span>
-                    }
-                    @if (
-                      matchRecord?.placement === 'Outdoor' || matchRecord?.placement === 'Both'
-                    ) {
-                      <span
-                        class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-xs font-medium font-display bg-neutral-100 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300"
-                      >
-                        <i class="pi pi-sun text-[10px]" aria-hidden="true"></i>
-                        Outdoor
-                      </span>
-                    }
-                    @if (matchRecord?.is_tropical === true) {
-                      <span
-                        class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-xs font-medium font-display bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300"
-                      >
-                        <i class="pi pi-leaf text-[10px]" aria-hidden="true"></i>
-                        Tropical
-                      </span>
-                    }
-                    @if (
-                      matchRecord?.is_toxic_to_pets === true ||
-                      matchRecord?.is_toxic_to_humans === true
-                    ) {
-                      <span
-                        class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-xs font-medium font-display bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300"
-                      >
-                        <i class="pi pi-exclamation-triangle text-[10px]" aria-hidden="true"></i>
-                        Toxic
-                      </span>
-                    }
+                    <app-botanical-tags
+                      [placement]="matchRecord?.placement ?? null"
+                      [isTropical]="matchRecord?.is_tropical ?? null"
+                      [isToxicToPets]="matchRecord?.is_toxic_to_pets ?? null"
+                      [isToxicToHumans]="matchRecord?.is_toxic_to_humans ?? null"
+                    />
                   </div>
                 }
                 <span
@@ -190,11 +168,26 @@
           <!-- All candidates — primary first, then alternatives -->
           @if (allCandidates().length > 1) {
             <div class="flex flex-col gap-1.5">
-              <p
-                class="text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 uppercase tracking-wider"
-              >
-                Candidates
-              </p>
+              <div class="flex items-center justify-between">
+                <p
+                  class="text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 uppercase tracking-wider"
+                >
+                  Candidates
+                </p>
+                @if (isEnrichingCandidates()) {
+                  <p
+                    class="flex items-center gap-1 text-xs font-display text-primary-500 dark:text-primary-400"
+                    role="status"
+                    aria-label="Loading care data for species"
+                  >
+                    <span
+                      class="inline-block w-1.5 h-1.5 rounded-full bg-primary-400 animate-pulse"
+                      aria-hidden="true"
+                    ></span>
+                    Fetching care data…
+                  </p>
+                }
+              </div>
               <div class="flex flex-col gap-2" role="group" aria-label="Species candidates">
                 @for (candidate of allCandidates(); track candidate.scientific_name) {
                   @let chipRecord = candidateRecords().get(candidate.scientific_name);
@@ -219,9 +212,17 @@
                     "
                     (click)="selectAlternative(candidate)"
                   >
-                    <!-- Consistent 56 × 56 px thumbnail -->
+                    <!-- Consistent 56 × 56 px thumbnail.
+                         animate-pulse on the container while enriching keeps the leaf
+                         icon always visible as a fallback — no hidden grey box. -->
                     <div
-                      class="shrink-0 w-14 h-14 rounded-garden-sm overflow-hidden bg-neutral-100 dark:bg-neutral-700"
+                      [class]="
+                        'shrink-0 w-14 h-14 rounded-garden-sm overflow-hidden bg-neutral-100 dark:bg-neutral-700 ' +
+                        (enrichingNames().has(candidate.scientific_name) &&
+                        !chipRecord?.thumbnail_url
+                          ? 'animate-pulse'
+                          : '')
+                      "
                     >
                       @if (chipRecord?.thumbnail_url) {
                         <img
@@ -262,55 +263,19 @@
                       >
                         {{ candidate.scientific_name }}
                       </span>
-                      @if (
-                        chipRecord?.placement ||
+                      @let chipHasTags =
+                        !!chipRecord?.placement ||
                         chipRecord?.is_tropical === true ||
-                        chipRecord?.is_toxic_to_pets === true ||
-                        chipRecord?.is_toxic_to_humans === true
-                      ) {
+                        (chipRecord?.is_toxic_to_pets ?? null) !== null ||
+                        (chipRecord?.is_toxic_to_humans ?? null) !== null;
+                      @if (chipHasTags) {
                         <div class="flex flex-wrap gap-1 mt-1">
-                          @if (
-                            chipRecord?.placement === 'Indoor' || chipRecord?.placement === 'Both'
-                          ) {
-                            <span
-                              class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-xs font-medium font-display bg-neutral-100 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300"
-                            >
-                              <i class="pi pi-home text-[10px]" aria-hidden="true"></i>
-                              Indoor
-                            </span>
-                          }
-                          @if (
-                            chipRecord?.placement === 'Outdoor' || chipRecord?.placement === 'Both'
-                          ) {
-                            <span
-                              class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-xs font-medium font-display bg-neutral-100 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300"
-                            >
-                              <i class="pi pi-sun text-[10px]" aria-hidden="true"></i>
-                              Outdoor
-                            </span>
-                          }
-                          @if (chipRecord?.is_tropical === true) {
-                            <span
-                              class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-xs font-medium font-display bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300"
-                            >
-                              <i class="pi pi-leaf text-[10px]" aria-hidden="true"></i>
-                              Tropical
-                            </span>
-                          }
-                          @if (
-                            chipRecord?.is_toxic_to_pets === true ||
-                            chipRecord?.is_toxic_to_humans === true
-                          ) {
-                            <span
-                              class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-xs font-medium font-display bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300"
-                            >
-                              <i
-                                class="pi pi-exclamation-triangle text-[10px]"
-                                aria-hidden="true"
-                              ></i>
-                              Toxic
-                            </span>
-                          }
+                          <app-botanical-tags
+                            [placement]="chipRecord?.placement ?? null"
+                            [isTropical]="chipRecord?.is_tropical ?? null"
+                            [isToxicToPets]="chipRecord?.is_toxic_to_pets ?? null"
+                            [isToxicToHumans]="chipRecord?.is_toxic_to_humans ?? null"
+                          />
                         </div>
                       }
                     </div>

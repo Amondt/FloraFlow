@@ -51,7 +51,7 @@ GET https://api.inaturalist.org/v1/taxa?q={q}&taxon_id=47126&rank=species&per_pa
   - Run `bunx supabase migration up`, then `bun run types`, then `Copy-Item src/types/database.types.ts supabase/functions/_shared/database.types.ts`
   - Verify in Studio SQL (`http://127.0.0.1:54323/`): `SELECT column_name FROM information_schema.columns WHERE table_name = 'cached_botanical_records' AND column_name = 'inat_taxon_id';` — must return one row
 
-- [ ] **Block B — Rewrite `botanical-search/index.ts`** | Agent: `/plumber` · Model: Sonnet · Effort: high
+- [x] **Block B — Rewrite `botanical-search/index.ts`** | Agent: `/plumber` · Model: Sonnet · Effort: high
   - Remove `MAX_PAGES` constant, `PERENUAL_API_KEY` env read, the `while (page <= MAX_PAGES)` pagination loop, and `pageRecords` accumulator
   - Rename `BotanicalResult.perenual_id` → `inat_taxon_id: number | null`
   - Cache query: replace `perenual_id` with `inat_taxon_id`; keep `thumbnail_url` in the select (already there)

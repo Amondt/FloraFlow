@@ -6,23 +6,17 @@ import { toSentenceCase } from '../_shared/text.ts';
 type BotanicalResult = {
   scientific_name: string;
   common_name: string;
-  perenual_id: number | null;
+  inat_taxon_id: number | null;
+  thumbnail_url: string | null;
 };
 
-// How many cached results to read back when the cache is warm.
+// How many results to request from iNaturalist and how many cached results to serve.
 const MAX_RESULTS = 30;
 
-// Only skip the Perenual round-trip when the cache holds at least a full page's
-// worth of results. One Perenual page returns up to 30 items — if cache has fewer,
-// pagination has not completed for this query and must run again. Setting this equal
-// to MAX_RESULTS means the early-return fires if and only if the DB is already
-// saturated (≥ 30 matching records), preventing partial caches from locking in.
+// Only skip the iNaturalist round-trip when the cache holds at least a full page's
+// worth of results. If the cache has fewer, it may be a partial result set and the
+// live call must run again to fill it.
 const CACHE_THRESHOLD = MAX_RESULTS;
-
-// Maximum number of Perenual pages to fetch per search. Each page returns ~30
-// results. 5 pages = up to 150 species — sufficient for any query while keeping
-// total wall-clock time well inside Supabase's 55s edge-function limit.
-const MAX_PAGES = 5;
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
@@ -53,85 +47,77 @@ Deno.serve(async (req: Request) => {
     if (safeQ.length < 2) return json([]);
 
     // Only the fields Angular's BotanicalSuggestion interface consumes.
-    // Enrichment fields (is_ai_enriched, watering, cycle, etc.) are written by
-    // claude-enrichment and cache-enrichment-worker — never read during search.
     const { data: cached } = await supabase
       .from('cached_botanical_records')
-      .select('scientific_name, common_name, perenual_id, thumbnail_url')
+      .select('scientific_name, common_name, inat_taxon_id, thumbnail_url')
       .or(`common_name.ilike.%${safeQ}%,scientific_name.ilike.%${safeQ}%`)
       .limit(MAX_RESULTS);
 
-    // Cache is warm enough — serve immediately and skip the Perenual round-trip
+    // Cache is warm enough — serve immediately and skip the iNaturalist round-trip
     if ((cached?.length ?? 0) >= CACHE_THRESHOLD) return json(cached);
 
-    // Cache miss or partial cache — page through Perenual until results are exhausted
-    // or the safety cap is reached. Degrade silently on any network failure so the
-    // user still receives whatever was already cached.
+    // Cache miss or partial cache — fetch from iNaturalist (Plantae kingdom, species rank,
+    // English common names). Photos are returned inline so no separate thumbnail pass is needed.
     const fresh: BotanicalResult[] = [];
 
     try {
-      const apiKey = Deno.env.get('PERENUAL_API_KEY') ?? '';
-      let page = 1;
+      const resp = await fetch(
+        `https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(q)}&taxon_id=47126&rank=species&per_page=${MAX_RESULTS}&locale=en`,
+        { signal: AbortSignal.timeout(8000) },
+      );
+      if (!resp.ok) throw new Error(`iNaturalist responded ${resp.status}`);
 
-      while (page <= MAX_PAGES) {
-        const resp = await fetch(
-          `https://perenual.com/api/v2/species-list?key=${apiKey}&q=${encodeURIComponent(q)}&page=${page}`,
-          { signal: AbortSignal.timeout(8000) },
-        );
-        if (!resp.ok) throw new Error(`Perenual responded ${resp.status}`);
+      const body = (await resp.json()) as { results?: Record<string, unknown>[] };
 
-        const body = (await resp.json()) as { data?: Record<string, unknown>[] };
+      const upsertBatch: {
+        scientific_name: string;
+        common_name: string;
+        inat_taxon_id: number;
+        thumbnail_url: string | null;
+        regular_url: string | null;
+        thumbnail_fetched: boolean;
+      }[] = [];
 
-        // Empty page signals no more results — stop fetching
-        if (!body.data || body.data.length === 0) break;
+      for (const taxon of body.results ?? []) {
+        const scientificName = taxon['name'] as string | undefined;
+        if (!scientificName) continue;
 
-        // Build the batch for this page before writing — one DB round-trip per page
-        // instead of one per plant (30× fewer upserts for a full page).
-        const pageRecords: {
-          scientific_name: string;
-          common_name: string;
-          perenual_id: number;
-          raw_api_payload: Record<string, unknown>;
-        }[] = [];
+        const preferredCommonName = taxon['preferred_common_name'] as string | undefined;
+        const commonName = toSentenceCase(preferredCommonName ?? scientificName);
+        const inatTaxonId = taxon['id'] as number;
 
-        for (const plant of body.data) {
-          // Perenual returns scientific_name as an array — take the first entry
-          const names = plant['scientific_name'] as string[] | undefined;
-          const scientificName = names?.[0];
-          if (!scientificName) continue;
+        const defaultPhoto = taxon['default_photo'] as Record<string, unknown> | null | undefined;
+        const thumbnailUrl = (defaultPhoto?.['url'] as string | undefined) ?? null;
+        const regularUrl = (defaultPhoto?.['medium_url'] as string | undefined) ?? null;
 
-          const commonName = toSentenceCase(
-            (plant['common_name'] as string | null) ?? scientificName,
-          );
-          const perenualId = plant['id'] as number;
+        upsertBatch.push({
+          scientific_name: scientificName,
+          common_name: commonName,
+          inat_taxon_id: inatTaxonId,
+          thumbnail_url: thumbnailUrl,
+          regular_url: regularUrl,
+          // Photos arrive inline — mark as fetched so the enrichment cron skips the
+          // iNat thumbnail call for these records.
+          thumbnail_fetched: true,
+        });
 
-          pageRecords.push({
-            scientific_name: scientificName,
-            common_name: commonName,
-            perenual_id: perenualId,
-            raw_api_payload: plant,
-          });
+        fresh.push({
+          scientific_name: scientificName,
+          common_name: commonName,
+          inat_taxon_id: inatTaxonId,
+          thumbnail_url: thumbnailUrl,
+        });
+      }
 
-          fresh.push({
-            scientific_name: scientificName,
-            common_name: commonName,
-            perenual_id: perenualId,
-          });
-        }
-
-        // Persist all records from this page in one batch. Care fields (watering, pH,
-        // toxicity) are written later by the background cache-enrichment-worker — never
-        // during search, where the user may never select most of these results.
-        if (pageRecords.length > 0) {
-          await supabase
-            .from('cached_botanical_records')
-            .upsert(pageRecords, { onConflict: 'scientific_name' });
-        }
-
-        page++;
+      // Persist all records in one batch. Care fields (watering, pH, toxicity) are written
+      // later by the background cache-enrichment-worker — never during search.
+      if (upsertBatch.length > 0) {
+        await supabase
+          .from('cached_botanical_records')
+          .upsert(upsertBatch, { onConflict: 'scientific_name' });
       }
     } catch (err) {
-      console.error('Perenual fetch failed — returning cached results only:', err);
+      console.error('iNaturalist fetch failed — returning cached results only:', err);
     }
 
     // Merge cached hits with newly fetched results; deduplicate by scientific_name

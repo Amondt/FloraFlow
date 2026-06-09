@@ -74,6 +74,11 @@ export class JournalEntryCardComponent {
     return (this.diagnostics() as HealthyDiagnosticsBlob).identified_plant ?? null;
   });
 
+  protected readonly speciesMismatchWarning = computed((): string | null => {
+    const d = this.sickDiagnostics();
+    return d?.species_mismatch_name ?? null;
+  });
+
   protected toggleDiagnostics(): void {
     this.showDiagnostics.update((v) => !v);
   }

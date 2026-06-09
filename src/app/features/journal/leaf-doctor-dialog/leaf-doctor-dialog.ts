@@ -17,11 +17,13 @@ import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
+import { TextareaModule } from 'primeng/textarea';
 import { MessageService } from 'primeng/api';
 import {
   FloraFormDialogPT,
   FloraButtonPT,
   FloraMessagePT,
+  FloraTextareaPT,
   FLORA_FOCUS,
   FLORA_DISABLED,
 } from '../../../shared/ui/pt/index';
@@ -53,6 +55,7 @@ import type { Json } from '../../../../types/database.types';
     DialogModule,
     ButtonModule,
     MessageModule,
+    TextareaModule,
     PlantSelectComponent,
     LeafDoctorBadgesComponent,
   ],
@@ -75,13 +78,17 @@ export class LeafDoctorDialogComponent implements OnDestroy {
   protected readonly FloraFormDialogPT = FloraFormDialogPT;
   protected readonly FloraButtonPT = FloraButtonPT;
   protected readonly FloraMessagePT = FloraMessagePT;
+  protected readonly FloraTextareaPT = FloraTextareaPT;
   protected readonly FLORA_FOCUS = FLORA_FOCUS;
   protected readonly FLORA_DISABLED = FLORA_DISABLED;
+
+  readonly symptomNotesId = `flora-${crypto.randomUUID().slice(0, 8)}`;
 
   protected readonly photoInputRef = viewChild<ElementRef<HTMLInputElement>>('photoInputRef');
   private readonly _plantSelect = viewChild<PlantSelectComponent>('plantSelectRef');
 
   readonly selectedPlantId = signal<string | null>(null);
+  readonly symptomNotes = signal<string>('');
   private readonly plantThumbnailMap = signal<Map<string, string | null>>(new Map());
 
   readonly compressedBlobs = signal<Blob[]>([]);
@@ -307,6 +314,7 @@ export class LeafDoctorDialogComponent implements OnDestroy {
     this.diagnosisState.set('loading');
 
     const plantContext = this.selectedPlantContext();
+    const notes = this.symptomNotes().trim();
 
     const { data, error } = await this.supabase.client.functions.invoke<LeafDoctorResult>(
       'claude-vision',
@@ -314,6 +322,7 @@ export class LeafDoctorDialogComponent implements OnDestroy {
         body: {
           images: base64s.map((imageBase64) => ({ imageBase64, imageMediaType: 'image/jpeg' })),
           ...(plantContext ? { plantContext } : {}),
+          ...(notes ? { userDescription: notes } : {}),
         },
       },
     );
@@ -359,6 +368,7 @@ export class LeafDoctorDialogComponent implements OnDestroy {
 
       const imagePath = await this.journalService.uploadImage(user.id, plantId, blobs[0]);
 
+      const observation = this.symptomNotes().trim();
       let notes: string;
       let diagnosticsBlob: Json;
 
@@ -367,11 +377,17 @@ export class LeafDoctorDialogComponent implements OnDestroy {
           is_healthy: true,
           identified_plant: this.identifiedPlant(),
         };
-        notes = 'Healthy — no issues found';
+        const aiSummary = 'Healthy — no issues found';
+        notes = observation ? `${observation}\n\n${aiSummary}` : aiSummary;
         diagnosticsBlob = healthyBlob as unknown as Json;
       } else {
-        notes = `Leaf Doctor: ${result!.primary_condition}\n${result!.immediate_remedial_actions.join('\n')}`;
-        diagnosticsBlob = result as unknown as Json;
+        const aiSummary = `Leaf Doctor: ${result!.primary_condition}\n${result!.immediate_remedial_actions.join('\n')}`;
+        notes = observation ? `${observation}\n\n${aiSummary}` : aiSummary;
+        const mismatch = this.speciesMismatchName();
+        const diagBlob: LeafDoctorDiagnostics = mismatch
+          ? { ...result!, species_mismatch_name: mismatch }
+          : result!;
+        diagnosticsBlob = diagBlob as unknown as Json;
       }
 
       await this.journalService.createEntry({
@@ -436,6 +452,7 @@ export class LeafDoctorDialogComponent implements OnDestroy {
     this.diagnosisResult.set(null);
     this.speciesMismatchName.set(null);
     this.identifiedPlant.set(null);
+    this.symptomNotes.set('');
     const photoEl = this.photoInputRef()?.nativeElement;
     if (photoEl) photoEl.value = '';
   }

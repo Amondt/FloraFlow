@@ -285,6 +285,70 @@ describe('LeafDoctorDialogComponent — photo signals and computed gates', () =>
     });
   });
 
+  // ── resetDialog ──────────────────────────────────────────────────────────────
+
+  describe('resetDialog', () => {
+    it('clears symptomNotes', () => {
+      component.symptomNotes.set('Leaves drooping after repot');
+      component['resetDialog']();
+      expect(component.symptomNotes()).toBe('');
+    });
+
+    it('does not clear symptomNotes on onFileChange / removePhoto — only on resetDialog', () => {
+      component.symptomNotes.set('Some symptom text');
+      component.compressedBlobs.set([new Blob(['a'])]);
+      component.previewObjectUrls.set(['blob:url-a']);
+      component.compressedLabels.set(['1 KB']);
+
+      component['removePhoto'](0);
+
+      expect(component.symptomNotes()).toBe('Some symptom text');
+    });
+  });
+
+  // ── saveAsObservation — notes composition ────────────────────────────────────
+
+  describe('saveAsObservation — notes composition', () => {
+    beforeEach(() => {
+      const supabase = TestBed.inject(SupabaseService);
+      vi.spyOn(supabase, 'getUser').mockResolvedValue({ id: 'user-1' } as never);
+      component.diagnosisState.set('success');
+      component.selectedPlantId.set('plant-1');
+      component.compressedBlobs.set([new Blob(['img'])]);
+      component.diagnosisResult.set({
+        primary_condition: 'Root Rot',
+        confidence_score: 0.9,
+        immediate_remedial_actions: ['Remove rotted roots'],
+        systemic_risk_assessment: 'Isolated',
+      });
+      fixture.detectChanges();
+    });
+
+    it('prepends the description to the AI summary when symptomNotes is set', async () => {
+      const journal = TestBed.inject(JournalService);
+      component.symptomNotes.set('Leaves drooping after repot');
+
+      await component.saveAsObservation();
+
+      const call = (journal.createEntry as ReturnType<typeof vi.fn>).mock.calls[0][0] as {
+        notes: string;
+      };
+      expect(call.notes).toMatch(/^Leaves drooping after repot\n\nLeaf Doctor:/);
+    });
+
+    it('uses only the AI summary when symptomNotes is blank', async () => {
+      const journal = TestBed.inject(JournalService);
+      component.symptomNotes.set('');
+
+      await component.saveAsObservation();
+
+      const call = (journal.createEntry as ReturnType<typeof vi.fn>).mock.calls[0][0] as {
+        notes: string;
+      };
+      expect(call.notes).toMatch(/^Leaf Doctor:/);
+    });
+  });
+
   // ── removePhoto ──────────────────────────────────────────────────────────────
 
   describe('removePhoto(index)', () => {

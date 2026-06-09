@@ -60,6 +60,46 @@
       }
     </div>
 
+    <!-- Symptom notes -->
+    <div class="flex flex-col gap-1.5">
+      <label
+        [for]="symptomNotesId"
+        class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+      >
+        Describe what you're seeing
+        <span class="text-neutral-400 font-normal text-xs ml-1">(optional)</span>
+      </label>
+      <textarea
+        pTextarea
+        [id]="symptomNotesId"
+        [pt]="FloraTextareaPT"
+        rows="3"
+        maxlength="1000"
+        [ngModel]="symptomNotes()"
+        (ngModelChange)="symptomNotes.set($event)"
+        placeholder="e.g. Lower leaves yellowing and dropping since I moved it near the AC vent two weeks ago"
+        [attr.aria-describedby]="symptomNotesId + '-counter'"
+      ></textarea>
+      <div class="flex items-start justify-between gap-3">
+        <small
+          class="text-xs text-neutral-500 dark:text-neutral-400 font-display flex items-start gap-1.5"
+          role="note"
+        >
+          <i class="pi pi-info-circle text-primary-500 shrink-0 mt-0.5" aria-hidden="true"></i>
+          <span
+            >Optional — symptoms, recent changes, anything the photos don't show. Helps the
+            diagnosis.</span
+          >
+        </small>
+        <span
+          [id]="symptomNotesId + '-counter'"
+          class="text-xs font-display text-neutral-400 shrink-0"
+        >
+          {{ symptomNotes().length }}/1000
+        </span>
+      </div>
+    </div>
+
     <!-- Photo + analysis -->
     <div class="flex flex-col gap-2">
       <span class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display">

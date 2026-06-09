@@ -11,6 +11,8 @@ export interface LeafDoctorDiagnostics {
   confidence_score: number;
   immediate_remedial_actions: string[];
   systemic_risk_assessment: 'Isolated' | 'ZoneContagious' | 'FatalThreat';
+  /** Set when the photo showed a different species than the selected plant. */
+  species_mismatch_name?: string | null;
 }
 
 export interface HealthyDiagnosticsBlob {

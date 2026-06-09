@@ -77,6 +77,27 @@
     </div>
   </div>
 
+  <!-- Species mismatch warning -->
+  @if (speciesMismatchWarning()) {
+    <div
+      class="px-3.5 py-2.5 border-t border-yellow-100 dark:border-yellow-900/40 bg-yellow-50 dark:bg-yellow-900/10"
+      role="alert"
+      [attr.aria-label]="'Species mismatch warning for ' + entry().plants.common_name"
+    >
+      <p
+        class="flex items-start gap-1.5 text-xs font-display text-warning-500 dark:text-yellow-400"
+      >
+        <i
+          class="pi pi-exclamation-triangle text-[10px] flex-shrink-0 mt-0.5"
+          aria-hidden="true"
+        ></i>
+        Leaf Doctor identified this as
+        <span class="font-semibold italic">{{ speciesMismatchWarning() }}</span>
+        — the plant may be misidentified.
+      </p>
+    </div>
+  }
+
   <!-- Card footer: actions -->
   <footer
     class="px-3.5 pb-3 pt-3 border-t border-neutral-100 dark:border-neutral-700 flex items-center gap-1 relative z-20"

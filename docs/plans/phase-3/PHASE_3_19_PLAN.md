@@ -12,7 +12,7 @@
 
 ## Blocks
 
-- [ ] **Block A — claude-vision: optional symptom description** | Agent: `/plumber` · Model: Sonnet · Effort: mid
+- [x] **Block A — claude-vision: optional symptom description** | Agent: `/plumber` · Model: Sonnet · Effort: mid
   - Request body gains `userDescription?: string` (optional — existing callers unaffected, no breaking change).
   - Add `extractUserDescription(raw: unknown): string | undefined` helper (mirrors `extractPlantContext`): return `undefined` unless `raw` is a non-empty string; `trim()`; cap at 1000 chars via `slice(0, 1000)`; empty-after-trim → `undefined`.
   - Extend `buildUserText(imageCount, plantContext?, userDescription?)` with a **third composable dimension**: when `userDescription` is present, append a clearly delimited sentence after the existing text, e.g.

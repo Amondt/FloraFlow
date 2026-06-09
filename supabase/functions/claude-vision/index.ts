@@ -52,35 +52,50 @@ interface PlantContext {
 
 /**
  * Builds the user text block sent to Claude.
- * Composes two independent dimensions:
+ * Composes three independent dimensions — each appends without overwriting the others:
  *   - image-count: single image vs. multi-image same-plant instruction
  *   - species: when plantContext is provided, names the species for targeted diagnosis
- * Both dimensions compose — neither overwrites the other.
+ *   - userDescription: when provided, appends the gardener's own symptom description
  */
-function buildUserText(imageCount: number, plantContext?: PlantContext): string {
+function buildUserText(
+  imageCount: number,
+  plantContext?: PlantContext,
+  userDescription?: string,
+): string {
   const speciesDesc = plantContext
     ? `${plantContext.commonName}${plantContext.scientificName ? ` (${plantContext.scientificName})` : ''}`
     : null;
+
+  let text: string;
 
   if (imageCount > 1) {
     const plantClause = speciesDesc ? ` of this ${speciesDesc}` : '';
     const speciesFocus = speciesDesc
       ? ' If it shows problems, weigh conditions known to affect this species.'
       : '';
-    return (
+    text =
       `These ${imageCount} photos show the same plant${plantClause} from different angles. ` +
-      `Provide one combined diagnosis. Return a JSON response matching the schema.${speciesFocus}`
-    );
-  }
-
-  if (speciesDesc) {
-    return (
+      `Provide one combined diagnosis. Return a JSON response matching the schema.${speciesFocus}`;
+  } else if (speciesDesc) {
+    text =
       `Analyze this image of a ${speciesDesc} and return a JSON response matching the schema. ` +
-      `If it shows problems, weigh conditions known to affect this species.`
-    );
+      `If it shows problems, weigh conditions known to affect this species.`;
+  } else {
+    text = 'Analyze this image and return a JSON response matching the schema.';
   }
 
-  return 'Analyze this image and return a JSON response matching the schema.';
+  if (userDescription) {
+    text += ` The gardener also describes what they are seeing: "${userDescription}". Weigh this against the visual evidence — do not assume it is correct if the photos contradict it.`;
+  }
+
+  return text;
+}
+
+function extractUserDescription(raw: unknown): string | undefined {
+  if (typeof raw !== 'string') return undefined;
+  const trimmed = raw.trim();
+  if (!trimmed) return undefined;
+  return trimmed.slice(0, 1000);
 }
 
 function extractPlantContext(raw: unknown): PlantContext | undefined {
@@ -138,7 +153,11 @@ Deno.serve(async (req: Request) => {
     } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
     if (authError || !user) return json({ error: 'Unauthorized' }, 401);
 
-    const body = (await req.json()) as { images?: unknown; plantContext?: unknown };
+    const body = (await req.json()) as {
+      images?: unknown;
+      plantContext?: unknown;
+      userDescription?: unknown;
+    };
 
     if (!body.images) {
       return json({ error: 'Missing field: images is required' }, 400);
@@ -160,6 +179,7 @@ Deno.serve(async (req: Request) => {
     const images = validation.items;
 
     const plantContext = extractPlantContext(body.plantContext);
+    const userDescription = extractUserDescription(body.userDescription);
 
     // Fire-and-forget: queue the species for botanical enrichment if not yet cached.
     // The 10-min cron picks up the stub and fills enriched fields on the next pass.
@@ -207,7 +227,7 @@ Deno.serve(async (req: Request) => {
               ...imageBlocks,
               {
                 type: 'text',
-                text: buildUserText(images.length, plantContext),
+                text: buildUserText(images.length, plantContext, userDescription),
               },
             ],
           },

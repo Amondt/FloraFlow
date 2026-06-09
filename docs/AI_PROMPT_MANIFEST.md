@@ -328,21 +328,23 @@ interface LeafDoctorRequest {
     commonName: string;
     scientificName?: string | null;
   };
+  userDescription?: string; // optional — gardener's symptom description; capped at 1000 chars server-side
 }
 ```
 
 The Edge Function builds the Claude `content[]` array dynamically — one `image` block per item, then a single `text` block at the end.
 
-**User text block** — two dimensions compose independently:
+**User text block** — three dimensions compose independently (none overwrites another):
 
 - **Image-count dimension:** single image vs. multi-image same-plant instruction.
 - **Species dimension (3.15):** when `plantContext` is present, the species name is woven in and a species-focus sentence is appended. When absent, the generic text is unchanged.
+- **Symptom dimension (3.19):** when `userDescription` is present (non-empty after trim, ≤ 1000 chars), a sentence describing the gardener's observation is appended after the base text. Claude is instructed to weigh it against the visual evidence rather than treat it as ground truth.
 
 ```ts
-// Single image, no plantContext
+// Single image, no plantContext, no userDescription
 'Analyze this image and return a JSON response matching the schema.'
 
-// Multiple images, no plantContext
+// Multiple images, no plantContext, no userDescription
 'These N photos show the same plant from different angles. Provide one combined diagnosis. Return a JSON response matching the schema.'
 
 // Single image, with plantContext
@@ -350,6 +352,12 @@ The Edge Function builds the Claude `content[]` array dynamically — one `image
 
 // Multiple images, with plantContext
 'These N photos show the same plant (a ${commonName} (${scientificName})) from different angles. Provide one combined diagnosis. Return a JSON response matching the schema. If it shows problems, weigh conditions known to affect this species.'
+
+// Any of the above + userDescription (appended as a fourth sentence)
+'... The gardener also describes what they are seeing: "${userDescription}". Weigh this against the visual evidence — do not assume it is correct if the photos contradict it.'
+
+// Composed example — multiple images + plantContext + userDescription
+'These 2 photos show the same plant of this Fiddle Leaf Fig (Ficus lyrata) from different angles. Provide one combined diagnosis. Return a JSON response matching the schema. If it shows problems, weigh conditions known to affect this species. The gardener also describes what they are seeing: "Lower leaves yellowing and dropping since I moved it near the AC vent two weeks ago". Weigh this against the visual evidence — do not assume it is correct if the photos contradict it.'
 ```
 
 **Cache stub side-effect:** when `plantContext.scientificName` is present, the function fires a background upsert into `cached_botanical_records` via `EdgeRuntime?.waitUntil`. If the species is not yet cached, the 10-minute enrichment cron picks up the stub on its next pass. If already cached, only `common_name` is refreshed — all enriched columns are left untouched.

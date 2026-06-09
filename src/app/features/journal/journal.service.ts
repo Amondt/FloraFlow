@@ -13,9 +13,17 @@ export interface LeafDoctorDiagnostics {
   systemic_risk_assessment: 'Isolated' | 'ZoneContagious' | 'FatalThreat';
 }
 
+export interface HealthyDiagnosticsBlob {
+  is_healthy: true;
+  identified_plant: string | null;
+}
+
 export interface LeafDoctorResult {
   is_botanical_image: boolean;
   error_message: string | null;
+  is_healthy: boolean;
+  identified_plant: string | null;
+  species_matches_context: boolean | null;
   diagnostics: LeafDoctorDiagnostics | null;
 }
 

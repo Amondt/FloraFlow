@@ -150,6 +150,14 @@ describe('LeafDoctorDialogComponent — photo signals and computed gates', () =>
       expect(component['canSave']()).toBe(true);
     });
 
+    it('is true in healthy state when a plant is selected and photos are loaded', () => {
+      component.selectedPlantId.set('plant-1');
+      component.diagnosisState.set('healthy');
+      component.compressedBlobs.set([new Blob()]);
+      fixture.detectChanges();
+      expect(component['canSave']()).toBe(true);
+    });
+
     it('is false when no plant is selected', () => {
       component.selectedPlantId.set(null);
       component.diagnosisState.set('success');
@@ -158,12 +166,122 @@ describe('LeafDoctorDialogComponent — photo signals and computed gates', () =>
       expect(component['canSave']()).toBe(false);
     });
 
-    it('is false when diagnosisState is not success', () => {
+    it('is false when diagnosisState is not success or healthy', () => {
       component.selectedPlantId.set('plant-1');
       component.diagnosisState.set('idle');
       component.compressedBlobs.set([new Blob()]);
       fixture.detectChanges();
       expect(component['canSave']()).toBe(false);
+    });
+  });
+
+  // ── healthy branch ───────────────────────────────────────────────────────────
+
+  describe('healthy branch', () => {
+    it('sets diagnosisState to healthy and identifiedPlant when is_healthy is true', async () => {
+      const supabase = TestBed.inject(SupabaseService);
+      vi.spyOn(supabase.client.functions, 'invoke').mockResolvedValue({
+        data: {
+          is_botanical_image: true,
+          error_message: null,
+          is_healthy: true,
+          identified_plant: 'Golden Pothos (Epipremnum aureum)',
+          species_matches_context: null,
+          diagnostics: null,
+        },
+        error: null,
+      });
+
+      component.compressedBlobs.set([new Blob(['img'])]);
+      await component.analyzePlant();
+      fixture.detectChanges();
+
+      expect(component.diagnosisState()).toBe('healthy');
+      expect(component.diagnosisResult()).toBeNull();
+      expect(component.identifiedPlant()).toBe('Golden Pothos (Epipremnum aureum)');
+    });
+
+    it('leaves speciesMismatchName null when species_matches_context is null', async () => {
+      const supabase = TestBed.inject(SupabaseService);
+      vi.spyOn(supabase.client.functions, 'invoke').mockResolvedValue({
+        data: {
+          is_botanical_image: true,
+          error_message: null,
+          is_healthy: true,
+          identified_plant: 'Golden Pothos (Epipremnum aureum)',
+          species_matches_context: null,
+          diagnostics: null,
+        },
+        error: null,
+      });
+
+      component.compressedBlobs.set([new Blob(['img'])]);
+      await component.analyzePlant();
+      fixture.detectChanges();
+
+      expect(component.speciesMismatchName()).toBeNull();
+    });
+  });
+
+  // ── speciesMismatchName ──────────────────────────────────────────────────────
+
+  describe('speciesMismatchName', () => {
+    it('is set to identified_plant when species_matches_context is false', async () => {
+      const supabase = TestBed.inject(SupabaseService);
+      vi.spyOn(supabase.client.functions, 'invoke').mockResolvedValue({
+        data: {
+          is_botanical_image: true,
+          error_message: null,
+          is_healthy: true,
+          identified_plant: "Solomon's Seal (Polygonatum sp.)",
+          species_matches_context: false,
+          diagnostics: null,
+        },
+        error: null,
+      });
+
+      component.compressedBlobs.set([new Blob(['img'])]);
+      await component.analyzePlant();
+      fixture.detectChanges();
+
+      expect(component.speciesMismatchName()).toBe("Solomon's Seal (Polygonatum sp.)");
+    });
+
+    it('is null when species_matches_context is true', async () => {
+      const supabase = TestBed.inject(SupabaseService);
+      vi.spyOn(supabase.client.functions, 'invoke').mockResolvedValue({
+        data: {
+          is_botanical_image: true,
+          error_message: null,
+          is_healthy: false,
+          identified_plant: 'Monstera deliciosa',
+          species_matches_context: true,
+          diagnostics: {
+            primary_condition: 'Root Rot',
+            confidence_score: 0.8,
+            immediate_remedial_actions: [],
+            systemic_risk_assessment: 'Isolated',
+          },
+        },
+        error: null,
+      });
+
+      component.compressedBlobs.set([new Blob(['img'])]);
+      await component.analyzePlant();
+      fixture.detectChanges();
+
+      expect(component.speciesMismatchName()).toBeNull();
+    });
+
+    it('is cleared when removePhoto is called', () => {
+      component.speciesMismatchName.set("Solomon's Seal (Polygonatum sp.)");
+      component.compressedBlobs.set([new Blob(['a'])]);
+      component.previewObjectUrls.set(['blob:url-a']);
+      component.compressedLabels.set(['1 KB']);
+
+      component['removePhoto'](0);
+
+      expect(component.speciesMismatchName()).toBeNull();
     });
   });
 

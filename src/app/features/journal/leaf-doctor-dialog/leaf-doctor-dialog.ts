@@ -31,6 +31,7 @@ import {
   JournalService,
   type LeafDoctorDiagnostics,
   type LeafDoctorResult,
+  type HealthyDiagnosticsBlob,
 } from '../journal.service';
 import { LibraryService } from '../../library/library.service';
 import { ImageCompressorService } from '../../../core/services/image-compressor.service';
@@ -88,10 +89,12 @@ export class LeafDoctorDialogComponent implements OnDestroy {
   readonly compressedLabels = signal<string[]>([]);
   readonly isCompressing = signal(false);
 
-  readonly diagnosisState = signal<'idle' | 'loading' | 'success' | 'error' | 'not-botanical'>(
-    'idle',
-  );
+  readonly diagnosisState = signal<
+    'idle' | 'loading' | 'success' | 'healthy' | 'error' | 'not-botanical'
+  >('idle');
   readonly diagnosisResult = signal<LeafDoctorDiagnostics | null>(null);
+  readonly speciesMismatchName = signal<string | null>(null);
+  readonly identifiedPlant = signal<string | null>(null);
   readonly saving = signal(false);
 
   protected readonly hasPhotos = computed(() => this.compressedBlobs().length > 0);
@@ -146,26 +149,30 @@ export class LeafDoctorDialogComponent implements OnDestroy {
     },
   );
 
-  protected readonly canSave = computed(
-    () => !!this.selectedPlantId() && this.diagnosisState() === 'success' && this.hasPhotos(),
-  );
+  protected readonly canSave = computed(() => {
+    const state = this.diagnosisState();
+    return (
+      !!this.selectedPlantId() && (state === 'success' || state === 'healthy') && this.hasPhotos()
+    );
+  });
 
   protected readonly primaryActionLabel = computed(() => {
     const state = this.diagnosisState();
     if (state === 'loading') return 'Analyzing…';
-    if (state === 'success') return 'Save as Observation';
+    if (state === 'success' || state === 'healthy') return 'Save as Observation';
     return 'Analyze';
   });
 
-  protected readonly primaryActionIcon = computed(() =>
-    this.diagnosisState() === 'success' ? 'pi pi-check' : 'pi pi-eye',
-  );
+  protected readonly primaryActionIcon = computed(() => {
+    const state = this.diagnosisState();
+    return state === 'success' || state === 'healthy' ? 'pi pi-check' : 'pi pi-eye';
+  });
 
   protected readonly primaryActionDisabled = computed(() => {
     if (this.isCompressing()) return true;
     const state = this.diagnosisState();
     if (state === 'loading') return true;
-    if (state === 'success') return !this.canSave();
+    if (state === 'success' || state === 'healthy') return !this.canSave();
     return !this.hasPhotos() || !this.selectedPlantId();
   });
 
@@ -177,6 +184,7 @@ export class LeafDoctorDialogComponent implements OnDestroy {
     const state = this.diagnosisState();
     if (state === 'loading') return 'Leaf Doctor is analyzing the photos, please wait';
     if (state === 'success') return 'Save Leaf Doctor diagnosis as a journal Observation entry';
+    if (state === 'healthy') return 'Save healthy plant checkup as a journal Observation entry';
     return 'Analyze photos with Leaf Doctor AI';
   });
 
@@ -245,6 +253,8 @@ export class LeafDoctorDialogComponent implements OnDestroy {
 
     this.diagnosisState.set('idle');
     this.diagnosisResult.set(null);
+    this.speciesMismatchName.set(null);
+    this.identifiedPlant.set(null);
     this.isCompressing.set(true);
 
     try {
@@ -275,10 +285,13 @@ export class LeafDoctorDialogComponent implements OnDestroy {
     this.compressedLabels.update((labels) => labels.filter((_, i) => i !== index));
     this.diagnosisState.set('idle');
     this.diagnosisResult.set(null);
+    this.speciesMismatchName.set(null);
+    this.identifiedPlant.set(null);
   }
 
   protected primaryAction(): void {
-    if (this.diagnosisState() === 'success') {
+    const state = this.diagnosisState();
+    if (state === 'success' || state === 'healthy') {
       void this.saveAsObservation();
     } else {
       void this.analyzePlant();
@@ -315,15 +328,28 @@ export class LeafDoctorDialogComponent implements OnDestroy {
       return;
     }
 
-    this.diagnosisResult.set(data.diagnostics);
-    this.diagnosisState.set('success');
+    this.identifiedPlant.set(data.identified_plant ?? null);
+    this.speciesMismatchName.set(
+      data.species_matches_context === false ? (data.identified_plant ?? null) : null,
+    );
+
+    if (data.is_healthy) {
+      this.diagnosisResult.set(null);
+      this.diagnosisState.set('healthy');
+    } else {
+      this.diagnosisResult.set(data.diagnostics);
+      this.diagnosisState.set('success');
+    }
   }
 
   async saveAsObservation(): Promise<void> {
-    const result = this.diagnosisResult();
     const blobs = this.compressedBlobs();
     const plantId = this.selectedPlantId();
-    if (!result || blobs.length === 0 || !plantId) return;
+    const isHealthy = this.diagnosisState() === 'healthy';
+    const result = this.diagnosisResult();
+
+    if (blobs.length === 0 || !plantId) return;
+    if (!isHealthy && !result) return;
 
     this.saving.set(true);
 
@@ -332,7 +358,21 @@ export class LeafDoctorDialogComponent implements OnDestroy {
       if (!user) throw new Error('Not authenticated');
 
       const imagePath = await this.journalService.uploadImage(user.id, plantId, blobs[0]);
-      const notes = `Leaf Doctor: ${result.primary_condition}\n${result.immediate_remedial_actions.join('\n')}`;
+
+      let notes: string;
+      let diagnosticsBlob: Json;
+
+      if (isHealthy) {
+        const healthyBlob: HealthyDiagnosticsBlob = {
+          is_healthy: true,
+          identified_plant: this.identifiedPlant(),
+        };
+        notes = 'Healthy — no issues found';
+        diagnosticsBlob = healthyBlob as unknown as Json;
+      } else {
+        notes = `Leaf Doctor: ${result!.primary_condition}\n${result!.immediate_remedial_actions.join('\n')}`;
+        diagnosticsBlob = result as unknown as Json;
+      }
 
       await this.journalService.createEntry({
         plant_id: plantId,
@@ -340,7 +380,7 @@ export class LeafDoctorDialogComponent implements OnDestroy {
         category: 'Observation',
         notes,
         image_storage_path: imagePath,
-        diagnostics: result as unknown as Json,
+        diagnostics: diagnosticsBlob,
         logged_at: new Date().toISOString(),
       });
 
@@ -394,6 +434,8 @@ export class LeafDoctorDialogComponent implements OnDestroy {
     this.compressedLabels.set([]);
     this.diagnosisState.set('idle');
     this.diagnosisResult.set(null);
+    this.speciesMismatchName.set(null);
+    this.identifiedPlant.set(null);
     const photoEl = this.photoInputRef()?.nativeElement;
     if (photoEl) photoEl.value = '';
   }

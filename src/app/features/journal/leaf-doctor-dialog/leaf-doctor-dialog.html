@@ -152,7 +152,16 @@
         }
       }
 
-      <!-- Result panel — success state -->
+      <!-- Species mismatch warning — non-blocking, shown above result panel -->
+      @if (speciesMismatchName()) {
+        <p-message
+          severity="warn"
+          [text]="'This looks more like ' + speciesMismatchName() + ' — double-check the plant.'"
+          [pt]="FloraMessagePT"
+        />
+      }
+
+      <!-- Result panel — sick plant -->
       @if (diagnosisState() === 'success') {
         @if (diagnosisResult(); as result) {
           <section
@@ -178,6 +187,30 @@
             }
           </section>
         }
+      }
+
+      <!-- Result panel — healthy plant -->
+      @if (diagnosisState() === 'healthy') {
+        <section
+          aria-label="Leaf Doctor — healthy plant"
+          class="flex flex-col gap-1.5 rounded-garden-md border border-success-500/40 bg-green-50 dark:bg-green-900/10 p-3"
+        >
+          <div class="flex items-center gap-2">
+            <i
+              class="pi pi-check-circle text-success-500 text-base shrink-0"
+              aria-hidden="true"
+            ></i>
+            <p class="text-sm font-semibold font-display text-neutral-900 dark:text-white">
+              No issues found
+            </p>
+          </div>
+          @if (identifiedPlant()) {
+            <p class="text-xs font-display text-neutral-600 dark:text-neutral-400">
+              Identified as
+              <span class="italic">{{ identifiedPlant() }}</span>
+            </p>
+          }
+        </section>
       }
 
       <!-- Not a plant photo -->

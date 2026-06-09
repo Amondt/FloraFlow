@@ -49,7 +49,19 @@
         </time>
       </div>
 
-      @if (diagnostics(); as diag) {
+      @if (isHealthyEntry()) {
+        <p
+          class="text-sm text-neutral-600 dark:text-neutral-300 font-display leading-snug flex items-center gap-1.5"
+        >
+          <i class="pi pi-check-circle text-success-500 text-sm shrink-0" aria-hidden="true"></i>
+          Healthy checkup
+          @if (healthyIdentifiedPlant()) {
+            <span class="text-neutral-400 dark:text-neutral-500"
+              >· {{ healthyIdentifiedPlant() }}</span
+            >
+          }
+        </p>
+      } @else if (sickDiagnostics(); as diag) {
         <p class="text-sm text-neutral-600 dark:text-neutral-300 font-display leading-snug">
           {{ diag.primary_condition }}
         </p>
@@ -93,7 +105,7 @@
       Delete
     </button>
 
-    @if (diagnostics()) {
+    @if (sickDiagnostics()) {
       <button
         type="button"
         class="inline-flex items-center gap-2 text-xs font-semibold font-display text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
@@ -117,7 +129,7 @@
   </footer>
 
   @if (showDiagnostics()) {
-    @if (diagnostics(); as diag) {
+    @if (sickDiagnostics(); as diag) {
       <div
         [attr.id]="'diag-' + entry().id"
         class="border-t border-neutral-100 dark:border-neutral-700 px-3.5 py-3.5 relative z-20"

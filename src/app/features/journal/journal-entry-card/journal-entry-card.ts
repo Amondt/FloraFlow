@@ -10,7 +10,11 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CATEGORY_ICON, CATEGORY_LABEL, type LogCategoryType } from '../journal-categories';
-import { type JournalEntryWithPlant, type LeafDoctorDiagnostics } from '../journal.service';
+import {
+  type JournalEntryWithPlant,
+  type LeafDoctorDiagnostics,
+  type HealthyDiagnosticsBlob,
+} from '../journal.service';
 import { LeafDoctorBadgesComponent } from '../leaf-doctor-badges/leaf-doctor-badges';
 
 const BADGE_BASE =
@@ -51,8 +55,24 @@ export class JournalEntryCardComponent {
     });
   }
   protected readonly diagnostics = computed(
-    () => this.entry().diagnostics as LeafDoctorDiagnostics | null,
+    () => this.entry().diagnostics as LeafDoctorDiagnostics | HealthyDiagnosticsBlob | null,
   );
+
+  protected readonly isHealthyEntry = computed(() => {
+    const d = this.diagnostics();
+    return d !== null && 'is_healthy' in d && (d as HealthyDiagnosticsBlob).is_healthy === true;
+  });
+
+  protected readonly sickDiagnostics = computed((): LeafDoctorDiagnostics | null => {
+    const d = this.diagnostics();
+    if (!d || this.isHealthyEntry()) return null;
+    return d as LeafDoctorDiagnostics;
+  });
+
+  protected readonly healthyIdentifiedPlant = computed((): string | null => {
+    if (!this.isHealthyEntry()) return null;
+    return (this.diagnostics() as HealthyDiagnosticsBlob).identified_plant ?? null;
+  });
 
   protected toggleDiagnostics(): void {
     this.showDiagnostics.update((v) => !v);

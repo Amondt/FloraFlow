@@ -274,7 +274,7 @@
   - Block G: one-shot `inat-backfill` Edge Function populates `inat_taxon_id` for all 924 existing records; `group-botanical-records.util.ts` refactored to group by `inat_taxon_id` — cultivar cards correctly collapse into one species card.
   - `locale=en` added to all iNat queries; `thumbnail_fetched` retained as infinite-retry guard for species absent from iNat's photo database.
   - Plan: `docs/plans/phase-3/PHASE_3_16_PLAN.md`
-- [ ] **3.17 Species Photo Gallery (iNaturalist Carousel)** | Agent: `/plumber` → `/visualizer`
+- [x] **3.17 Species Photo Gallery (iNaturalist Carousel)** | Agent: `/plumber` → `/visualizer`
   - Depends on 3.16 complete — `inat_taxon_id` must be populated on all records before the gallery fetch can run.
   - iNat's `/v1/taxa/{id}` endpoint returns `taxon_photos[]` (typically 6–12 photos per species); no API key required.
   - DB migration: `gallery_urls TEXT[] NULL` on `cached_botanical_records` — stores up to 6 medium-sized photo URLs.

@@ -649,6 +649,9 @@
   .h-48 {
     height: calc(var(--spacing) * 48);
   }
+  .h-64 {
+    height: calc(var(--spacing) * 64);
+  }
   .h-80 {
     height: calc(var(--spacing) * 80);
   }
@@ -1027,6 +1030,9 @@
   }
   .self-start {
     align-self: flex-start;
+  }
+  .self-stretch {
+    align-self: stretch;
   }
   .truncate {
     overflow: hidden;
@@ -2723,6 +2729,11 @@
   .dark\:text-primary-200 {
     &:where(.dark, .dark *) {
       color: var(--color-primary-200);
+    }
+  }
+  .dark\:text-primary-700 {
+    &:where(.dark, .dark *) {
+      color: var(--color-primary-700);
     }
   }
   .dark\:text-red-200 {

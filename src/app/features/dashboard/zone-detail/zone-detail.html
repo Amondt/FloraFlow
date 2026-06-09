@@ -530,6 +530,15 @@
                       <i class="pi pi-list-check text-[10px]" aria-hidden="true"></i>
                       Mix substrate
                     </button>
+                    <a
+                      [routerLink]="['/journal']"
+                      [queryParams]="{ plant: ep.plant.id }"
+                      class="relative z-20 inline-flex items-center gap-1 text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                      [attr.aria-label]="'View journal entries for ' + ep.plant.common_name"
+                    >
+                      <i class="pi pi-book text-[10px]" aria-hidden="true"></i>
+                      Journal
+                    </a>
                     <button
                       type="button"
                       class="inline-flex items-center gap-1 text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500"

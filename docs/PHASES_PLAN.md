@@ -291,7 +291,7 @@
   - UX: species mismatch shows a non-blocking amber banner (still diagnoses what's in the photo); healthy plant shows a reassuring panel and saves a positive checkup.
   - Sequencing: independent of 3.16/3.17 — build immediately after 3.15.
   - Plan: `docs/plans/phase-3/PHASE_3_18_PLAN.md`
-- [ ] **3.19 Leaf Doctor Symptom Description** | Agent: `/plumber` → `/visualizer`
+- [x] **3.19 Leaf Doctor Symptom Description** | Agent: `/plumber` → `/visualizer`
   - Optional free-text field in the Diagnose a Plant dialog: the gardener describes symptoms, recent changes, or anything the photos don't show.
   - `claude-vision` request body gains optional `userDescription?: string` (≤1000 chars), woven into `buildUserText()` as a third composable dimension alongside image-count and `plantContext`.
   - When the diagnosis is saved as an Observation, the description is prepended to `plant_journals.notes` above the AI summary — the gardener's own words are preserved.

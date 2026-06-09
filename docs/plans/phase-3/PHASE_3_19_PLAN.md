@@ -23,7 +23,7 @@
   - Update `docs/AI_PROMPT_MANIFEST.md §3.0`: add `userDescription?: string` to the request interface (note the 1000-char cap), document the third dimension, and add one composed example string.
   - Verification: `bun run format` → `bun run lint` → `bun run functions:serve` + `Invoke-RestMethod` with and without `userDescription` (confirm 200 + diagnosis both ways; an over-long string is accepted and truncated, not rejected).
 
-- [ ] **Block B — LeafDoctorDialogComponent: symptom textarea + persisted note** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **Block B — LeafDoctorDialogComponent: symptom textarea + persisted note** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - Add `readonly symptomNotes = signal<string>('')`.
   - Import `TextareaModule` (`primeng/textarea`) into `imports`; import `FloraTextareaPT` from `../../../shared/ui/pt/index`.
   - **Template** — insert a new section **between** the Plant selector block and the Photo+analysis block (all user inputs grouped above the inline AI status/result):
@@ -45,7 +45,6 @@
   Manual Browser Check — Leaf Doctor symptom description
   ────────────────────────────────────────────────────
   App running at: http://localhost:4200/journal
-
   1. Open Leaf Doctor → a "Describe what you're seeing (optional)" textarea sits below the plant selector → counter reads 0/1000
   2. Type a description → counter updates live; cannot exceed 1000 chars
   3. Select plant + photo, **leave description blank**, Analyze → diagnosis returns (DevTools Network: request body has **no** `userDescription` key)

@@ -50,8 +50,8 @@ Thumbs.db
 !.env.example
 
 # Claude Code (personal config — never commit)
-CLAUDE.md
-.claude/settings.local.json
+# CLAUDE.md
+# .claude/settings.local.json
 
 # Supabase local state
 supabase/.temp/

@@ -28,7 +28,7 @@ Invariant the prompt must enforce: when `is_botanical_image === true`, `is_healt
 
 ## Blocks
 
-- [ ] **Block A — claude-vision: honest schema + prompt** | Agent: `/plumber` · Model: Sonnet · Effort: high
+- [x] **Block A — claude-vision: honest schema + prompt** | Agent: `/plumber` · Model: Sonnet · Effort: high
   - Extend `LeafDoctorSchema` with `is_healthy` (`z.boolean()`), `identified_plant` (`z.string().nullable()`), `species_matches_context` (`z.boolean().nullable()`). Keep `diagnostics` nullable. Mirror all three into `AI_PROMPT_MANIFEST.md §3.2` (`properties` + `required`).
   - Rewrite the `SYSTEM_PROMPT` guardrails (and `AI_PROMPT_MANIFEST.md §3.1`) to add:
     - **Identify first.** Begin by identifying the plant in the image; populate `identified_plant`.

@@ -304,8 +304,12 @@ interface PlantIdError {
     You are the FloraFlow AI Leaf Doctor, an advanced computer vision diagnostic engine specializing in agricultural pathology, plant physiology, and soil sciences.
 
     CRITICAL GUARDRAILS:
-    1. If the uploaded image does not primarily focus on a plant asset, leaf structure, or cultivation soil layer, immediately return an error state indicating a non-botanical image was provided.
+    1. If the uploaded image does not primarily focus on a plant asset, leaf structure, or cultivation soil layer, set is_botanical_image to false and populate error_message. Do not attempt identification.
     2. Do not include casual pleasantries, greetings, or loose text explanations. You must communicate exclusively using a valid, parseable JSON data structure.
+    3. Identify first. Begin by identifying the plant in the image and populate identified_plant with what you actually see, e.g. "Snake Plant (Sansevieria trifasciata)". Never leave it null when the image shows a plant.
+    4. Healthy is a valid outcome. If there is no clear sign of disease, pest, deficiency, or distress, set is_healthy to true and diagnostics to null. Never fabricate a condition to fill the schema.
+    5. Evidence-gated diagnosis. Populate diagnostics only when there is visible evidence of a specific problem. When evidence is weak, prefer is_healthy = true or a low confidence_score over a guessed condition.
+    6. Species cross-check. When the user message names an expected species, compare it to what you see: if consistent set species_matches_context to true; if clearly a different species set species_matches_context to false and still diagnose what is actually shown. If no expected species is mentioned, set species_matches_context to null.
 
 ### 📡 3.0 Vision API Call Format
 
@@ -342,10 +346,10 @@ The Edge Function builds the Claude `content[]` array dynamically — one `image
 'These N photos show the same plant from different angles. Provide one combined diagnosis. Return a JSON response matching the schema.'
 
 // Single image, with plantContext
-'Analyze this image of a ${commonName} (${scientificName}) and return a JSON response matching the schema. Focus your diagnosis on conditions known to affect this species.'
+'Analyze this image of a ${commonName} (${scientificName}) and return a JSON response matching the schema. If it shows problems, weigh conditions known to affect this species.'
 
 // Multiple images, with plantContext
-'These N photos show the same plant (a ${commonName} (${scientificName})) from different angles. Provide one combined diagnosis. Return a JSON response matching the schema. Focus your diagnosis on conditions known to affect this species.'
+'These N photos show the same plant (a ${commonName} (${scientificName})) from different angles. Provide one combined diagnosis. Return a JSON response matching the schema. If it shows problems, weigh conditions known to affect this species.'
 ```
 
 **Cache stub side-effect:** when `plantContext.scientificName` is present, the function fires a background upsert into `cached_botanical_records` via `EdgeRuntime?.waitUntil`. If the species is not yet cached, the 10-minute enrichment cron picks up the stub on its next pass. If already cached, only `common_name` is refreshed — all enriched columns are left untouched.
@@ -392,8 +396,21 @@ interface PlantIdRequest {
           "type": ["string", "null"],
           "description": "Populated only if is_botanical_image is false."
         },
+        "is_healthy": {
+          "type": "boolean",
+          "description": "true when no clear disease, pest, deficiency, or distress is visible. When true, diagnostics must be null. Never invent a condition to set this false."
+        },
+        "identified_plant": {
+          "type": ["string", "null"],
+          "description": "What the model actually sees, e.g. 'Snake Plant (Sansevieria trifasciata)'. Null only when is_botanical_image is false."
+        },
+        "species_matches_context": {
+          "type": ["boolean", "null"],
+          "description": "null when no expected species was provided; true when the image matches the named species; false when a clearly different species is shown."
+        },
         "diagnostics": {
           "type": ["object", "null"],
+          "description": "null when is_healthy is true or is_botanical_image is false.",
           "properties": {
             "primary_condition": {
               "type": "string",
@@ -419,5 +436,5 @@ interface PlantIdRequest {
           "required": ["primary_condition", "confidence_score", "immediate_remedial_actions", "systemic_risk_assessment"]
         }
       },
-      "required": ["is_botanical_image", "error_message", "diagnostics"]
+      "required": ["is_botanical_image", "error_message", "is_healthy", "identified_plant", "species_matches_context", "diagnostics"]
     }

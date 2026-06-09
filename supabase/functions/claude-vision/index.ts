@@ -10,8 +10,12 @@ declare const EdgeRuntime: { waitUntil: (promise: Promise<unknown>) => void } | 
 const SYSTEM_PROMPT = `You are the FloraFlow AI Leaf Doctor, an advanced computer vision diagnostic engine specializing in agricultural pathology, plant physiology, and soil sciences.
 
 CRITICAL GUARDRAILS:
-1. If the uploaded image does not primarily focus on a plant asset, leaf structure, or cultivation soil layer, immediately return an error state indicating a non-botanical image was provided.
-2. Do not include casual pleasantries, greetings, or loose text explanations. You must communicate exclusively using a valid, parseable JSON data structure.`;
+1. If the uploaded image does not primarily focus on a plant asset, leaf structure, or cultivation soil layer, set is_botanical_image to false and populate error_message. Do not attempt identification.
+2. Do not include casual pleasantries, greetings, or loose text explanations. You must communicate exclusively using a valid, parseable JSON data structure.
+3. Identify first. Begin by identifying the plant in the image and populate identified_plant with what you actually see, e.g. "Snake Plant (Sansevieria trifasciata)". Never leave it null when the image shows a plant.
+4. Healthy is a valid outcome. If there is no clear sign of disease, pest, deficiency, or distress, set is_healthy to true and diagnostics to null. Never fabricate a condition to fill the schema.
+5. Evidence-gated diagnosis. Populate diagnostics only when there is visible evidence of a specific problem. When evidence is weak, prefer is_healthy = true or a low confidence_score over a guessed condition.
+6. Species cross-check. When the user message names an expected species, compare it to what you see: if consistent set species_matches_context to true; if clearly a different species set species_matches_context to false and still diagnose what is actually shown. If no expected species is mentioned, set species_matches_context to null.`;
 
 const DiagnosticsSchema = z.object({
   primary_condition: z.string(),
@@ -23,6 +27,9 @@ const DiagnosticsSchema = z.object({
 const LeafDoctorSchema = z.object({
   is_botanical_image: z.boolean(),
   error_message: z.string().nullable(),
+  is_healthy: z.boolean(),
+  identified_plant: z.string().nullable(),
+  species_matches_context: z.boolean().nullable(),
   diagnostics: DiagnosticsSchema.nullable(),
 });
 
@@ -58,7 +65,7 @@ function buildUserText(imageCount: number, plantContext?: PlantContext): string 
   if (imageCount > 1) {
     const plantClause = speciesDesc ? ` of this ${speciesDesc}` : '';
     const speciesFocus = speciesDesc
-      ? ' Focus your diagnosis on conditions known to affect this species.'
+      ? ' If it shows problems, weigh conditions known to affect this species.'
       : '';
     return (
       `These ${imageCount} photos show the same plant${plantClause} from different angles. ` +
@@ -69,7 +76,7 @@ function buildUserText(imageCount: number, plantContext?: PlantContext): string 
   if (speciesDesc) {
     return (
       `Analyze this image of a ${speciesDesc} and return a JSON response matching the schema. ` +
-      `Focus your diagnosis on conditions known to affect this species.`
+      `If it shows problems, weigh conditions known to affect this species.`
     );
   }
 

@@ -284,7 +284,7 @@
   - Botanical detail dialog: lightbox removed; identity strip replaced with the carousel (feeds `regular_url` + `gallery_urls`).
   - Library cards and zone detail cards keep their single `thumbnail_url` — carousel is dialog-only.
   - Plan: `docs/plans/phase-3/PHASE_3_17_PLAN.md`
-- [ ] **3.18 Leaf Doctor Diagnostic Honesty** | Agent: `/plumber` → `/visualizer`
+- [x] **3.18 Leaf Doctor Diagnostic Honesty** | Agent: `/plumber` → `/visualizer`
   - Refinement to 3.4/3.15: the `claude-vision` response schema forces a `diagnostics` object with a mandatory `primary_condition`, so a healthy plant or a wrong-species photo gets a confabulated condition. Add honest escape hatches instead.
   - Additive `claude-vision` response fields (no migration — `diagnostics` is `jsonb`): `is_healthy`, `identified_plant`, `species_matches_context`; `diagnostics` becomes null when healthy.
   - System prompt rewrite (`AI_PROMPT_MANIFEST.md §3`): identify first, healthy is a valid outcome, evidence-gated diagnosis, species cross-check against `plantContext`.

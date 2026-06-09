@@ -16,10 +16,10 @@
 Three additive fields on the existing shape (all required; nullable where noted). `DiagnosticsSchema` is unchanged.
 
 ```ts
-is_healthy:              boolean         // true ⇒ no problem found; diagnostics = null; never invent a condition
-identified_plant:        string | null  // what the model actually sees, e.g. "Snake Plant (Sansevieria trifasciata)"
-species_matches_context: boolean | null // null when no plantContext sent; false ⇒ render the mismatch banner
-diagnostics:             Diagnostics | null // null when is_healthy === true OR is_botanical_image === false
+is_healthy: boolean; // true ⇒ no problem found; diagnostics = null; never invent a condition
+identified_plant: string | null; // what the model actually sees, e.g. "Snake Plant (Sansevieria trifasciata)"
+species_matches_context: boolean | null; // null when no plantContext sent; false ⇒ render the mismatch banner
+diagnostics: Diagnostics | null; // null when is_healthy === true OR is_botanical_image === false
 ```
 
 Invariant the prompt must enforce: when `is_botanical_image === true`, `is_healthy === true` ⟺ `diagnostics === null`.
@@ -39,7 +39,7 @@ Invariant the prompt must enforce: when `is_botanical_image === true`, `is_healt
   - Edge Function body: the new fields arrive inside `parsed_output` — return them straight through. Keep the existing `is_botanical_image === false` early-return. No server-side branching needed for healthy (it falls out of `diagnostics === null`).
   - Verification: `bun run format && bun run lint`, then `bun run functions:serve` + `Invoke-RestMethod` three ways — (a) a clearly healthy plant ⇒ `is_healthy: true`, `diagnostics: null`; (b) a photo of a different species + `plantContext` ⇒ `species_matches_context: false`, `identified_plant` set; (c) a genuinely sick plant ⇒ `is_healthy: false`, `diagnostics` populated.
 
-- [ ] **Block B — dialog + journal card: healthy & mismatch states** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **Block B — dialog + journal card: healthy & mismatch states** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - `journal.service.ts`: extend `LeafDoctorResult` with the three new fields; add optional `is_healthy?: boolean` and `identified_plant?: string | null` to the persisted diagnostics shape so a healthy entry round-trips through `diagnostics` jsonb.
   - `leaf-doctor-dialog.ts`: add `'healthy'` to the `diagnosisState` union; add `speciesMismatchName = signal<string | null>(null)`. In `analyzePlant`, after the not-botanical guard: set `speciesMismatchName` from `species_matches_context === false ? identified_plant : null`; if `is_healthy` → `diagnosisResult.set(null)` + state `'healthy'`, else existing `'success'` path. `canSave` accepts `'success'` **or** `'healthy'`. `saveAsObservation` persists a positive blob (`{ is_healthy: true, identified_plant, confidence_score }`) + a "Healthy — no issues found" note when healthy; existing path otherwise. `resetDialog` clears `speciesMismatchName`.
   - `leaf-doctor-dialog.html`: amber mismatch banner above the result when `speciesMismatchName()` is set (reuse the `severity="warn"` `p-message` + `FloraMessagePT` already used for not-botanical); new healthy panel — reassuring green section, `identified_plant` + check icon + "No issues found", **no** action list; keep the primary button enabled to Save in the healthy state.
@@ -50,10 +50,9 @@ Invariant the prompt must enforce: when `is_botanical_image === true`, `is_healt
   Manual Browser Check — Leaf Doctor diagnostic honesty
   ──────────────────────────────────────────────────────
   App running at: http://localhost:4200/journal
-
   1. Diagnose a clearly healthy plant → green "looks healthy, no issues found" panel; no fabricated condition; Save-as-Observation still available
   2. Click "Save as Observation" on the healthy result → entry saved; journal card shows a "Healthy checkup" summary (no action points, no crash)
-  3. From a zone-detail card, open Leaf Doctor (plant locked) and upload a photo of a *different* species → amber banner names the species actually seen; a diagnosis for the photographed plant still appears below
+  3. From a zone-detail card, open Leaf Doctor (plant locked) and upload a photo of a _different_ species → amber banner names the species actually seen; a diagnosis for the photographed plant still appears below
   4. Diagnose a genuinely sick plant → condition + badges + action points exactly as before (no regression)
   5. Open DevTools Console → zero red errors
 

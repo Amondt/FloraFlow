@@ -4,7 +4,6 @@ import { DialogModule } from 'primeng/dialog';
 import { CachedBotanicalRecord } from '../../../features/library/library.service';
 import { getSunlightLabels, getWateringLabel } from '../../utils/botanical-label.util';
 import { FloraButtonPT, FloraDetailDialogPT } from '../../ui/pt/index';
-import { LeafIconComponent } from '../leaf-icon/leaf-icon';
 import { SpeciesPhotoCarouselComponent } from '../species-photo-carousel/species-photo-carousel';
 import { PhotoLightboxDialogComponent } from '../photo-lightbox-dialog/photo-lightbox-dialog';
 import { tabClass } from '../../utils/tab-styles.util';
@@ -65,7 +64,6 @@ function extractCultivarLabel(scientificName: string): string {
   imports: [
     ButtonModule,
     DialogModule,
-    LeafIconComponent,
     SpeciesPhotoCarouselComponent,
     PhotoLightboxDialogComponent,
   ],

@@ -74,7 +74,7 @@
       <!-- Filter sidebar -->
       <aside class="w-52 shrink-0 self-start sticky top-6 z-10" aria-label="Filter options">
         <div
-          class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md p-4 max-h-[calc(100vh-3.5rem)] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md p-4 max-h-[calc(100vh-3rem)] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           <div class="flex items-center justify-between mb-3">
             <span
@@ -544,12 +544,6 @@
 
       <!-- Results area -->
       <section class="flex-1 min-w-0" aria-label="Browse results" [attr.aria-busy]="isLoading()">
-        <div
-          class="sticky top-0 bg-neutral-50 dark:bg-neutral-900 z-10 transition-all duration-150"
-          [class.h-6]="!headerVisible()"
-          aria-hidden="true"
-        ></div>
-
         <!-- Always-present loading indicator for initial load (no existing results).
              Uses a class toggle, never removed from DOM, so it reacts in the same render
              frame as the isLoading() signal write — no branch-switch delay. -->

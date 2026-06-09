@@ -35,7 +35,7 @@ Returns `taxon_photos[]`. Each element has `photo.medium_url` (~640 px wide). No
 
 ## Blocks
 
-- [ ] **Block A — DB migration + gallery fetch** | Agent: `/plumber` · Model: Sonnet · Effort: mid
+- [x] **Block A — DB migration + gallery fetch** | Agent: `/plumber` · Model: Sonnet · Effort: mid
   - Migration: `gallery_urls TEXT[] NULL` on `cached_botanical_records`; comment: `-- Up to 6 medium-sized photo URLs from iNat taxon_photos[]; NULL = not yet fetched, {} = fetched but none available`
   - New helper in `_shared/enrich-record.ts`:
     ```ts

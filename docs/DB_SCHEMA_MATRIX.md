@@ -103,7 +103,8 @@ The Anti-Hallucination Cache & Enrichment Sink. This table buffers raw external 
         care_difficulty TEXT,               -- 'Beginner' | 'Intermediate' | 'Advanced'
         is_ai_enriched BOOLEAN DEFAULT FALSE NOT NULL,
         raw_api_payload JSONB,
-        cached_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+        cached_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+        gallery_urls TEXT[] NULL   -- Up to 6 medium-sized photo URLs from iNat taxon_photos[]; NULL = not yet fetched, {} = fetched but none available
     );
 
     -- watering, sunlight, cycle, plant_type sourced from Perenual species/details endpoint.

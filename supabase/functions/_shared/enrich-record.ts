@@ -171,6 +171,30 @@ export async function queryINat(
   }
 }
 
+export async function fetchINatGallery(
+  inatTaxonId: number,
+  signal: AbortSignal,
+): Promise<string[]> {
+  try {
+    const res = await fetch(`https://api.inaturalist.org/v1/taxa/${inatTaxonId}`, { signal });
+    if (!res.ok) return [];
+    const data = (await res.json()) as {
+      results?: Array<{
+        taxon_photos?: Array<{
+          photo?: { medium_url?: string; url?: string };
+        }>;
+      }>;
+    };
+    const photos = data?.results?.[0]?.taxon_photos ?? [];
+    return photos
+      .map((tp) => tp.photo?.medium_url ?? tp.photo?.url ?? '')
+      .filter(Boolean)
+      .slice(0, 6);
+  } catch {
+    return [];
+  }
+}
+
 export async function fetchINatThumbnail(
   scientificName: string,
   commonName: string,
@@ -216,20 +240,54 @@ export async function enrichRecord(
     .eq('scientific_name', scientificName)
     .maybeSingle();
 
-  // Fully enriched — thumbnail either present or already confirmed absent. Nothing to do.
+  // Whether gallery is considered complete: already fetched (any value), no iNat ID yet,
+  // or confirmed absent from iNat (sentinel -1). Null gallery with a valid taxon ID means
+  // the fetch is still pending.
+  const galleryDone =
+    cached?.gallery_urls != null || !cached?.inat_taxon_id || cached.inat_taxon_id < 0;
+
+  // Fully enriched — thumbnail either present or already confirmed absent, gallery done. Nothing to do.
   if (
     cached?.is_ai_enriched &&
     cached?.watering &&
     cached?.cycle &&
     cached?.description != null &&
-    (cached?.thumbnail_url != null || cached?.thumbnail_fetched)
+    (cached?.thumbnail_url != null || cached?.thumbnail_fetched) &&
+    galleryDone
   ) {
     return cached as CachedBotanicalRow;
+  }
+
+  // AI-enriched, thumbnail done, gallery not yet fetched — gallery fetch only, skip Claude and thumbnail.
+  if (
+    cached?.is_ai_enriched &&
+    cached?.watering &&
+    cached?.cycle &&
+    cached?.description != null &&
+    (cached?.thumbnail_url != null || cached?.thumbnail_fetched) &&
+    !galleryDone &&
+    cached?.inat_taxon_id != null &&
+    cached.inat_taxon_id > 0
+  ) {
+    const galleryUrls = await fetchINatGallery(cached.inat_taxon_id, AbortSignal.timeout(8_000));
+    const { data: updated, error: galleryError } = await supabase
+      .from('cached_botanical_records')
+      .update({ gallery_urls: galleryUrls })
+      .eq('scientific_name', scientificName)
+      .select()
+      .single();
+    if (galleryError) throw galleryError;
+    if (!updated) throw new Error(`Gallery update found no record for: ${scientificName}`);
+    return updated as CachedBotanicalRow;
   }
 
   // AI-enriched but thumbnail not yet attempted — iNaturalist fetch only, skip Claude.
   if (cached?.is_ai_enriched && cached?.watering && cached?.cycle && cached?.description != null) {
     const inat = await fetchINatThumbnail(scientificName, commonName);
+    const galleryUrls =
+      inat.taxon_id != null && inat.taxon_id > 0
+        ? await fetchINatGallery(inat.taxon_id, AbortSignal.timeout(8_000))
+        : null;
     const { data: updated, error: thumbError } = await supabase
       .from('cached_botanical_records')
       .update({
@@ -239,6 +297,7 @@ export async function enrichRecord(
         thumbnail_url: inat.thumbnail_url,
         regular_url: inat.regular_url,
         thumbnail_fetched: true,
+        gallery_urls: galleryUrls,
       })
       .eq('scientific_name', scientificName)
       .select()
@@ -287,6 +346,14 @@ export async function enrichRecord(
     console.error('Claude enrichment call failed:', err);
     throw new EnrichmentError('Enrichment service unavailable', 503);
   }
+
+  // Fetch gallery photos — separate from the default_photo used for thumbnail.
+  // Only fetched when we have a valid taxon ID and gallery has not been populated yet.
+  const resolvedTaxonId = inat.taxon_id ?? cached?.inat_taxon_id ?? null;
+  const galleryUrls =
+    resolvedTaxonId != null && resolvedTaxonId > 0 && cached?.gallery_urls == null
+      ? await fetchINatGallery(resolvedTaxonId, AbortSignal.timeout(8_000))
+      : (cached?.gallery_urls ?? null);
 
   // Preserve fields already written by botanical-search (watering, sunlight, cycle) —
   // only fill them from Claude if they are absent, avoiding accidental overwrites.
@@ -343,6 +410,7 @@ export async function enrichRecord(
         thumbnail_url: inat.thumbnail_url,
         regular_url: inat.regular_url,
         thumbnail_fetched: true,
+        gallery_urls: galleryUrls,
         ...conditionalFields,
       },
       { onConflict: 'scientific_name' },

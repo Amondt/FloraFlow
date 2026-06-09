@@ -45,6 +45,7 @@ export type Database = {
           description: string | null
           flowering_season: string | null
           fruit_season: string | null
+          gallery_urls: string[] | null
           growth_rate: string | null
           human_toxicity_notes: string | null
           ideal_humidity_max: number | null
@@ -87,6 +88,7 @@ export type Database = {
           description?: string | null
           flowering_season?: string | null
           fruit_season?: string | null
+          gallery_urls?: string[] | null
           growth_rate?: string | null
           human_toxicity_notes?: string | null
           ideal_humidity_max?: number | null
@@ -129,6 +131,7 @@ export type Database = {
           description?: string | null
           flowering_season?: string | null
           fruit_season?: string | null
+          gallery_urls?: string[] | null
           growth_rate?: string | null
           human_toxicity_notes?: string | null
           ideal_humidity_max?: number | null

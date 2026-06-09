@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from '../_shared/database.types.ts';
 import { cors, json } from '../_shared/response.ts';
 import { deriveSpeciesId } from '../_shared/inat.ts';
+import { fetchINatGallery } from '../_shared/enrich-record.ts';
 
 type BackfillRecord = {
   scientific_name: string;
@@ -150,6 +151,8 @@ Deno.serve(async (req: Request) => {
             : null;
         const rank = taxon!.rank ?? null;
 
+        const galleryUrls = await fetchINatGallery(taxon!.id!, AbortSignal.timeout(8_000));
+
         const { error: updateError } = await supabase
           .from('cached_botanical_records')
           .update({
@@ -159,6 +162,7 @@ Deno.serve(async (req: Request) => {
             thumbnail_url: record.thumbnail_url ?? photo?.url ?? null,
             regular_url: record.regular_url ?? photo?.medium_url ?? null,
             thumbnail_fetched: true,
+            gallery_urls: galleryUrls,
           })
           .eq('scientific_name', record.scientific_name);
 

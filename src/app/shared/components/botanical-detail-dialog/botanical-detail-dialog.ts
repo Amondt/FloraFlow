@@ -1,20 +1,14 @@
-import {
-  Component,
-  ElementRef,
-  computed,
-  effect,
-  input,
-  output,
-  signal,
-  viewChild,
-} from '@angular/core';
+import { Component, computed, effect, input, output, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { CachedBotanicalRecord } from '../../../features/library/library.service';
 import { getSunlightLabels, getWateringLabel } from '../../utils/botanical-label.util';
 import { FloraButtonPT, FloraDetailDialogPT } from '../../ui/pt/index';
 import { LeafIconComponent } from '../leaf-icon/leaf-icon';
+import { SpeciesPhotoCarouselComponent } from '../species-photo-carousel/species-photo-carousel';
+import { PhotoLightboxDialogComponent } from '../photo-lightbox-dialog/photo-lightbox-dialog';
 import { tabClass } from '../../utils/tab-styles.util';
+import { buildGalleryPhotos } from '../../utils/botanical-photo.util';
 
 type DialogTab = 'overview' | 'care' | 'growth' | 'safety';
 
@@ -68,7 +62,13 @@ function extractCultivarLabel(scientificName: string): string {
 @Component({
   selector: 'app-botanical-detail-dialog',
   standalone: true,
-  imports: [ButtonModule, DialogModule, LeafIconComponent],
+  imports: [
+    ButtonModule,
+    DialogModule,
+    LeafIconComponent,
+    SpeciesPhotoCarouselComponent,
+    PhotoLightboxDialogComponent,
+  ],
   templateUrl: './botanical-detail-dialog.html',
 })
 export class BotanicalDetailDialogComponent {
@@ -87,9 +87,7 @@ export class BotanicalDetailDialogComponent {
   protected readonly tabs = DIALOG_TABS;
   protected readonly activeTab = signal<DialogTab>('overview');
   protected readonly tabClass = tabClass;
-  protected readonly showLightbox = signal(false);
   protected readonly selectedVarietyIndex = signal<number>(0);
-  private readonly lightboxEl = viewChild<ElementRef<HTMLDivElement>>('lightboxEl');
 
   protected readonly activeRecord = computed(
     (): CachedBotanicalRecord | null => this.records()[this.selectedVarietyIndex()] ?? null,
@@ -127,9 +125,15 @@ export class BotanicalDetailDialogComponent {
     }));
   });
 
-  protected readonly lightboxUrl = computed(
-    () => this.activeRecord()?.regular_url ?? this.activeRecord()?.thumbnail_url ?? null,
-  );
+  protected readonly galleryPhotos = computed(() => buildGalleryPhotos(this.activeRecord()));
+
+  protected readonly showLightbox = signal(false);
+  protected readonly lightboxStartIndex = signal(0);
+
+  protected openLightbox(index: number): void {
+    this.lightboxStartIndex.set(index);
+    this.showLightbox.set(true);
+  }
 
   protected readonly sunlightLabels = computed(() =>
     getSunlightLabels(this.activeRecord()?.sunlight),
@@ -203,17 +207,6 @@ export class BotanicalDetailDialogComponent {
         this._lastGroupKey = key;
         this.selectedVarietyIndex.set(0);
         this.activeTab.set('overview');
-        this.showLightbox.set(false);
-      }
-    });
-
-    effect(() => {
-      if (!this.visible()) this.showLightbox.set(false);
-    });
-
-    effect(() => {
-      if (this.showLightbox()) {
-        Promise.resolve().then(() => this.lightboxEl()?.nativeElement.focus());
       }
     });
   }

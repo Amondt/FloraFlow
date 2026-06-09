@@ -1,0 +1,71 @@
+<div
+  class="relative w-full h-80 rounded-garden-md overflow-hidden bg-neutral-900 dark:bg-neutral-900"
+  role="group"
+  [attr.aria-label]="altText() ? altText() + ' photos' : 'Species photos'"
+>
+  @if (photos().length > 0) {
+    <button
+      type="button"
+      class="cursor-zoom-in absolute inset-0 w-full h-full outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
+      [attr.aria-label]="'View full-size ' + (altText() || 'photo')"
+      (click)="photoClick.emit(activeIndex())"
+    >
+      <img
+        [src]="photos()[activeIndex()]"
+        [alt]="altText()"
+        loading="lazy"
+        class="w-full h-full object-contain pointer-events-none"
+      />
+    </button>
+  } @else {
+    <div
+      class="flex h-full w-full items-center justify-center text-primary-400 dark:text-primary-400"
+      aria-hidden="true"
+    >
+      <app-leaf-icon size="lg" />
+    </div>
+  }
+
+  @if (hasMultiple()) {
+    <button
+      type="button"
+      class="cursor-pointer absolute left-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-10 h-10 rounded-full bg-black/65 text-white ring-1 ring-white/25 shadow-lg outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-150"
+      aria-label="Previous photo"
+      [disabled]="!hasPrev()"
+      (click)="$event.stopPropagation(); prev()"
+    >
+      <i class="pi pi-chevron-left text-sm" aria-hidden="true"></i>
+    </button>
+
+    <button
+      type="button"
+      class="cursor-pointer absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-10 h-10 rounded-full bg-black/65 text-white ring-1 ring-white/25 shadow-lg outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-150"
+      aria-label="Next photo"
+      [disabled]="!hasNext()"
+      (click)="$event.stopPropagation(); next()"
+    >
+      <i class="pi pi-chevron-right text-sm" aria-hidden="true"></i>
+    </button>
+
+    <!-- Gradient strip improves dot/counter legibility on bright images -->
+    <div
+      class="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-black/50 to-transparent pointer-events-none rounded-b-garden-md"
+      aria-hidden="true"
+    ></div>
+
+    <div
+      class="absolute bottom-2.5 left-0 right-0 flex items-center justify-center gap-1.5 pointer-events-none"
+      aria-hidden="true"
+    >
+      @for (photo of photos(); track $index) {
+        <span
+          class="w-2 h-2 rounded-full transition-all duration-150 shadow-sm"
+          [class]="$index === activeIndex() ? 'bg-white' : 'bg-white/45'"
+        ></span>
+      }
+      <span class="text-xs text-white font-medium ml-2"
+        >{{ activeIndex() + 1 }} / {{ photos().length }}</span
+      >
+    </div>
+  }
+</div>

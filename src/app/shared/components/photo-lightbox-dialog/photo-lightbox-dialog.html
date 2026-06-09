@@ -1,0 +1,103 @@
+@if (visible()) {
+  <div
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="altText() ? altText() + ' gallery' : 'Species gallery'"
+    class="fixed inset-0 z-[9999]"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Backdrop — click to close -->
+    <button
+      type="button"
+      class="cursor-zoom-out absolute inset-0 w-full h-full bg-neutral-950/95"
+      aria-label="Close gallery"
+      tabindex="-1"
+      (click)="close()"
+    ></button>
+
+    <!-- Content layer — pointer-events-none so backdrop button receives fall-through clicks -->
+    <div class="relative z-10 flex flex-col items-center justify-center h-full pointer-events-none">
+      <!-- Image + nav buttons — pointer-events-none so only buttons intercept clicks -->
+      <div
+        class="relative flex items-center justify-center w-full px-16 max-w-6xl min-h-48 pointer-events-none"
+      >
+        <!-- Loading spinner (shown while image is fetching) -->
+        @if (isImageLoading()) {
+          <div
+            class="absolute inset-0 flex items-center justify-center pointer-events-none"
+            role="status"
+            aria-label="Loading photo"
+          >
+            <span
+              class="block w-10 h-10 rounded-full border-2 border-white/20 border-t-white animate-spin"
+              aria-hidden="true"
+            ></span>
+          </div>
+        }
+
+        <img
+          [src]="photos()[activeIndex()]"
+          [alt]="altText()"
+          class="mx-auto max-h-[82vh] max-w-full object-contain rounded-garden-md shadow-2xl transition-opacity duration-300 cursor-default pointer-events-auto"
+          [class.opacity-0]="isImageLoading()"
+          (load)="onImageLoad()"
+          (error)="onImageLoad()"
+        />
+
+        @if (hasMultiple()) {
+          <button
+            type="button"
+            class="cursor-pointer pointer-events-auto absolute left-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-12 h-12 rounded-full bg-black/70 text-white ring-1 ring-white/30 hover:bg-black/90 shadow-lg transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-white disabled:opacity-30 disabled:cursor-not-allowed"
+            aria-label="Previous photo"
+            [disabled]="!hasPrev()"
+            (click)="prev()"
+          >
+            <i class="pi pi-chevron-left text-base" aria-hidden="true"></i>
+          </button>
+
+          <button
+            type="button"
+            class="cursor-pointer pointer-events-auto absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-12 h-12 rounded-full bg-black/70 text-white ring-1 ring-white/30 hover:bg-black/90 shadow-lg transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-white disabled:opacity-30 disabled:cursor-not-allowed"
+            aria-label="Next photo"
+            [disabled]="!hasNext()"
+            (click)="next()"
+          >
+            <i class="pi pi-chevron-right text-base" aria-hidden="true"></i>
+          </button>
+        }
+      </div>
+
+      <!-- Dots + counter -->
+      @if (hasMultiple()) {
+        <div
+          class="flex items-center justify-center gap-2 mt-5 pointer-events-auto"
+          aria-label="Photo navigation"
+        >
+          @for (photo of photos(); track $index) {
+            <button
+              type="button"
+              class="cursor-pointer pointer-events-auto w-2.5 h-2.5 rounded-full transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1 focus-visible:ring-offset-black/50"
+              [class]="$index === activeIndex() ? 'bg-white' : 'bg-white/35 hover:bg-white/60'"
+              [attr.aria-label]="'Go to photo ' + ($index + 1)"
+              [attr.aria-current]="$index === activeIndex() ? 'true' : null"
+              (click)="goToIndex($index)"
+            ></button>
+          }
+          <span class="text-sm text-white/80 font-medium ml-2" aria-live="polite" aria-atomic="true"
+            >{{ activeIndex() + 1 }} / {{ photos().length }}</span
+          >
+        </div>
+      }
+    </div>
+
+    <!-- Close button (sits above backdrop and content) -->
+    <button
+      type="button"
+      class="cursor-pointer absolute top-4 right-4 z-20 flex items-center justify-center w-10 h-10 rounded-full bg-neutral-800/80 text-white ring-1 ring-white/20 hover:bg-neutral-700/90 shadow-lg transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-white"
+      aria-label="Close gallery"
+      (click)="close()"
+    >
+      <i class="pi pi-times" aria-hidden="true"></i>
+    </button>
+  </div>
+}

@@ -316,17 +316,44 @@
                   <div class="px-4 pt-4 pb-3 flex items-start gap-4">
                     @let plantRecord = enrichedRecordFor(ep.plant.scientific_name ?? '');
                     @if (ep.plant.scientific_name && plantRecord?.thumbnail_url) {
-                      <div
-                        class="flex-none w-28 h-28 rounded-garden-sm overflow-hidden"
-                        aria-hidden="true"
-                      >
-                        <img
-                          class="w-full h-full object-cover block"
-                          loading="lazy"
-                          [src]="plantRecord!.regular_url ?? plantRecord!.thumbnail_url"
-                          [alt]="ep.plant.common_name"
-                        />
-                      </div>
+                      @let cardPhotos = galleryPhotosFor(ep.plant.scientific_name);
+                      @if (cardPhotos.length > 0) {
+                        <button
+                          type="button"
+                          class="relative z-20 flex-none w-28 h-28 rounded-garden-sm overflow-hidden cursor-zoom-in outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                          [attr.aria-label]="
+                            cardPhotos.length > 1
+                              ? 'View photo gallery of ' + ep.plant.common_name
+                              : 'View full-size photo of ' + ep.plant.common_name
+                          "
+                          (click)="
+                            openImageLightbox(
+                              $event,
+                              ep.plant.scientific_name!,
+                              ep.plant.common_name
+                            )
+                          "
+                        >
+                          <img
+                            class="w-full h-full object-cover block"
+                            loading="lazy"
+                            [src]="plantRecord!.regular_url ?? plantRecord!.thumbnail_url"
+                            [alt]="ep.plant.common_name"
+                          />
+                        </button>
+                      } @else {
+                        <div
+                          class="flex-none w-28 h-28 rounded-garden-sm overflow-hidden"
+                          aria-hidden="true"
+                        >
+                          <img
+                            class="w-full h-full object-cover block"
+                            loading="lazy"
+                            [src]="plantRecord!.regular_url ?? plantRecord!.thumbnail_url"
+                            [alt]="ep.plant.common_name"
+                          />
+                        </div>
+                      }
                     } @else {
                       <!-- Status-coloured leaf icon -->
                       <div
@@ -550,6 +577,12 @@
     }
 
     <!-- ── Dialogs ───────────────────────────────────────────────── -->
+
+    <app-photo-lightbox-dialog
+      [(visible)]="lightboxVisible"
+      [photos]="lightboxPhotos()"
+      [altText]="lightboxAlt()"
+    />
 
     <app-zone-form
       [visible]="zoneFormVisible()"

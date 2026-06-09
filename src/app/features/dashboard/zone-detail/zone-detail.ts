@@ -30,8 +30,10 @@ import { BotanicalDetailDialogComponent } from '../../../shared/components/botan
 import { SubstrateMixWizardDialogComponent } from '../../../shared/components/substrate-mix-wizard/substrate-mix-wizard-dialog';
 import { LeafDoctorDialogComponent } from '../../journal/leaf-doctor-dialog/leaf-doctor-dialog';
 import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-icon';
+import { PhotoLightboxDialogComponent } from '../../../shared/components/photo-lightbox-dialog/photo-lightbox-dialog';
 import { LibraryService, CachedBotanicalRecord } from '../../library/library.service';
 import { EnrichmentPoll } from '../../../shared/utils/enrichment-poll';
+import { buildGalleryPhotos } from '../../../shared/utils/botanical-photo.util';
 import { CareRecommendationsPanelComponent } from '../../../shared/components/care-recommendations-panel/care-recommendations-panel';
 import { plantAddedDetail } from '../../../shared/utils/plant-message.util';
 import { blurActiveElement } from '../../../shared/utils/dom';
@@ -63,6 +65,7 @@ interface EnrichedPlant {
     SubstrateMixWizardDialogComponent,
     LeafDoctorDialogComponent,
     LeafIconComponent,
+    PhotoLightboxDialogComponent,
     CareRecommendationsPanelComponent,
     BotanicalTagsComponent,
   ],
@@ -173,6 +176,22 @@ export class ZoneDetailComponent {
       return { plant, status, nextCheckLabel, lastCheckedLabel };
     });
   });
+
+  // ── Photo lightbox state ──────────────────────────────────────
+  readonly lightboxVisible = signal(false);
+  readonly lightboxPhotos = signal<string[]>([]);
+  readonly lightboxAlt = signal<string>('');
+
+  protected galleryPhotosFor(scientificName: string): string[] {
+    return buildGalleryPhotos(this.botanicalMap().get(scientificName));
+  }
+
+  protected openImageLightbox(event: Event, scientificName: string, altText: string): void {
+    event.stopPropagation();
+    this.lightboxPhotos.set(this.galleryPhotosFor(scientificName));
+    this.lightboxAlt.set(altText);
+    this.lightboxVisible.set(true);
+  }
 
   // ── Dialog state ──────────────────────────────────────────────
   readonly zoneFormVisible = signal(false);

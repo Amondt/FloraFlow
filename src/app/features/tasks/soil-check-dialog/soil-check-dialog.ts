@@ -1,24 +1,15 @@
-import {
-  Component,
-  ElementRef,
-  computed,
-  effect,
-  inject,
-  input,
-  model,
-  output,
-  signal,
-  viewChild,
-} from '@angular/core';
+import { Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { FloraFormDialogPT, FloraButtonPT } from '../../../shared/ui/pt/index';
 import { ContainerVector, GrowthStage, Plant, SubstrateFactor } from '../plant.model';
 import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-icon';
+import { PhotoLightboxDialogComponent } from '../../../shared/components/photo-lightbox-dialog/photo-lightbox-dialog';
 import { blurActiveElement } from '../../../shared/utils/dom';
 import { daysSince } from '../../../shared/utils/date.util';
 import { LibraryService, CachedBotanicalRecord } from '../../library/library.service';
+import { buildGalleryPhotos } from '../../../shared/utils/botanical-photo.util';
 
 const SUBSTRATE_DEPTH_RULES: Record<SubstrateFactor, { depth: string; description: string }> = {
   'High-Drainage Aroid': {
@@ -104,7 +95,13 @@ type CheckStep = 'ask' | 'schedule';
 @Component({
   selector: 'app-soil-check-dialog',
   standalone: true,
-  imports: [RouterLink, DialogModule, ButtonModule, LeafIconComponent],
+  imports: [
+    RouterLink,
+    DialogModule,
+    ButtonModule,
+    LeafIconComponent,
+    PhotoLightboxDialogComponent,
+  ],
   templateUrl: './soil-check-dialog.html',
 })
 export class SoilCheckDialogComponent {
@@ -126,7 +123,6 @@ export class SoilCheckDialogComponent {
   readonly snoozePresets = [2, 5, 7, 10, 14] as const;
 
   protected readonly showLightbox = signal(false);
-  private readonly lightboxEl = viewChild<ElementRef<HTMLDivElement>>('lightboxEl');
 
   private readonly _botanicalRecord = signal<CachedBotanicalRecord | null>(null);
 
@@ -142,13 +138,9 @@ export class SoilCheckDialogComponent {
         }
       }
     });
-
-    effect(() => {
-      if (this.showLightbox()) {
-        Promise.resolve().then(() => this.lightboxEl()?.nativeElement.focus());
-      }
-    });
   }
+
+  protected readonly galleryPhotos = computed(() => buildGalleryPhotos(this._botanicalRecord()));
 
   protected readonly thumbnailUrl = computed(
     () => this._botanicalRecord()?.regular_url ?? this._botanicalRecord()?.thumbnail_url ?? null,

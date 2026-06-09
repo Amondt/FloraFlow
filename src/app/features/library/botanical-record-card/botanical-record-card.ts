@@ -1,23 +1,16 @@
-import {
-  Component,
-  ElementRef,
-  computed,
-  effect,
-  input,
-  output,
-  signal,
-  viewChild,
-} from '@angular/core';
+import { Component, computed, input, output, signal } from '@angular/core';
 import { TagModule } from 'primeng/tag';
 import { CachedBotanicalRecord } from '../library.service';
 import { FloraTagPT } from '../../../shared/ui/pt/index';
 import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-icon';
 import { BotanicalTagsComponent } from '../../../shared/components/botanical-tags/botanical-tags';
+import { PhotoLightboxDialogComponent } from '../../../shared/components/photo-lightbox-dialog/photo-lightbox-dialog';
+import { buildGalleryPhotos } from '../../../shared/utils/botanical-photo.util';
 
 @Component({
   selector: 'app-botanical-record-card',
   standalone: true,
-  imports: [TagModule, LeafIconComponent, BotanicalTagsComponent],
+  imports: [TagModule, LeafIconComponent, BotanicalTagsComponent, PhotoLightboxDialogComponent],
   templateUrl: './botanical-record-card.html',
 })
 export class BotanicalRecordCardComponent {
@@ -29,15 +22,7 @@ export class BotanicalRecordCardComponent {
 
   protected readonly FloraTagPT = FloraTagPT;
   protected readonly showLightbox = signal(false);
-  private readonly lightboxEl = viewChild<ElementRef<HTMLDivElement>>('lightboxEl');
-
-  constructor() {
-    effect(() => {
-      if (this.showLightbox()) {
-        Promise.resolve().then(() => this.lightboxEl()?.nativeElement.focus());
-      }
-    });
-  }
+  protected readonly galleryPhotos = computed(() => buildGalleryPhotos(this.record()));
 
   protected readonly ariaLabel = computed(() => {
     const r = this.record();

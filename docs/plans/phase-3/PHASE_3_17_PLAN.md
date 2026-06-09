@@ -21,12 +21,14 @@ Returns `taxon_photos[]`. Each element has `photo.medium_url` (~640 px wide). No
 ## What changes, what stays
 
 **Changes:**
+
 - DB: `gallery_urls TEXT[]` added to `cached_botanical_records`
 - `_shared/enrich-record.ts`: new `fetchINatGallery()` helper + gallery step in `enrichRecord()`
 - `inat-backfill` (from 3.16): extended to populate `gallery_urls` in the same pass as `inat_taxon_id`
 - `botanical-detail-dialog`: lightbox removed, replaced by `SpeciesPhotoCarouselComponent`
 
 **Stays the same:**
+
 - `thumbnail_url` / `regular_url` — kept; library cards and zone detail cards keep their single image
 - `cache-enrichment-worker` cron cadence — unchanged
 - All other Edge Functions — no changes
@@ -39,14 +41,8 @@ Returns `taxon_photos[]`. Each element has `photo.medium_url` (~640 px wide). No
   - Migration: `gallery_urls TEXT[] NULL` on `cached_botanical_records`; comment: `-- Up to 6 medium-sized photo URLs from iNat taxon_photos[]; NULL = not yet fetched, {} = fetched but none available`
   - New helper in `_shared/enrich-record.ts`:
     ```ts
-    async function fetchINatGallery(
-      inatTaxonId: number,
-      signal: AbortSignal,
-    ): Promise<string[]> {
-      const res = await fetch(
-        `https://api.inaturalist.org/v1/taxa/${inatTaxonId}`,
-        { signal },
-      );
+    async function fetchINatGallery(inatTaxonId: number, signal: AbortSignal): Promise<string[]> {
+      const res = await fetch(`https://api.inaturalist.org/v1/taxa/${inatTaxonId}`, { signal });
       if (!res.ok) return [];
       const data = (await res.json()) as {
         results?: Array<{
@@ -70,7 +66,7 @@ Returns `taxon_photos[]`. Each element has `photo.medium_url` (~640 px wide). No
   - Run `bun run format && bun run lint`
   - Verify in Studio SQL: `SELECT gallery_urls FROM cached_botanical_records WHERE inat_taxon_id IS NOT NULL LIMIT 5;` — after triggering one enrichment cycle, at least one row should have a non-null `gallery_urls` array
 
-- [ ] **Block B — Angular carousel** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **Block B — Angular carousel** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
 
   **Layout:** The identity strip changes from side-by-side (image + text) to **full-width stacked**: carousel on top, scientific name + description below it. This gives the photo room to breathe and matches the visual hierarchy of every botanical app (iNaturalist, PlantNet, RHS). The tabs and footer are unchanged.
 
@@ -138,7 +134,7 @@ Returns `taxon_photos[]`. Each element has `photo.medium_url` (~640 px wide). No
 
 ## Verification summary
 
-| Block | Verification |
-|---|---|
-| A | Studio SQL: `gallery_urls` column exists; after one enrichment run, at least one non-null `gallery_urls` array |
-| B | Manual Browser Check — all 5 items pass |
+| Block | Verification                                                                                                   |
+| ----- | -------------------------------------------------------------------------------------------------------------- |
+| A     | Studio SQL: `gallery_urls` column exists; after one enrichment run, at least one non-null `gallery_urls` array |
+| B     | Manual Browser Check — all 5 items pass                                                                        |

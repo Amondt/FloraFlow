@@ -587,8 +587,10 @@ export class LibraryComponent {
   // page only — avoids firing AI/iNat calls for all 1,000 loaded results at once.
   private _enrichCurrentPage(): void {
     const pageRecords = this.pagedGroupedResults().flatMap((g) => g.varieties);
+    const needsGallery = (r: (typeof pageRecords)[0]) =>
+      r.gallery_urls == null && r.inat_taxon_id != null && r.inat_taxon_id > 0;
     const needsEnrichment = pageRecords.filter(
-      (r) => !r.is_ai_enriched || r.description == null || !r.thumbnail_fetched,
+      (r) => !r.is_ai_enriched || r.description == null || !r.thumbnail_fetched || needsGallery(r),
     );
     if (needsEnrichment.length === 0) return;
     this._poll.start(
@@ -602,7 +604,13 @@ export class LibraryComponent {
         );
         return new Set(
           refreshed
-            .filter((r) => !r.is_ai_enriched || r.description == null || !r.thumbnail_fetched)
+            .filter(
+              (r) =>
+                !r.is_ai_enriched ||
+                r.description == null ||
+                !r.thumbnail_fetched ||
+                needsGallery(r),
+            )
             .map((r) => r.scientific_name),
         );
       },

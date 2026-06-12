@@ -79,7 +79,7 @@ Deno.serve(async (req: Request) => {
 
     return json({ processed, errors });
   } catch (err) {
-    console.error('cache-enrichment-worker: fatal error:', err);
-    return json({ error: (err as Error).message }, 500);
+    console.error('[cache-enrichment-worker] fatal error:', err);
+    return json({ error: 'Internal server error' }, 500);
   }
 });

@@ -28,9 +28,10 @@ Deno.serve(async (req: Request) => {
     const upserted = await enrichRecord(supabase, anthropic, scientificName, commonName);
     return json(upserted);
   } catch (err) {
-    // Preserve the 503 / 500 distinction from EnrichmentError so the Angular client
-    // receives the correct status for transient vs. permanent failures.
-    const status = err instanceof EnrichmentError ? err.status : 500;
-    return json({ error: (err as Error).message }, status);
+    if (err instanceof EnrichmentError) {
+      return json({ error: (err as Error).message }, err.status);
+    }
+    console.error('[claude-enrichment] fatal error:', err);
+    return json({ error: 'Internal server error' }, 500);
   }
 });

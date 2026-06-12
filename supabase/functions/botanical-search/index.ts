@@ -170,6 +170,7 @@ Deno.serve(async (req: Request) => {
 
     return json(merged.slice(0, MAX_RESULTS));
   } catch (err) {
-    return json({ error: (err as Error).message }, 500);
+    console.error('[botanical-search] fatal error:', err);
+    return json({ error: 'Internal server error' }, 500);
   }
 });

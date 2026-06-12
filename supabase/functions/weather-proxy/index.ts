@@ -122,6 +122,7 @@ Deno.serve(async (req: Request) => {
       return json({ weather: null }, 503);
     }
   } catch (err) {
-    return json({ error: (err as Error).message }, 500);
+    console.error('[weather-proxy] fatal error:', err);
+    return json({ error: 'Internal server error' }, 500);
   }
 });

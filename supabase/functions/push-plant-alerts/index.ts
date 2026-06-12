@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import webPush from 'web-push';
 import type { Database } from '../_shared/database.types.ts';
 import { verifyCronSecret } from '../_shared/cron-auth.ts';
-import { json } from '../_shared/response.ts';
+import { cors, json } from '../_shared/response.ts';
 
 // Minimal shape of a serialised browser PushSubscription stored in profiles.push_subscription
 interface StoredPushSubscription {
@@ -14,7 +14,7 @@ interface StoredPushSubscription {
 }
 
 Deno.serve(async (req: Request) => {
-  if (req.method === 'OPTIONS') return new Response('ok');
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
 
   try {
     if (!verifyCronSecret(req)) return json({ error: 'Unauthorized' }, 401);
@@ -92,14 +92,28 @@ Deno.serve(async (req: Request) => {
         await webPush.sendNotification(subscription, payload);
         sent++;
       } catch (pushErr) {
-        console.error(`Push failed for user ${profile.id}:`, pushErr);
-        errors++;
+        const statusCode = (pushErr as { statusCode?: number }).statusCode;
+        if (statusCode === 410 || statusCode === 404) {
+          const { error: clearError } = await supabase
+            .from('profiles')
+            .update({ push_subscription: null })
+            .eq('id', profile.id);
+          if (clearError) {
+            console.error(
+              `[push-plant-alerts] failed to clear expired subscription for user ${profile.id}:`,
+              clearError,
+            );
+          }
+        } else {
+          console.error(`[push-plant-alerts] push failed for user ${profile.id}:`, pushErr);
+          errors++;
+        }
       }
     }
 
     return json({ sent, skipped, errors });
   } catch (err) {
-    console.error('push-plant-alerts fatal error:', err);
-    return json({ error: (err as Error).message }, 500);
+    console.error('[push-plant-alerts] fatal error:', err);
+    return json({ error: 'Internal server error' }, 500);
   }
 });

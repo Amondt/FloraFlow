@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import type { QueryData } from '@supabase/supabase-js';
 import type { Database } from '../_shared/database.types.ts';
 import { verifyCronSecret } from '../_shared/cron-auth.ts';
-import { json } from '../_shared/response.ts';
+import { cors, json } from '../_shared/response.ts';
 
 const escapeHtml = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -89,7 +89,7 @@ function buildHtml(
 }
 
 Deno.serve(async (req: Request) => {
-  if (req.method === 'OPTIONS') return new Response('ok');
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
 
   try {
     if (!verifyCronSecret(req)) return json({ error: 'Unauthorized' }, 401);
@@ -122,15 +122,21 @@ Deno.serve(async (req: Request) => {
     if (plantsError) throw plantsError;
     if (!plants || plants.length === 0) return json({ sent: 0, skipped: 0, errors: 0 });
 
-    // Build userId → email map; perPage 1000 is sufficient for a small app
-    const { data: usersData, error: usersError } = await supabase.auth.admin.listUsers({
-      perPage: 1000,
-    });
-    if (usersError) throw usersError;
+    const allAuthUsers: { id: string; email?: string }[] = [];
+    const perPage = 1000;
+    let page = 1;
+    while (true) {
+      const { data: pageData, error: usersError } = await supabase.auth.admin.listUsers({
+        perPage,
+        page,
+      });
+      if (usersError) throw usersError;
+      allAuthUsers.push(...pageData.users);
+      if (pageData.users.length < perPage) break;
+      page++;
+    }
 
-    const emailByUserId = new Map<string, string>(
-      usersData.users.map((u) => [u.id, u.email ?? '']),
-    );
+    const emailByUserId = new Map<string, string>(allAuthUsers.map((u) => [u.id, u.email ?? '']));
 
     // Group by user, then by zone
     type UserEntry = { display_name: string; zones: Map<string, DigestPlant[]> };
@@ -213,7 +219,7 @@ Deno.serve(async (req: Request) => {
 
     return json({ sent, skipped, errors });
   } catch (err) {
-    console.error('digest-email fatal error:', err);
-    return json({ error: (err as Error).message }, 500);
+    console.error('[digest-email] fatal error:', err);
+    return json({ error: 'Internal server error' }, 500);
   }
 });

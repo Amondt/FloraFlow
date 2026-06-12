@@ -255,6 +255,7 @@ Deno.serve(async (req: Request) => {
 
     return json(parsed);
   } catch (err) {
-    return json({ error: (err as Error).message }, 500);
+    console.error('[claude-vision] fatal error:', err);
+    return json({ error: 'Internal server error' }, 500);
   }
 });

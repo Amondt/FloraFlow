@@ -14,5 +14,8 @@
 export function verifyCronSecret(req: Request): boolean {
   const token = req.headers.get('x-cron-secret') ?? '';
   const cronSecret = Deno.env.get('CRON_SECRET') ?? '';
+  if (!cronSecret) {
+    console.error('[cron-auth] CRON_SECRET env is not set — all cron calls will be rejected');
+  }
   return token !== '' && token === cronSecret;
 }

@@ -201,6 +201,7 @@ Deno.serve(async (req: Request) => {
 
     return json({ processed, remaining: remaining ?? 0, absent: absent ?? 0 });
   } catch (err) {
-    return json({ error: (err as Error).message }, 500);
+    console.error('[inat-backfill] fatal error:', err);
+    return json({ error: 'Internal server error' }, 500);
   }
 });

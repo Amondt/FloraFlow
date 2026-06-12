@@ -179,6 +179,7 @@ Deno.serve(async (req: Request) => {
       inat_taxon_id: primaryIds?.inat_taxon_id ?? null,
     });
   } catch (err) {
-    return json({ error: (err as Error).message }, 500);
+    console.error('[claude-plant-id] fatal error:', err);
+    return json({ error: 'Internal server error' }, 500);
   }
 });

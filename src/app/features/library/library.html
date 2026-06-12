@@ -78,14 +78,14 @@
         >
           <div class="flex items-center justify-between mb-3">
             <span
-              class="text-xs font-semibold uppercase tracking-widest text-neutral-500 font-display"
+              class="text-xs font-semibold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 font-display"
             >
               Filters
             </span>
             @if (hasActiveFilters()) {
               <button
                 type="button"
-                class="text-xs font-medium font-display text-primary-600 hover:text-primary-700 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded cursor-pointer"
+                class="text-xs font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded cursor-pointer"
                 aria-label="Clear all active filters"
                 (click)="clearFilters()"
               >
@@ -513,7 +513,7 @@
               <div class="flex justify-end mb-1">
                 <button
                   type="button"
-                  class="text-xs font-medium font-display text-primary-600 hover:text-primary-700 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded cursor-pointer"
+                  class="text-xs font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded cursor-pointer"
                   aria-label="Reset pH range filter"
                   (click)="clearPhFilter()"
                 >
@@ -535,8 +535,12 @@
               />
             </div>
             <div class="flex justify-between">
-              <span class="text-xs font-display text-neutral-500">{{ phDisplay()[0] }}</span>
-              <span class="text-xs font-display text-neutral-500">{{ phDisplay()[1] }}</span>
+              <span class="text-xs font-display text-neutral-500 dark:text-neutral-400">{{
+                phDisplay()[0]
+              }}</span>
+              <span class="text-xs font-display text-neutral-500 dark:text-neutral-400">{{
+                phDisplay()[1]
+              }}</span>
             </div>
           </details>
         </div>
@@ -555,7 +559,7 @@
           [attr.aria-label]="isInitialLoad() ? 'Loading botanical records' : null"
         >
           <span
-            class="w-4 h-4 border-2 border-neutral-200 dark:border-neutral-700 border-t-primary-500 rounded-full animate-spin shrink-0"
+            class="w-4 h-4 border-2 border-neutral-200 dark:border-neutral-700 border-t-primary-500 dark:border-t-primary-400 rounded-full animate-spin shrink-0"
             aria-hidden="true"
           ></span>
           Loading plants…
@@ -617,7 +621,7 @@
                 aria-label="Updating results"
               >
                 <span
-                  class="w-5 h-5 border-2 border-neutral-200 dark:border-neutral-700 border-t-primary-500 rounded-full animate-spin"
+                  class="w-5 h-5 border-2 border-neutral-200 dark:border-neutral-700 border-t-primary-500 dark:border-t-primary-400 rounded-full animate-spin"
                   aria-hidden="true"
                 ></span>
               </div>

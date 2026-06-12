@@ -97,7 +97,7 @@
         role="alert"
         aria-live="assertive"
         aria-label="Frost risk warning"
-        class="flex items-start gap-3 bg-amber-50 border border-warning-500 rounded-garden-md p-4 mb-6"
+        class="flex items-start gap-3 bg-amber-50 dark:bg-yellow-900/20 border border-warning-500 dark:border-yellow-700/50 rounded-garden-md p-4 mb-6"
       >
         <i
           class="pi pi-exclamation-triangle text-warning-500 mt-0.5 flex-shrink-0"
@@ -107,7 +107,7 @@
           <p class="text-sm font-semibold font-display text-warning-500">
             Frost risk — next 24 hours
           </p>
-          <p class="text-sm font-display text-neutral-600 mt-0.5">
+          <p class="text-sm font-display text-neutral-600 dark:text-neutral-300 mt-0.5">
             Low of {{ weatherService.weather()?.min_temp_next_24h }}°C near
             {{ profileService.profile()?.location_name ?? 'your location' }}. Protect plants in
             {{ outdoorZoneNames() }}.
@@ -117,11 +117,11 @@
     }
 
     @if (outdoorZones().length > 0 && !hasLocation()) {
-      <p class="text-xs text-neutral-500 font-display mb-6">
+      <p class="text-xs text-neutral-500 dark:text-neutral-400 font-display mb-6">
         <button
           type="button"
           (click)="openLocationDialog()"
-          class="cursor-pointer text-primary-600 underline hover:text-primary-700 font-medium outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
+          class="cursor-pointer text-primary-600 dark:text-primary-400 underline hover:text-primary-700 dark:hover:text-primary-300 font-medium outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
           aria-label="Set your location to enable frost alerts"
         >
           Set your location

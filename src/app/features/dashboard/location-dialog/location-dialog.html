@@ -13,14 +13,16 @@
     <!-- Active location reminder -->
     @if (currentLat() !== null) {
       <div
-        class="flex items-center gap-2.5 p-3 bg-primary-50 border border-primary-100 rounded-garden-sm"
+        class="flex items-center gap-2.5 p-3 bg-primary-50 dark:bg-primary-900/30 border border-primary-100 dark:border-primary-800 rounded-garden-sm"
         role="status"
         aria-label="Active frost alert location"
       >
         <i class="pi pi-map-marker text-primary-500 flex-shrink-0 text-sm" aria-hidden="true"></i>
         <div class="flex-1 min-w-0">
           <p class="text-xs font-display font-medium text-primary-500">Active location</p>
-          <p class="text-sm font-semibold font-display text-primary-800 truncate">
+          <p
+            class="text-sm font-semibold font-display text-primary-800 dark:text-primary-300 truncate"
+          >
             {{ currentName() ?? 'Location set' }}
           </p>
         </div>
@@ -47,14 +49,17 @@
 
     <!-- Divider -->
     <div class="flex items-center gap-3" role="separator" aria-hidden="true">
-      <hr class="flex-1 border-neutral-200" />
+      <hr class="flex-1 border-neutral-200 dark:border-neutral-700" />
       <span class="text-xs text-neutral-400 font-display">or search</span>
-      <hr class="flex-1 border-neutral-200" />
+      <hr class="flex-1 border-neutral-200 dark:border-neutral-700" />
     </div>
 
     <!-- City search -->
     <div class="flex flex-col gap-1.5">
-      <label [for]="searchInputId" class="text-sm font-medium text-neutral-700 font-display">
+      <label
+        [for]="searchInputId"
+        class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+      >
         City or region
       </label>
       <div class="relative">
@@ -91,13 +96,13 @@
           id="location-suggestions"
           role="listbox"
           aria-label="Location suggestions"
-          class="w-full bg-white border border-neutral-200 rounded-garden-md shadow-lg max-h-48 overflow-y-auto"
+          class="w-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md shadow-lg max-h-48 overflow-y-auto"
         >
           @for (r of suggestions(); track r.id) {
             <li role="option">
               <button
                 type="button"
-                class="cursor-pointer w-full text-left px-3 py-2 text-sm hover:bg-primary-50 font-display outline-none focus-visible:bg-primary-50 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500"
+                class="cursor-pointer w-full text-left px-3 py-2 text-sm hover:bg-primary-50 dark:hover:bg-primary-900/30 font-display outline-none focus-visible:bg-primary-50 dark:focus-visible:bg-primary-900/30 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500"
                 (click)="onResultSelected(r)"
                 [attr.aria-label]="formatLabel(r)"
               >
@@ -112,13 +117,13 @@
     <!-- Selected result confirmation -->
     @if (selectedResult()) {
       <div
-        class="flex items-center gap-2 p-3 bg-primary-50 rounded-garden-sm"
+        class="flex items-center gap-2 p-3 bg-primary-50 dark:bg-primary-900/30 rounded-garden-sm"
         role="status"
         aria-live="polite"
         aria-label="Selected location"
       >
         <i class="pi pi-check-circle text-primary-600" aria-hidden="true"></i>
-        <span class="text-sm font-medium font-display text-primary-700">
+        <span class="text-sm font-medium font-display text-primary-700 dark:text-primary-300">
           {{ formatLabel(selectedResult()!) }}
         </span>
       </div>

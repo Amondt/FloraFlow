@@ -1,4 +1,4 @@
-import { Injectable, effect, inject, signal } from '@angular/core';
+import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { SupabaseService } from '../../core/services/supabase.service';
 import { NetworkStatusService } from '../../core/services/network-status.service';
 import { OfflineQueueService } from '../../core/services/offline-queue.service';
@@ -11,6 +11,7 @@ export class ZoneService {
   private readonly offlineQueue = inject(OfflineQueueService);
 
   readonly zones = signal<Zone[]>([]);
+  readonly zoneMap = computed(() => new Map(this.zones().map((z) => [z.id, z])));
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly isSyncing = signal(false);

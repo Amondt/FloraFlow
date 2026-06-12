@@ -82,13 +82,17 @@ export class DashboardComponent {
   protected readonly FloraConfirmDialogPT = FloraConfirmDialogPT;
   protected readonly FloraToastPT = FloraToastPT;
 
+  // ── Live clock — ticks every minute so greeting/label stay current ──
+  private readonly _now = signal(new Date());
+
   // ── Greeting ──────────────────────────────────────────────────
   protected readonly todayLabel = computed(() =>
-    new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }),
+    this._now().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }),
   );
 
   protected readonly greeting = computed(() => {
-    const hour = new Date().getHours();
+    const hour = this._now().getHours();
+    if (hour < 5) return 'Good night';
     if (hour < 12) return 'Good morning';
     if (hour < 18) return 'Good afternoon';
     return 'Good evening';
@@ -99,28 +103,30 @@ export class DashboardComponent {
   protected readonly totalZoneCount = computed(() => this.zoneService.zones().length);
 
   // ── Zone name lookup for chip rows ────────────────────────────
-  protected readonly zoneMap = computed(
-    () => new Map(this.zoneService.zones().map((z) => [z.id, z])),
-  );
+  protected readonly zoneMap = this.zoneService.zoneMap;
 
   // ── Attention chips: overdue + due today + due in ≤1 day ─────
   protected readonly attentionChips = computed((): AttentionChip[] => {
-    const startOfToday = new Date();
-    startOfToday.setHours(0, 0, 0, 0);
-    const startOfTomorrow = new Date(startOfToday);
-    startOfTomorrow.setDate(startOfTomorrow.getDate() + 1);
-    const endOfTomorrow = new Date(startOfTomorrow);
-    endOfTomorrow.setDate(endOfTomorrow.getDate() + 1);
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfTomorrow = new Date(
+      startOfToday.getFullYear(),
+      startOfToday.getMonth(),
+      startOfToday.getDate() + 1,
+    );
+    const endOfTomorrow = new Date(
+      startOfToday.getFullYear(),
+      startOfToday.getMonth(),
+      startOfToday.getDate() + 2,
+    );
 
     return this.plantService
       .plants()
-      .filter((p) => new Date(p.next_check_due_at) < endOfTomorrow)
-      .sort(
-        (a, b) => new Date(a.next_check_due_at).getTime() - new Date(b.next_check_due_at).getTime(),
-      )
+      .map((p) => ({ p, due: new Date(p.next_check_due_at) }))
+      .filter(({ due }) => due < endOfTomorrow)
+      .sort((a, b) => a.due.getTime() - b.due.getTime())
       .slice(0, 6)
-      .map((p) => {
-        const due = new Date(p.next_check_due_at);
+      .map(({ p, due }) => {
         const isOverdue = due < startOfToday;
         const label = isOverdue
           ? `overdue ${Math.ceil((startOfToday.getTime() - due.getTime()) / 86_400_000)}d`
@@ -200,7 +206,9 @@ export class DashboardComponent {
   constructor() {
     void this.zoneService.loadZones();
     void this.plantService.loadPlants();
+    const clockInterval = setInterval(() => this._now.set(new Date()), 60_000);
     this.destroyRef.onDestroy(() => {
+      clearInterval(clockInterval);
       this._deleteManager.cancelAll();
     });
 

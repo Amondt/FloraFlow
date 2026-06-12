@@ -205,8 +205,14 @@
 
 <p-confirmdialog [pt]="FloraConfirmDialogPT" />
 
-<app-leaf-doctor-dialog
-  [(visible)]="diagnosisDialogVisible"
-  [preselectedPlantId]="selectedPlant()"
-  (entrySaved)="onEntrySaved()"
-/>
+@defer (when diagnosisDialogVisible()) {
+  <app-leaf-doctor-dialog
+    [(visible)]="diagnosisDialogVisible"
+    [preselectedPlantId]="selectedPlant()"
+    (entrySaved)="onEntrySaved()"
+  />
+} @error {
+  <span></span>
+} @placeholder {
+  <span></span>
+}

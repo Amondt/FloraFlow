@@ -270,14 +270,20 @@
       }
     </section>
 
-    @if (selectedPlant(); as plant) {
-      <app-soil-check-dialog
-        [plant]="plant"
-        [zoneName]="zoneMap().get(plant.zone_id)?.name ?? null"
-        [(visible)]="dialogVisible"
-        (confirmed)="onConfirmed($event)"
-        (snoozed)="onSnoozed($event)"
-      />
+    @defer (when dialogVisible()) {
+      @if (selectedPlant(); as plant) {
+        <app-soil-check-dialog
+          [plant]="plant"
+          [zoneName]="zoneMap().get(plant.zone_id)?.name ?? null"
+          [(visible)]="dialogVisible"
+          (confirmed)="onConfirmed($event)"
+          (snoozed)="onSnoozed($event)"
+        />
+      }
+    } @error {
+      <span></span>
+    } @placeholder {
+      <span></span>
     }
 
     <app-plant-form-dialog

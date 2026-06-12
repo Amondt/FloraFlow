@@ -13,23 +13,35 @@ export class SpeciesPhotoCarouselComponent {
   readonly photoClick = output<number>();
 
   protected readonly activeIndex = signal(0);
+  protected readonly isImageLoading = signal(false);
   protected readonly hasMultiple = computed(() => this.photos().length > 1);
   protected readonly hasPrev = computed(() => this.activeIndex() > 0);
   protected readonly hasNext = computed(() => this.activeIndex() < this.photos().length - 1);
 
   constructor() {
-    // Reset to first photo whenever the photos array itself changes (new species opened).
+    // Reset index and trigger loading state whenever the photos array changes (new species opened).
     effect(() => {
-      this.photos();
+      const hasPhotos = this.photos().length > 0;
       this.activeIndex.set(0);
+      this.isImageLoading.set(hasPhotos);
     });
   }
 
+  protected onImageLoad(): void {
+    this.isImageLoading.set(false);
+  }
+
   protected prev(): void {
-    if (this.hasPrev()) this.activeIndex.update((i) => i - 1);
+    if (this.hasPrev()) {
+      this.isImageLoading.set(true);
+      this.activeIndex.update((i) => i - 1);
+    }
   }
 
   protected next(): void {
-    if (this.hasNext()) this.activeIndex.update((i) => i + 1);
+    if (this.hasNext()) {
+      this.isImageLoading.set(true);
+      this.activeIndex.update((i) => i + 1);
+    }
   }
 }

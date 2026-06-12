@@ -14,13 +14,13 @@
       class="border-b border-neutral-100 pb-4 dark:border-neutral-700"
       aria-label="Species identity"
     >
+      <app-species-photo-carousel
+        [photos]="galleryPhotos()"
+        [altText]="rec.common_name"
+        class="mb-3 block"
+        (photoClick)="openLightbox($event)"
+      />
       @if (galleryPhotos().length > 0) {
-        <app-species-photo-carousel
-          [photos]="galleryPhotos()"
-          [altText]="rec.common_name"
-          class="mb-3 block"
-          (photoClick)="openLightbox($event)"
-        />
         <app-photo-lightbox-dialog
           [(visible)]="showLightbox"
           [photos]="galleryPhotos()"

@@ -1,6 +1,13 @@
 import { Injectable, signal } from '@angular/core';
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb';
 
+export class OfflineStorageError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'OfflineStorageError';
+  }
+}
+
 export interface QueuedAction {
   id: string;
   action: 'confirm' | 'snooze' | 'create' | 'create-zone' | 'update-zone' | 'delete-zone';
@@ -48,9 +55,13 @@ export class OfflineQueueService {
   );
 
   async enqueue(action: QueuedAction): Promise<void> {
-    const db = await this.db;
-    await db.put('action-queue', action);
-    await this.refreshCount();
+    try {
+      const db = await this.db;
+      await db.put('action-queue', action);
+      await this.refreshCount();
+    } catch (err) {
+      throw new OfflineStorageError(`Failed to enqueue action: ${(err as Error).message}`);
+    }
   }
 
   async getAll(): Promise<QueuedAction[]> {
@@ -59,15 +70,23 @@ export class OfflineQueueService {
   }
 
   async remove(id: string): Promise<void> {
-    const db = await this.db;
-    await db.delete('action-queue', id);
-    await this.refreshCount();
+    try {
+      const db = await this.db;
+      await db.delete('action-queue', id);
+      await this.refreshCount();
+    } catch (err) {
+      throw new OfflineStorageError(`Failed to remove action ${id}: ${(err as Error).message}`);
+    }
   }
 
   async clear(): Promise<void> {
-    const db = await this.db;
-    await db.clear('action-queue');
-    await this.refreshCount();
+    try {
+      const db = await this.db;
+      await db.clear('action-queue');
+      await this.refreshCount();
+    } catch (err) {
+      throw new OfflineStorageError(`Failed to clear queue: ${(err as Error).message}`);
+    }
   }
 
   private async refreshCount(): Promise<void> {

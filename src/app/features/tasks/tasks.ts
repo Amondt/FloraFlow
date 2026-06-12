@@ -56,7 +56,7 @@ export class TasksComponent {
   protected readonly FloraToastPT = FloraToastPT;
   protected readonly loadingPlaceholders = [1, 2, 3];
 
-  readonly zoneMap = computed(() => new Map(this.zoneService.zones().map((z) => [z.id, z])));
+  readonly zoneMap = this.zoneService.zoneMap;
 
   protected readonly hasZones = computed(() => this.zoneService.zones().length > 0);
 
@@ -90,20 +90,19 @@ export class TasksComponent {
       startOfToday.getDate() + 8,
     );
 
+    type Groups = { overdue: Plant[]; today: Plant[]; soon: Plant[]; upcoming: Plant[] };
     const active = this.plantService.plants().filter((p) => !this.pendingDeleteIds().has(p.id));
-
-    return {
-      overdue: active.filter((p) => new Date(p.next_check_due_at) < startOfToday),
-      today: active.filter((p) => {
+    return active.reduce<Groups>(
+      (acc, p) => {
         const due = new Date(p.next_check_due_at);
-        return due >= startOfToday && due < startOfTomorrow;
-      }),
-      soon: active.filter((p) => {
-        const due = new Date(p.next_check_due_at);
-        return due >= startOfTomorrow && due < endOfWeek;
-      }),
-      upcoming: active.filter((p) => new Date(p.next_check_due_at) >= endOfWeek),
-    };
+        if (due < startOfToday) acc.overdue.push(p);
+        else if (due < startOfTomorrow) acc.today.push(p);
+        else if (due < endOfWeek) acc.soon.push(p);
+        else acc.upcoming.push(p);
+        return acc;
+      },
+      { overdue: [], today: [], soon: [], upcoming: [] },
+    );
   });
 
   private _autoOpenedPlantId: string | null = null;
@@ -180,10 +179,12 @@ export class TasksComponent {
         detail: this.plantService.error()!,
       });
     } else {
+      const plant = this.plantService.plants().find((p) => p.id === payload.id);
+      const name = plant?.common_name ?? 'Plant';
       this.messageService.add({
         severity: 'info',
         summary: 'Check snoozed',
-        detail: 'Next check rescheduled based on container and substrate.',
+        detail: `"${name}" rescheduled based on its container and substrate.`,
       });
     }
   }

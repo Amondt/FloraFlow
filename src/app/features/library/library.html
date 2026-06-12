@@ -736,15 +736,21 @@
     </div>
   }
 
-  <app-botanical-detail-dialog
-    [records]="dialogRecords()"
-    [visible]="detailVisible()"
-    [isEnriching]="dialogIsEnriching()"
-    (visibleChange)="onDetailClose($event)"
-    (addRequested)="openAddDialog($event)"
-    (seedsRequested)="onSeedsRequested($event)"
-    (mixWizardRequested)="openWizardFromBotanical($event)"
-  />
+  @defer (when detailVisible()) {
+    <app-botanical-detail-dialog
+      [records]="dialogRecords()"
+      [visible]="detailVisible()"
+      [isEnriching]="dialogIsEnriching()"
+      (visibleChange)="onDetailClose($event)"
+      (addRequested)="openAddDialog($event)"
+      (seedsRequested)="onSeedsRequested($event)"
+      (mixWizardRequested)="openWizardFromBotanical($event)"
+    />
+  } @error {
+    <span></span>
+  } @placeholder {
+    <span></span>
+  }
 
   <app-plant-form-dialog
     [(visible)]="showAddDialog"
@@ -752,23 +758,41 @@
     (saved)="onPlantSaved($event)"
   />
 
-  <app-substrate-mix-wizard-dialog
-    [visible]="wizardVisible()"
-    (visibleChange)="wizardVisible.set($event)"
-  />
+  @defer (when wizardVisible()) {
+    <app-substrate-mix-wizard-dialog
+      [visible]="wizardVisible()"
+      (visibleChange)="wizardVisible.set($event)"
+    />
+  } @error {
+    <span></span>
+  } @placeholder {
+    <span></span>
+  }
 
-  <app-substrate-mix-wizard-dialog
-    [visible]="wizardFromBotanicalRecord() !== null"
-    (visibleChange)="onBotanicalWizardClose($event)"
-    [botanicalRecord]="wizardFromBotanicalRecord()"
-    backLabel="Plant details"
-  />
+  @defer (when wizardFromBotanicalRecord() !== null) {
+    <app-substrate-mix-wizard-dialog
+      [visible]="wizardFromBotanicalRecord() !== null"
+      (visibleChange)="onBotanicalWizardClose($event)"
+      [botanicalRecord]="wizardFromBotanicalRecord()"
+      backLabel="Plant details"
+    />
+  } @error {
+    <span></span>
+  } @placeholder {
+    <span></span>
+  }
 
   <p-toast position="bottom-right" [pt]="FloraToastPT" />
 
-  <app-plant-identifier-dialog
-    [(visible)]="identifierVisible"
-    mode="browse"
-    (identified)="onLibraryIdentified($event)"
-  />
+  @defer (when identifierVisible()) {
+    <app-plant-identifier-dialog
+      [(visible)]="identifierVisible"
+      mode="browse"
+      (identified)="onLibraryIdentified($event)"
+    />
+  } @error {
+    <span></span>
+  } @placeholder {
+    <span></span>
+  }
 </main>

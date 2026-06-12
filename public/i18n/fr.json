@@ -1,0 +1,19 @@
+{
+  "common": {
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "close": "Fermer",
+    "add": "Ajouter",
+    "back": "Retour",
+    "retry": "Réessayer",
+    "loading": "Chargement"
+  },
+  "validation": {
+    "required": "Ce champ est obligatoire",
+    "email": "Veuillez entrer une adresse e-mail valide",
+    "minLength": "Doit contenir au moins {min} caractères",
+    "maxLength": "Ne peut pas dépasser {max} caractères"
+  }
+}

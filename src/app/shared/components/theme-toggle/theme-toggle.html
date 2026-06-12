@@ -1,0 +1,10 @@
+<button
+  type="button"
+  [class]="buttonClass"
+  [attr.aria-label]="ariaLabel()"
+  [pTooltip]="tooltipLabel()"
+  tooltipPosition="bottom"
+  (click)="theme.toggle()"
+>
+  <i [class]="iconClass()" aria-hidden="true"></i>
+</button>

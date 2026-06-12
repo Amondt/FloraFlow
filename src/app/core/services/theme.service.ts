@@ -25,13 +25,10 @@ export class ThemeService {
     window.matchMedia('(prefers-color-scheme: dark)').matches,
   );
 
-  readonly resolvedTheme = computed<'light' | 'dark'>(() =>
-    this.preference() === 'system'
-      ? this.systemPrefersDark()
-        ? 'dark'
-        : 'light'
-      : this.preference(),
-  );
+  readonly resolvedTheme = computed<'light' | 'dark'>(() => {
+    const pref = this.preference();
+    return pref === 'system' ? (this.systemPrefersDark() ? 'dark' : 'light') : pref;
+  });
 
   private readonly applyThemeEffect = effect(() => {
     const pref = this.preference();
@@ -55,13 +52,8 @@ export class ThemeService {
     });
   }
 
-  cycle(): void {
-    const next: Record<ThemePreference, ThemePreference> = {
-      light: 'dark',
-      dark: 'system',
-      system: 'light',
-    };
-    this.preference.set(next[this.preference()]);
+  toggle(): void {
+    this.preference.set(this.resolvedTheme() === 'dark' ? 'light' : 'dark');
   }
 
   setPreference(pref: ThemePreference): void {

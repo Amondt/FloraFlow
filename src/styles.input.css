@@ -131,7 +131,13 @@ input[type='search']::-webkit-search-cancel-button:hover {
 }
 
 /* pTooltip (appendTo="body") — renders in document.body, escapes overflow containers.
-   PrimeNG unstyled mode produces no default visual; these rules provide the FloraFlow style. */
+   PrimeNG unstyled mode produces no default visual; these rules provide the FloraFlow style.
+   position: absolute is required — without it the tooltip renders as a static block in the
+   body flow, causing layout shift (scrollbar grows) and JS-placed top/left have no effect. */
+[data-pc-name='tooltip'] {
+  position: absolute;
+  pointer-events: none;
+}
 [data-pc-name='tooltip'] [data-pc-section='text'] {
   background: var(--color-neutral-900);
   color: white;
@@ -148,6 +154,35 @@ input[type='search']::-webkit-search-cancel-button:hover {
 }
 [data-pc-name='tooltip'] [data-pc-section='arrow'] {
   display: none;
+}
+
+/* Themed scrollbar — applied via the flora-scrollbar utility class.
+   Uses the CSS native scrollbar API (supported in all modern browsers) with a
+   webkit fallback. Light: neutral-300 thumb; dark: neutral-600 thumb. */
+.flora-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-neutral-300) transparent;
+}
+
+:where(.dark, .dark *) .flora-scrollbar {
+  scrollbar-color: var(--color-neutral-600) transparent;
+}
+
+.flora-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.flora-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.flora-scrollbar::-webkit-scrollbar-thumb {
+  background-color: var(--color-neutral-300);
+  border-radius: 2px;
+}
+
+:where(.dark, .dark *) .flora-scrollbar::-webkit-scrollbar-thumb {
+  background-color: var(--color-neutral-600);
 }
 
 /* Plant thumbnail placeholder — diagonal stripe pattern used in tasks rows and soil-check dialog */

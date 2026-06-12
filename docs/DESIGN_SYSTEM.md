@@ -26,9 +26,12 @@ All tokens live in `src/styles.input.css` under `@theme` and compile into `src/s
 
 @theme {
   --color-primary-50:  #f0fdf4;
+  --color-primary-300: #6ee7b7; /* dark-mode hover accent */
+  --color-primary-400: #34d399; /* dark-mode primary accent — ~9:1 on neutral-900 */
   --color-primary-500: #10b981;
   --color-primary-600: #059669;
   --color-primary-700: #047857;
+  --color-primary-800: #065f46; /* dark-mode tinted backgrounds */
   --color-primary-900: #064e3b;
 
   --color-success-500: #22c55e;

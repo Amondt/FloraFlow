@@ -22,7 +22,7 @@ Every block below is judged against these. Derived from Material Design dark the
 
 ---
 
-- [ ] **Block A — Dark-mode accent tokens** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+- [x] **Block A — Dark-mode accent tokens** | Agent: `/visualizer` · Model: Sonnet · Effort: low
   - `styles.input.css` `@theme`: add the three accent tones the codebase already references but never defined — `--color-primary-300: #6ee7b7;`, `--color-primary-400: #34d399;`, `--color-primary-800: #065f46;` (continuing the existing emerald ramp). These are the lighter, dark-surface-legible greens; `primary-400` clears ~9:1 on `neutral-900`.
   - Why this is required: Tailwind v4 only generates utilities for tokens that exist in `@theme`. `dark:text-primary-400`, `dark:hover:text-primary-300`, and `dark:bg-primary-800` appear across nav, tasks, zone-detail, substrate wizard, location-dialog, and DESIGN_SYSTEM §6.7's mandated ghost-button style — all currently compile to nothing. Confirmed against the generated `styles.css`: those utilities are absent.
   - Regenerate CSS (`bun run tw:watch` already running, or rebuild) and confirm `.text-primary-400` / `.bg-primary-800` now exist in `styles.css`.

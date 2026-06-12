@@ -29,7 +29,7 @@ Every block below is judged against these. Derived from Material Design dark the
   - Audit for any other undefined token behind a `dark:` class: grep every `dark:`-prefixed color utility in `src/app/**/*.{html,ts}` and `src/app/shared/ui/pt/*.ts` against the `@theme` definitions; the only expected gaps are the three primary tones above, but fix any `danger-`/`success-`/`warning-` stragglers found.
   - `DESIGN_SYSTEM.md §1`: add the three token lines to the `@theme` block with a one-line note that `primary-300/400` are the dark-mode accent tones. Keep it lean.
 
-- [ ] **Block B — ThemeService + first-paint guard** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **Block B — ThemeService + first-paint guard** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - `src/app/core/services/theme.service.ts`, `@Injectable({ providedIn: 'root' })`, modeled on `network-status.service.ts`:
     - `export type ThemePreference = 'light' | 'dark' | 'system';`
     - `readonly preference = signal<ThemePreference>(...)` initialised from `localStorage['flora-theme']` when it is exactly `'light'` or `'dark'`, otherwise `'system'`.

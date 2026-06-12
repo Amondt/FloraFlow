@@ -1,7 +1,7 @@
 <p-dialog
   [visible]="visible()"
   (visibleChange)="onVisibleChange($event)"
-  header="Soil check"
+  [header]="'tasks.soilCheck.dialogHeader' | transloco"
   [modal]="true"
   [draggable]="false"
   [resizable]="false"
@@ -16,8 +16,8 @@
         class="cursor-zoom-in flex-shrink-0 w-20 h-20 rounded-garden-sm overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
         [attr.aria-label]="
           galleryPhotos().length > 1
-            ? 'View photo gallery of ' + plant().common_name
-            : 'View full-size photo of ' + plant().common_name
+            ? ('tasks.soilCheck.photoGalleryAriaLabel' | transloco: { name: plant().common_name })
+            : ('tasks.soilCheck.photoAriaLabel' | transloco: { name: plant().common_name })
         "
         (click)="showLightbox.set(true)"
       >
@@ -62,9 +62,11 @@
         [routerLink]="['/journal']"
         [queryParams]="{ plant: plant().id }"
         class="inline-block text-xs font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors outline-none focus-visible:ring-1 focus-visible:ring-primary-500 rounded mt-0.5"
-        [attr.aria-label]="'View journal entries for ' + plant().common_name"
+        [attr.aria-label]="
+          'tasks.soilCheck.viewJournalAriaLabel' | transloco: { name: plant().common_name }
+        "
       >
-        View journal &rarr;
+        {{ 'tasks.soilCheck.viewJournal' | transloco }}
       </a>
     </div>
   </div>
@@ -86,58 +88,64 @@
       <hr class="border-neutral-200 dark:border-neutral-700 mb-2.5" />
       @if (!isAiEnriched()) {
         <p class="text-sm font-display text-neutral-700 dark:text-neutral-200 mb-1.5">
-          Insert your finger <strong>{{ checkDepth() }}</strong> into the substrate.
+          {{ 'tasks.soilCheck.fingerDepth' | transloco: { depth: checkDepth() } }}
         </p>
       }
       <p class="text-sm font-semibold font-display text-primary-700 dark:text-primary-400">
-        Is the soil dry?
+        {{ 'tasks.soilCheck.soilDryQuestion' | transloco }}
       </p>
     </div>
     @if (isAiEnriched()) {
       <p class="text-[10px] font-display text-neutral-400 -mt-2 mb-3">
-        Species-specific guidance from AI Scribe.
+        {{ 'tasks.soilCheck.aiGuidance' | transloco }}
       </p>
     }
 
     <div
       class="grid grid-cols-2 gap-3"
       role="group"
-      [attr.aria-label]="'Soil check answer for ' + plant().common_name"
+      [attr.aria-label]="
+        'tasks.soilCheck.checkGroupAriaLabel' | transloco: { name: plant().common_name }
+      "
     >
       <button
         type="button"
-        class="text-left flex flex-col gap-1 p-3.5 rounded-garden-md border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 hover:border-primary-500 dark:hover:border-primary-400 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
-        [attr.aria-label]="'Soil is dry — log watering for ' + plant().common_name"
+        class="text-left flex flex-col gap-1 p-3.5 rounded-garden-md border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 hover:border-primary-500 dark:hover:border-primary-400 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 cursor-pointer"
+        [attr.aria-label]="
+          'tasks.soilCheck.dryAriaLabel' | transloco: { name: plant().common_name }
+        "
         (click)="onDry()"
       >
         <span
           class="text-xs font-bold uppercase tracking-wide text-primary-600 dark:text-primary-400 font-display"
-          >Yes</span
+          >{{ 'tasks.soilCheck.dryYes' | transloco }}</span
         >
-        <span class="text-sm font-semibold font-display text-neutral-900 dark:text-white"
-          >Dry — water now</span
-        >
-        <span class="text-xs text-neutral-500 dark:text-neutral-400 font-display"
-          >Logs a watering event</span
-        >
+        <span class="text-sm font-semibold font-display text-neutral-900 dark:text-white">{{
+          'tasks.soilCheck.dryLabel' | transloco
+        }}</span>
+        <span class="text-xs text-neutral-500 dark:text-neutral-400 font-display">{{
+          'tasks.soilCheck.dryDetail' | transloco
+        }}</span>
       </button>
 
       <button
         type="button"
-        class="text-left flex flex-col gap-1 p-3.5 rounded-garden-md border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 hover:border-warning-500 dark:hover:border-yellow-500 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
-        [attr.aria-label]="'Soil is still moist — snooze check for ' + plant().common_name"
+        class="text-left flex flex-col gap-1 p-3.5 rounded-garden-md border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 hover:border-warning-500 dark:hover:border-yellow-500 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 cursor-pointer"
+        [attr.aria-label]="
+          'tasks.soilCheck.moistAriaLabel' | transloco: { name: plant().common_name }
+        "
         (click)="onMoist()"
       >
         <span
           class="text-xs font-bold uppercase tracking-wide text-warning-500 dark:text-yellow-400 font-display"
-          >Not yet</span
+          >{{ 'tasks.soilCheck.moistNotYet' | transloco }}</span
         >
-        <span class="text-sm font-semibold font-display text-neutral-900 dark:text-white"
-          >Still moist</span
-        >
-        <span class="text-xs text-neutral-500 dark:text-neutral-400 font-display"
-          >Smart-snooze the check</span
-        >
+        <span class="text-sm font-semibold font-display text-neutral-900 dark:text-white">{{
+          'tasks.soilCheck.moistLabel' | transloco
+        }}</span>
+        <span class="text-xs text-neutral-500 dark:text-neutral-400 font-display">{{
+          'tasks.soilCheck.moistDetail' | transloco
+        }}</span>
       </button>
     </div>
   }
@@ -149,20 +157,22 @@
         class="p-3 bg-neutral-50 dark:bg-neutral-900/60 border-l-4 border-l-primary-500 rounded-garden-sm mb-4 text-xs font-display text-neutral-600 dark:text-neutral-300 leading-relaxed"
       >
         <p class="font-semibold text-neutral-800 dark:text-neutral-100 mb-0.5">
-          Watering logged — {{ todayLabel() }}
+          {{ 'tasks.soilCheck.wateringLoggedBanner' | transloco: { date: todayLabel() } }}
         </p>
         <p>
-          <span class="text-neutral-500">Container:</span> {{ plant().container_vector }} ·
-          <span class="text-neutral-500">Substrate:</span> {{ plant().substrate_factor }} ·
-          <span class="text-neutral-500">Stage:</span> {{ plant().growth_stage }}
+          <span class="text-neutral-500">{{ 'tasks.soilCheck.containerLabel' | transloco }}</span>
+          {{ plant().container_vector }} ·
+          <span class="text-neutral-500">{{ 'tasks.soilCheck.substrateLabel' | transloco }}</span>
+          {{ plant().substrate_factor }} ·
+          <span class="text-neutral-500">{{ 'tasks.soilCheck.stageLabel' | transloco }}</span>
+          {{ plant().growth_stage }}
           @if (wateringNeeds()) {
-            · <span class="text-neutral-500">Watering:</span> {{ wateringNeeds() }}
+            ·
+            <span class="text-neutral-500">{{ 'tasks.soilCheck.wateringLabel' | transloco }}</span>
+            {{ wateringNeeds() }}
           }
           <br />
-          Based on your plant's profile, we suggest checking again in
-          <strong class="text-neutral-800 dark:text-neutral-100"
-            >{{ recommendedDays() }} days</strong
-          >.
+          {{ 'tasks.soilCheck.suggestCheckAgain' | transloco: { days: recommendedDays() } }}
         </p>
       </div>
     } @else {
@@ -170,20 +180,22 @@
         class="p-3 bg-neutral-50 dark:bg-neutral-900/60 border-l-4 border-l-warning-500 rounded-garden-sm mb-4 text-xs font-display text-neutral-600 dark:text-neutral-300 leading-relaxed"
       >
         <p class="font-semibold text-neutral-800 dark:text-neutral-100 mb-0.5">
-          Smart snooze for {{ plant().common_name }}
+          {{ 'tasks.soilCheck.snoozeHeader' | transloco: { name: plant().common_name } }}
         </p>
         <p>
-          <span class="text-neutral-500">Container:</span> {{ plant().container_vector }} ·
-          <span class="text-neutral-500">Substrate:</span> {{ plant().substrate_factor }} ·
-          <span class="text-neutral-500">Stage:</span> {{ plant().growth_stage }}
+          <span class="text-neutral-500">{{ 'tasks.soilCheck.containerLabel' | transloco }}</span>
+          {{ plant().container_vector }} ·
+          <span class="text-neutral-500">{{ 'tasks.soilCheck.substrateLabel' | transloco }}</span>
+          {{ plant().substrate_factor }} ·
+          <span class="text-neutral-500">{{ 'tasks.soilCheck.stageLabel' | transloco }}</span>
+          {{ plant().growth_stage }}
           @if (wateringNeeds()) {
-            · <span class="text-neutral-500">Watering:</span> {{ wateringNeeds() }}
+            ·
+            <span class="text-neutral-500">{{ 'tasks.soilCheck.wateringLabel' | transloco }}</span>
+            {{ wateringNeeds() }}
           }
           <br />
-          Based on your plant's profile, we suggest
-          <strong class="text-neutral-800 dark:text-neutral-100"
-            >{{ recommendedDays() }} days</strong
-          >.
+          {{ 'tasks.soilCheck.suggestSnooze' | transloco: { days: recommendedDays() } }}
         </p>
       </div>
     }
@@ -192,7 +204,9 @@
       class="grid grid-cols-5 gap-2 mb-4"
       role="radiogroup"
       [attr.aria-label]="
-        (isWatering() ? 'Next check interval' : 'Snooze duration') + ' for ' + plant().common_name
+        isWatering()
+          ? ('tasks.soilCheck.intervalAriaLabel' | transloco: { name: plant().common_name })
+          : ('tasks.soilCheck.snoozeAriaLabel' | transloco: { name: plant().common_name })
       "
     >
       @for (d of snoozePresets; track d) {
@@ -206,7 +220,11 @@
           "
           role="radio"
           [attr.aria-checked]="snoozeDays() === d"
-          [attr.aria-label]="d + ' days' + (d === recommendedDays() ? ' (recommended)' : '')"
+          [attr.aria-label]="
+            d === recommendedDays()
+              ? ('tasks.soilCheck.dayPresetRecommendedAriaLabel' | transloco: { days: d })
+              : ('tasks.soilCheck.dayPresetAriaLabel' | transloco: { days: d })
+          "
           (click)="snoozeDays.set(d)"
         >
           <span class="text-lg font-bold font-display text-neutral-900 dark:text-white">{{
@@ -220,7 +238,7 @@
           } @else {
             <span
               class="text-xs uppercase tracking-wide font-display text-neutral-400 dark:text-neutral-500"
-              >days</span
+              >{{ 'tasks.soilCheck.daysUnit' | transloco }}</span
             >
           }
         </button>
@@ -233,16 +251,20 @@
           for="check-note"
           class="text-xs font-semibold uppercase tracking-wide font-display text-neutral-500 dark:text-neutral-400"
         >
-          Notes
-          <span class="normal-case tracking-normal font-normal text-neutral-400">(optional)</span>
+          {{ 'tasks.soilCheck.notesLabel' | transloco }}
+          <span class="normal-case tracking-normal font-normal text-neutral-400">{{
+            'tasks.soilCheck.notesOptional' | transloco
+          }}</span>
         </label>
         <textarea
           id="check-note"
           class="w-full px-3 py-2 text-sm font-display resize-y min-h-20 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 border border-neutral-300 dark:border-neutral-600 rounded-garden-sm placeholder:text-neutral-400 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 transition-colors"
           [value]="note()"
           (input)="note.set($any($event.target).value)"
-          placeholder="e.g. Watered until drainage; fertilized at half strength."
-          [attr.aria-label]="'Optional watering notes for ' + plant().common_name"
+          [placeholder]="'tasks.soilCheck.notesPlaceholder' | transloco"
+          [attr.aria-label]="
+            'tasks.soilCheck.notesAriaLabel' | transloco: { name: plant().common_name }
+          "
         ></textarea>
       </div>
     }
@@ -251,32 +273,39 @@
   <ng-template #footer>
     @if (step() === 'ask') {
       <p-button
-        label="Cancel"
+        [label]="'common.cancel' | transloco"
         variant="text"
         [pt]="FloraButtonPT"
-        [attr.aria-label]="'Cancel soil check for ' + plant().common_name"
+        [attr.aria-label]="
+          'tasks.soilCheck.cancelAriaLabel' | transloco: { name: plant().common_name }
+        "
         (onClick)="onCancel()"
       />
     } @else {
       <p-button
-        label="Back"
+        [label]="'common.back' | transloco"
         variant="text"
         [pt]="FloraButtonPT"
-        ariaLabel="Back to soil check question"
+        [ariaLabel]="'tasks.soilCheck.backAriaLabel' | transloco"
         (onClick)="onBack()"
       />
       @if (isWatering()) {
         <p-button
-          label="Log watering"
+          [label]="'tasks.soilCheck.logWateringLabel' | transloco"
           [pt]="FloraButtonPT"
-          [ariaLabel]="'Log watering for ' + plant().common_name"
+          [ariaLabel]="
+            'tasks.soilCheck.logWateringAriaLabel' | transloco: { name: plant().common_name }
+          "
           (onClick)="onConfirm()"
         />
       } @else {
         <p-button
           [label]="snoozeLabelText()"
           [pt]="FloraButtonPT"
-          [ariaLabel]="'Snooze soil check for ' + snoozeDays() + ' days for ' + plant().common_name"
+          [ariaLabel]="
+            'tasks.soilCheck.snoozeButtonAriaLabel'
+              | transloco: { days: snoozeDays(), name: plant().common_name }
+          "
           (onClick)="onSnooze()"
         />
       }

@@ -18,6 +18,7 @@ import { AutoComplete, AutoCompleteModule, AutoCompleteCompleteEvent } from 'pri
 import { Select, SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
 import { MessageService } from 'primeng/api';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-icon';
 import { BotanicalTagsComponent } from '../../../shared/components/botanical-tags/botanical-tags';
 import {
@@ -63,6 +64,7 @@ import {
     AutoCompleteModule,
     SelectModule,
     ButtonModule,
+    TranslocoPipe,
     LeafIconComponent,
     BotanicalTagsComponent,
     PlantIdentifierDialogComponent,
@@ -71,6 +73,7 @@ import {
 })
 export class PlantFormDialogComponent {
   private readonly zoneService = inject(ZoneService);
+  private readonly t = inject(TranslocoService);
   private readonly botanicalSearch = inject(BotanicalSearchService);
   private readonly _libraryService = inject(LibraryService);
   private readonly messageService = inject(MessageService, { optional: true });
@@ -129,7 +132,11 @@ export class PlantFormDialogComponent {
     growth_stage: new FormControl<GrowthStage>('Mature', { nonNullable: true }),
   });
 
-  readonly dialogTitle = computed(() => (this.plant() ? 'Edit a Plant' : 'Add a Plant'));
+  readonly dialogTitle = computed(() =>
+    this.plant()
+      ? this.t.translate('tasks.plantForm.dialogTitleEdit')
+      : this.t.translate('tasks.plantForm.dialogTitleAdd'),
+  );
   readonly zoneOptions = computed(() =>
     this.zoneService.zones().map((z) => ({ label: z.name, value: z.id })),
   );
@@ -256,8 +263,8 @@ export class PlantFormDialogComponent {
     this.identifierVisible.set(false);
     this.messageService?.add({
       severity: 'success',
-      summary: 'Species identified',
-      detail: 'Form pre-filled — adjust if needed.',
+      summary: this.t.translate('tasks.plantForm.toast.speciesIdentified'),
+      detail: this.t.translate('tasks.plantForm.toast.speciesIdentifiedDetail'),
     });
   }
 

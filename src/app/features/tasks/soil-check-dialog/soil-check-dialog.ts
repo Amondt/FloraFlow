@@ -2,6 +2,7 @@ import { Component, computed, effect, inject, input, model, output, signal } fro
 import { RouterLink } from '@angular/router';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { FloraFormDialogPT, FloraButtonPT } from '../../../shared/ui/pt/index';
 import { ContainerVector, GrowthStage, Plant, SubstrateFactor } from '../plant.model';
 import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-icon';
@@ -11,23 +12,23 @@ import { daysSince } from '../../../shared/utils/date.util';
 import { LibraryService, CachedBotanicalRecord } from '../../library/library.service';
 import { buildGalleryPhotos } from '../../../shared/utils/botanical-photo.util';
 
-const SUBSTRATE_DEPTH_RULES: Record<SubstrateFactor, { depth: string; description: string }> = {
+const SUBSTRATE_DEPTH_RULES: Record<SubstrateFactor, { depth: string; descriptionKey: string }> = {
   'High-Drainage Aroid': {
     depth: '3 cm',
-    description: 'This mix drains quickly — water when the top 3 cm are dry.',
+    descriptionKey: 'tasks.soilCheck.substrate.highDrainageAroid',
   },
-  'Standard Potting': { depth: '3 cm', description: 'Water when the top 3 cm of soil are dry.' },
-  'Heavy Peat': {
+  'Standard Potting': {
     depth: '3 cm',
-    description: 'Peat retains moisture well — water when the top 3 cm are dry.',
+    descriptionKey: 'tasks.soilCheck.substrate.standardPotting',
   },
+  'Heavy Peat': { depth: '3 cm', descriptionKey: 'tasks.soilCheck.substrate.heavyPeat' },
   'Sphagnum Moss Mix': {
     depth: '2 cm',
-    description: 'Sphagnum likes to stay mostly moist — check shallower than usual.',
+    descriptionKey: 'tasks.soilCheck.substrate.sphagnumMoss',
   },
   'Desert Succulent': {
     depth: '5 cm',
-    description: 'Succulents need soil to fully dry out between waterings.',
+    descriptionKey: 'tasks.soilCheck.substrate.desertSucculent',
   },
 };
 
@@ -99,6 +100,7 @@ type CheckStep = 'ask' | 'schedule';
     RouterLink,
     DialogModule,
     ButtonModule,
+    TranslocoPipe,
     LeafIconComponent,
     PhotoLightboxDialogComponent,
   ],
@@ -106,6 +108,7 @@ type CheckStep = 'ask' | 'schedule';
 })
 export class SoilCheckDialogComponent {
   private readonly libraryService = inject(LibraryService);
+  private readonly t = inject(TranslocoService);
 
   readonly plant = input.required<Plant>();
   readonly zoneName = input<string | null>(null);
@@ -166,16 +169,16 @@ export class SoilCheckDialogComponent {
 
   readonly checkDepthDescription = computed((): string => {
     if (this.isAiEnriched()) return this._botanicalRecord()!.check_depth_description!;
-    return SUBSTRATE_DEPTH_RULES[this.plant().substrate_factor].description;
+    return this.t.translate(SUBSTRATE_DEPTH_RULES[this.plant().substrate_factor].descriptionKey);
   });
 
   readonly lastCheckedLabel = computed(() => {
     const ts = this.plant().last_checked_at;
-    if (!ts) return 'never checked';
+    if (!ts) return this.t.translate('tasks.soilCheck.neverChecked');
     const days = daysSince(ts);
-    if (days === 0) return 'last checked today';
-    if (days === 1) return 'last checked yesterday';
-    return `last checked ${days} days ago`;
+    if (days === 0) return this.t.translate('tasks.soilCheck.lastCheckedToday');
+    if (days === 1) return this.t.translate('tasks.soilCheck.lastCheckedYesterday');
+    return this.t.translate('tasks.soilCheck.lastCheckedDaysAgo', { days });
   });
 
   readonly recommendedDays = computed(() => {
@@ -194,11 +197,15 @@ export class SoilCheckDialogComponent {
     return presets.reduce((prev, cur) => (Math.abs(cur - raw) < Math.abs(prev - raw) ? cur : prev));
   });
 
-  readonly todayLabel = computed(() =>
-    new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
-  );
+  readonly todayLabel = computed(() => {
+    const lang = this.t.getActiveLang();
+    const locale = lang === 'nl' ? 'nl-NL' : lang === 'fr' ? 'fr-FR' : 'en-GB';
+    return new Date().toLocaleDateString(locale, { day: 'numeric', month: 'short' });
+  });
 
-  readonly snoozeLabelText = computed(() => `Snooze ${this.snoozeDays()} days`);
+  readonly snoozeLabelText = computed(() =>
+    this.t.translate('tasks.soilCheck.snoozeLabel', { days: this.snoozeDays() }),
+  );
 
   onVisibleChange(v: boolean): void {
     if (!v) {

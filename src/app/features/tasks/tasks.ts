@@ -6,6 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { PlantAlertCardComponent } from './plant-alert-card/plant-alert-card';
 import { SoilCheckDialogComponent } from './soil-check-dialog/soil-check-dialog';
 import { PlantFormDialogComponent } from './plant-form-dialog/plant-form-dialog';
@@ -34,6 +35,7 @@ import {
     ButtonModule,
     ConfirmDialogModule,
     ToastModule,
+    TranslocoPipe,
     PlantAlertCardComponent,
     SoilCheckDialogComponent,
     PlantFormDialogComponent,
@@ -49,6 +51,7 @@ export class TasksComponent {
   private readonly messageService = inject(MessageService);
   private readonly journalService = inject(JournalService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly t = inject(TranslocoService);
   protected readonly FloraButtonPT = FloraButtonPT;
   protected readonly FloraConfirmDialogPT = FloraConfirmDialogPT;
   protected readonly FloraMessagePT = FloraMessagePT;
@@ -153,7 +156,7 @@ export class TasksComponent {
     if (this.plantService.error()) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Check failed',
+        summary: this.t.translate('tasks.toast.checkFailed'),
         detail: this.plantService.error()!,
       });
       return;
@@ -165,8 +168,10 @@ export class TasksComponent {
     }
     this.messageService.add({
       severity: 'success',
-      summary: 'Watering logged',
-      detail: `Watering for "${payload.plant.common_name}" added to your journal.`,
+      summary: this.t.translate('tasks.toast.wateringLogged'),
+      detail: this.t.translate('tasks.toast.wateringLoggedDetail', {
+        name: payload.plant.common_name,
+      }),
     });
   }
 
@@ -175,7 +180,7 @@ export class TasksComponent {
     if (this.plantService.error()) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Snooze failed',
+        summary: this.t.translate('tasks.toast.snoozeFailed'),
         detail: this.plantService.error()!,
       });
     } else {
@@ -183,8 +188,8 @@ export class TasksComponent {
       const name = plant?.common_name ?? 'Plant';
       this.messageService.add({
         severity: 'info',
-        summary: 'Check snoozed',
-        detail: `"${name}" rescheduled based on its container and substrate.`,
+        summary: this.t.translate('tasks.toast.checkSnoozed'),
+        detail: this.t.translate('tasks.toast.checkSnoozedDetail', { name }),
       });
     }
   }
@@ -201,15 +206,15 @@ export class TasksComponent {
 
   onDeleteRequested(plant: Plant): void {
     this.confirmService.confirm({
-      message: `Remove "${plant.common_name}"? You can undo this.`,
-      header: 'Delete plant',
-      acceptLabel: 'Delete',
-      rejectLabel: 'Cancel',
+      message: this.t.translate('tasks.toast.deleteMessage', { name: plant.common_name }),
+      header: this.t.translate('tasks.toast.deleteHeader'),
+      acceptLabel: this.t.translate('common.delete'),
+      rejectLabel: this.t.translate('common.cancel'),
       accept: () => {
         this.messageService.add({
           severity: 'warn',
-          summary: 'Plant deleted',
-          detail: `"${plant.common_name}" removed. Tap Undo to cancel.`,
+          summary: this.t.translate('tasks.toast.plantDeleted'),
+          detail: this.t.translate('tasks.toast.plantDeletedDetail', { name: plant.common_name }),
           life: 5000,
           data: { canUndo: true, id: plant.id },
         });
@@ -218,7 +223,7 @@ export class TasksComponent {
           if (this.plantService.error()) {
             this.messageService.add({
               severity: 'error',
-              summary: 'Delete failed',
+              summary: this.t.translate('tasks.toast.deleteFailed'),
               detail: this.plantService.error()!,
             });
           }
@@ -240,14 +245,14 @@ export class TasksComponent {
       if (this.plantService.error()) {
         this.messageService.add({
           severity: 'error',
-          summary: 'Update failed',
+          summary: this.t.translate('tasks.toast.updateFailed'),
           detail: this.plantService.error()!,
         });
       } else {
         this.messageService.add({
           severity: 'success',
-          summary: 'Plant updated',
-          detail: `"${data.common_name}" has been saved.`,
+          summary: this.t.translate('tasks.toast.plantUpdated'),
+          detail: this.t.translate('tasks.toast.plantUpdatedDetail', { name: data.common_name }),
         });
       }
     } else {
@@ -255,13 +260,13 @@ export class TasksComponent {
       if (this.plantService.error() || !newPlant) {
         this.messageService.add({
           severity: 'error',
-          summary: 'Add failed',
+          summary: this.t.translate('tasks.toast.addFailed'),
           detail: this.plantService.error()!,
         });
       } else {
         this.messageService.add({
           severity: 'success',
-          summary: 'Plant added',
+          summary: this.t.translate('tasks.toast.plantAdded'),
           detail: plantAddedDetail(data.common_name, newPlant.next_check_due_at),
         });
       }

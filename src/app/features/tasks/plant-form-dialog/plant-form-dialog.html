@@ -16,7 +16,7 @@
     (ngSubmit)="onSubmit()"
     novalidate
     class="flex flex-col gap-4"
-    aria-label="Plant details form"
+    [attr.aria-label]="'tasks.plantForm.formAriaLabel' | transloco"
   >
     <!-- Species (optional) -->
     <div class="flex flex-col gap-1.5">
@@ -25,8 +25,10 @@
           [for]="speciesSearchId"
           class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
         >
-          Species
-          <span class="text-neutral-400 font-normal text-xs ml-1">(optional)</span>
+          {{ 'tasks.plantForm.speciesLabel' | transloco }}
+          <span class="text-neutral-400 font-normal text-xs ml-1">{{
+            'tasks.plantForm.speciesOptional' | transloco
+          }}</span>
         </label>
         <div class="flex items-center gap-2">
           <div class="min-w-0 flex-1">
@@ -41,7 +43,7 @@
               [delay]="300"
               [minLength]="2"
               [pt]="FloraAutoCompletePT"
-              placeholder="Search by common or scientific name…"
+              [placeholder]="'tasks.plantForm.speciesPlaceholder' | transloco"
               autocomplete="off"
               styleClass="w-full"
               appendTo="body"
@@ -81,7 +83,7 @@
             <button
               type="button"
               class="cursor-pointer inline-flex h-control w-10 shrink-0 items-center justify-center rounded-garden-sm border border-neutral-200 text-neutral-500 outline-none transition-colors duration-150 hover:border-primary-400 hover:text-primary-600 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 dark:border-neutral-600 dark:text-neutral-400 dark:hover:border-primary-600 dark:hover:text-primary-400"
-              aria-label="Identify this plant from a photo"
+              [attr.aria-label]="'tasks.plantForm.identifyAriaLabel' | transloco"
               (click)="openIdentifier()"
             >
               <i class="pi pi-camera text-sm" aria-hidden="true"></i>
@@ -90,11 +92,14 @@
         </div>
       } @else {
         <span class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display">
-          Species
+          {{ 'tasks.plantForm.speciesLabel' | transloco }}
         </span>
         <article
           role="status"
-          [attr.aria-label]="'Selected species: ' + (lockedSpeciesCommonName() ?? '')"
+          [attr.aria-label]="
+            'tasks.plantForm.speciesSelectedAriaLabel'
+              | transloco: { name: lockedSpeciesCommonName() ?? '' }
+          "
           class="flex gap-3"
         >
           <!-- Image strip -->
@@ -128,7 +133,10 @@
             </div>
             <div class="flex flex-col gap-2 mt-2">
               @if (lockedBotanicalRecord(); as record) {
-                <div class="flex flex-wrap gap-1" aria-label="Species traits">
+                <div
+                  class="flex flex-wrap gap-1"
+                  [attr.aria-label]="'tasks.plantForm.speciesTraitsAriaLabel' | transloco"
+                >
                   <app-botanical-tags
                     [placement]="record.placement"
                     [isToxicToPets]="record.is_toxic_to_pets"
@@ -137,7 +145,11 @@
                   />
                 </div>
               } @else if (isLoadingBotanicalRecord()) {
-                <div class="flex flex-wrap gap-1" role="status" aria-label="Loading species traits">
+                <div
+                  class="flex flex-wrap gap-1"
+                  role="status"
+                  [attr.aria-label]="'tasks.plantForm.loadingTraitsAriaLabel' | transloco"
+                >
                   <app-botanical-tags [isEnriching]="true" />
                 </div>
               }
@@ -145,10 +157,10 @@
                 <button
                   type="button"
                   class="cursor-pointer rounded-garden-sm text-xs font-medium text-primary-600 dark:text-primary-400 outline-none transition-colors hover:text-primary-700 dark:hover:text-primary-300 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1"
-                  aria-label="Change selected species"
+                  [attr.aria-label]="'tasks.plantForm.changeSpeciesAriaLabel' | transloco"
                   (click)="clearLockedSpecies()"
                 >
-                  Change
+                  {{ 'tasks.plantForm.changeSpecies' | transloco }}
                 </button>
               </div>
             </div>
@@ -163,9 +175,9 @@
         [for]="nicknameId"
         class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
       >
-        My plant's name
+        {{ 'tasks.plantForm.nicknameLabel' | transloco }}
         <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
-        <span class="sr-only">(required)</span>
+        <span class="sr-only">{{ 'tasks.plantForm.nicknameRequired' | transloco }}</span>
       </label>
       <input
         pInputText
@@ -180,7 +192,7 @@
             : nicknameId + '-hint'
         "
         aria-required="true"
-        placeholder="e.g. Bathroom pothos, Big window fern…"
+        [placeholder]="'tasks.plantForm.nicknamePlaceholder' | transloco"
         autocomplete="off"
       />
       @if (nameCtrl.invalid && nameCtrl.touched) {
@@ -189,11 +201,11 @@
           class="text-danger-500 text-xs font-display"
           role="alert"
         >
-          Plant name is required.
+          {{ 'tasks.plantForm.nicknameError' | transloco }}
         </small>
       }
       <small [id]="nicknameId + '-hint'" class="text-neutral-400 text-xs font-display" role="note">
-        How you'll identify this plant in your garden
+        {{ 'tasks.plantForm.nicknameHint' | transloco }}
       </small>
     </div>
 
@@ -203,9 +215,9 @@
         [id]="zoneSelectId + '-label'"
         class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
       >
-        Zone
+        {{ 'tasks.plantForm.zoneLabel' | transloco }}
         <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
-        <span class="sr-only">(required)</span>
+        <span class="sr-only">{{ 'tasks.plantForm.zoneRequired' | transloco }}</span>
       </span>
       <p-select
         #zoneSelect
@@ -221,7 +233,7 @@
         "
         [attr.aria-invalid]="zoneCtrl.invalid && zoneCtrl.touched"
         aria-required="true"
-        placeholder="Select a zone"
+        [placeholder]="'tasks.plantForm.zonePlaceholder' | transloco"
         appendTo="body"
       />
       @if (zoneCtrl.invalid && zoneCtrl.touched) {
@@ -230,7 +242,7 @@
           class="text-danger-500 text-xs font-display"
           role="alert"
         >
-          Please select a zone.
+          {{ 'tasks.plantForm.zoneError' | transloco }}
         </small>
       }
     </div>
@@ -241,7 +253,7 @@
         [id]="containerId + '-label'"
         class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
       >
-        Container type
+        {{ 'tasks.plantForm.containerLabel' | transloco }}
       </span>
       <p-select
         #containerSelect
@@ -260,7 +272,7 @@
         [id]="substrateId + '-label'"
         class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
       >
-        Substrate
+        {{ 'tasks.plantForm.substrateLabel' | transloco }}
       </span>
       <p-select
         #substrateSelect
@@ -279,8 +291,10 @@
         [for]="potDiameterId"
         class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
       >
-        Pot diameter
-        <span class="text-neutral-400 font-normal text-xs ml-1">(cm, optional)</span>
+        {{ 'tasks.plantForm.potDiameterLabel' | transloco }}
+        <span class="text-neutral-400 font-normal text-xs ml-1">{{
+          'tasks.plantForm.potDiameterUnit' | transloco
+        }}</span>
       </label>
       <p-inputnumber
         [inputId]="potDiameterId"
@@ -292,14 +306,14 @@
         [showButtons]="true"
         [allowEmpty]="true"
         [aria-describedby]="potDiameterId + '-hint'"
-        placeholder="e.g. 15"
+        [placeholder]="'tasks.plantForm.potDiameterPlaceholder' | transloco"
       />
       <small
         [id]="potDiameterId + '-hint'"
         class="text-neutral-400 text-xs font-display"
         role="note"
       >
-        Helps calculate volumes when mixing substrate
+        {{ 'tasks.plantForm.potDiameterHint' | transloco }}
       </small>
     </div>
 
@@ -309,7 +323,7 @@
         [id]="growthStageId + '-label'"
         class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
       >
-        Growth stage
+        {{ 'tasks.plantForm.growthStageLabel' | transloco }}
       </span>
       <p-select
         #growthStageSelect
@@ -325,23 +339,23 @@
         class="text-neutral-400 text-xs font-display"
         role="note"
       >
-        Seedling checks more often; Dormant less often.
+        {{ 'tasks.plantForm.growthStageHint' | transloco }}
       </small>
     </div>
   </form>
 
   <ng-template #footer>
     <p-button
-      label="Cancel"
+      [label]="'tasks.plantForm.cancel' | transloco"
       variant="text"
       [pt]="FloraButtonPT"
-      ariaLabel="Cancel and close dialog"
+      [ariaLabel]="'tasks.plantForm.cancelAriaLabel' | transloco"
       (onClick)="onCancel()"
     />
     <p-button
-      label="Save plant"
+      [label]="'tasks.plantForm.savePlant' | transloco"
       [pt]="FloraButtonPT"
-      ariaLabel="Save plant details"
+      [ariaLabel]="'tasks.plantForm.savePlantAriaLabel' | transloco"
       (onClick)="onSubmit()"
     />
   </ng-template>

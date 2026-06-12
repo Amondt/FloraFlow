@@ -4,6 +4,7 @@ import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { TasksComponent } from './tasks';
 import { PlantService } from './plant.service';
 import { ZoneService } from '../dashboard/zone.service';
+import { provideTranslocoTesting } from '../../testing/transloco-testing';
 import type { Plant } from './plant.model';
 
 // Fixed reference point: June 15 2024 at 14:00 local time
@@ -46,6 +47,7 @@ describe('TasksComponent — plantsGrouped()', () => {
     await TestBed.configureTestingModule({
       imports: [TasksComponent],
       providers: [
+        ...provideTranslocoTesting(),
         {
           provide: PlantService,
           useValue: {

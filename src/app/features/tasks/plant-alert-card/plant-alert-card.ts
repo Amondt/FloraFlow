@@ -1,5 +1,6 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { NgClass } from '@angular/common';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { Plant } from '../plant.model';
 import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-icon';
 
@@ -14,10 +15,12 @@ const BASE_BADGE = [
 @Component({
   selector: 'app-plant-alert-card',
   standalone: true,
-  imports: [NgClass, LeafIconComponent],
+  imports: [NgClass, TranslocoPipe, LeafIconComponent],
   templateUrl: './plant-alert-card.html',
 })
 export class PlantAlertCardComponent {
+  private readonly t = inject(TranslocoService);
+
   readonly plant = input.required<Plant>();
   readonly zoneName = input<string | null>(null);
   readonly thumbnailUrl = input<string | null>(null);
@@ -39,11 +42,11 @@ export class PlantAlertCardComponent {
 
   readonly overdueLabel = computed(() => {
     const d = this.daysFromNow();
-    if (d < -1) return `Overdue · ${-d} d`;
-    if (d === -1) return 'Overdue · 1 d';
-    if (d === 0) return 'Due today';
-    if (d === 1) return 'In 1 d';
-    return `In ${d} d`;
+    if (d < -1) return this.t.translate('tasks.alertCard.overdueDays', { count: -d });
+    if (d === -1) return this.t.translate('tasks.alertCard.overdueOneDay');
+    if (d === 0) return this.t.translate('tasks.alertCard.dueTodayLabel');
+    if (d === 1) return this.t.translate('tasks.alertCard.inOneDayLabel');
+    return this.t.translate('tasks.alertCard.inDaysLabel', { count: d });
   });
 
   readonly dotColor = computed(() =>

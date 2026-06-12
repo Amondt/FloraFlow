@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { RouterModule } from '@angular/router';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { SoilCheckDialogComponent } from './soil-check-dialog';
+import { provideTranslocoTesting } from '../../../testing/transloco-testing';
 import type { Plant } from '../plant.model';
 
 // Fixed reference: June 15 2024 at 14:00 local time
@@ -36,6 +37,7 @@ describe('SoilCheckDialogComponent', () => {
     vi.useFakeTimers({ now: FIXED_NOW.getTime() });
     await TestBed.configureTestingModule({
       imports: [SoilCheckDialogComponent, RouterModule.forRoot([])],
+      providers: [...provideTranslocoTesting()],
     })
       .overrideTemplate(SoilCheckDialogComponent, '')
       .compileComponents();

@@ -4,6 +4,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { PlantFormDialogComponent } from './plant-form-dialog';
 import { ZoneService } from '../../dashboard/zone.service';
 import { BotanicalSearchService } from '../../../core/services/botanical-search.service';
+import { provideTranslocoTesting } from '../../../testing/transloco-testing';
 import type { BotanicalSuggestion } from '../../../core/services/botanical-search.service';
 
 const mockZoneService = {
@@ -19,6 +20,7 @@ function setup() {
   TestBed.configureTestingModule({
     imports: [PlantFormDialogComponent],
     providers: [
+      ...provideTranslocoTesting(),
       { provide: ZoneService, useValue: mockZoneService },
       { provide: BotanicalSearchService, useValue: mockBotanicalSearch },
     ],

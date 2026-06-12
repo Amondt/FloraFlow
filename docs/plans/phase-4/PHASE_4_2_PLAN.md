@@ -114,7 +114,7 @@ EN is always the source of truth and the `fallbackLang`.
     as touched (wire the test harness; assert resolved EN copy).
   - format + lint + Manual Browser Check (dashboard + a zone detail in all three locales).
 
-- [ ] **Block E — Tasks & soil check** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+- [x] **Block E — Tasks & soil check** | Agent: `/visualizer` · Model: Sonnet · Effort: low
   - `tasks.html`, `plant-alert-card`, `soil-check-dialog`, `plant-form-dialog` (templates + the
     dialog's dynamic copy + toasts). Add `tasks.*` keys.
   - Update `tasks.spec`, `soil-check-dialog.spec`, `plant-form-dialog.spec`, `plant.service.spec`.

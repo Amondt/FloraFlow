@@ -7,7 +7,7 @@
   >
     <!-- Step indicator -->
     <ol
-      aria-label="Onboarding steps"
+      [attr.aria-label]="'onboarding.stepsLabel' | transloco"
       class="flex items-center justify-center list-none p-0 mb-8 gap-0"
     >
       <li class="flex items-center" [attr.aria-current]="currentStep() === 1 ? 'step' : null">
@@ -27,8 +27,9 @@
         </span>
         <span
           class="text-xs font-display text-neutral-500 dark:text-neutral-400 ml-1.5 hidden sm:block"
-          >Welcome</span
         >
+          {{ 'onboarding.step1Label' | transloco }}
+        </span>
       </li>
 
       <li
@@ -53,8 +54,9 @@
         </span>
         <span
           class="text-xs font-display text-neutral-500 dark:text-neutral-400 ml-1.5 hidden sm:block"
-          >Create zone</span
         >
+          {{ 'onboarding.step2Label' | transloco }}
+        </span>
       </li>
 
       <li
@@ -75,8 +77,9 @@
         </span>
         <span
           class="text-xs font-display text-neutral-500 dark:text-neutral-400 ml-1.5 hidden sm:block"
-          >All set</span
         >
+          {{ 'onboarding.step3Label' | transloco }}
+        </span>
       </li>
     </ol>
 
@@ -89,20 +92,19 @@
               id="onboarding-heading"
               class="text-2xl font-semibold font-display text-neutral-900 dark:text-white"
             >
-              Welcome to FloraFlow
+              {{ 'onboarding.step1.title' | transloco }}
             </h1>
             <p
               class="mt-2 text-sm text-neutral-500 dark:text-neutral-400 font-display leading-relaxed"
             >
-              Track every zone, every plant, every watering — so your greenhouse never misses a
-              beat.
+              {{ 'onboarding.step1.body' | transloco }}
             </p>
           </header>
 
           <p-button
-            label="Set up your first zone"
+            [label]="'onboarding.step1.cta' | transloco"
             [pt]="FloraButtonPT"
-            ariaLabel="Set up your first greenhouse zone"
+            [ariaLabel]="'onboarding.step1.ctaAriaLabel' | transloco"
             class="w-full"
             styleClass="w-full justify-center"
             (onClick)="goToStep2()"
@@ -117,10 +119,10 @@
               id="onboarding-heading"
               class="text-2xl font-semibold font-display text-neutral-900 dark:text-white"
             >
-              Create your first zone
+              {{ 'onboarding.step2.title' | transloco }}
             </h1>
             <p class="mt-2 text-sm text-neutral-500 dark:text-neutral-400 font-display">
-              A zone is a physical space — a windowsill, a grow tent, a shelf.
+              {{ 'onboarding.step2.body' | transloco }}
             </p>
           </header>
 
@@ -129,7 +131,7 @@
             (ngSubmit)="saveZone()"
             novalidate
             class="flex flex-col gap-5"
-            aria-label="New zone form"
+            [attr.aria-label]="'onboarding.step2.formLabel' | transloco"
           >
             <app-zone-form-fields [form]="form" />
 
@@ -139,11 +141,11 @@
 
             <p-button
               type="submit"
-              label="Save &amp; continue"
+              [label]="'onboarding.step2.submitButton' | transloco"
               [pt]="FloraButtonPT"
               [loading]="zoneService.loading()"
               [disabled]="zoneService.loading()"
-              ariaLabel="Save zone and continue to the next step"
+              [ariaLabel]="'onboarding.step2.submitAriaLabel' | transloco"
               class="w-full"
               styleClass="w-full justify-center"
             />
@@ -165,19 +167,19 @@
               id="onboarding-heading"
               class="text-2xl font-semibold font-display text-neutral-900 dark:text-white"
             >
-              You're all set!
+              {{ 'onboarding.step3.title' | transloco }}
             </h1>
             <p
               class="mt-2 text-sm text-neutral-500 dark:text-neutral-400 font-display leading-relaxed"
             >
-              Your first zone is ready. Start adding plants and tracking their care.
+              {{ 'onboarding.step3.body' | transloco }}
             </p>
           </header>
 
           <p-button
-            label="Enter your greenhouse"
+            [label]="'onboarding.step3.cta' | transloco"
             [pt]="FloraButtonPT"
-            ariaLabel="Enter your greenhouse and go to the dashboard"
+            [ariaLabel]="'onboarding.step3.ctaAriaLabel' | transloco"
             class="w-full"
             styleClass="w-full justify-center"
             (onClick)="finish()"

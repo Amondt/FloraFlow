@@ -26,5 +26,45 @@
   },
   "language": {
     "switcher": "Taal wijzigen"
+  },
+  "auth": {
+    "login": {
+      "title": "Inloggen bij FloraFlow",
+      "subtitle": "Uw slimme tuincompagnon.",
+      "formLabel": "Inlogformulier",
+      "credentialsLabel": "Inloggegevens",
+      "emailLabel": "E-mailadres",
+      "passwordLabel": "Wachtwoord",
+      "submitButton": "Inloggen",
+      "submitAriaLabel": "Inloggen bij FloraFlow",
+      "emailRequired": "E-mailadres is verplicht.",
+      "emailInvalid": "Voer een geldig e-mailadres in.",
+      "passwordRequired": "Wachtwoord is verplicht."
+    }
+  },
+  "onboarding": {
+    "stepsLabel": "Onboardingstappen",
+    "step1Label": "Welkom",
+    "step2Label": "Zone aanmaken",
+    "step3Label": "Klaar",
+    "step1": {
+      "title": "Welkom bij FloraFlow",
+      "body": "Volg elke zone, elke plant, elke bewatering — zodat uw kas nooit een slag mist.",
+      "cta": "Uw eerste zone instellen",
+      "ctaAriaLabel": "Uw eerste kaszone instellen"
+    },
+    "step2": {
+      "title": "Maak uw eerste zone aan",
+      "body": "Een zone is een fysieke ruimte — een vensterbank, een kweektent, een plank.",
+      "formLabel": "Nieuw zoneformulier",
+      "submitButton": "Opslaan & doorgaan",
+      "submitAriaLabel": "Zone opslaan en doorgaan naar de volgende stap"
+    },
+    "step3": {
+      "title": "U bent klaar!",
+      "body": "Uw eerste zone is klaar. Begin met het toevoegen van planten en het bijhouden van hun verzorging.",
+      "cta": "Uw kas betreden",
+      "ctaAriaLabel": "Uw kas betreden en naar het dashboard gaan"
+    }
   }
 }

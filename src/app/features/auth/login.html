@@ -10,21 +10,29 @@
         id="login-heading"
         class="text-2xl font-semibold font-display text-neutral-900 dark:text-white"
       >
-        Sign in to FloraFlow
+        {{ 'auth.login.title' | transloco }}
       </h1>
       <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400 font-display">
-        Your smart gardening companion.
+        {{ 'auth.login.subtitle' | transloco }}
       </p>
     </header>
 
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate aria-label="Sign in form">
-      <section aria-label="Credentials" class="flex flex-col gap-5">
+    <form
+      [formGroup]="form"
+      (ngSubmit)="onSubmit()"
+      novalidate
+      [attr.aria-label]="'auth.login.formLabel' | transloco"
+    >
+      <section
+        [attr.aria-label]="'auth.login.credentialsLabel' | transloco"
+        class="flex flex-col gap-5"
+      >
         <div class="flex flex-col gap-1.5">
           <label
             for="flora-email"
             class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
           >
-            Email address
+            {{ 'auth.login.emailLabel' | transloco }}
             <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
             <span class="sr-only">(required)</span>
           </label>
@@ -43,7 +51,7 @@
           />
           @if (email.invalid && email.touched) {
             <small id="flora-email-error" class="text-danger-500 text-xs font-display" role="alert">
-              {{ emailError() }}
+              {{ emailError() | transloco }}
             </small>
           }
         </div>
@@ -53,7 +61,7 @@
             for="flora-password"
             class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
           >
-            Password
+            {{ 'auth.login.passwordLabel' | transloco }}
             <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
             <span class="sr-only">(required)</span>
           </label>
@@ -78,7 +86,7 @@
               class="text-danger-500 text-xs font-display"
               role="alert"
             >
-              Password is required.
+              {{ 'auth.login.passwordRequired' | transloco }}
             </small>
           }
         </div>
@@ -94,11 +102,11 @@
 
         <p-button
           type="submit"
-          label="Sign in"
+          [label]="'auth.login.submitButton' | transloco"
           [pt]="FloraButtonPT"
           [loading]="loading()"
           [disabled]="loading()"
-          ariaLabel="Sign in to FloraFlow"
+          [ariaLabel]="'auth.login.submitAriaLabel' | transloco"
           class="w-full"
           styleClass="w-full justify-center"
         />

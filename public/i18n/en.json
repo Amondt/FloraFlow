@@ -26,5 +26,45 @@
   },
   "language": {
     "switcher": "Change language"
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in to FloraFlow",
+      "subtitle": "Your smart gardening companion.",
+      "formLabel": "Sign in form",
+      "credentialsLabel": "Credentials",
+      "emailLabel": "Email address",
+      "passwordLabel": "Password",
+      "submitButton": "Sign in",
+      "submitAriaLabel": "Sign in to FloraFlow",
+      "emailRequired": "Email address is required.",
+      "emailInvalid": "Please enter a valid email address.",
+      "passwordRequired": "Password is required."
+    }
+  },
+  "onboarding": {
+    "stepsLabel": "Onboarding steps",
+    "step1Label": "Welcome",
+    "step2Label": "Create zone",
+    "step3Label": "All set",
+    "step1": {
+      "title": "Welcome to FloraFlow",
+      "body": "Track every zone, every plant, every watering — so your greenhouse never misses a beat.",
+      "cta": "Set up your first zone",
+      "ctaAriaLabel": "Set up your first greenhouse zone"
+    },
+    "step2": {
+      "title": "Create your first zone",
+      "body": "A zone is a physical space — a windowsill, a grow tent, a shelf.",
+      "formLabel": "New zone form",
+      "submitButton": "Save & continue",
+      "submitAriaLabel": "Save zone and continue to the next step"
+    },
+    "step3": {
+      "title": "You're all set!",
+      "body": "Your first zone is ready. Start adding plants and tracking their care.",
+      "cta": "Enter your greenhouse",
+      "ctaAriaLabel": "Enter your greenhouse and go to the dashboard"
+    }
   }
 }

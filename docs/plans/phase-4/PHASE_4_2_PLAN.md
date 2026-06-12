@@ -101,7 +101,7 @@ EN is always the source of truth and the `fallbackLang`.
   - Manual Browser Check: switch EN→FR→NL → nav relabels instantly with zero reload; reload keeps
     the choice; `<html lang>` attribute tracks the locale. `bun run format` + `bun run lint`.
 
-- [ ] **Block C — Auth & onboarding** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+- [x] **Block C — Auth & onboarding** | Agent: `/visualizer` · Model: Sonnet · Effort: low
   - `features/auth/login.html` + `features/onboarding/onboarding.html` (+ any inline TS toast/aria).
   - Add `auth.*` + `onboarding.*` keys (en/fr/nl). Note: these routes are pre-shell (no switcher);
     they render in the persisted/auto locale — verify by setting locale in the shell, then signing out.

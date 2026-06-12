@@ -3,13 +3,14 @@ import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { FloraButtonPT, FloraInputTextPT, FLORA_ERROR } from '../../shared/ui/pt/index';
 import { SupabaseService } from '../../core/services/supabase.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, ButtonModule, InputTextModule],
+  imports: [ReactiveFormsModule, ButtonModule, InputTextModule, TranslocoPipe],
   templateUrl: './login.html',
 })
 export class LoginComponent {
@@ -39,8 +40,8 @@ export class LoginComponent {
   }
 
   readonly emailError = () => {
-    if (this.email.hasError('required')) return 'Email address is required.';
-    if (this.email.hasError('email')) return 'Please enter a valid email address.';
+    if (this.email.hasError('required')) return 'auth.login.emailRequired';
+    if (this.email.hasError('email')) return 'auth.login.emailInvalid';
     return '';
   };
 

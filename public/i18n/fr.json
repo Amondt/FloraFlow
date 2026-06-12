@@ -26,5 +26,45 @@
   },
   "language": {
     "switcher": "Changer de langue"
+  },
+  "auth": {
+    "login": {
+      "title": "Se connecter à FloraFlow",
+      "subtitle": "Votre compagnon de jardinage intelligent.",
+      "formLabel": "Formulaire de connexion",
+      "credentialsLabel": "Identifiants",
+      "emailLabel": "Adresse e-mail",
+      "passwordLabel": "Mot de passe",
+      "submitButton": "Se connecter",
+      "submitAriaLabel": "Se connecter à FloraFlow",
+      "emailRequired": "L'adresse e-mail est obligatoire.",
+      "emailInvalid": "Veuillez entrer une adresse e-mail valide.",
+      "passwordRequired": "Le mot de passe est obligatoire."
+    }
+  },
+  "onboarding": {
+    "stepsLabel": "Étapes d'intégration",
+    "step1Label": "Bienvenue",
+    "step2Label": "Créer une zone",
+    "step3Label": "Tout est prêt",
+    "step1": {
+      "title": "Bienvenue sur FloraFlow",
+      "body": "Suivez chaque zone, chaque plante, chaque arrosage — pour que votre serre ne manque jamais un battement.",
+      "cta": "Configurer votre première zone",
+      "ctaAriaLabel": "Configurer votre première zone de serre"
+    },
+    "step2": {
+      "title": "Créez votre première zone",
+      "body": "Une zone est un espace physique — un rebord de fenêtre, une tente de culture, une étagère.",
+      "formLabel": "Formulaire de nouvelle zone",
+      "submitButton": "Enregistrer & continuer",
+      "submitAriaLabel": "Enregistrer la zone et passer à l'étape suivante"
+    },
+    "step3": {
+      "title": "Tout est prêt !",
+      "body": "Votre première zone est prête. Commencez à ajouter des plantes et à suivre leurs soins.",
+      "cta": "Entrer dans votre serre",
+      "ctaAriaLabel": "Entrer dans votre serre et accéder au tableau de bord"
+    }
   }
 }

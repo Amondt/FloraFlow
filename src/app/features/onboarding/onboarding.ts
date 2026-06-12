@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { ProfileService } from '../../core/services/profile.service';
 import { ZoneService } from '../dashboard/zone.service';
 import { createZoneFormGroup, ZoneFormData } from '../dashboard/zone.model';
@@ -12,7 +13,13 @@ import { FloraButtonPT, FloraMessagePT } from '../../shared/ui/pt/index';
 @Component({
   selector: 'app-onboarding',
   standalone: true,
-  imports: [ReactiveFormsModule, ButtonModule, MessageModule, ZoneFormFieldsComponent],
+  imports: [
+    ReactiveFormsModule,
+    ButtonModule,
+    MessageModule,
+    ZoneFormFieldsComponent,
+    TranslocoPipe,
+  ],
   templateUrl: './onboarding.html',
 })
 export class OnboardingComponent {

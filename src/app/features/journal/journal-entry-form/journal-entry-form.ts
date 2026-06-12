@@ -179,16 +179,6 @@ export class JournalEntryFormComponent implements OnDestroy {
         }
       }
     });
-
-    effect(() => {
-      if (this.isLeafDoctorEntry()) {
-        this.form.controls.plant_id.disable();
-        this.form.controls.category.disable();
-      } else {
-        this.form.controls.plant_id.enable();
-        this.form.controls.category.enable();
-      }
-    });
   }
 
   ngOnDestroy(): void {
@@ -337,8 +327,6 @@ export class JournalEntryFormComponent implements OnDestroy {
   }
 
   private resetForm(): void {
-    this.form.controls.plant_id.enable();
-    this.form.controls.category.enable();
     this.form.reset({ plant_id: '', category: '', notes: null, logged_at: null });
     this.compressedBlob.set(null);
     this.compressedLabel.set(null);

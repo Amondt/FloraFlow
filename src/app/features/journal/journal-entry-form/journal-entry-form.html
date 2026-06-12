@@ -190,29 +190,80 @@
       </small>
     </div>
 
-    <!-- Photo (optional) — hidden in edit mode -->
-    @if (!isEditMode()) {
-      <div class="flex flex-col gap-1.5">
-        <label
-          [for]="photoId"
-          class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
-        >
-          Photo
-          <span class="text-neutral-400 font-normal text-xs ml-1">(optional)</span>
-        </label>
+    <!-- Photo (optional) -->
+    <div class="flex flex-col gap-1.5">
+      <label
+        [for]="photoId"
+        class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+      >
+        Photo
+        <span class="text-neutral-400 font-normal text-xs ml-1">(optional)</span>
+      </label>
 
-        <!-- Hidden native input — receives the actual file selection -->
-        <input
-          type="file"
-          [id]="photoId"
-          #photoInputRef
-          accept="image/*"
-          class="sr-only"
-          aria-label="Upload a photo for this care event — optional, will be compressed to under 300 KB"
-          (change)="onFileChange($event)"
-        />
+      <!-- Hidden native input — receives the actual file selection -->
+      <input
+        type="file"
+        [id]="photoId"
+        #photoInputRef
+        accept="image/*"
+        class="sr-only"
+        aria-label="Upload a photo for this care event — optional, will be compressed to under 300 KB"
+        (change)="onFileChange($event)"
+      />
 
-        <!-- Custom styled trigger — avoids browser-locale button labels -->
+      @if (compressedBlob()) {
+        <!-- New photo preview (both create and edit modes) -->
+        <div class="flex items-center gap-3">
+          <img
+            [src]="previewObjectUrl()"
+            alt="Compressed photo preview"
+            class="w-16 h-16 rounded-garden-sm object-cover border border-neutral-200 dark:border-neutral-700"
+          />
+          <div class="flex flex-col gap-1">
+            <p class="text-xs font-display text-success-500 flex items-center gap-1" role="status">
+              <i class="pi pi-check-circle" aria-hidden="true"></i>
+              {{ compressedLabel() }} — ready to save
+            </p>
+            <button
+              type="button"
+              class="cursor-pointer text-left text-xs font-medium font-display text-neutral-500 hover:text-danger-500 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-danger-500 focus-visible:ring-offset-1 rounded"
+              aria-label="Remove selected photo"
+              (click)="clearNewPhoto()"
+            >
+              Remove
+            </button>
+          </div>
+        </div>
+      } @else if (existingImageUrl() && !existingPhotoRemoved()) {
+        <!-- Existing photo (edit mode) — offer replace or remove -->
+        <div class="flex items-center gap-3">
+          <img
+            [src]="existingImageUrl()"
+            alt="Current photo for this care event"
+            class="w-16 h-16 rounded-garden-sm object-cover border border-neutral-200 dark:border-neutral-700"
+          />
+          <div class="flex flex-col gap-1.5">
+            <button
+              type="button"
+              class="cursor-pointer text-left text-xs font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded"
+              aria-label="Replace the current photo for this care event"
+              (click)="triggerPhotoInput()"
+            >
+              <i class="pi pi-refresh text-[10px]" aria-hidden="true"></i>
+              Replace photo
+            </button>
+            <button
+              type="button"
+              class="cursor-pointer text-left text-xs font-medium font-display text-neutral-500 hover:text-danger-500 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-danger-500 focus-visible:ring-offset-1 rounded"
+              aria-label="Remove the current photo from this care event"
+              (click)="removeExistingPhoto()"
+            >
+              Remove photo
+            </button>
+          </div>
+        </div>
+      } @else {
+        <!-- No photo yet (create mode, or photo removed) — show trigger button -->
         <button
           type="button"
           [class]="
@@ -225,22 +276,8 @@
           <i class="pi pi-paperclip text-xs" aria-hidden="true"></i>
           Choose photo
         </button>
-
-        @if (compressedBlob()) {
-          <div class="flex items-center gap-3">
-            <img
-              [src]="previewObjectUrl()"
-              alt="Compressed photo preview"
-              class="w-16 h-16 rounded-garden-sm object-cover border border-neutral-200 dark:border-neutral-700"
-            />
-            <p class="text-xs font-display text-success-500 flex items-center gap-1" role="status">
-              <i class="pi pi-check-circle" aria-hidden="true"></i>
-              {{ compressedLabel() }} — ready to save
-            </p>
-          </div>
-        }
-      </div>
-    }
+      }
+    </div>
   </form>
 
   <ng-template #footer>

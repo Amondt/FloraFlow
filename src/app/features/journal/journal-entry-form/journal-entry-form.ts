@@ -140,6 +140,12 @@ export class JournalEntryFormComponent implements OnDestroy {
   readonly compressedLabel = signal<string | null>(null);
   readonly previewObjectUrl = signal<string | null>(null);
   readonly submitting = signal(false);
+  readonly existingPhotoRemoved = signal(false);
+
+  protected readonly existingImageUrl = computed((): string | null => {
+    const path = this.editEntry()?.image_storage_path ?? null;
+    return path ? this.journalService.getPublicUrl(path) : null;
+  });
 
   get plantCtrl() {
     return this.form.controls.plant_id;
@@ -177,6 +183,20 @@ export class JournalEntryFormComponent implements OnDestroy {
 
   protected triggerPhotoInput(): void {
     this.photoInputRef()?.nativeElement.click();
+  }
+
+  protected clearNewPhoto(): void {
+    this.compressedBlob.set(null);
+    this.compressedLabel.set(null);
+    const oldUrl = this.previewObjectUrl();
+    if (oldUrl) URL.revokeObjectURL(oldUrl);
+    this.previewObjectUrl.set(null);
+    const photoEl = this.photoInputRef()?.nativeElement;
+    if (photoEl) photoEl.value = '';
+  }
+
+  protected removeExistingPhoto(): void {
+    this.existingPhotoRemoved.set(true);
   }
 
   async onFileChange(event: Event): Promise<void> {
@@ -224,12 +244,24 @@ export class JournalEntryFormComponent implements OnDestroy {
 
       if (isEditing) {
         const entry = this.editEntry()!;
+
+        let newImagePath: string | null | undefined;
+        const blob = this.compressedBlob();
+        if (blob) {
+          const user = await this.supabase.getUser();
+          if (!user) throw new Error('Not authenticated');
+          newImagePath = await this.journalService.uploadImage(user.id, entry.plant_id, blob);
+        } else if (this.existingPhotoRemoved()) {
+          newImagePath = null;
+        }
+
         await this.journalService.updateEntry(entry.id, {
           category,
           notes: raw.notes ?? null,
           logged_at: raw.logged_at
             ? new Date(raw.logged_at + 'T12:00:00').toISOString()
             : entry.logged_at,
+          ...(newImagePath !== undefined ? { image_storage_path: newImagePath } : {}),
         });
 
         this.messageService.add({
@@ -296,6 +328,7 @@ export class JournalEntryFormComponent implements OnDestroy {
     const oldUrl = this.previewObjectUrl();
     if (oldUrl) URL.revokeObjectURL(oldUrl);
     this.previewObjectUrl.set(null);
+    this.existingPhotoRemoved.set(false);
     const photoEl = this.photoInputRef()?.nativeElement;
     if (photoEl) photoEl.value = '';
     blurActiveElement();

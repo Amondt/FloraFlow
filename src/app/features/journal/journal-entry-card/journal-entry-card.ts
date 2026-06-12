@@ -29,7 +29,23 @@ const CATEGORY_COLOR: Record<LogCategoryType, string> = {
   PestTreatment: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
 };
 
-const ICON_BASE = 'text-xl text-primary-600 dark:text-primary-400';
+const CATEGORY_ICON_BOX_BG: Record<LogCategoryType, string> = {
+  Observation: 'bg-neutral-100 dark:bg-neutral-700/40',
+  Watering: 'bg-primary-50 dark:bg-primary-900/30',
+  Pruning: 'bg-yellow-50 dark:bg-yellow-900/20',
+  Repotting: 'bg-green-50 dark:bg-green-900/20',
+  Fertilization: 'bg-green-50 dark:bg-green-900/20',
+  PestTreatment: 'bg-red-50 dark:bg-red-900/20',
+};
+
+const CATEGORY_ICON_COLOR: Record<LogCategoryType, string> = {
+  Observation: 'text-neutral-500 dark:text-neutral-400',
+  Watering: 'text-primary-600 dark:text-primary-400',
+  Pruning: 'text-yellow-600 dark:text-yellow-400',
+  Repotting: 'text-green-600 dark:text-green-400',
+  Fertilization: 'text-green-600 dark:text-green-400',
+  PestTreatment: 'text-red-600 dark:text-red-400',
+};
 
 @Component({
   selector: 'app-journal-entry-card',
@@ -89,8 +105,11 @@ export class JournalEntryCardComponent {
 
   protected readonly categoryLabel = computed(() => CATEGORY_LABEL[this.entry().category]);
 
+  protected readonly iconBoxClass = computed(() => CATEGORY_ICON_BOX_BG[this.entry().category]);
+
   protected readonly categoryIconClass = computed(
-    () => `${CATEGORY_ICON[this.entry().category]} ${ICON_BASE}`,
+    () =>
+      `${CATEGORY_ICON[this.entry().category]} text-xl ${CATEGORY_ICON_COLOR[this.entry().category]}`,
   );
 
   protected readonly formattedWhen = computed(() => {

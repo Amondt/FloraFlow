@@ -334,7 +334,7 @@
 - [ ] **4.4 Create Account (Sign-up)** | Agent: `/plumber` → `/visualizer`
   - New `SupabaseService.signUp()` method returning `{ error, needsEmailConfirmation }`.
   - New `/register` route (public, no guard) with email + password + confirm-password form.
-  - On success: shows "Check your inbox" state when email confirmation is required, or redirects to `/login` when auto-confirmed (local dev).
+  - On success: shows "Check your inbox" state when email confirmation is required, or navigates to `/dashboard` when auto-confirmed (local dev) — `onboardingGuard` then routes the new user to `/onboarding`.
   - "Don't have an account? Create one" link added to the bottom of the login page.
   - "Already have an account? Sign in" link on the register page.
   - Plan: `docs/plans/phase-4/PHASE_4_4_PLAN.md`
@@ -344,7 +344,7 @@
 1. No `flora-theme` key in localStorage + browser set to dark → `.dark` on `<html>` on first paint.
 2. Language switch updates all strings on current route within same render cycle, zero page reload.
 3. Clicking "Sign out" in the nav clears the Supabase session and redirects to `/login`; navigating to `/dashboard` after signing out redirects back to `/login`.
-4. Submitting `/register` with valid unique credentials produces either the confirmation-pending state or a redirect to `/login`; submitting with mismatched passwords shows a field-level error.
+4. Submitting `/register` with valid unique credentials produces either the confirmation-pending state or a redirect into the app (`/dashboard` → `/onboarding` for a new user); submitting with mismatched passwords shows a field-level error.
 5. `bun run lint` — zero errors after all Phase 4 code.
 
 ---

@@ -1,21 +1,29 @@
 <main
-  class="min-h-screen bg-neutral-50 flex items-center justify-center px-4"
+  class="min-h-screen bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center px-4"
   aria-labelledby="login-heading"
 >
   <article
-    class="w-full max-w-sm bg-white rounded-garden-lg shadow-sm border border-neutral-200 p-8"
+    class="w-full max-w-sm bg-white dark:bg-neutral-800 rounded-garden-lg shadow-sm border border-neutral-200 dark:border-neutral-700 p-8"
   >
     <header class="mb-6">
-      <h1 id="login-heading" class="text-2xl font-semibold font-display text-neutral-900">
+      <h1
+        id="login-heading"
+        class="text-2xl font-semibold font-display text-neutral-900 dark:text-white"
+      >
         Sign in to FloraFlow
       </h1>
-      <p class="mt-1 text-sm text-neutral-500 font-display">Your smart gardening companion.</p>
+      <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400 font-display">
+        Your smart gardening companion.
+      </p>
     </header>
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate aria-label="Sign in form">
       <section aria-label="Credentials" class="flex flex-col gap-5">
         <div class="flex flex-col gap-1.5">
-          <label for="flora-email" class="text-sm font-medium text-neutral-700 font-display">
+          <label
+            for="flora-email"
+            class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+          >
             Email address
             <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
             <span class="sr-only">(required)</span>
@@ -41,7 +49,10 @@
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label for="flora-password" class="text-sm font-medium text-neutral-700 font-display">
+          <label
+            for="flora-password"
+            class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+          >
             Password
             <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
             <span class="sr-only">(required)</span>
@@ -75,7 +86,7 @@
         @if (authError()) {
           <div
             role="alert"
-            class="px-4 py-3 rounded-garden-sm bg-red-50 border border-danger-500 text-red-900 text-sm font-display"
+            class="px-4 py-3 rounded-garden-sm bg-red-50 dark:bg-danger-500/10 border border-danger-500 text-red-900 dark:text-danger-500 text-sm font-display"
           >
             {{ authError() }}
           </div>

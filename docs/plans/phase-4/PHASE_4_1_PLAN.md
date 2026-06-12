@@ -43,15 +43,16 @@ Every block below is judged against these. Derived from Material Design dark the
     <script>
       (function () {
         var t = localStorage.getItem('flora-theme');
-        var dark = t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+        var dark =
+          t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
         if (dark) document.documentElement.classList.add('dark');
       })();
     </script>
     ```
-    It must be inline and synchronous: Angular bootstraps *after* first paint, so the service alone cannot satisfy "`.dark` on first paint." The `effect()` re-applies the same class idempotently once Angular runs.
+    It must be inline and synchronous: Angular bootstraps _after_ first paint, so the service alone cannot satisfy "`.dark` on first paint." The `effect()` re-applies the same class idempotently once Angular runs.
   - No component renders the service yet — that is Block C. This block is verified via DevTools (below).
 
-- [ ] **Block C — ThemeToggleComponent in the nav** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **Block C — ThemeToggleComponent in the nav** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - `src/app/shared/components/theme-toggle/theme-toggle.ts` (+ `.html`): standalone, injects `ThemeService`. A single native `<button>` calling `theme.cycle()`.
     - Icon reflects `preference()`: `pi pi-sun` (light) · `pi pi-moon` (dark) · `pi pi-desktop` (system).
     - `aria-label` names current state **and** next action, e.g. `"Theme: System. Switch to Light."` — computed from `preference()`.
@@ -65,7 +66,7 @@ Every block below is judged against these. Derived from Material Design dark the
   - `nav.ts`: import `ThemeToggleComponent`.
   - Single Responsibility: the toggle is a presentational control bound to one global singleton — it holds no data-fetch logic, so no container/presentational split is needed.
 
-- [ ] **Block D — Dark-mode gap-fill: auth & shell surfaces** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **Block D — Dark-mode gap-fill: auth & shell surfaces** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - These three are the only light-only **first-paint / unauthenticated** surfaces — highest priority because QA criterion 1 lands on `/login`.
   - `login.html`: add dark variants — main `dark:bg-neutral-900`; card `dark:bg-neutral-800 dark:border-neutral-700`; `h1` `dark:text-white`; sub-copy `dark:text-neutral-400`; labels `dark:text-neutral-200`. Replace the raw `bg-red-50 border-danger-500 text-red-900` error `<div>` with dark-aware danger tokens (`dark:bg-danger-500/10 dark:border-danger-500 dark:text-danger-... ` readable pairing) — keep it a `<div role="alert">`, just make it legible in both themes.
   - `onboarding.html`: page bg, card, headings, sub-copy as above; step-indicator inactive chips `dark:bg-neutral-700 dark:text-neutral-300`; connector lines `dark:bg-neutral-700`; success ring `dark:bg-primary-900/40`.

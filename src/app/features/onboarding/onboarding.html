@@ -1,9 +1,9 @@
 <main
-  class="min-h-screen bg-neutral-50 flex items-center justify-center px-4 py-12"
+  class="min-h-screen bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center px-4 py-12"
   aria-labelledby="onboarding-heading"
 >
   <article
-    class="w-full max-w-md bg-white rounded-garden-lg shadow-sm border border-neutral-200 p-8"
+    class="w-full max-w-md bg-white dark:bg-neutral-800 rounded-garden-lg shadow-sm border border-neutral-200 dark:border-neutral-700 p-8"
   >
     <!-- Step indicator -->
     <ol
@@ -14,7 +14,9 @@
         <span
           class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold font-display transition-colors duration-200"
           [class]="
-            currentStep() >= 1 ? 'bg-primary-500 text-white' : 'bg-neutral-200 text-neutral-500'
+            currentStep() >= 1
+              ? 'bg-primary-500 text-white'
+              : 'bg-neutral-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-300'
           "
         >
           @if (currentStep() > 1) {
@@ -23,16 +25,24 @@
             1
           }
         </span>
-        <span class="text-xs font-display text-neutral-500 ml-1.5 hidden sm:block">Welcome</span>
+        <span
+          class="text-xs font-display text-neutral-500 dark:text-neutral-400 ml-1.5 hidden sm:block"
+          >Welcome</span
+        >
       </li>
 
-      <li aria-hidden="true" class="mx-3 h-px w-8 bg-neutral-200 self-center"></li>
+      <li
+        aria-hidden="true"
+        class="mx-3 h-px w-8 bg-neutral-200 dark:bg-neutral-700 self-center"
+      ></li>
 
       <li class="flex items-center" [attr.aria-current]="currentStep() === 2 ? 'step' : null">
         <span
           class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold font-display transition-colors duration-200"
           [class]="
-            currentStep() >= 2 ? 'bg-primary-500 text-white' : 'bg-neutral-200 text-neutral-500'
+            currentStep() >= 2
+              ? 'bg-primary-500 text-white'
+              : 'bg-neutral-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-300'
           "
         >
           @if (currentStep() > 2) {
@@ -41,23 +51,32 @@
             2
           }
         </span>
-        <span class="text-xs font-display text-neutral-500 ml-1.5 hidden sm:block"
+        <span
+          class="text-xs font-display text-neutral-500 dark:text-neutral-400 ml-1.5 hidden sm:block"
           >Create zone</span
         >
       </li>
 
-      <li aria-hidden="true" class="mx-3 h-px w-8 bg-neutral-200 self-center"></li>
+      <li
+        aria-hidden="true"
+        class="mx-3 h-px w-8 bg-neutral-200 dark:bg-neutral-700 self-center"
+      ></li>
 
       <li class="flex items-center" [attr.aria-current]="currentStep() === 3 ? 'step' : null">
         <span
           class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold font-display transition-colors duration-200"
           [class]="
-            currentStep() >= 3 ? 'bg-primary-500 text-white' : 'bg-neutral-200 text-neutral-500'
+            currentStep() >= 3
+              ? 'bg-primary-500 text-white'
+              : 'bg-neutral-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-300'
           "
         >
           3
         </span>
-        <span class="text-xs font-display text-neutral-500 ml-1.5 hidden sm:block">All set</span>
+        <span
+          class="text-xs font-display text-neutral-500 dark:text-neutral-400 ml-1.5 hidden sm:block"
+          >All set</span
+        >
       </li>
     </ol>
 
@@ -68,11 +87,13 @@
           <header class="mb-6">
             <h1
               id="onboarding-heading"
-              class="text-2xl font-semibold font-display text-neutral-900"
+              class="text-2xl font-semibold font-display text-neutral-900 dark:text-white"
             >
               Welcome to FloraFlow
             </h1>
-            <p class="mt-2 text-sm text-neutral-500 font-display leading-relaxed">
+            <p
+              class="mt-2 text-sm text-neutral-500 dark:text-neutral-400 font-display leading-relaxed"
+            >
               Track every zone, every plant, every watering — so your greenhouse never misses a
               beat.
             </p>
@@ -94,11 +115,11 @@
           <header class="mb-6">
             <h1
               id="onboarding-heading"
-              class="text-2xl font-semibold font-display text-neutral-900"
+              class="text-2xl font-semibold font-display text-neutral-900 dark:text-white"
             >
               Create your first zone
             </h1>
-            <p class="mt-2 text-sm text-neutral-500 font-display">
+            <p class="mt-2 text-sm text-neutral-500 dark:text-neutral-400 font-display">
               A zone is a physical space — a windowsill, a grow tent, a shelf.
             </p>
           </header>
@@ -133,7 +154,7 @@
       @case (3) {
         <section aria-labelledby="onboarding-heading" class="text-center">
           <div
-            class="w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center mx-auto mb-6"
+            class="w-16 h-16 rounded-full bg-primary-50 dark:bg-primary-900/40 flex items-center justify-center mx-auto mb-6"
             aria-hidden="true"
           >
             <i class="pi pi-check-circle text-3xl text-primary-500"></i>
@@ -142,11 +163,13 @@
           <header class="mb-6">
             <h1
               id="onboarding-heading"
-              class="text-2xl font-semibold font-display text-neutral-900"
+              class="text-2xl font-semibold font-display text-neutral-900 dark:text-white"
             >
               You're all set!
             </h1>
-            <p class="mt-2 text-sm text-neutral-500 font-display leading-relaxed">
+            <p
+              class="mt-2 text-sm text-neutral-500 dark:text-neutral-400 font-display leading-relaxed"
+            >
               Your first zone is ready. Start adding plants and tracking their care.
             </p>
           </header>

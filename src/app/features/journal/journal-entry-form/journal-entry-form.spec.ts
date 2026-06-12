@@ -1,6 +1,7 @@
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { signal } from '@angular/core';
+import { provideTranslocoTesting } from '../../../testing/transloco-testing';
 import { JournalEntryFormComponent } from './journal-entry-form';
 import { JournalService, type JournalEntryWithPlant } from '../journal.service';
 import { PlantService } from '../../tasks/plant.service';
@@ -41,6 +42,7 @@ describe('JournalEntryFormComponent — onSubmit() branching', () => {
     await TestBed.configureTestingModule({
       imports: [JournalEntryFormComponent],
       providers: [
+        ...provideTranslocoTesting(),
         {
           provide: JournalService,
           useValue: {

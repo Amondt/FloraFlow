@@ -2,7 +2,7 @@
   [visible]="visible()"
   (visibleChange)="onVisibleChange($event)"
   (onHide)="onHide()"
-  header="Diagnose a Plant"
+  [header]="'leafDoctor.dialogHeader' | transloco"
   [modal]="true"
   [draggable]="false"
   [resizable]="false"
@@ -14,11 +14,7 @@
     <!-- Hint: result lands in care log -->
     <p class="text-xs text-neutral-500 dark:text-neutral-400 font-display flex items-start gap-1.5">
       <i class="pi pi-info-circle text-primary-500 shrink-0 mt-0.5" aria-hidden="true"></i>
-      <span>
-        The diagnosis will be saved as an
-        <strong class="font-semibold text-neutral-700 dark:text-neutral-200">Observation</strong>
-        in your plant's care log.
-      </span>
+      <span>{{ 'leafDoctor.hintText' | transloco }}</span>
     </p>
 
     <!-- Plant selector / locked badge -->
@@ -27,7 +23,7 @@
         id="leaf-doctor-plant-label"
         class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
       >
-        Plant
+        {{ 'leafDoctor.plantLabel' | transloco }}
         @if (!preselectedPlantId()) {
           <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
           <span class="sr-only">(required)</span>
@@ -38,7 +34,10 @@
         <div
           class="flex items-center gap-2 px-3 h-control bg-neutral-100 dark:bg-neutral-700 rounded-garden-sm border border-neutral-200 dark:border-neutral-600"
           role="status"
-          aria-label="Diagnosing plant: {{ selectedPlantContext()?.commonName }}"
+          [attr.aria-label]="
+            'leafDoctor.plantLockedAriaLabel'
+              | transloco: { name: selectedPlantContext()?.commonName }
+          "
         >
           <i class="pi pi-leaf text-primary-500 text-xs shrink-0" aria-hidden="true"></i>
           <span class="text-sm font-medium font-display text-neutral-700 dark:text-neutral-200">
@@ -55,7 +54,7 @@
           [grouped]="true"
           [ariaLabelledBy]="'leaf-doctor-plant-label'"
           [required]="true"
-          placeholder="Select one of your plants"
+          [placeholder]="'leafDoctor.plantPlaceholder' | transloco"
         />
       }
     </div>
@@ -66,8 +65,10 @@
         [for]="symptomNotesId"
         class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
       >
-        Describe what you're seeing
-        <span class="text-neutral-400 font-normal text-xs ml-1">(optional)</span>
+        {{ 'leafDoctor.describeLabel' | transloco }}
+        <span class="text-neutral-400 font-normal text-xs ml-1">{{
+          'leafDoctor.describeOptional' | transloco
+        }}</span>
       </label>
       <textarea
         pTextarea
@@ -77,7 +78,7 @@
         maxlength="1000"
         [ngModel]="symptomNotes()"
         (ngModelChange)="symptomNotes.set($event)"
-        placeholder="e.g. Lower leaves yellowing and dropping since I moved it near the AC vent two weeks ago"
+        [placeholder]="'leafDoctor.describePlaceholder' | transloco"
         [attr.aria-describedby]="symptomNotesId + '-counter'"
       ></textarea>
       <div class="flex items-start justify-between gap-3">
@@ -86,10 +87,7 @@
           role="note"
         >
           <i class="pi pi-info-circle text-primary-500 shrink-0 mt-0.5" aria-hidden="true"></i>
-          <span
-            >Optional — symptoms, recent changes, anything the photos don't show. Helps the
-            diagnosis.</span
-          >
+          <span>{{ 'leafDoctor.describeHint' | transloco }}</span>
         </small>
         <span
           [id]="symptomNotesId + '-counter'"
@@ -103,7 +101,7 @@
     <!-- Photo + analysis -->
     <div class="flex flex-col gap-2">
       <span class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display">
-        Photos
+        {{ 'leafDoctor.photosLabel' | transloco }}
         <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
         <span class="sr-only">(required)</span>
       </span>
@@ -114,7 +112,7 @@
         #photoInputRef
         accept="image/*"
         class="sr-only"
-        aria-label="Upload a plant photo for Leaf Doctor analysis"
+        [attr.aria-label]="'leafDoctor.photoUploadAriaLabel' | transloco"
         (change)="onFileChange($event)"
       />
 
@@ -129,16 +127,20 @@
             FLORA_DISABLED +
             ' cursor-pointer flex w-full items-center gap-2 px-3 h-control text-sm font-medium font-display text-neutral-600 dark:text-neutral-200 bg-neutral-50 dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 rounded-garden-sm hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-150'
           "
-          [attr.aria-label]="isCompressing() ? 'Processing photo' : 'Add a plant photo to analyze'"
+          [attr.aria-label]="
+            isCompressing()
+              ? ('leafDoctor.processingAriaLabel' | transloco)
+              : ('leafDoctor.addPhotoAriaLabel' | transloco)
+          "
           [attr.aria-busy]="isCompressing()"
           (click)="triggerPhotoInput()"
         >
           @if (isCompressing()) {
             <i class="pi pi-spinner animate-spin text-xs" aria-hidden="true"></i>
-            Processing photo…
+            {{ 'leafDoctor.processingLabel' | transloco }}
           } @else {
             <i class="pi pi-paperclip text-xs" aria-hidden="true"></i>
-            Add photo ({{ compressedBlobs().length }}/3)
+            {{ 'leafDoctor.addPhotoLabel' | transloco: { count: compressedBlobs().length } }}
           }
         </button>
       }
@@ -150,16 +152,18 @@
       >
         <i class="pi pi-info-circle text-primary-500 shrink-0 mt-0.5" aria-hidden="true"></i>
         <span>
-          Add up to 3 photos of the
-          <strong class="font-semibold text-neutral-700 dark:text-neutral-200">same plant</strong>
-          from different angles (leaf, stem, soil). Mixing different plants will confuse the
-          diagnosis.
+          @let samePlantText = 'leafDoctor.photoGuidanceSamePlant' | transloco;
+          {{ 'leafDoctor.photoGuidance' | transloco: { samePlant: samePlantText } }}
         </span>
       </small>
 
       <!-- Multi-thumbnail row -->
       @if (hasPhotos()) {
-        <div class="flex flex-wrap gap-3" role="list" aria-label="Uploaded photos">
+        <div
+          class="flex flex-wrap gap-3"
+          role="list"
+          [attr.aria-label]="'leafDoctor.photosListAriaLabel' | transloco"
+        >
           @for (url of previewObjectUrls(); track url; let i = $index) {
             <div class="relative" role="listitem">
               <img
@@ -173,7 +177,7 @@
                   FLORA_FOCUS +
                   ' cursor-pointer absolute -top-1.5 -right-1.5 size-5 flex items-center justify-center rounded-full bg-neutral-800 text-white hover:bg-danger-500 transition-colors duration-150'
                 "
-                [attr.aria-label]="'Remove photo ' + (i + 1)"
+                [attr.aria-label]="'leafDoctor.removePhotoAriaLabel' | transloco: { number: i + 1 }"
                 (click)="removePhoto(i)"
               >
                 <i class="pi pi-times text-[10px]" aria-hidden="true"></i>
@@ -186,8 +190,7 @@
         @if (diagnosisState() === 'idle') {
           <p class="text-xs font-display text-success-500 flex items-center gap-1" role="status">
             <i class="pi pi-check-circle" aria-hidden="true"></i>
-            {{ compressedBlobs().length }}
-            photo{{ compressedBlobs().length > 1 ? 's' : '' }} ready to analyze
+            {{ 'leafDoctor.photosReadyStatus' | transloco: { count: compressedBlobs().length } }}
           </p>
         }
       }
@@ -196,7 +199,7 @@
       @if (speciesMismatchName()) {
         <p-message
           severity="warn"
-          [text]="'This looks more like ' + speciesMismatchName() + ' — double-check the plant.'"
+          [text]="'leafDoctor.speciesMismatchWarning' | transloco: { name: speciesMismatchName() }"
           [pt]="FloraMessagePT"
         />
       }
@@ -205,7 +208,7 @@
       @if (diagnosisState() === 'success') {
         @if (diagnosisResult(); as result) {
           <section
-            aria-label="Leaf Doctor diagnosis"
+            [attr.aria-label]="'leafDoctor.diagnosisAriaLabel' | transloco"
             class="flex flex-col gap-2 rounded-garden-md border border-neutral-200 dark:border-neutral-700 p-3"
           >
             <p class="text-sm font-semibold font-display text-neutral-900 dark:text-white">
@@ -218,7 +221,7 @@
             @if (result.immediate_remedial_actions.length) {
               <ul
                 class="list-disc pl-4 space-y-0.5 text-xs font-display text-neutral-700 dark:text-neutral-300"
-                aria-label="Recommended actions"
+                [attr.aria-label]="'leafDoctor.recommendedActionsAriaLabel' | transloco"
               >
                 @for (action of result.immediate_remedial_actions; track $index) {
                   <li>{{ action }}</li>
@@ -232,7 +235,7 @@
       <!-- Result panel — healthy plant -->
       @if (diagnosisState() === 'healthy') {
         <section
-          aria-label="Leaf Doctor — healthy plant"
+          [attr.aria-label]="'leafDoctor.healthyAriaLabel' | transloco"
           class="flex flex-col gap-1.5 rounded-garden-md border border-success-500/40 bg-green-50 dark:bg-green-900/10 p-3"
         >
           <div class="flex items-center gap-2">
@@ -241,12 +244,12 @@
               aria-hidden="true"
             ></i>
             <p class="text-sm font-semibold font-display text-neutral-900 dark:text-white">
-              No issues found
+              {{ 'leafDoctor.noIssuesFound' | transloco }}
             </p>
           </div>
           @if (identifiedPlant()) {
             <p class="text-xs font-display text-neutral-600 dark:text-neutral-400">
-              Identified as
+              {{ 'leafDoctor.identifiedAs' | transloco }}
               <span class="italic">{{ identifiedPlant() }}</span>
             </p>
           }
@@ -257,7 +260,7 @@
       @if (diagnosisState() === 'not-botanical') {
         <p-message
           severity="warn"
-          text="This doesn't look like a plant photo. Try a clear close-up of a leaf or stem."
+          [text]="'leafDoctor.notBotanical' | transloco"
           [pt]="FloraMessagePT"
         />
       }
@@ -266,7 +269,7 @@
       @if (diagnosisState() === 'error') {
         <p-message
           severity="error"
-          text="Leaf Doctor is unavailable — try again in a moment."
+          [text]="'leafDoctor.apiError' | transloco"
           [pt]="FloraMessagePT"
         />
       }
@@ -275,10 +278,10 @@
 
   <ng-template #footer>
     <p-button
-      label="Cancel"
+      [label]="'leafDoctor.cancelLabel' | transloco"
       variant="text"
       [pt]="FloraButtonPT"
-      ariaLabel="Cancel and close dialog"
+      [ariaLabel]="'leafDoctor.cancelAriaLabel' | transloco"
       (onClick)="onCancel()"
     />
     <p-button

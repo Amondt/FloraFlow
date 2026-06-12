@@ -11,6 +11,15 @@ export const CATEGORY_LABEL: Record<LogCategoryType, string> = {
   PestTreatment: 'Pest treatment',
 };
 
+export const CATEGORY_KEY: Record<LogCategoryType, string> = {
+  Observation: 'journal.category.observation',
+  Watering: 'journal.category.watering',
+  Pruning: 'journal.category.pruning',
+  Repotting: 'journal.category.repotting',
+  Fertilization: 'journal.category.fertilization',
+  PestTreatment: 'journal.category.pestTreatment',
+};
+
 export const CATEGORY_ICON: Record<LogCategoryType, string> = {
   Observation: 'pi pi-eye',
   Watering: 'pi pi-cloud',

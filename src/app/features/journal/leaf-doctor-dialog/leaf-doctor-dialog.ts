@@ -19,6 +19,7 @@ import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
 import { TextareaModule } from 'primeng/textarea';
 import { MessageService } from 'primeng/api';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import {
   FloraFormDialogPT,
   FloraButtonPT,
@@ -56,6 +57,7 @@ import type { Json } from '../../../../types/database.types';
     ButtonModule,
     MessageModule,
     TextareaModule,
+    TranslocoPipe,
     PlantSelectComponent,
     LeafDoctorBadgesComponent,
   ],
@@ -69,6 +71,7 @@ export class LeafDoctorDialogComponent implements OnDestroy {
   private readonly compressor = inject(ImageCompressorService);
   private readonly supabase = inject(SupabaseService);
   private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly visible = model<boolean>(false);
@@ -134,7 +137,7 @@ export class LeafDoctorDialogComponent implements OnDestroy {
 
     const result: PlantOptionGroup[] = [...[...groups.values()].filter((g) => g.items.length > 0)];
     if (ungrouped.length > 0) {
-      result.push({ label: 'Other', items: ungrouped });
+      result.push({ label: this.t.translate('leafDoctor.otherGroup'), items: ungrouped });
     }
     return result;
   });
@@ -165,9 +168,10 @@ export class LeafDoctorDialogComponent implements OnDestroy {
 
   protected readonly primaryActionLabel = computed(() => {
     const state = this.diagnosisState();
-    if (state === 'loading') return 'Analyzing…';
-    if (state === 'success' || state === 'healthy') return 'Save as Observation';
-    return 'Analyze';
+    if (state === 'loading') return this.t.translate('leafDoctor.analyzingLabel');
+    if (state === 'success' || state === 'healthy')
+      return this.t.translate('leafDoctor.saveObservationLabel');
+    return this.t.translate('leafDoctor.analyzeLabel');
   });
 
   protected readonly primaryActionIcon = computed(() => {
@@ -189,10 +193,10 @@ export class LeafDoctorDialogComponent implements OnDestroy {
 
   protected readonly primaryActionAriaLabel = computed(() => {
     const state = this.diagnosisState();
-    if (state === 'loading') return 'Leaf Doctor is analyzing the photos, please wait';
-    if (state === 'success') return 'Save Leaf Doctor diagnosis as a journal Observation entry';
-    if (state === 'healthy') return 'Save healthy plant checkup as a journal Observation entry';
-    return 'Analyze photos with Leaf Doctor AI';
+    if (state === 'loading') return this.t.translate('leafDoctor.analyzingAriaLabel');
+    if (state === 'success') return this.t.translate('leafDoctor.saveDiagnosisAriaLabel');
+    if (state === 'healthy') return this.t.translate('leafDoctor.saveHealthyAriaLabel');
+    return this.t.translate('leafDoctor.analyzeAriaLabel');
   });
 
   constructor() {
@@ -274,8 +278,8 @@ export class LeafDoctorDialogComponent implements OnDestroy {
     } catch {
       this.messageService.add({
         severity: 'error',
-        summary: 'Image error',
-        detail: 'Could not process the selected image.',
+        summary: this.t.translate('leafDoctor.toast.imageError'),
+        detail: this.t.translate('leafDoctor.toast.imageErrorDetail'),
       });
     } finally {
       this.isCompressing.set(false);
@@ -402,8 +406,8 @@ export class LeafDoctorDialogComponent implements OnDestroy {
 
       this.messageService.add({
         severity: 'success',
-        summary: 'Entry logged',
-        detail: 'Leaf Doctor diagnosis saved as an Observation.',
+        summary: this.t.translate('leafDoctor.toast.saveSuccess'),
+        detail: this.t.translate('leafDoctor.toast.saveSuccessDetail'),
       });
 
       this.entrySaved.emit();
@@ -412,7 +416,7 @@ export class LeafDoctorDialogComponent implements OnDestroy {
     } catch (e) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Failed to save',
+        summary: this.t.translate('leafDoctor.toast.saveFailed'),
         detail: e instanceof Error ? e.message : 'Unexpected error.',
       });
     } finally {

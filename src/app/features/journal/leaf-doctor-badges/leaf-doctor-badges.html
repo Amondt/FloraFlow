@@ -4,17 +4,17 @@
       confidenceBadgeClass(confidenceScore()) +
       ' text-xs font-medium font-display px-2 py-0.5 rounded-garden-sm'
     "
-    [attr.aria-label]="'Confidence: ' + confidenceBadgeLabel(confidenceScore())"
+    [attr.aria-label]="confidenceAriaLabel()"
   >
-    {{ confidenceBadgeLabel(confidenceScore()) }}
+    {{ confidenceLabel() }}
   </span>
   <span
     [class]="
       riskBadgeClass(riskAssessment()) +
       ' text-xs font-medium font-display px-2 py-0.5 rounded-garden-sm'
     "
-    [attr.aria-label]="'Risk: ' + riskBadgeLabel(riskAssessment())"
+    [attr.aria-label]="riskAriaLabel()"
   >
-    {{ riskBadgeLabel(riskAssessment()) }}
+    {{ riskLabel() }}
   </span>
 </div>

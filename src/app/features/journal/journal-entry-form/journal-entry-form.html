@@ -2,7 +2,10 @@
   [visible]="visible()"
   (visibleChange)="onVisibleChange($event)"
   (onHide)="onHide()"
-  [header]="isEditMode() ? 'Edit Care Event' : 'Log a Care Event'"
+  [header]="
+    (isEditMode() ? 'journal.entryForm.dialogTitleEdit' : 'journal.entryForm.dialogTitleCreate')
+      | transloco
+  "
   [modal]="true"
   [draggable]="false"
   [resizable]="false"
@@ -15,12 +18,17 @@
     (ngSubmit)="onSubmit()"
     novalidate
     class="flex flex-col gap-5"
-    [attr.aria-label]="isEditMode() ? 'Edit care event form' : 'Log care event form'"
+    [attr.aria-label]="
+      (isEditMode()
+        ? 'journal.entryForm.formAriaLabelEdit'
+        : 'journal.entryForm.formAriaLabelCreate'
+      ) | transloco
+    "
   >
     @if (isLeafDoctorEntry()) {
       <div
         role="note"
-        aria-label="Leaf Doctor AI diagnosis entry — Plant and Category fields are locked"
+        [attr.aria-label]="'journal.entryForm.leafDoctorLockAriaLabel' | transloco"
         class="flex items-start gap-2 px-3 py-2.5 rounded-garden-sm bg-primary-50 dark:bg-primary-900/20"
       >
         <i
@@ -28,8 +36,10 @@
           aria-hidden="true"
         ></i>
         <p class="text-xs font-display text-primary-700 dark:text-primary-300 leading-snug">
-          <span class="font-semibold">Leaf Doctor entry</span> — Plant and Category are locked to
-          preserve the AI diagnosis. Notes and date can still be updated.
+          <span class="font-semibold">{{
+            'journal.entryForm.leafDoctorLockTitle' | transloco
+          }}</span>
+          — {{ 'journal.entryForm.leafDoctorLockDetail' | transloco }}
         </p>
       </div>
     }
@@ -40,7 +50,7 @@
         [id]="plantId + '-label'"
         class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
       >
-        Plant
+        {{ 'journal.entryForm.plantLabel' | transloco }}
         <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
         <span class="sr-only">(required)</span>
       </span>
@@ -72,7 +82,7 @@
           "
           [attr.aria-invalid]="plantCtrl.invalid && plantCtrl.touched"
           aria-required="true"
-          placeholder="Select one of your plants"
+          [placeholder]="'journal.entryForm.plantPlaceholder' | transloco"
           appendTo="body"
         >
           <ng-template let-group #group>
@@ -121,7 +131,7 @@
       }
       @if (plantCtrl.invalid && plantCtrl.touched) {
         <small [id]="plantId + '-error'" class="text-danger-500 text-xs font-display" role="alert">
-          Please select one of your plants.
+          {{ 'journal.entryForm.plantRequired' | transloco }}
         </small>
       }
     </div>
@@ -132,7 +142,7 @@
         [id]="catId + '-label'"
         class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
       >
-        Category
+        {{ 'journal.entryForm.categoryLabel' | transloco }}
         <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
         <span class="sr-only">(required)</span>
       </span>
@@ -151,7 +161,7 @@
           [inputId]="catId"
           [ariaLabelledBy]="catId + '-label'"
           formControlName="category"
-          [options]="categoryOptions"
+          [options]="translatedCategoryOptions()"
           optionLabel="label"
           optionValue="value"
           [pt]="FloraSelectPT"
@@ -161,13 +171,13 @@
           "
           [attr.aria-invalid]="categoryCtrl.invalid && categoryCtrl.touched"
           aria-required="true"
-          placeholder="Select a category"
+          [placeholder]="'journal.entryForm.categoryPlaceholder' | transloco"
           appendTo="body"
         />
       }
       @if (categoryCtrl.invalid && categoryCtrl.touched) {
         <small [id]="catId + '-error'" class="text-danger-500 text-xs font-display" role="alert">
-          Please select a category.
+          {{ 'journal.entryForm.categoryRequired' | transloco }}
         </small>
       }
     </div>
@@ -178,8 +188,10 @@
         [for]="notesId"
         class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
       >
-        Notes
-        <span class="text-neutral-400 font-normal text-xs ml-1">(optional)</span>
+        {{ 'journal.entryForm.notesLabel' | transloco }}
+        <span class="text-neutral-400 font-normal text-xs ml-1">{{
+          'journal.entryForm.notesOptional' | transloco
+        }}</span>
       </label>
       <textarea
         pTextarea
@@ -188,7 +200,7 @@
         [pt]="FloraTextareaPT"
         [attr.aria-describedby]="notesCtrl.invalid && notesCtrl.touched ? notesId + '-error' : null"
         [attr.aria-invalid]="(notesCtrl.invalid && notesCtrl.touched) || null"
-        placeholder="Describe what you observed or did…"
+        [placeholder]="'journal.entryForm.notesPlaceholder' | transloco"
         rows="3"
       ></textarea>
       <div class="flex items-start gap-2">
@@ -198,7 +210,7 @@
             class="text-danger-500 text-xs font-display flex-1"
             role="alert"
           >
-            Notes must be 1000 characters or fewer.
+            {{ 'journal.entryForm.notesValidation' | transloco }}
           </small>
         }
         @if (!isLeafDoctorEntry()) {
@@ -215,8 +227,10 @@
         [for]="dateId"
         class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
       >
-        Date
-        <span class="text-neutral-400 font-normal text-xs ml-1">(optional)</span>
+        {{ 'journal.entryForm.dateLabel' | transloco }}
+        <span class="text-neutral-400 font-normal text-xs ml-1">{{
+          'journal.entryForm.dateOptional' | transloco
+        }}</span>
       </label>
       <input
         pInputText
@@ -226,10 +240,10 @@
         [pt]="FloraInputTextPT"
         [max]="todayIso"
         class="h-control font-display"
-        aria-label="Date of care event — optional, defaults to the current time"
+        [attr.aria-label]="'journal.entryForm.dateAriaLabel' | transloco"
       />
       <small class="text-neutral-400 text-xs font-display" role="note">
-        Leave empty to log now.
+        {{ 'journal.entryForm.dateHint' | transloco }}
       </small>
     </div>
 
@@ -239,8 +253,10 @@
         [attr.for]="isLeafDoctorEntry() ? null : photoId"
         class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
       >
-        Photo
-        <span class="text-neutral-400 font-normal text-xs ml-1">(optional)</span>
+        {{ 'journal.entryForm.photoLabel' | transloco }}
+        <span class="text-neutral-400 font-normal text-xs ml-1">{{
+          'journal.entryForm.photoOptional' | transloco
+        }}</span>
       </label>
 
       <!-- Hidden native input — receives the actual file selection -->
@@ -250,7 +266,7 @@
         #photoInputRef
         accept="image/*"
         class="sr-only"
-        aria-label="Upload a photo for this care event — optional, will be compressed to under 300 KB"
+        [attr.aria-label]="'journal.entryForm.photoUploadAriaLabel' | transloco"
         (change)="onFileChange($event)"
       />
 
@@ -275,11 +291,10 @@
           <p
             class="text-xs font-display text-neutral-500 dark:text-neutral-400 flex items-start gap-1.5"
             role="note"
-            aria-label="Photo is locked because it is tied to the Leaf Doctor AI diagnosis"
+            [attr.aria-label]="'journal.entryForm.photoLockedAriaLabel' | transloco"
           >
             <i class="pi pi-lock text-[10px] mt-0.5 shrink-0" aria-hidden="true"></i>
-            Photo locked — this image is linked to the Leaf Doctor AI diagnosis and cannot be
-            changed.
+            {{ 'journal.entryForm.photoLockedDetail' | transloco }}
           </p>
         </div>
       } @else if (compressedBlob()) {
@@ -293,15 +308,15 @@
           <div class="flex flex-col gap-1">
             <p class="text-xs font-display text-success-500 flex items-center gap-1" role="status">
               <i class="pi pi-check-circle" aria-hidden="true"></i>
-              {{ compressedLabel() }} — ready to save
+              {{ 'journal.entryForm.photoReadyStatus' | transloco: { size: compressedLabel() } }}
             </p>
             <button
               type="button"
               class="cursor-pointer text-left text-xs font-medium font-display text-neutral-500 hover:text-danger-500 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-danger-500 focus-visible:ring-offset-1 rounded"
-              aria-label="Remove selected photo"
+              [attr.aria-label]="'journal.entryForm.photoRemoveAriaLabel' | transloco"
               (click)="clearNewPhoto()"
             >
-              Remove
+              {{ 'journal.entryForm.photoRemove' | transloco }}
             </button>
           </div>
         </div>
@@ -317,19 +332,19 @@
             <button
               type="button"
               class="cursor-pointer text-left text-xs font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded"
-              aria-label="Replace the current photo for this care event"
+              [attr.aria-label]="'journal.entryForm.photoReplaceAriaLabel' | transloco"
               (click)="triggerPhotoInput()"
             >
               <i class="pi pi-refresh text-[10px]" aria-hidden="true"></i>
-              Replace photo
+              {{ 'journal.entryForm.photoReplace' | transloco }}
             </button>
             <button
               type="button"
               class="cursor-pointer text-left text-xs font-medium font-display text-neutral-500 hover:text-danger-500 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-danger-500 focus-visible:ring-offset-1 rounded"
-              aria-label="Remove the current photo from this care event"
+              [attr.aria-label]="'journal.entryForm.photoRemoveExistingAriaLabel' | transloco"
               (click)="removeExistingPhoto()"
             >
-              Remove photo
+              {{ 'journal.entryForm.photoRemoveExisting' | transloco }}
             </button>
           </div>
         </div>
@@ -341,11 +356,11 @@
             FLORA_FOCUS +
             ' flex w-full items-center gap-2 px-3 h-control text-sm font-medium font-display text-neutral-600 dark:text-neutral-200 bg-neutral-50 dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 rounded-garden-sm hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-150 cursor-pointer'
           "
-          aria-label="Choose a photo for this care event"
+          [attr.aria-label]="'journal.entryForm.photoChooseAriaLabel' | transloco"
           (click)="triggerPhotoInput()"
         >
           <i class="pi pi-paperclip text-xs" aria-hidden="true"></i>
-          Choose photo
+          {{ 'journal.entryForm.photoChoose' | transloco }}
         </button>
       }
     </div>
@@ -353,16 +368,24 @@
 
   <ng-template #footer>
     <p-button
-      label="Cancel"
+      [label]="'common.cancel' | transloco"
       variant="text"
       [pt]="FloraButtonPT"
-      ariaLabel="Cancel and close dialog"
+      [ariaLabel]="'journal.entryForm.cancelAriaLabel' | transloco"
       (onClick)="onCancel()"
     />
     <p-button
-      [label]="isEditMode() ? 'Save changes' : 'Log entry'"
+      [label]="
+        (isEditMode() ? 'journal.entryForm.submitEdit' : 'journal.entryForm.submitCreate')
+          | transloco
+      "
       [pt]="FloraButtonPT"
-      [ariaLabel]="isEditMode() ? 'Save changes to this care event' : 'Save this care event'"
+      [ariaLabel]="
+        (isEditMode()
+          ? 'journal.entryForm.submitEditAriaLabel'
+          : 'journal.entryForm.submitCreateAriaLabel'
+        ) | transloco
+      "
       [loading]="submitting()"
       (onClick)="onSubmit()"
     />

@@ -5,7 +5,7 @@
       <p
         class="text-xs font-semibold uppercase tracking-widest text-primary-600 dark:text-primary-400 font-display mb-1"
       >
-        Botanical journal
+        {{ 'journal.subtitle' | transloco }}
       </p>
       <div class="flex items-end justify-between gap-4">
         <div>
@@ -13,7 +13,7 @@
             id="journal-heading"
             class="text-3xl font-semibold font-display text-neutral-900 dark:text-white"
           >
-            Care log
+            {{ 'journal.heading' | transloco }}
           </h1>
           @if (journalService.entries().length > 0) {
             <p
@@ -21,8 +21,7 @@
               aria-live="polite"
               aria-atomic="true"
             >
-              {{ journalService.entries().length }}
-              {{ journalService.entries().length === 1 ? 'entry' : 'entries' }} across all plants
+              {{ 'journal.entryCount' | transloco: { count: journalService.entries().length } }}
             </p>
           }
         </div>
@@ -36,7 +35,7 @@
               (valueChange)="onPlantFilterChange($event)"
               [options]="plantSelectOptions()"
               [grouped]="true"
-              [ariaLabel]="'Filter journal entries by plant'"
+              [ariaLabel]="'journal.filterByPlantAriaLabel' | transloco"
               [ghost]="true"
             />
 
@@ -44,22 +43,22 @@
             <button
               type="button"
               class="cursor-pointer inline-flex items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
-              aria-label="Diagnose a plant with Leaf Doctor AI"
+              [attr.aria-label]="'journal.diagnosePlantAriaLabel' | transloco"
               (click)="openDiagnosisDialog()"
             >
               <i class="pi pi-eye text-xs" aria-hidden="true"></i>
-              Diagnose plant
+              {{ 'journal.diagnosePlant' | transloco }}
             </button>
 
             <!-- New entry -->
             <button
               type="button"
               class="cursor-pointer inline-flex items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
-              aria-label="Log a new care event for one of your plants"
+              [attr.aria-label]="'journal.logCareEventAriaLabel' | transloco"
               (click)="openDialog()"
             >
               <i class="pi pi-plus text-xs" aria-hidden="true"></i>
-              Log care event
+              {{ 'journal.logCareEvent' | transloco }}
             </button>
           </div>
         }
@@ -71,7 +70,7 @@
       <div
         class="flex border-b border-neutral-200 dark:border-neutral-700 mb-4"
         role="tablist"
-        aria-label="Filter journal entries by care category"
+        [attr.aria-label]="'journal.filterByCategoryAriaLabel' | transloco"
       >
         @for (opt of categoryFilterOptions; track opt.value ?? 'all') {
           <button
@@ -84,7 +83,7 @@
             @if (opt.icon) {
               <i [class]="opt.icon + ' text-xs'" aria-hidden="true"></i>
             }
-            {{ opt.label }}
+            {{ opt.labelKey | transloco }}
             <span [class]="getTabCountClass(opt.value)" aria-hidden="true">
               {{ getEntryCount(opt.value) }}
             </span>
@@ -94,31 +93,37 @@
     }
 
     <!-- Feed -->
-    <section aria-label="Journal entries" [attr.aria-busy]="journalService.loadingEntries()">
+    <section
+      [attr.aria-label]="'journal.feedAriaLabel' | transloco"
+      [attr.aria-busy]="journalService.loadingEntries()"
+    >
       @if (loading()) {
         <p
           class="text-sm text-neutral-500 dark:text-neutral-400 font-display"
           role="status"
           aria-live="polite"
         >
-          Loading…
+          {{ 'journal.loading' | transloco }}
         </p>
       } @else if (!hasPlants()) {
         <div class="flex flex-col items-center justify-center py-20 text-center" role="status">
           <p class="text-neutral-500 dark:text-neutral-400 font-display text-base">
-            You have no plants yet. Add one in Tasks first.
+            {{ 'journal.noPlantsText' | transloco }}
           </p>
           <a
             href="/tasks"
             class="mt-4 inline-flex items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
-            aria-label="Go to Tasks to add your first plant"
+            [attr.aria-label]="'journal.goToTasksAriaLabel' | transloco"
           >
             <i class="pi pi-arrow-right text-xs" aria-hidden="true"></i>
-            Go to Tasks
+            {{ 'journal.goToTasks' | transloco }}
           </a>
         </div>
       } @else if (journalService.loadingEntries()) {
-        <ul class="flex flex-col gap-4" aria-label="Loading journal entries">
+        <ul
+          class="flex flex-col gap-4"
+          [attr.aria-label]="'journal.loadingEntriesAriaLabel' | transloco"
+        >
           @for (item of skeletonItems; track item) {
             <li aria-hidden="true">
               <p-skeleton height="5.5rem" [pt]="FloraSkeletonPT" />
@@ -132,32 +137,37 @@
       } @else if (journalService.entries().length === 0) {
         <div class="flex flex-col items-center justify-center py-20 text-center" role="status">
           <p class="text-neutral-500 dark:text-neutral-400 font-display text-base">
-            No care events logged yet — click New entry to record your first.
+            {{ 'journal.noEntriesText' | transloco }}
           </p>
         </div>
       } @else if (filteredEntries().length === 0) {
         <div class="flex flex-col items-center justify-center py-20 text-center" role="status">
           <p class="text-neutral-500 dark:text-neutral-400 font-display text-base">
             @if (selectedCategory() !== null && selectedPlant() !== null) {
-              No {{ selectedCategoryLabel() }} entries for this plant.
+              {{
+                'journal.noFilteredBoth' | transloco: { category: selectedCategoryLabel() ?? '' }
+              }}
             } @else if (selectedCategory() !== null) {
-              No {{ selectedCategoryLabel() }} entries found.
+              {{
+                'journal.noFilteredCategory'
+                  | transloco: { category: selectedCategoryLabel() ?? '' }
+              }}
             } @else {
-              No entries found for this plant.
+              {{ 'journal.noFilteredPlant' | transloco }}
             }
           </p>
           <button
             type="button"
-            class="mt-4 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 outline-none focus-visible:underline"
-            aria-label="Clear all filters to see all journal entries"
+            class="mt-4 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 outline-none focus-visible:underline cursor-pointer"
+            [attr.aria-label]="'journal.clearFiltersAriaLabel' | transloco"
             (click)="clearFilters()"
           >
-            Clear filters
+            {{ 'journal.clearFilters' | transloco }}
           </button>
         </div>
       } @else {
         <!-- Date-grouped timeline -->
-        <div aria-label="Journal timeline">
+        <div [attr.aria-label]="'journal.timelineAriaLabel' | transloco">
           @for (group of entriesByDay(); track group.dateKey; let first = $first) {
             <div [class]="getDayGroupClass(first)">
               <!-- Date column -->

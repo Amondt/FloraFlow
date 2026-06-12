@@ -6,6 +6,8 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { MessageModule } from 'primeng/message';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { LocaleService } from '../../core/services/locale.service';
 import {
   FloraToastPT,
   FloraSkeletonPT,
@@ -26,7 +28,7 @@ import { JournalEntryCardComponent } from './journal-entry-card/journal-entry-ca
 import { LeafDoctorDialogComponent } from './leaf-doctor-dialog/leaf-doctor-dialog';
 import {
   CATEGORY_ICON,
-  CATEGORY_LABEL,
+  CATEGORY_KEY,
   CATEGORY_OPTIONS,
   type LogCategoryType,
 } from './journal-categories';
@@ -41,11 +43,15 @@ type DayGroup = {
   entries: ResolvedEntry[];
 };
 
-type FilterOption = { label: string; value: LogCategoryType | null; icon: string | null };
+type FilterOption = { labelKey: string; value: LogCategoryType | null; icon: string | null };
 
 const CATEGORY_FILTER_OPTIONS: FilterOption[] = [
-  { label: 'All', value: null, icon: null },
-  ...CATEGORY_OPTIONS.map((opt) => ({ ...opt, icon: CATEGORY_ICON[opt.value] })),
+  { labelKey: 'journal.category.all', value: null, icon: null },
+  ...CATEGORY_OPTIONS.map((opt) => ({
+    labelKey: CATEGORY_KEY[opt.value],
+    value: opt.value,
+    icon: CATEGORY_ICON[opt.value],
+  })),
 ];
 
 @Component({
@@ -58,6 +64,7 @@ const CATEGORY_FILTER_OPTIONS: FilterOption[] = [
     PlantSelectComponent,
     MessageModule,
     ConfirmDialogModule,
+    TranslocoPipe,
     JournalEntryFormComponent,
     JournalEntryCardComponent,
     LeafDoctorDialogComponent,
@@ -72,6 +79,8 @@ export class JournalComponent {
   private readonly messageService = inject(MessageService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly router = inject(Router);
+  private readonly t = inject(TranslocoService);
+  private readonly localeService = inject(LocaleService);
   protected readonly journalService = inject(JournalService);
 
   protected readonly FloraToastPT = FloraToastPT;
@@ -93,6 +102,7 @@ export class JournalComponent {
   readonly loading = computed(() => this.plantService.loading());
 
   readonly plantSelectOptions = computed((): PlantOptionGroup[] => {
+    const _lang = this.localeService.locale();
     const plants = this.plantService.plants();
     const zones = this.zoneService.zones();
     const thumbnailMap = this.plantThumbnailService.thumbnailMap();
@@ -104,7 +114,7 @@ export class JournalComponent {
 
     const allPlantsGroup: PlantOptionGroup = {
       label: '',
-      items: [{ label: 'All plants', value: null, scientificName: null }],
+      items: [{ label: this.t.translate('journal.allPlants'), value: null, scientificName: null }],
     };
 
     const groups = new Map<string, PlantOptionGroup>(
@@ -131,7 +141,7 @@ export class JournalComponent {
     const result: PlantOptionGroup[] = [allPlantsGroup];
     result.push(...[...groups.values()].filter((g) => g.items.length > 0));
     if (ungrouped.length > 0) {
-      result.push({ label: 'Other', items: ungrouped });
+      result.push({ label: this.t.translate('journal.otherGroup'), items: ungrouped });
     }
     return result;
   });
@@ -160,6 +170,8 @@ export class JournalComponent {
   );
 
   readonly entriesByDay = computed((): DayGroup[] => {
+    const lang = this.localeService.locale();
+    const bcp47 = lang === 'nl' ? 'nl-NL' : lang === 'fr' ? 'fr-FR' : 'en-GB';
     const groups = new Map<string, DayGroup>();
     for (const entry of this.resolvedEntries()) {
       const d = new Date(entry.logged_at);
@@ -171,7 +183,7 @@ export class JournalComponent {
         groups.set(key, {
           dateKey: key,
           dayNumber: d.getDate(),
-          monthYear: d.toLocaleString('en-GB', { month: 'short', year: 'numeric' }).toUpperCase(),
+          monthYear: d.toLocaleString(bcp47, { month: 'short', year: 'numeric' }).toUpperCase(),
           entries: [entry],
         });
       }
@@ -180,8 +192,9 @@ export class JournalComponent {
   });
 
   readonly selectedCategoryLabel = computed(() => {
+    const _lang = this.localeService.locale();
     const cat = this.selectedCategory();
-    return cat ? CATEGORY_LABEL[cat] : null;
+    return cat ? this.t.translate(CATEGORY_KEY[cat]) : null;
   });
 
   constructor() {
@@ -206,10 +219,13 @@ export class JournalComponent {
 
   onDeleteRequested(entry: JournalEntryWithPlant): void {
     this.confirmationService.confirm({
-      message: `Delete this ${entry.category} entry for ${entry.plants.common_name}? This cannot be undone.`,
-      header: 'Delete entry',
-      acceptLabel: 'Delete entry',
-      rejectLabel: 'Cancel',
+      message: this.t.translate('journal.confirm.deleteMessage', {
+        category: this.t.translate(CATEGORY_KEY[entry.category]),
+        plant: entry.plants.common_name,
+      }),
+      header: this.t.translate('journal.confirm.deleteHeader'),
+      acceptLabel: this.t.translate('journal.confirm.deleteAccept'),
+      rejectLabel: this.t.translate('journal.confirm.deleteReject'),
       accept: () => void this.executeDelete(entry),
     });
   }
@@ -220,13 +236,13 @@ export class JournalComponent {
       await this.journalService.loadEntries();
       this.messageService.add({
         severity: 'success',
-        summary: 'Entry deleted',
-        detail: 'The care event has been removed.',
+        summary: this.t.translate('journal.toast.deleteSuccess'),
+        detail: this.t.translate('journal.toast.deleteSuccessDetail'),
       });
     } catch (e) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Failed to delete entry',
+        summary: this.t.translate('journal.toast.deleteFailed'),
         detail: e instanceof Error ? e.message : 'Unexpected error.',
       });
     }

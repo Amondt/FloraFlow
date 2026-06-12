@@ -1,6 +1,10 @@
 <article
   class="bg-white dark:bg-neutral-800 rounded-garden-md border border-neutral-200 dark:border-neutral-700 flex flex-col"
-  [attr.aria-label]="entry().plants.common_name + ' — ' + categoryLabel() + ' — ' + formattedWhen()"
+  [attr.aria-label]="
+    'journal.entryCard.cardAriaLabel'
+      | transloco
+        : { plant: entry().plants.common_name, category: categoryLabel(), when: formattedWhen() }
+  "
 >
   <!-- Top row: icon/photo + entry body -->
   <div class="px-3.5 pt-3.5 pb-3 flex gap-3.5">
@@ -13,7 +17,10 @@
         <button
           type="button"
           class="w-full h-full cursor-zoom-in focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
-          [attr.aria-label]="'View full-size photo for ' + entry().plants.common_name"
+          [attr.aria-label]="
+            'journal.entryCard.viewPhotoAriaLabel'
+              | transloco: { plant: entry().plants.common_name }
+          "
           (click)="showLightbox.set(true)"
         >
           <img [src]="imageUrl()" alt="" class="w-full h-full object-cover" />
@@ -58,7 +65,7 @@
           class="text-sm text-neutral-600 dark:text-neutral-300 font-display leading-snug flex items-center gap-1.5"
         >
           <i class="pi pi-check-circle text-success-500 text-sm shrink-0" aria-hidden="true"></i>
-          Healthy checkup
+          {{ 'journal.entryCard.healthyCheckup' | transloco }}
           @if (healthyIdentifiedPlant()) {
             <span class="text-neutral-400 dark:text-neutral-500"
               >· {{ healthyIdentifiedPlant() }}</span
@@ -86,7 +93,10 @@
     <div
       class="px-3.5 py-2.5 border-t border-yellow-100 dark:border-yellow-900/40 bg-yellow-50 dark:bg-yellow-900/10"
       role="alert"
-      [attr.aria-label]="'Species mismatch warning for ' + entry().plants.common_name"
+      [attr.aria-label]="
+        'journal.entryCard.speciesMismatchAriaLabel'
+          | transloco: { plant: entry().plants.common_name }
+      "
     >
       <p
         class="flex items-start gap-1.5 text-xs font-display text-warning-500 dark:text-yellow-400"
@@ -95,9 +105,7 @@
           class="pi pi-exclamation-triangle text-[10px] flex-shrink-0 mt-0.5"
           aria-hidden="true"
         ></i>
-        Leaf Doctor identified this as
-        <span class="font-semibold italic">{{ speciesMismatchWarning() }}</span>
-        — the plant may be misidentified.
+        {{ 'journal.entryCard.mismatchWarning' | transloco: { name: speciesMismatchWarning() } }}
       </p>
     </div>
   }
@@ -110,31 +118,36 @@
       type="button"
       class="inline-flex items-center gap-1 text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
       [attr.aria-label]="
-        'Edit this ' + categoryLabel() + ' entry for ' + entry().plants.common_name
+        'journal.entryCard.editAriaLabel'
+          | transloco: { category: categoryLabel(), plant: entry().plants.common_name }
       "
       (click)="editRequested.emit()"
     >
       <i class="pi pi-pencil text-[10px]" aria-hidden="true"></i>
-      Edit
+      {{ 'journal.entryCard.edit' | transloco }}
     </button>
 
     <button
       type="button"
       class="inline-flex items-center gap-1 text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-danger-500 transition-colors cursor-pointer px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-danger-500"
       [attr.aria-label]="
-        'Delete this ' + categoryLabel() + ' entry for ' + entry().plants.common_name
+        'journal.entryCard.deleteAriaLabel'
+          | transloco: { category: categoryLabel(), plant: entry().plants.common_name }
       "
       (click)="deleteRequested.emit()"
     >
       <i class="pi pi-trash text-[10px]" aria-hidden="true"></i>
-      Delete
+      {{ 'journal.entryCard.delete' | transloco }}
     </button>
 
     @if (sickDiagnostics()) {
       <button
         type="button"
         class="inline-flex items-center gap-2 text-xs font-semibold font-display text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-        [attr.aria-label]="'Toggle Leaf Doctor action points for ' + entry().plants.common_name"
+        [attr.aria-label]="
+          'journal.entryCard.actionPointsAriaLabel'
+            | transloco: { plant: entry().plants.common_name }
+        "
         [attr.aria-expanded]="showDiagnostics()"
         [attr.aria-controls]="'diag-' + entry().id"
         (click)="toggleDiagnostics()"
@@ -143,7 +156,7 @@
           class="pi pi-eye text-primary-500 dark:text-primary-400 text-[10px]"
           aria-hidden="true"
         ></i>
-        Action points
+        {{ 'journal.entryCard.actionPoints' | transloco }}
         <i
           class="pi pi-chevron-down text-[10px] transition-transform duration-150"
           [class.rotate-180]="showDiagnostics()"
@@ -159,12 +172,12 @@
         [attr.id]="'diag-' + entry().id"
         class="border-t border-neutral-100 dark:border-neutral-700 px-3.5 py-3.5 relative z-20"
         role="region"
-        aria-label="Leaf Doctor action points"
+        [attr.aria-label]="'journal.entryCard.actionPointsRegionAriaLabel' | transloco"
       >
         @if (diag.immediate_remedial_actions.length) {
           <ul
             class="list-disc pl-4 space-y-0.5 text-xs font-display text-neutral-700 dark:text-neutral-300"
-            aria-label="Action points"
+            [attr.aria-label]="'journal.entryCard.actionPointsListAriaLabel' | transloco"
           >
             @for (action of diag.immediate_remedial_actions; track $index) {
               <li>{{ action }}</li>
@@ -194,8 +207,8 @@
       />
       <button
         type="button"
-        class="absolute top-4 right-4 flex items-center justify-center w-9 h-9 rounded-full bg-neutral-800/70 text-white hover:bg-neutral-700/90 transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 outline-none"
-        aria-label="Close full-size photo"
+        class="absolute top-4 right-4 flex items-center justify-center w-9 h-9 rounded-full bg-neutral-800/70 text-white hover:bg-neutral-700/90 transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 outline-none cursor-pointer"
+        [attr.aria-label]="'journal.entryCard.closePhotoAriaLabel' | transloco"
         (click)="showLightbox.set(false)"
       >
         <i class="pi pi-times text-sm" aria-hidden="true"></i>

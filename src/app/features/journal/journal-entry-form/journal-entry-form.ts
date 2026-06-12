@@ -18,6 +18,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageService } from 'primeng/api';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import {
   FloraFormDialogPT,
   FloraSelectPT,
@@ -34,7 +35,7 @@ import { JournalService, type JournalEntryWithPlant } from '../journal.service';
 import { PlantThumbnailService } from '../../../core/services/plant-thumbnail.service';
 import { ImageCompressorService } from '../../../core/services/image-compressor.service';
 import { SupabaseService } from '../../../core/services/supabase.service';
-import { CATEGORY_OPTIONS, CATEGORY_LABEL, type LogCategoryType } from '../journal-categories';
+import { CATEGORY_OPTIONS, CATEGORY_KEY, type LogCategoryType } from '../journal-categories';
 import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-icon';
 
 interface PlantItemOption {
@@ -54,6 +55,7 @@ interface PlantItemOption {
     TextareaModule,
     ButtonModule,
     InputTextModule,
+    TranslocoPipe,
     LeafIconComponent,
   ],
   templateUrl: './journal-entry-form.html',
@@ -66,6 +68,7 @@ export class JournalEntryFormComponent implements OnDestroy {
   private readonly compressor = inject(ImageCompressorService);
   private readonly supabase = inject(SupabaseService);
   private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
 
   readonly visible = model<boolean>(false);
   readonly preselectedPlantId = input<string | null>(null);
@@ -81,7 +84,12 @@ export class JournalEntryFormComponent implements OnDestroy {
   protected readonly FloraInputTextPT = FloraInputTextPT;
   protected readonly FLORA_ERROR = FLORA_ERROR;
   protected readonly FLORA_FOCUS = FLORA_FOCUS;
-  protected readonly categoryOptions = CATEGORY_OPTIONS;
+  protected readonly translatedCategoryOptions = computed(() =>
+    CATEGORY_OPTIONS.map((opt) => ({
+      ...opt,
+      label: this.t.translate(CATEGORY_KEY[opt.value]),
+    })),
+  );
   protected readonly todayIso = (() => {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -161,7 +169,8 @@ export class JournalEntryFormComponent implements OnDestroy {
   protected readonly lockedCategoryLabel = computed((): string => {
     const entry = this.editEntry();
     if (!entry) return '';
-    return CATEGORY_LABEL[entry.category as LogCategoryType] ?? entry.category;
+    const key = CATEGORY_KEY[entry.category as LogCategoryType];
+    return key ? this.t.translate(key) : entry.category;
   });
 
   get plantCtrl() {
@@ -243,8 +252,8 @@ export class JournalEntryFormComponent implements OnDestroy {
     } catch {
       this.messageService.add({
         severity: 'error',
-        summary: 'Image error',
-        detail: 'Could not process the selected image.',
+        summary: this.t.translate('journal.entryForm.toast.imageError'),
+        detail: this.t.translate('journal.entryForm.toast.imageErrorDetail'),
       });
     }
   }
@@ -291,8 +300,8 @@ export class JournalEntryFormComponent implements OnDestroy {
 
         this.messageService.add({
           severity: 'success',
-          summary: 'Entry updated',
-          detail: 'Your care event has been updated.',
+          summary: this.t.translate('journal.entryForm.toast.updateSuccess'),
+          detail: this.t.translate('journal.entryForm.toast.updateSuccessDetail'),
         });
       } else {
         const user = await this.supabase.getUser();
@@ -317,8 +326,8 @@ export class JournalEntryFormComponent implements OnDestroy {
 
         this.messageService.add({
           severity: 'success',
-          summary: 'Entry logged',
-          detail: 'Your care event has been recorded.',
+          summary: this.t.translate('journal.entryForm.toast.createSuccess'),
+          detail: this.t.translate('journal.entryForm.toast.createSuccessDetail'),
         });
       }
 
@@ -327,7 +336,11 @@ export class JournalEntryFormComponent implements OnDestroy {
     } catch (e) {
       this.messageService.add({
         severity: 'error',
-        summary: isEditing ? 'Failed to update entry' : 'Failed to log entry',
+        summary: this.t.translate(
+          isEditing
+            ? 'journal.entryForm.toast.updateFailed'
+            : 'journal.entryForm.toast.createFailed',
+        ),
         detail: e instanceof Error ? e.message : 'Unexpected error.',
       });
     } finally {

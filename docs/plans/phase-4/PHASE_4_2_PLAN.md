@@ -120,7 +120,7 @@ EN is always the source of truth and the `fallbackLang`.
   - Update `tasks.spec`, `soil-check-dialog.spec`, `plant-form-dialog.spec`, `plant.service.spec`.
   - format + lint + Manual Browser Check (tasks list, snooze/confirm flow, plant form — all locales).
 
-- [ ] **Block F — Journal & Leaf Doctor** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+- [x] **Block F — Journal & Leaf Doctor** | Agent: `/visualizer` · Model: Sonnet · Effort: low
   - `journal.html`, `journal-entry-card`, `journal-entry-form`, `leaf-doctor-dialog`,
     `leaf-doctor-badges`. Add `journal.*` + `leafDoctor.*` keys. Category label strings come from
     Block J's key map — reference, don't duplicate.

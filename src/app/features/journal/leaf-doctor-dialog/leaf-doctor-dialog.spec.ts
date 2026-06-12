@@ -1,6 +1,7 @@
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { signal } from '@angular/core';
+import { provideTranslocoTesting } from '../../../testing/transloco-testing';
 import { LeafDoctorDialogComponent } from './leaf-doctor-dialog';
 import { PlantService } from '../../tasks/plant.service';
 import { ZoneService } from '../../dashboard/zone.service';
@@ -23,6 +24,7 @@ describe('LeafDoctorDialogComponent — photo signals and computed gates', () =>
     await TestBed.configureTestingModule({
       imports: [LeafDoctorDialogComponent],
       providers: [
+        ...provideTranslocoTesting(),
         { provide: PlantService, useValue: { plants: signal([]) } },
         { provide: ZoneService, useValue: { zones: signal([]) } },
         {

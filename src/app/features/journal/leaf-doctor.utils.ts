@@ -10,6 +10,12 @@ export function confidenceBadgeLabel(score: number): string {
   return 'Confident';
 }
 
+export function confidenceBadgeKey(score: number): string {
+  if (score < 0.5) return 'leafDoctor.badge.confidenceUncertain';
+  if (score <= 0.75) return 'leafDoctor.badge.confidenceLow';
+  return 'leafDoctor.badge.confidenceHigh';
+}
+
 export function riskBadgeClass(risk: string): string {
   if (risk === 'ZoneContagious') return 'bg-warning-500/10 text-warning-500';
   if (risk === 'FatalThreat') return 'bg-danger-500/10 text-danger-700 dark:text-danger-500';
@@ -20,4 +26,10 @@ export function riskBadgeLabel(risk: string): string {
   if (risk === 'ZoneContagious') return 'May spread to nearby plants';
   if (risk === 'FatalThreat') return 'Fatal if untreated';
   return 'Contained — not spreading';
+}
+
+export function riskBadgeKey(risk: string): string {
+  if (risk === 'ZoneContagious') return 'leafDoctor.badge.riskContagious';
+  if (risk === 'FatalThreat') return 'leafDoctor.badge.riskFatal';
+  return 'leafDoctor.badge.riskContained';
 }

@@ -3,13 +3,16 @@ import {
   ElementRef,
   computed,
   effect,
+  inject,
   input,
   output,
   signal,
   viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CATEGORY_ICON, CATEGORY_LABEL, type LogCategoryType } from '../journal-categories';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { LocaleService } from '../../../core/services/locale.service';
+import { CATEGORY_ICON, CATEGORY_KEY, type LogCategoryType } from '../journal-categories';
 import {
   type JournalEntryWithPlant,
   type LeafDoctorDiagnostics,
@@ -50,10 +53,12 @@ const CATEGORY_ICON_COLOR: Record<LogCategoryType, string> = {
 @Component({
   selector: 'app-journal-entry-card',
   standalone: true,
-  imports: [RouterLink, LeafDoctorBadgesComponent],
+  imports: [RouterLink, TranslocoPipe, LeafDoctorBadgesComponent],
   templateUrl: './journal-entry-card.html',
 })
 export class JournalEntryCardComponent {
+  private readonly t = inject(TranslocoService);
+  private readonly localeService = inject(LocaleService);
   readonly entry = input.required<JournalEntryWithPlant>();
   readonly imageUrl = input.required<string | null>();
   readonly editRequested = output<void>();
@@ -103,7 +108,10 @@ export class JournalEntryCardComponent {
     () => `${BADGE_BASE} ${CATEGORY_COLOR[this.entry().category]}`,
   );
 
-  protected readonly categoryLabel = computed(() => CATEGORY_LABEL[this.entry().category]);
+  protected readonly categoryLabel = computed(() => {
+    const _lang = this.localeService.locale();
+    return this.t.translate(CATEGORY_KEY[this.entry().category]);
+  });
 
   protected readonly iconBoxClass = computed(() => CATEGORY_ICON_BOX_BG[this.entry().category]);
 
@@ -113,17 +121,19 @@ export class JournalEntryCardComponent {
   );
 
   protected readonly formattedWhen = computed(() => {
+    const lang = this.localeService.locale();
     const d = new Date(this.entry().logged_at);
     const todayStr = new Date().toDateString();
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
+    const locale = lang === 'nl' ? 'nl-NL' : lang === 'fr' ? 'fr-FR' : 'en-GB';
 
     if (d.toDateString() === todayStr) {
-      return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+      return d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
     }
     if (d.toDateString() === yesterday.toDateString()) {
-      return 'Yesterday';
+      return this.t.translate('journal.entryCard.yesterday');
     }
-    return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+    return d.toLocaleDateString(locale, { weekday: 'short', day: 'numeric', month: 'short' });
   });
 }

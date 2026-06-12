@@ -1,4 +1,5 @@
 import { Component, computed, effect, input, signal, viewChild } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { ReactiveFormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -27,6 +28,7 @@ import { WINDOW_ORIENTATION_OPTIONS, ZoneFormGroup, ZoneType } from '../zone.mod
     InputNumberModule,
     SelectModule,
     ToggleSwitchModule,
+    TranslocoPipe,
   ],
   templateUrl: './zone-form-fields.html',
 })

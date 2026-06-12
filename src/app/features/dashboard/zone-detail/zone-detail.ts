@@ -8,6 +8,8 @@ import {
   signal,
   untracked,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { RouterLink } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -68,6 +70,7 @@ interface EnrichedPlant {
     PhotoLightboxDialogComponent,
     CareRecommendationsPanelComponent,
     BotanicalTagsComponent,
+    TranslocoPipe,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './zone-detail.html',
@@ -82,6 +85,10 @@ export class ZoneDetailComponent {
   private readonly messageService = inject(MessageService);
   private readonly confirmService = inject(ConfirmationService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly t = inject(TranslocoService);
+  private readonly _activeLang = toSignal(this.t.langChanges$, {
+    initialValue: this.t.getActiveLang(),
+  });
 
   protected readonly FloraConfirmDialogPT = FloraConfirmDialogPT;
   protected readonly FloraSkeletonPT = FloraSkeletonPT;
@@ -93,10 +100,10 @@ export class ZoneDetailComponent {
   readonly sortDir = signal<SortDir>('asc');
   readonly searchQuery = signal('');
 
-  protected readonly sortOptions: { field: SortField; label: string }[] = [
-    { field: 'due-date', label: 'Due date' },
-    { field: 'name', label: 'Name' },
-    { field: 'last-checked', label: 'Last checked' },
+  protected readonly sortOptions: { field: SortField; labelKey: string }[] = [
+    { field: 'due-date', labelKey: 'zones.sort.dueDate' },
+    { field: 'name', labelKey: 'zones.sort.name' },
+    { field: 'last-checked', labelKey: 'zones.sort.lastChecked' },
   ];
 
   // ── Zone + plant data ─────────────────────────────────────────
@@ -122,6 +129,7 @@ export class ZoneDetailComponent {
       startOfToday.getMonth(),
       startOfToday.getDate() + 1,
     );
+    this._activeLang();
     const pendingIds = this._deleteManager.pendingIds();
     const query = this.searchQuery().toLowerCase().trim();
     const field = this.sortField();
@@ -157,20 +165,20 @@ export class ZoneDetailComponent {
       const daysOverdue = Math.round((startOfToday.getTime() - due.getTime()) / 86_400_000);
       const nextCheckLabel =
         status === 'overdue'
-          ? `Overdue · ${daysOverdue}d`
+          ? this.t.translate('zones.detail.overdue', { days: daysOverdue })
           : status === 'due-today'
-            ? 'Due today'
+            ? this.t.translate('zones.detail.dueToday')
             : due.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 
       const ts = plant.last_checked_at;
       let lastCheckedLabel: string;
       if (!ts) {
-        lastCheckedLabel = 'Never checked';
+        lastCheckedLabel = this.t.translate('zones.detail.neverChecked');
       } else {
         const days = daysSince(ts);
-        if (days === 0) lastCheckedLabel = 'Checked today';
-        else if (days === 1) lastCheckedLabel = 'Checked yesterday';
-        else lastCheckedLabel = `Checked ${days}d ago`;
+        if (days === 0) lastCheckedLabel = this.t.translate('zones.detail.checkedToday');
+        else if (days === 1) lastCheckedLabel = this.t.translate('zones.detail.checkedYesterday');
+        else lastCheckedLabel = this.t.translate('zones.detail.checkedDaysAgo', { days });
       }
 
       return { plant, status, nextCheckLabel, lastCheckedLabel };
@@ -227,6 +235,7 @@ export class ZoneDetailComponent {
 
   // Plant–zone compatibility warnings. Each entry is keyed by plant.id.
   protected readonly incompatibilities = computed((): Map<string, string[]> => {
+    this._activeLang();
     const zone = this.zone();
     const map = new Map<string, string[]>();
     if (!zone) return map;
@@ -246,9 +255,9 @@ export class ZoneDetailComponent {
 
       // 1. Placement mismatch
       if (botanical.placement === 'Indoor' && zone.zone_type === 'outdoor') {
-        warnings.push('Prefers indoor conditions');
+        warnings.push(this.t.translate('zones.incompatibility.prefersIndoor'));
       } else if (botanical.placement === 'Outdoor' && zone.zone_type === 'indoor') {
-        warnings.push('Prefers outdoor conditions');
+        warnings.push(this.t.translate('zones.incompatibility.prefersOutdoor'));
       }
 
       // 2. Zone humidity below the plant's documented ideal minimum
@@ -257,7 +266,10 @@ export class ZoneDetailComponent {
         zone.humidity_baseline < botanical.ideal_humidity_min
       ) {
         warnings.push(
-          `Zone humidity (${zone.humidity_baseline}%) below this plant's minimum (${botanical.ideal_humidity_min}%)`,
+          this.t.translate('zones.incompatibility.humidityLow', {
+            zoneHumidity: zone.humidity_baseline,
+            minHumidity: botanical.ideal_humidity_min,
+          }),
         );
       }
 
@@ -273,15 +285,15 @@ export class ZoneDetailComponent {
           const needsLowLight = !sunlight.includes('full_sun') && !sunlight.includes('part_shade');
 
           if (orientation === 'None' && !zone.has_grow_lights) {
-            warnings.push('No natural light source — grow lights recommended');
+            warnings.push(this.t.translate('zones.incompatibility.noLight'));
           } else if (
             lowLightOrientations.has(orientation) &&
             needsHighLight &&
             !zone.has_grow_lights
           ) {
-            warnings.push('Needs direct sunlight — north-facing zones provide little');
+            warnings.push(this.t.translate('zones.incompatibility.needsDirectLight'));
           } else if (highLightOrientations.has(orientation) && needsLowLight) {
-            warnings.push('Prefers indirect light — direct sun may cause leaf scorch');
+            warnings.push(this.t.translate('zones.incompatibility.tooMuchLight'));
           }
         }
       }
@@ -326,14 +338,14 @@ export class ZoneDetailComponent {
     if (this.zoneService.error()) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Update failed',
+        summary: this.t.translate('zones.toast.updateFailed'),
         detail: this.zoneService.error()!,
       });
     } else {
       this.messageService.add({
         severity: 'success',
-        summary: 'Zone updated',
-        detail: `"${formData.name}" has been saved.`,
+        summary: this.t.translate('zones.toast.zoneUpdated'),
+        detail: this.t.translate('zones.toast.zoneUpdatedDetail', { name: formData.name }),
       });
     }
   }
@@ -355,7 +367,7 @@ export class ZoneDetailComponent {
     if (this.plantService.error()) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Check failed',
+        summary: this.t.translate('zones.toast.checkFailed'),
         detail: this.plantService.error()!,
       });
       return;
@@ -367,8 +379,10 @@ export class ZoneDetailComponent {
     }
     this.messageService.add({
       severity: 'success',
-      summary: 'Watering logged',
-      detail: `Watering for "${payload.plant.common_name}" added to your journal.`,
+      summary: this.t.translate('zones.toast.wateringLogged'),
+      detail: this.t.translate('zones.toast.wateringLoggedDetail', {
+        name: payload.plant.common_name,
+      }),
     });
   }
 
@@ -377,14 +391,14 @@ export class ZoneDetailComponent {
     if (this.plantService.error()) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Snooze failed',
+        summary: this.t.translate('zones.toast.snoozeFailed'),
         detail: this.plantService.error()!,
       });
     } else {
       this.messageService.add({
         severity: 'info',
-        summary: 'Check snoozed',
-        detail: 'Next check rescheduled.',
+        summary: this.t.translate('zones.toast.checkSnoozed'),
+        detail: this.t.translate('zones.toast.checkSnoozedDetail'),
       });
     }
   }
@@ -412,8 +426,10 @@ export class ZoneDetailComponent {
     } else {
       this.messageService.add({
         severity: 'warn',
-        summary: 'No species data',
-        detail: `No botanical record found for "${plant.scientific_name}".`,
+        summary: this.t.translate('zones.toast.noSpeciesData'),
+        detail: this.t.translate('zones.toast.noSpeciesDataDetail', {
+          species: plant.scientific_name,
+        }),
       });
     }
   }
@@ -521,14 +537,16 @@ export class ZoneDetailComponent {
       if (this.plantService.error()) {
         this.messageService.add({
           severity: 'error',
-          summary: 'Update failed',
+          summary: this.t.translate('zones.toast.plantUpdateFailed'),
           detail: this.plantService.error()!,
         });
       } else {
         this.messageService.add({
           severity: 'success',
-          summary: 'Plant updated',
-          detail: `"${formData.common_name}" has been saved.`,
+          summary: this.t.translate('zones.toast.plantUpdated'),
+          detail: this.t.translate('zones.toast.plantUpdatedDetail', {
+            name: formData.common_name,
+          }),
         });
       }
     } else {
@@ -536,7 +554,7 @@ export class ZoneDetailComponent {
       if (this.plantService.error() || !newPlant) {
         this.messageService.add({
           severity: 'error',
-          summary: 'Add plant failed',
+          summary: this.t.translate('zones.toast.plantAddFailed'),
           detail: this.plantService.error() ?? 'Something went wrong.',
         });
       } else {
@@ -551,15 +569,15 @@ export class ZoneDetailComponent {
 
   onDeleteRequested(plant: Plant): void {
     this.confirmService.confirm({
-      message: `Remove "${plant.common_name}"? You can undo this.`,
-      header: 'Delete plant',
-      acceptLabel: 'Delete',
-      rejectLabel: 'Cancel',
+      message: this.t.translate('zones.toast.plantDeleteMessage', { name: plant.common_name }),
+      header: this.t.translate('zones.toast.plantDeleteHeader'),
+      acceptLabel: this.t.translate('common.delete'),
+      rejectLabel: this.t.translate('common.cancel'),
       accept: () => {
         this.messageService.add({
           severity: 'warn',
-          summary: 'Plant deleted',
-          detail: `"${plant.common_name}" removed. Tap Undo to cancel.`,
+          summary: this.t.translate('zones.toast.plantDeleted'),
+          detail: this.t.translate('zones.toast.plantDeletedDetail', { name: plant.common_name }),
           life: 5000,
           data: { canUndo: true, id: plant.id },
         });
@@ -568,7 +586,7 @@ export class ZoneDetailComponent {
           if (this.plantService.error()) {
             this.messageService.add({
               severity: 'error',
-              summary: 'Delete failed',
+              summary: this.t.translate('zones.toast.plantDeleteFailed'),
               detail: this.plantService.error()!,
             });
           }

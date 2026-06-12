@@ -1,7 +1,7 @@
 <p-dialog
   [visible]="visible()"
   (visibleChange)="visible.set($event)"
-  [header]="dialogTitle()"
+  [header]="dialogTitle() | transloco"
   [modal]="true"
   [dismissableMask]="true"
   [draggable]="false"
@@ -14,23 +14,23 @@
     (ngSubmit)="onSubmit()"
     novalidate
     class="flex flex-col gap-5"
-    aria-label="Zone details form"
+    [attr.aria-label]="'zones.form.formAriaLabel' | transloco"
   >
     <app-zone-form-fields [form]="form" />
   </form>
 
   <ng-template #footer>
     <p-button
-      label="Cancel"
+      [label]="'zones.form.cancel' | transloco"
       variant="text"
       [pt]="FloraButtonPT"
-      ariaLabel="Cancel and close dialog"
+      [ariaLabel]="'zones.form.cancelAriaLabel' | transloco"
       (onClick)="onCancel()"
     />
     <p-button
-      label="Save zone"
+      [label]="'zones.form.save' | transloco"
       [pt]="FloraButtonPT"
-      ariaLabel="Save zone details"
+      [ariaLabel]="'zones.form.saveAriaLabel' | transloco"
       (onClick)="onSubmit()"
     />
   </ng-template>

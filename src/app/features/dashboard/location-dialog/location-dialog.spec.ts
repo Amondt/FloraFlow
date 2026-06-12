@@ -3,6 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import type { WritableSignal } from '@angular/core';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { LocationDialogComponent, type GeoResult } from './location-dialog';
+import { provideTranslocoTesting } from '../../../testing/transloco-testing';
 
 // Typed harness for protected members — avoids `any` while allowing test access.
 type LocationDialogHarness = {
@@ -28,7 +29,7 @@ describe('LocationDialogComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [LocationDialogComponent],
-      providers: [provideHttpClient()],
+      providers: [provideHttpClient(), provideTranslocoTesting()],
     })
       .overrideTemplate(LocationDialogComponent, '')
       .compileComponents();

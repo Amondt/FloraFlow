@@ -11,6 +11,7 @@ import {
 import { ReactiveFormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { FloraDialogPT, FloraButtonPT } from '../../../shared/ui/pt/index';
 import { createZoneFormGroup, Zone, ZoneFormData } from '../zone.model';
 import { ZoneFormFieldsComponent } from '../zone-form-fields/zone-form-fields';
@@ -18,7 +19,13 @@ import { ZoneFormFieldsComponent } from '../zone-form-fields/zone-form-fields';
 @Component({
   selector: 'app-zone-form',
   standalone: true,
-  imports: [ReactiveFormsModule, DialogModule, ButtonModule, ZoneFormFieldsComponent],
+  imports: [
+    ReactiveFormsModule,
+    DialogModule,
+    ButtonModule,
+    ZoneFormFieldsComponent,
+    TranslocoPipe,
+  ],
   templateUrl: './zone-form.html',
 })
 export class ZoneFormComponent {
@@ -29,7 +36,9 @@ export class ZoneFormComponent {
   protected readonly FloraDialogPT = FloraDialogPT;
   protected readonly FloraButtonPT = FloraButtonPT;
 
-  readonly dialogTitle = computed(() => (this.editZone() ? 'Edit Zone' : 'Add Zone'));
+  readonly dialogTitle = computed(() =>
+    this.editZone() ? 'zones.form.titleEdit' : 'zones.form.titleCreate',
+  );
 
   readonly form = createZoneFormGroup();
 

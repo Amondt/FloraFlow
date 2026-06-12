@@ -24,11 +24,11 @@
             aria-atomic="true"
           >
             @if (zoneService.loading() || plantService.loading()) {
-              Loading your greenhouse&hellip;
+              {{ 'dashboard.loading' | transloco }}
             } @else {
-              {{ totalPlantCount() }} {{ totalPlantCount() === 1 ? 'plant' : 'plants' }}
-              across
-              {{ totalZoneCount() }} {{ totalZoneCount() === 1 ? 'zone' : 'zones' }}
+              {{ 'dashboard.plantCount' | transloco: { count: totalPlantCount() } }}
+              {{ 'dashboard.across' | transloco }}
+              {{ 'dashboard.zoneCount' | transloco: { count: totalZoneCount() } }}
             }
           </p>
           @if (hasLocation()) {
@@ -36,10 +36,13 @@
               type="button"
               (click)="openLocationDialog()"
               class="cursor-pointer inline-flex items-center gap-1.5 text-xs font-medium font-display text-neutral-500 hover:text-primary-600 transition-colors duration-150 mt-1 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
-              aria-label="Edit frost alert location"
+              [attr.aria-label]="'dashboard.editLocationAriaLabel' | transloco"
             >
               <i class="pi pi-map-marker text-xs" aria-hidden="true"></i>
-              {{ profileService.profile()?.location_name ?? 'Location set' }}
+              {{
+                profileService.profile()?.location_name ??
+                  ('dashboard.locationSetFallback' | transloco)
+              }}
             </button>
           }
         </div>
@@ -50,11 +53,11 @@
           <button
             type="button"
             class="cursor-pointer inline-flex items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
-            aria-label="Identify a plant from a photo"
+            [attr.aria-label]="'dashboard.identifyPlantAriaLabel' | transloco"
             (click)="openIdentifierDialog()"
           >
             <i class="pi pi-camera text-xs" aria-hidden="true"></i>
-            Identify plant
+            {{ 'dashboard.identifyPlant' | transloco }}
           </button>
 
           <!-- Add plant -->
@@ -65,8 +68,8 @@
               [attr.aria-disabled]="totalZoneCount() === 0 || null"
               [attr.aria-label]="
                 totalZoneCount() === 0
-                  ? 'Add plant — add a zone first'
-                  : 'Add a new plant to your greenhouse'
+                  ? ('dashboard.addPlantDisabledAriaLabel' | transloco)
+                  : ('dashboard.addPlantAriaLabel' | transloco)
               "
               class="inline-flex items-center gap-1.5 text-sm font-medium font-display outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1 transition-colors duration-150"
               [class]="
@@ -77,13 +80,13 @@
               (click)="openAddPlantDialog()"
             >
               <i class="pi pi-plus text-xs" aria-hidden="true"></i>
-              Add plant
+              {{ 'dashboard.addPlant' | transloco }}
             </button>
             @if (totalZoneCount() === 0) {
               <span
                 class="absolute top-full left-0 right-0 mt-0.5 text-center text-xs font-display text-neutral-400 dark:text-neutral-500 pointer-events-none whitespace-nowrap"
                 aria-hidden="true"
-                >Add a zone first</span
+                >{{ 'dashboard.addZoneFirst' | transloco }}</span
               >
             }
           </div>
@@ -93,10 +96,12 @@
 
     <!-- ── Frost alert / Location prompt ────────────────────────────── -->
     @if (outdoorZones().length > 0 && weatherService.hasFrostRisk()) {
+      @let frostLocName =
+        profileService.profile()?.location_name ?? ('dashboard.yourLocation' | transloco);
       <section
         role="alert"
         aria-live="assertive"
-        aria-label="Frost risk warning"
+        [attr.aria-label]="'dashboard.frostRiskAriaLabel' | transloco"
         class="flex items-start gap-3 bg-amber-50 dark:bg-yellow-900/20 border border-warning-500 dark:border-yellow-700/50 rounded-garden-md p-4 mb-6"
       >
         <i
@@ -105,12 +110,18 @@
         ></i>
         <div class="flex-1">
           <p class="text-sm font-semibold font-display text-warning-500">
-            Frost risk — next 24 hours
+            {{ 'dashboard.frostRiskHeading' | transloco }}
           </p>
           <p class="text-sm font-display text-neutral-600 dark:text-neutral-300 mt-0.5">
-            Low of {{ weatherService.weather()?.min_temp_next_24h }}°C near
-            {{ profileService.profile()?.location_name ?? 'your location' }}. Protect plants in
-            {{ outdoorZoneNames() }}.
+            {{
+              'dashboard.frostRiskBody'
+                | transloco
+                  : {
+                      minTemp: weatherService.weather()?.min_temp_next_24h,
+                      locationName: frostLocName,
+                      zones: outdoorZoneNames(),
+                    }
+            }}
           </p>
         </div>
       </section>
@@ -122,19 +133,19 @@
           type="button"
           (click)="openLocationDialog()"
           class="cursor-pointer text-primary-600 dark:text-primary-400 underline hover:text-primary-700 dark:hover:text-primary-300 font-medium outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
-          aria-label="Set your location to enable frost alerts"
+          [attr.aria-label]="'dashboard.setLocationAriaLabel' | transloco"
         >
-          Set your location
+          {{ 'dashboard.setLocation' | transloco }}
         </button>
-        to enable frost alerts for your outdoor zones.
+        {{ 'dashboard.setLocationSuffix' | transloco }}
       </p>
     }
 
     <!-- ── Error banners ─────────────────────────────────────────────── -->
     @if (zoneService.error()) {
-      <section aria-label="Zone load error" class="mb-6">
+      <section [attr.aria-label]="'dashboard.zoneLoadErrorAriaLabel' | transloco" class="mb-6">
         <p-message severity="error" [pt]="FloraMessagePT">
-          Failed to load zones — {{ zoneService.error() }}
+          {{ 'dashboard.zoneLoadError' | transloco: { error: zoneService.error() } }}
         </p-message>
       </section>
     }
@@ -147,7 +158,7 @@
             id="attention-heading"
             class="text-xs font-semibold uppercase tracking-widest font-display text-neutral-500 dark:text-neutral-400"
           >
-            Today's check tasks
+            {{ 'dashboard.todaysCheckTasks' | transloco }}
           </h2>
           @if (!plantService.loading() && attentionChips().length > 0) {
             <p
@@ -156,14 +167,18 @@
               aria-atomic="true"
             >
               @if (attentionOverdueCount() > 0) {
-                <strong class="text-warning-500 font-semibold"
-                  >{{ attentionOverdueCount() }} overdue</strong
-                >
+                <strong class="text-warning-500 font-semibold">{{
+                  'dashboard.overdueCount' | transloco: { count: attentionOverdueCount() }
+                }}</strong>
                 @if (attentionChips().length - attentionOverdueCount() > 0) {
-                  &nbsp;· {{ attentionChips().length - attentionOverdueCount() }} due soon
+                  &nbsp;·
+                  {{
+                    'dashboard.dueSoonCount'
+                      | transloco: { count: attentionChips().length - attentionOverdueCount() }
+                  }}
                 }
               } @else {
-                {{ attentionChips().length }} due soon
+                {{ 'dashboard.dueSoonCount' | transloco: { count: attentionChips().length } }}
               }
             </p>
           }
@@ -173,7 +188,7 @@
           <!-- Skeleton cards while plants load -->
           <ul
             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-            aria-label="Loading check tasks"
+            [attr.aria-label]="'dashboard.loadingTasksAriaLabel' | transloco"
           >
             @for (n of [1, 2, 3]; track n) {
               <li aria-hidden="true">
@@ -185,7 +200,7 @@
           <!-- Task cards grid -->
           <ul
             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-            aria-label="Plants needing attention"
+            [attr.aria-label]="'dashboard.attentionAriaLabel' | transloco"
           >
             @for (chip of attentionChips(); track chip.plant.id) {
               @let thumbUrl = thumbnailService.thumbnailFor(chip.plant.scientific_name);
@@ -243,9 +258,9 @@
           <a
             routerLink="/tasks"
             class="mt-3 inline-flex items-center gap-1 text-xs font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
-            aria-label="View all plants in Tasks"
+            [attr.aria-label]="'dashboard.viewAllTasksAriaLabel' | transloco"
           >
-            View all in Tasks
+            {{ 'dashboard.viewAllTasks' | transloco }}
             <i class="pi pi-arrow-right text-xs" aria-hidden="true"></i>
           </a>
         }
@@ -259,23 +274,23 @@
           id="zones-heading"
           class="text-xs font-semibold uppercase tracking-widest font-display text-neutral-500 dark:text-neutral-400"
         >
-          Your zones
+          {{ 'dashboard.yourZones' | transloco }}
         </h2>
         <button
           type="button"
           class="inline-flex items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-1"
-          aria-label="Add a new greenhouse zone"
+          [attr.aria-label]="'dashboard.addZoneAriaLabel' | transloco"
           (click)="openCreateZoneDialog()"
         >
           <i class="pi pi-plus text-xs" aria-hidden="true"></i>
-          New zone
+          {{ 'dashboard.newZone' | transloco }}
         </button>
       </header>
 
       @if (zoneService.loading()) {
         <ul
           class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4"
-          aria-label="Loading zones"
+          [attr.aria-label]="'dashboard.loadingZonesAriaLabel' | transloco"
         >
           @for (n of [1, 2, 3]; track n) {
             <li aria-hidden="true">
@@ -286,21 +301,21 @@
       } @else if (zoneService.zones().length === 0) {
         <div class="flex flex-col items-center justify-center py-20 text-center" role="status">
           <p class="text-neutral-500 dark:text-neutral-400 font-display text-base">
-            No zones yet. Add your first greenhouse zone to get started.
+            {{ 'dashboard.emptyZonesText' | transloco }}
           </p>
           <p-button
-            label="Add your first zone"
+            [label]="'dashboard.emptyZonesCta' | transloco"
             variant="outlined"
             [pt]="FloraButtonPT"
             class="mt-4"
-            ariaLabel="Add your first greenhouse zone"
+            [ariaLabel]="'dashboard.emptyZonesCtaAriaLabel' | transloco"
             (onClick)="openCreateZoneDialog()"
           />
         </div>
       } @else {
         <ul
           class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4"
-          aria-label="Greenhouse zones"
+          [attr.aria-label]="'dashboard.zonesAriaLabel' | transloco"
         >
           @for (zone of displayedZones(); track zone.id) {
             @let stats = zoneStats().get(zone.id);
@@ -388,11 +403,11 @@
         @if (msg.data?.canUndo) {
           <button
             type="button"
-            class="text-xs font-semibold text-primary-600 flex-shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-0.5 hover:opacity-80 transition-colors"
+            class="text-xs font-semibold text-primary-600 flex-shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-0.5 hover:opacity-80 transition-colors cursor-pointer"
             (click)="undoDelete(msg.data.id)"
-            aria-label="Undo delete"
+            [attr.aria-label]="'dashboard.undoAriaLabel' | transloco"
           >
-            Undo
+            {{ 'dashboard.undo' | transloco }}
           </button>
         }
       </ng-template>

@@ -1,5 +1,7 @@
 import { Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { ButtonModule } from 'primeng/button';
@@ -60,6 +62,7 @@ interface AttentionChip {
     PlantIdentifierDialogComponent,
     BotanicalDetailDialogComponent,
     SubstrateMixWizardDialogComponent,
+    TranslocoPipe,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './dashboard.html',
@@ -75,6 +78,10 @@ export class DashboardComponent {
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly t = inject(TranslocoService);
+  private readonly _activeLang = toSignal(this.t.langChanges$, {
+    initialValue: this.t.getActiveLang(),
+  });
 
   protected readonly FloraButtonPT = FloraButtonPT;
   protected readonly FloraMessagePT = FloraMessagePT;
@@ -91,11 +98,12 @@ export class DashboardComponent {
   );
 
   protected readonly greeting = computed(() => {
+    this._activeLang();
     const hour = this._now().getHours();
-    if (hour < 5) return 'Good night';
-    if (hour < 12) return 'Good morning';
-    if (hour < 18) return 'Good afternoon';
-    return 'Good evening';
+    if (hour < 5) return this.t.translate('dashboard.greeting.night');
+    if (hour < 12) return this.t.translate('dashboard.greeting.morning');
+    if (hour < 18) return this.t.translate('dashboard.greeting.afternoon');
+    return this.t.translate('dashboard.greeting.evening');
   });
 
   // ── Global stats ──────────────────────────────────────────────
@@ -127,12 +135,14 @@ export class DashboardComponent {
       .sort((a, b) => a.due.getTime() - b.due.getTime())
       .slice(0, 6)
       .map(({ p, due }) => {
+        this._activeLang();
         const isOverdue = due < startOfToday;
+        const days = Math.ceil((startOfToday.getTime() - due.getTime()) / 86_400_000);
         const label = isOverdue
-          ? `overdue ${Math.ceil((startOfToday.getTime() - due.getTime()) / 86_400_000)}d`
+          ? this.t.translate('dashboard.overdueChip', { days })
           : due < startOfTomorrow
-            ? 'due today'
-            : 'due in 1d';
+            ? this.t.translate('dashboard.dueTodayChip')
+            : this.t.translate('dashboard.dueIn1dChip');
         return { plant: p, label, isOverdue };
       });
   });
@@ -245,8 +255,13 @@ export class DashboardComponent {
   }
 
   protected chipAriaLabel(chip: AttentionChip): string {
-    const zone = this.zoneMap().get(chip.plant.zone_id)?.name ?? 'unknown zone';
-    return `${chip.plant.common_name} in ${zone} — ${chip.label}`;
+    const zone =
+      this.zoneMap().get(chip.plant.zone_id)?.name ?? this.t.translate('dashboard.unknownZone');
+    return this.t.translate('dashboard.chipAriaLabel', {
+      name: chip.plant.common_name,
+      zone,
+      status: chip.label,
+    });
   }
 
   // ── Plant Add dialog (Dashboard entry point) ─────────────────
@@ -269,8 +284,8 @@ export class DashboardComponent {
     } else {
       this.messageService.add({
         severity: 'info',
-        summary: 'Species identified',
-        detail: 'Care data is loading. Check the Library in a moment.',
+        summary: this.t.translate('dashboard.speciesIdentified'),
+        detail: this.t.translate('dashboard.speciesIdentifiedDetail'),
       });
     }
   }
@@ -335,14 +350,14 @@ export class DashboardComponent {
       await this.profileService.setLocation(coords.lat, coords.lon, coords.locationName);
       this.messageService.add({
         severity: 'success',
-        summary: 'Location saved',
-        detail: 'Location saved — frost alerts are now active',
+        summary: this.t.translate('dashboard.locationSaved'),
+        detail: this.t.translate('dashboard.locationSavedDetail'),
       });
     } catch {
       this.messageService.add({
         severity: 'error',
-        summary: 'Location error',
-        detail: 'Failed to save location — try again',
+        summary: this.t.translate('dashboard.locationError'),
+        detail: this.t.translate('dashboard.locationErrorDetail'),
       });
     }
   }
@@ -352,8 +367,8 @@ export class DashboardComponent {
     this.weatherService.weather.set(null);
     this.messageService.add({
       severity: 'info',
-      summary: 'Location cleared',
-      detail: 'Location cleared — frost alerts disabled',
+      summary: this.t.translate('dashboard.locationCleared'),
+      detail: this.t.translate('dashboard.locationClearedDetail'),
     });
   }
 
@@ -375,14 +390,14 @@ export class DashboardComponent {
       if (this.zoneService.error()) {
         this.messageService.add({
           severity: 'error',
-          summary: 'Update failed',
+          summary: this.t.translate('zones.toast.updateFailed'),
           detail: this.zoneService.error()!,
         });
       } else {
         this.messageService.add({
           severity: 'success',
-          summary: 'Zone updated',
-          detail: `"${formData.name}" has been saved.`,
+          summary: this.t.translate('zones.toast.zoneUpdated'),
+          detail: this.t.translate('zones.toast.zoneUpdatedDetail', { name: formData.name }),
         });
       }
     } else {
@@ -390,14 +405,14 @@ export class DashboardComponent {
       if (this.zoneService.error()) {
         this.messageService.add({
           severity: 'error',
-          summary: 'Add failed',
+          summary: this.t.translate('zones.toast.addFailed'),
           detail: this.zoneService.error()!,
         });
       } else {
         this.messageService.add({
           severity: 'success',
-          summary: 'Zone added',
-          detail: `"${formData.name}" added to your greenhouse.`,
+          summary: this.t.translate('zones.toast.zoneAdded'),
+          detail: this.t.translate('zones.toast.zoneAddedDetail', { name: formData.name }),
         });
       }
     }
@@ -407,15 +422,15 @@ export class DashboardComponent {
     const zone = this.zoneService.zones().find((z) => z.id === zoneId);
     if (!zone) return;
     this.confirmationService.confirm({
-      message: `Remove "${zone.name}"? All its plants will also be removed. You can undo this.`,
-      header: 'Delete Zone',
-      acceptLabel: 'Delete',
-      rejectLabel: 'Cancel',
+      message: this.t.translate('zones.toast.deleteMessage', { name: zone.name }),
+      header: this.t.translate('zones.toast.deleteHeader'),
+      acceptLabel: this.t.translate('common.delete'),
+      rejectLabel: this.t.translate('common.cancel'),
       accept: () => {
         this.messageService.add({
           severity: 'warn',
-          summary: 'Zone deleted',
-          detail: `"${zone.name}" and all its plants removed. Tap Undo to cancel.`,
+          summary: this.t.translate('zones.toast.zoneDeleted'),
+          detail: this.t.translate('zones.toast.zoneDeletedDetail', { name: zone.name }),
           life: 5000,
           data: { canUndo: true, id: zoneId },
         });
@@ -424,7 +439,7 @@ export class DashboardComponent {
           if (this.zoneService.error()) {
             this.messageService.add({
               severity: 'error',
-              summary: 'Delete failed',
+              summary: this.t.translate('zones.toast.deleteFailed'),
               detail: this.zoneService.error()!,
             });
           }
@@ -444,7 +459,7 @@ export class DashboardComponent {
     if (this.plantService.error() || !newPlant) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Add plant failed',
+        summary: this.t.translate('zones.toast.plantAddFailed'),
         detail: this.plantService.error()!,
       });
     } else {

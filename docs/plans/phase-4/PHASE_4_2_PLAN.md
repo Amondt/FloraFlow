@@ -107,7 +107,7 @@ EN is always the source of truth and the `fallbackLang`.
     they render in the persisted/auto locale — verify by setting locale in the shell, then signing out.
   - format + lint + Manual Browser Check (login + onboarding wizard in all three locales).
 
-- [ ] **Block D — Dashboard & zones** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+- [x] **Block D — Dashboard & zones** | Agent: `/visualizer` · Model: Sonnet · Effort: low
   - `dashboard.html`, `zone-card`, `zone-form`, `zone-form-fields`, `zone-detail`, `location-dialog`
     (templates + toast/aria strings in their TS). Add `dashboard.*` + `zones.*` keys.
   - Update `zone.service.spec`, `zone-detail.spec`, `location-dialog.spec`, `care-recommendations-panel.spec`

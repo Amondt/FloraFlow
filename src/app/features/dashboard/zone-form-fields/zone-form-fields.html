@@ -2,33 +2,33 @@
   <!-- Zone type selector -->
   <fieldset class="border-none p-0 m-0">
     <legend class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display mb-2">
-      Where is this zone?
+      {{ 'zones.form.fields.whereLabel' | transloco }}
     </legend>
     <div class="grid grid-cols-2 gap-3">
       <button
         type="button"
         [class]="zoneTypeBtnClass('indoor')"
         [attr.aria-pressed]="zoneType() === 'indoor'"
-        aria-label="Indoor zone — living room, bedroom or similar"
+        [attr.aria-label]="'zones.form.fields.indoorAriaLabel' | transloco"
         (click)="selectZoneType('indoor')"
       >
         <i class="ri-home-line text-lg" aria-hidden="true"></i>
-        <span>Indoor</span>
+        <span>{{ 'zones.form.fields.indoorButton' | transloco }}</span>
         <span class="text-xs font-normal text-neutral-400 dark:text-neutral-500">
-          Living room, bedroom…
+          {{ 'zones.form.fields.indoorHint' | transloco }}
         </span>
       </button>
       <button
         type="button"
         [class]="zoneTypeBtnClass('outdoor')"
         [attr.aria-pressed]="zoneType() === 'outdoor'"
-        aria-label="Outdoor zone — balcony, garden or similar"
+        [attr.aria-label]="'zones.form.fields.outdoorAriaLabel' | transloco"
         (click)="selectZoneType('outdoor')"
       >
         <i class="ri-sun-line text-lg" aria-hidden="true"></i>
-        <span>Outdoor</span>
+        <span>{{ 'zones.form.fields.outdoorButton' | transloco }}</span>
         <span class="text-xs font-normal text-neutral-400 dark:text-neutral-500">
-          Balcony, garden…
+          {{ 'zones.form.fields.outdoorHint' | transloco }}
         </span>
       </button>
     </div>
@@ -40,7 +40,7 @@
       [for]="nameId"
       class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
     >
-      Zone name
+      {{ 'zones.form.fields.nameLabel' | transloco }}
       <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
       <span class="sr-only">(required)</span>
     </label>
@@ -53,12 +53,12 @@
       [attr.aria-describedby]="nameCtrl().invalid && nameCtrl().touched ? nameId + '-error' : null"
       [attr.aria-invalid]="nameCtrl().invalid && nameCtrl().touched"
       aria-required="true"
-      placeholder="e.g. Living Room, South Balcony"
+      [attr.placeholder]="'zones.form.fields.namePlaceholder' | transloco"
       autocomplete="off"
     />
     @if (nameCtrl().invalid && nameCtrl().touched) {
       <small [id]="nameId + '-error'" class="text-danger-500 text-xs font-display" role="alert">
-        Zone name is required.
+        {{ 'zones.form.fields.nameRequired' | transloco }}
       </small>
     }
   </div>
@@ -69,7 +69,12 @@
       [id]="orientationId + '-label'"
       class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
     >
-      {{ zoneType() === 'outdoor' ? 'Facing direction' : 'Window orientation' }}
+      {{
+        (zoneType() === 'outdoor'
+          ? 'zones.form.fields.facingDirectionLabel'
+          : 'zones.form.fields.windowOrientationLabel'
+        ) | transloco
+      }}
     </span>
     <p-select
       #orientationSelect
@@ -78,7 +83,7 @@
       formControlName="window_orientation"
       [options]="orientationOptions"
       [pt]="FloraSelectPT"
-      placeholder="Select orientation"
+      [placeholder]="'zones.form.fields.orientationPlaceholder' | transloco"
       appendTo="body"
     />
   </div>
@@ -90,8 +95,10 @@
         [for]="humidityId"
         class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
       >
-        Humidity baseline
-        <span class="text-neutral-400 font-normal text-xs ml-1">(0 – 100 %)</span>
+        {{ 'zones.form.fields.humidityLabel' | transloco }}
+        <span class="text-neutral-400 font-normal text-xs ml-1">{{
+          'zones.form.fields.humidityUnit' | transloco
+        }}</span>
       </label>
       <p-inputnumber
         [inputId]="humidityId"
@@ -113,11 +120,11 @@
           class="text-danger-500 text-xs font-display"
           role="alert"
         >
-          Humidity must be between 0 and 100.
+          {{ 'zones.form.fields.humidityError' | transloco }}
         </small>
       }
       <small [id]="humidityId + '-hint'" class="text-neutral-400 text-xs font-display" role="note">
-        Typical relative humidity in this space (40–60 % is common indoors)
+        {{ 'zones.form.fields.humidityHint' | transloco }}
       </small>
     </div>
 
@@ -125,16 +132,16 @@
     <div class="flex items-start justify-between gap-4">
       <div class="flex flex-col gap-1">
         <span class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display">
-          Active ventilation
+          {{ 'zones.form.fields.ventilationLabel' | transloco }}
         </span>
         <small class="text-neutral-400 text-xs font-display" role="note">
-          e.g. a fan or extractor keeping air moving
+          {{ 'zones.form.fields.ventilationHint' | transloco }}
         </small>
       </div>
       <p-toggleswitch
         formControlName="has_active_ventilation"
         [pt]="FloraToggleSwitchPT"
-        ariaLabel="Toggle active ventilation"
+        [ariaLabel]="'zones.form.fields.ventilationAriaLabel' | transloco"
         class="flex-shrink-0"
       />
     </div>
@@ -143,16 +150,16 @@
     <div class="flex items-start justify-between gap-4">
       <div class="flex flex-col gap-1">
         <span class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display">
-          Supplemental grow lights
+          {{ 'zones.form.fields.growLightsLabel' | transloco }}
         </span>
         <small class="text-neutral-400 text-xs font-display" role="note">
-          LED or fluorescent lights supplementing natural light
+          {{ 'zones.form.fields.growLightsHint' | transloco }}
         </small>
       </div>
       <p-toggleswitch
         formControlName="has_grow_lights"
         [pt]="FloraToggleSwitchPT"
-        ariaLabel="Toggle supplemental grow lights"
+        [ariaLabel]="'zones.form.fields.growLightsAriaLabel' | transloco"
         class="flex-shrink-0"
       />
     </div>

@@ -3,6 +3,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
 import { ZoneDetailComponent } from './zone-detail';
+import { provideTranslocoTesting } from '../../../testing/transloco-testing';
 import { ZoneService } from '../zone.service';
 import { PlantService } from '../../tasks/plant.service';
 import { LibraryService, CachedBotanicalRecord } from '../../library/library.service';
@@ -109,6 +110,7 @@ describe('ZoneDetailComponent – incompatibilities', () => {
       imports: [ZoneDetailComponent],
       providers: [
         provideRouter([]),
+        provideTranslocoTesting(),
         {
           provide: ZoneService,
           useValue: {

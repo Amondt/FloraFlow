@@ -6,7 +6,7 @@
   <a
     [class]="cardLinkClass"
     [routerLink]="['/dashboard/zones', zone().id]"
-    [attr.aria-label]="'View ' + zone().name + ' zone detail'"
+    [attr.aria-label]="'zones.card.viewAriaLabel' | transloco: { name: zone().name }"
   ></a>
 
   <!-- ── Header: name + status badge ─────────────────────────────── -->
@@ -112,7 +112,7 @@
         <p
           class="text-xs uppercase tracking-widest font-display text-neutral-400 dark:text-neutral-500 flex-shrink-0"
         >
-          Light
+          {{ 'zones.card.lightLabel' | transloco }}
         </p>
         <p
           class="text-sm font-semibold font-display text-neutral-800 dark:text-neutral-100 truncate text-right"
@@ -122,17 +122,24 @@
       </div>
 
       @if (zone().zone_type === 'indoor') {
+        @let growActive =
+          (zone().has_grow_lights ? 'zones.card.active' : 'zones.card.inactive') | transloco;
+        @let ventActive =
+          (zone().has_active_ventilation ? 'zones.card.active' : 'zones.card.inactive') | transloco;
+
         <!-- Humidity — inline: label | bar | % -->
         <div class="flex items-center gap-2">
           <p
             class="text-xs uppercase tracking-widest font-display text-neutral-400 dark:text-neutral-500 flex-shrink-0"
           >
-            Humidity
+            {{ 'zones.card.humidityLabel' | transloco }}
           </p>
           <div
             class="flex-1 h-1 bg-neutral-200 dark:bg-neutral-600 rounded-full overflow-hidden"
             role="meter"
-            [attr.aria-label]="'Humidity baseline ' + zone().humidity_baseline + '%'"
+            [attr.aria-label]="
+              'zones.card.humidityAriaLabel' | transloco: { value: zone().humidity_baseline }
+            "
             [attr.aria-valuenow]="zone().humidity_baseline"
             aria-valuemin="0"
             aria-valuemax="100"
@@ -150,7 +157,10 @@
         </div>
 
         <!-- System badges -->
-        <div class="flex items-center gap-2 flex-wrap" aria-label="Active systems">
+        <div
+          class="flex items-center gap-2 flex-wrap"
+          [attr.aria-label]="'zones.card.activeSystems' | transloco"
+        >
           <span
             class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium font-display border transition-colors"
             [class]="
@@ -158,10 +168,10 @@
                 ? 'bg-primary-50 border-primary-200 text-primary-700 dark:bg-primary-900/30 dark:border-primary-800 dark:text-primary-300'
                 : 'bg-neutral-100 border-neutral-200 text-neutral-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-400'
             "
-            [attr.aria-label]="'Grow lights: ' + (zone().has_grow_lights ? 'active' : 'inactive')"
+            [attr.aria-label]="'zones.card.growLightAriaLabel' | transloco: { status: growActive }"
           >
             <i class="pi pi-sun text-xs" aria-hidden="true"></i>
-            Grow light
+            {{ 'zones.card.growLightLabel' | transloco }}
           </span>
           <span
             class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium font-display border transition-colors"
@@ -171,11 +181,11 @@
                 : 'bg-neutral-100 border-neutral-200 text-neutral-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-400'
             "
             [attr.aria-label]="
-              'Ventilation: ' + (zone().has_active_ventilation ? 'active' : 'inactive')
+              'zones.card.ventilationAriaLabel' | transloco: { status: ventActive }
             "
           >
             <i class="pi pi-send text-xs" aria-hidden="true"></i>
-            Vent
+            {{ 'zones.card.ventilationLabel' | transloco }}
           </span>
         </div>
       }
@@ -188,9 +198,9 @@
   >
     <div class="flex-1 min-w-0">
       <p class="text-xs text-neutral-500 dark:text-neutral-400 font-display truncate">
-        <span class="font-medium text-neutral-700 dark:text-neutral-200"
-          >{{ plantCount() }} {{ plantCount() === 1 ? 'plant' : 'plants' }}</span
-        >
+        <span class="font-medium text-neutral-700 dark:text-neutral-200">{{
+          'zones.card.plantCount' | transloco: { count: plantCount() }
+        }}</span>
         @if (plantCount() > 0) {
           <span> · {{ plantSummary() }}</span>
         }
@@ -200,20 +210,20 @@
       <button
         type="button"
         class="inline-flex items-center gap-1 text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-        [attr.aria-label]="'Edit ' + zone().name + ' zone'"
+        [attr.aria-label]="'zones.card.editAriaLabel' | transloco: { name: zone().name }"
         (click)="edit.emit(zone())"
       >
         <i class="pi pi-pencil text-[10px]" aria-hidden="true"></i>
-        Edit
+        {{ 'zones.card.edit' | transloco }}
       </button>
       <button
         type="button"
         class="inline-flex items-center gap-1 text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-danger-500 dark:hover:text-danger-400 transition-colors cursor-pointer px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-danger-500"
-        [attr.aria-label]="'Delete ' + zone().name + ' zone'"
+        [attr.aria-label]="'zones.card.deleteAriaLabel' | transloco: { name: zone().name }"
         (click)="remove.emit(zone().id)"
       >
         <i class="pi pi-trash text-[10px]" aria-hidden="true"></i>
-        Delete
+        {{ 'zones.card.delete' | transloco }}
       </button>
     </div>
   </footer>

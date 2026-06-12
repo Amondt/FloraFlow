@@ -1,5 +1,7 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { FLORA_FOCUS } from '../../../shared/ui/pt/states.pt';
 import { Zone } from '../zone.model';
 
@@ -18,10 +20,15 @@ const COMPASS_ANGLES: Record<string, number> = {
 @Component({
   selector: 'app-zone-card',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, TranslocoPipe],
   templateUrl: './zone-card.html',
 })
 export class ZoneCardComponent {
+  private readonly t = inject(TranslocoService);
+  private readonly _activeLang = toSignal(this.t.langChanges$, {
+    initialValue: this.t.getActiveLang(),
+  });
+
   readonly zone = input.required<Zone>();
   readonly plantCount = input(0);
   readonly overdueCount = input(0);
@@ -39,8 +46,9 @@ export class ZoneCardComponent {
   readonly hasOrientation = computed(() => this.zone().window_orientation !== 'None');
 
   readonly lightLabel = computed(() => {
+    this._activeLang();
     const o = this.zone().window_orientation;
-    return o === 'None' ? 'No window' : o;
+    return o === 'None' ? this.t.translate('zones.card.noWindow') : o;
   });
 
   protected readonly compassTicks = [45, 90, 135, 180, 225, 270, 315].map((deg) => {
@@ -56,11 +64,12 @@ export class ZoneCardComponent {
   });
 
   readonly statusLabel = computed(() => {
+    this._activeLang();
     const overdue = this.overdueCount();
     const dueToday = this.dueTodayCount();
-    if (overdue > 0) return `${overdue} overdue`;
-    if (dueToday > 0) return `${dueToday} due today`;
-    return 'All clear';
+    if (overdue > 0) return this.t.translate('zones.card.overdueCount', { count: overdue });
+    if (dueToday > 0) return this.t.translate('zones.card.dueTodayCount', { count: dueToday });
+    return this.t.translate('zones.card.allClear');
   });
 
   readonly hasAttention = computed(() => this.overdueCount() > 0 || this.dueTodayCount() > 0);

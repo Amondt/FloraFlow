@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
@@ -36,12 +37,13 @@ export interface GeoResult {
 @Component({
   selector: 'app-location-dialog',
   standalone: true,
-  imports: [DialogModule, ButtonModule, MessageModule, InputTextModule],
+  imports: [DialogModule, ButtonModule, MessageModule, InputTextModule, TranslocoPipe],
   templateUrl: './location-dialog.html',
 })
 export class LocationDialogComponent {
   private readonly http = inject(HttpClient);
   private readonly _destroyRef = inject(DestroyRef);
+  private readonly t = inject(TranslocoService);
 
   readonly visible = model<boolean>(false);
   readonly currentLat = input<number | null>(null);
@@ -109,7 +111,7 @@ export class LocationDialogComponent {
         this.geoDetecting.set(false);
       },
       () => {
-        this.geoError.set('Location access was denied — search for your city below');
+        this.geoError.set(this.t.translate('zones.location.geoError'));
         this.geoDetecting.set(false);
       },
       { timeout: 10000 },
@@ -153,7 +155,7 @@ export class LocationDialogComponent {
   }
 
   formatLabel(r: GeoResult): string {
-    if (r.name === 'Current location') return 'Current location';
+    if (r.name === 'Current location') return this.t.translate('zones.location.currentLocation');
     return [r.name, r.admin1, r.country].filter(Boolean).join(', ');
   }
 

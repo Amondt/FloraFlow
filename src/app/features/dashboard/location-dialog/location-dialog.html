@@ -1,7 +1,7 @@
 <p-dialog
   [visible]="visible()"
   (visibleChange)="onVisibleChange($event)"
-  header="Frost alerts"
+  [header]="'zones.location.dialogHeader' | transloco"
   [modal]="true"
   [draggable]="false"
   [resizable]="false"
@@ -15,31 +15,33 @@
       <div
         class="flex items-center gap-2.5 p-3 bg-primary-50 dark:bg-primary-900/30 border border-primary-100 dark:border-primary-800 rounded-garden-sm"
         role="status"
-        aria-label="Active frost alert location"
+        [attr.aria-label]="'zones.location.activeAriaLabel' | transloco"
       >
         <i class="pi pi-map-marker text-primary-500 flex-shrink-0 text-sm" aria-hidden="true"></i>
         <div class="flex-1 min-w-0">
-          <p class="text-xs font-display font-medium text-primary-500">Active location</p>
+          <p class="text-xs font-display font-medium text-primary-500">
+            {{ 'zones.location.activeLabel' | transloco }}
+          </p>
           <p
             class="text-sm font-semibold font-display text-primary-800 dark:text-primary-300 truncate"
           >
-            {{ currentName() ?? 'Location set' }}
+            {{ currentName() ?? ('zones.location.locationSetFallback' | transloco) }}
           </p>
         </div>
       </div>
       <p class="text-xs font-display text-neutral-400 -mt-2">
-        Search below to change it, or use "Clear location" to remove it.
+        {{ 'zones.location.changeHint' | transloco }}
       </p>
     }
 
     <!-- Geo-detect tier -->
     <p-button
-      label="Detect my current location"
+      [label]="'zones.location.detectButton' | transloco"
       icon="pi pi-map-marker"
       [loading]="geoDetecting()"
       variant="outlined"
       [pt]="FloraButtonPT"
-      ariaLabel="Detect my current location using the browser"
+      [ariaLabel]="'zones.location.detectAriaLabel' | transloco"
       (onClick)="detectLocation()"
     />
 
@@ -50,7 +52,9 @@
     <!-- Divider -->
     <div class="flex items-center gap-3" role="separator" aria-hidden="true">
       <hr class="flex-1 border-neutral-200 dark:border-neutral-700" />
-      <span class="text-xs text-neutral-400 font-display">or search</span>
+      <span class="text-xs text-neutral-400 font-display">{{
+        'zones.location.orSearch' | transloco
+      }}</span>
       <hr class="flex-1 border-neutral-200 dark:border-neutral-700" />
     </div>
 
@@ -60,7 +64,7 @@
         [for]="searchInputId"
         class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
       >
-        City or region
+        {{ 'zones.location.cityLabel' | transloco }}
       </label>
       <div class="relative">
         <i
@@ -75,10 +79,10 @@
           [value]="searchQuery()"
           (input)="onSearchInput($event)"
           (blur)="onSearchBlur()"
-          placeholder="City or region..."
+          [attr.placeholder]="'zones.location.searchPlaceholder' | transloco"
           autocomplete="off"
           class="!pl-9"
-          aria-label="Search for a city or region"
+          [attr.aria-label]="'zones.location.searchAriaLabel' | transloco"
           aria-autocomplete="list"
           [attr.aria-controls]="suggestions().length > 0 ? 'location-suggestions' : null"
           [attr.aria-busy]="searchLoading()"
@@ -95,7 +99,7 @@
         <ul
           id="location-suggestions"
           role="listbox"
-          aria-label="Location suggestions"
+          [attr.aria-label]="'zones.location.suggestionsAriaLabel' | transloco"
           class="w-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md shadow-lg max-h-48 overflow-y-auto"
         >
           @for (r of suggestions(); track r.id) {
@@ -120,7 +124,7 @@
         class="flex items-center gap-2 p-3 bg-primary-50 dark:bg-primary-900/30 rounded-garden-sm"
         role="status"
         aria-live="polite"
-        aria-label="Selected location"
+        [attr.aria-label]="'zones.location.selectedAriaLabel' | transloco"
       >
         <i class="pi pi-check-circle text-primary-600" aria-hidden="true"></i>
         <span class="text-sm font-medium font-display text-primary-700 dark:text-primary-300">
@@ -131,32 +135,32 @@
 
     <!-- Privacy note -->
     <p role="note" class="text-xs text-neutral-400 font-display">
-      Coordinates are stored privately on your account and are never shared.
+      {{ 'zones.location.privacyNote' | transloco }}
     </p>
   </div>
 
   <ng-template #footer>
     @if (currentLat() !== null) {
       <p-button
-        label="Clear location"
+        [label]="'zones.location.clearLocation' | transloco"
         variant="text"
         severity="danger"
         [pt]="FloraButtonPT"
-        ariaLabel="Clear saved location and disable frost alerts"
+        [ariaLabel]="'zones.location.clearLocationAriaLabel' | transloco"
         (onClick)="onClear()"
       />
     }
     <p-button
-      label="Cancel"
+      [label]="'zones.location.cancel' | transloco"
       variant="text"
       [pt]="FloraButtonPT"
-      ariaLabel="Cancel and close dialog"
+      [ariaLabel]="'zones.location.cancelAriaLabel' | transloco"
       (onClick)="onCancel()"
     />
     <p-button
-      label="Save location"
+      [label]="'zones.location.save' | transloco"
       [pt]="FloraButtonPT"
-      ariaLabel="Save location for frost alerts"
+      [ariaLabel]="'zones.location.saveAriaLabel' | transloco"
       [loading]="saving()"
       [disabled]="!selectedResult()"
       (onClick)="onSave()"

@@ -34,7 +34,7 @@ import { JournalService, type JournalEntryWithPlant } from '../journal.service';
 import { PlantThumbnailService } from '../../../core/services/plant-thumbnail.service';
 import { ImageCompressorService } from '../../../core/services/image-compressor.service';
 import { SupabaseService } from '../../../core/services/supabase.service';
-import { CATEGORY_OPTIONS, type LogCategoryType } from '../journal-categories';
+import { CATEGORY_OPTIONS, CATEGORY_LABEL, type LogCategoryType } from '../journal-categories';
 import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-icon';
 
 interface PlantItemOption {
@@ -152,6 +152,18 @@ export class JournalEntryFormComponent implements OnDestroy {
     return entry !== null && entry.diagnostics !== null && entry.diagnostics !== undefined;
   });
 
+  protected readonly lockedPlantName = computed((): string => {
+    const entry = this.editEntry();
+    if (!entry) return '';
+    return this.plantService.plants().find((p) => p.id === entry.plant_id)?.common_name ?? '';
+  });
+
+  protected readonly lockedCategoryLabel = computed((): string => {
+    const entry = this.editEntry();
+    if (!entry) return '';
+    return CATEGORY_LABEL[entry.category as LogCategoryType] ?? entry.category;
+  });
+
   get plantCtrl() {
     return this.form.controls.plant_id;
   }
@@ -165,6 +177,9 @@ export class JournalEntryFormComponent implements OnDestroy {
   constructor() {
     effect(() => {
       if (this.visible()) {
+        // Always enable — locking is handled by the @if/@else template switch, not form state.
+        this.form.controls.plant_id.enable();
+        this.form.controls.category.enable();
         const entry = this.editEntry();
         if (entry) {
           this.form.patchValue({
@@ -173,6 +188,11 @@ export class JournalEntryFormComponent implements OnDestroy {
             notes: entry.notes ?? null,
             logged_at: new Date(entry.logged_at).toISOString().slice(0, 10),
           });
+          // AI-generated notes can exceed 1000 chars — lift the limit for Leaf Doctor entries.
+          if (entry.diagnostics != null) {
+            this.form.controls.notes.clearValidators();
+            this.form.controls.notes.updateValueAndValidity({ emitEvent: false });
+          }
         } else {
           const id = this.preselectedPlantId();
           if (id) this.form.controls.plant_id.setValue(id);
@@ -327,6 +347,9 @@ export class JournalEntryFormComponent implements OnDestroy {
   }
 
   private resetForm(): void {
+    this.form.controls.plant_id.enable();
+    this.form.controls.category.enable();
+    this.form.controls.notes.setValidators([Validators.maxLength(1000)]);
     this.form.reset({ plant_id: '', category: '', notes: null, logged_at: null });
     this.compressedBlob.set(null);
     this.compressedLabel.set(null);

@@ -3,7 +3,7 @@ import type { MultiSelectPassThroughOptions } from 'primeng/multiselect';
 import { FLORA_DISABLED, FLORA_FOCUS, FLORA_HOVER } from './states.pt';
 
 export const FloraSelectPT = {
-  root: ({ instance }: { instance?: { disabled?: boolean } } = {}) => ({
+  root: {
     class: [
       // h-control locks height to the same token as p-button (2.375rem = 38px).
       // justify-between pushes the chevron to the far right regardless of PrimeNG's
@@ -14,11 +14,9 @@ export const FloraSelectPT = {
       'border border-neutral-300 dark:border-neutral-600 rounded-garden-sm',
       'outline-none',
       FLORA_FOCUS,
-      instance?.disabled
-        ? 'opacity-60 cursor-not-allowed pointer-events-none'
-        : `cursor-pointer ${FLORA_HOVER}`,
+      `cursor-pointer ${FLORA_HOVER}`,
     ].join(' '),
-  }),
+  },
   label: { class: 'flex-1 truncate outline-none' },
   // pl-2 provides the gap between text and chevron; no ml-auto needed with justify-between
   dropdown: { class: 'flex items-center shrink-0 pl-2 text-neutral-400' },

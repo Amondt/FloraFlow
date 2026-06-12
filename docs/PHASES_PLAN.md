@@ -314,7 +314,7 @@
 
 ### 📋 Phase 4 Tasks
 
-- [ ] **4.1** Dark/Light Theme Toggle | Agent: `/visualizer`
+- [x] **4.1** Dark/Light Theme Toggle | Agent: `/visualizer`
   - `ThemeService` singleton reads `flora-theme` from localStorage; falls back to `prefers-color-scheme` media query.
   - Theme stored as a Signal; an `effect()` persists every change to localStorage and toggles `.dark` on `<html>`.
   - Tailwind `dark:` variants handle all token switching — no manual class juggling in components.

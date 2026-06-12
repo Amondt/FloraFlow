@@ -53,6 +53,7 @@ export const FloraTextareaPT = {
       'text-neutral-900 dark:text-neutral-100',
       'border border-neutral-300 dark:border-neutral-600 rounded-garden-sm',
       'placeholder:text-neutral-400',
+      'flora-scrollbar',
       FLORA_FOCUS,
       FLORA_DISABLED,
     ].join(' '),

@@ -17,6 +17,23 @@
     class="flex flex-col gap-5"
     [attr.aria-label]="isEditMode() ? 'Edit care event form' : 'Log care event form'"
   >
+    @if (isLeafDoctorEntry()) {
+      <div
+        role="note"
+        aria-label="Leaf Doctor AI diagnosis entry — Plant and Category fields are locked"
+        class="flex items-start gap-2 px-3 py-2.5 rounded-garden-sm bg-primary-50 dark:bg-primary-900/20"
+      >
+        <i
+          class="pi pi-lock text-primary-600 dark:text-primary-400 text-sm shrink-0 mt-0.5"
+          aria-hidden="true"
+        ></i>
+        <p class="text-xs font-display text-primary-700 dark:text-primary-300 leading-snug">
+          <span class="font-semibold">Leaf Doctor entry</span> — Plant and Category are locked to
+          preserve the AI diagnosis. Notes and date can still be updated.
+        </p>
+      </div>
+    }
+
     <!-- Plant -->
     <div class="flex flex-col gap-1.5">
       <span
@@ -193,7 +210,7 @@
     <!-- Photo (optional) -->
     <div class="flex flex-col gap-1.5">
       <label
-        [for]="photoId"
+        [attr.for]="isLeafDoctorEntry() ? null : photoId"
         class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
       >
         Photo
@@ -211,7 +228,35 @@
         (change)="onFileChange($event)"
       />
 
-      @if (compressedBlob()) {
+      @if (isLeafDoctorEntry()) {
+        <!-- Locked — Leaf Doctor photo cannot be changed without invalidating the diagnosis -->
+        <div class="flex items-center gap-3">
+          @if (existingImageUrl()) {
+            <div class="relative w-16 h-16 shrink-0">
+              <img
+                [src]="existingImageUrl()"
+                alt="Leaf Doctor diagnosis photo — locked"
+                class="w-full h-full rounded-garden-sm object-cover border border-neutral-200 dark:border-neutral-700 opacity-75"
+              />
+              <div
+                class="absolute inset-0 flex items-center justify-center rounded-garden-sm bg-neutral-900/30"
+                aria-hidden="true"
+              >
+                <i class="pi pi-lock text-white text-sm drop-shadow-sm"></i>
+              </div>
+            </div>
+          }
+          <p
+            class="text-xs font-display text-neutral-500 dark:text-neutral-400 flex items-start gap-1.5"
+            role="note"
+            aria-label="Photo is locked because it is tied to the Leaf Doctor AI diagnosis"
+          >
+            <i class="pi pi-lock text-[10px] mt-0.5 shrink-0" aria-hidden="true"></i>
+            Photo locked — this image is linked to the Leaf Doctor AI diagnosis and cannot be
+            changed.
+          </p>
+        </div>
+      } @else if (compressedBlob()) {
         <!-- New photo preview (both create and edit modes) -->
         <div class="flex items-center gap-3">
           <img

@@ -177,6 +177,20 @@ root: ({ props = {} }: { props?: { severity?: string } } = {}) => ({
 
 **PT debugging rule:** Copy the function signature from an already-working PT file. `badge.pt.ts` is the canonical reference for `{ instance }`. `select.pt.ts` is the canonical reference for `{ context }`.
 
+### 3.1.1 `p-menu` Icon Limitation (v21 + unstyled)
+
+**`p-menu` with `unstyled: true` does not render `MenuItem.icon`.** The icon CSS class string is silently dropped from the icon `<span>` in PrimeNG v21 unstyled mode. `pTemplate="item"` custom item templates also fail — the override is ignored entirely.
+
+**Rule:** never use `p-menu` when per-item conditional icons are required. Use a native custom dropdown instead.
+
+**Canonical native dropdown pattern** (reference: `src/app/shared/components/language-switcher/`):
+
+- `isOpen = signal(false)` on the component
+- Trigger `<button>` with `aria-haspopup="listbox"` + `[attr.aria-expanded]="isOpen()"`
+- `(focusout)="onContainerFocusOut($event)"` on the wrapper `<div>` using a `relatedTarget` check (better than `blur + setTimeout` — correctly handles keyboard Tab without closing the list prematurely)
+- `(keydown.escape)="isOpen.set(false)"` on both trigger and option buttons
+- `<ul role="listbox">` / `<li role="option" [attr.aria-selected]="...">` for screen-reader semantics
+
 ### 3.2 PT File Organization
 
 All PT objects live in `src/app/shared/ui/pt/`. **Read source files directly** — the implementations are not duplicated here.

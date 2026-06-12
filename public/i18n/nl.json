@@ -15,5 +15,16 @@
     "email": "Voer een geldig e-mailadres in",
     "minLength": "Moet minstens {min} tekens bevatten",
     "maxLength": "Mag niet meer dan {max} tekens bevatten"
+  },
+  "nav": {
+    "ariaLabel": "Hoofdnavigatie",
+    "dashboard": "Dashboard",
+    "tasks": "Taken",
+    "journal": "Dagboek",
+    "library": "Bibliotheek",
+    "seeds": "Zaden"
+  },
+  "language": {
+    "switcher": "Taal wijzigen"
   }
 }

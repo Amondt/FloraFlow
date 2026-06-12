@@ -1,12 +1,20 @@
 import { Component } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { FLORA_HOVER } from '../../ui/pt/states.pt';
 import { ThemeToggleComponent } from '../theme-toggle/theme-toggle';
+import { LanguageSwitcherComponent } from '../language-switcher/language-switcher';
 
 @Component({
   selector: 'app-nav',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, ThemeToggleComponent],
+  imports: [
+    RouterLink,
+    RouterLinkActive,
+    ThemeToggleComponent,
+    LanguageSwitcherComponent,
+    TranslocoPipe,
+  ],
   templateUrl: './nav.html',
 })
 export class NavComponent {

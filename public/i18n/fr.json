@@ -15,5 +15,16 @@
     "email": "Veuillez entrer une adresse e-mail valide",
     "minLength": "Doit contenir au moins {min} caractères",
     "maxLength": "Ne peut pas dépasser {max} caractères"
+  },
+  "nav": {
+    "ariaLabel": "Navigation principale",
+    "dashboard": "Tableau de bord",
+    "tasks": "Tâches",
+    "journal": "Journal",
+    "library": "Bibliothèque",
+    "seeds": "Graines"
+  },
+  "language": {
+    "switcher": "Changer de langue"
   }
 }

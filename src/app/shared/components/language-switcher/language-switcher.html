@@ -1,0 +1,45 @@
+<div class="relative" (focusout)="onContainerFocusOut($event)">
+  <button
+    type="button"
+    [class]="buttonClass"
+    [attr.aria-label]="'language.switcher' | transloco"
+    [attr.aria-expanded]="isOpen()"
+    aria-haspopup="listbox"
+    (click)="toggle()"
+    (keydown.escape)="isOpen.set(false)"
+  >
+    <i class="pi pi-globe text-base" aria-hidden="true"></i>
+    <span class="text-xs font-semibold font-display leading-none">{{
+      locale.locale() | uppercase
+    }}</span>
+  </button>
+
+  @if (isOpen()) {
+    <ul
+      role="listbox"
+      [attr.aria-label]="'language.switcher' | transloco"
+      class="absolute right-0 top-full mt-1 z-50 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md shadow-xl py-1 min-w-40 font-display"
+    >
+      @for (loc of locale.availableLocales; track loc.id) {
+        <li role="option" [attr.aria-selected]="locale.locale() === loc.id">
+          <button
+            type="button"
+            class="flex items-center gap-3 px-4 py-2 w-full cursor-pointer text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors duration-100 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+            (click)="selectLocale(loc.id)"
+            (keydown.escape)="isOpen.set(false)"
+          >
+            <i
+              [class]="
+                locale.locale() === loc.id
+                  ? 'pi pi-check text-sm text-primary-600 dark:text-primary-400'
+                  : 'pi pi-check text-sm invisible'
+              "
+              aria-hidden="true"
+            ></i>
+            <span>{{ loc.label }}</span>
+          </button>
+        </li>
+      }
+    </ul>
+  }
+</div>

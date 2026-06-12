@@ -1,14 +1,14 @@
 <header
   class="w-full bg-white dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700"
 >
-  <nav class="px-6 flex items-stretch" aria-label="Main navigation">
+  <nav class="px-6 flex items-stretch" [attr.aria-label]="'nav.ariaLabel' | transloco">
     <a
       [routerLink]="'/dashboard'"
       [class]="linkBase"
       [routerLinkActive]="linkActive"
       ariaCurrentWhenActive="page"
     >
-      Dashboard
+      {{ 'nav.dashboard' | transloco }}
     </a>
 
     <a
@@ -17,7 +17,7 @@
       [routerLinkActive]="linkActive"
       ariaCurrentWhenActive="page"
     >
-      Tasks
+      {{ 'nav.tasks' | transloco }}
     </a>
 
     <a
@@ -26,7 +26,7 @@
       [routerLinkActive]="linkActive"
       ariaCurrentWhenActive="page"
     >
-      Journal
+      {{ 'nav.journal' | transloco }}
     </a>
 
     <a
@@ -35,7 +35,7 @@
       [routerLinkActive]="linkActive"
       ariaCurrentWhenActive="page"
     >
-      Library
+      {{ 'nav.library' | transloco }}
     </a>
 
     <a
@@ -44,10 +44,11 @@
       [routerLinkActive]="linkActive"
       ariaCurrentWhenActive="page"
     >
-      Seeds
+      {{ 'nav.seeds' | transloco }}
     </a>
 
     <div class="ml-auto flex items-center gap-1">
+      <app-language-switcher />
       <app-theme-toggle />
     </div>
   </nav>

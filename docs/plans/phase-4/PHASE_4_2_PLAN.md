@@ -89,7 +89,7 @@ EN is always the source of truth and the `fallbackLang`.
   - Smoke only (no visible UI change): app boots, Network shows `/i18n/en.json` → 200, no console
     errors. `bun run format` + `bun run lint`.
 
-- [ ] **Block B — Language switcher, nav & `<html lang>` (first vertical slice)** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **Block B — Language switcher, nav & `<html lang>` (first vertical slice)** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - `shared/components/language-switcher/language-switcher.{ts,html}` — trigger `<button>`
     (`pi pi-globe` + `{{ locale.locale() | uppercase }}`, `cursor-pointer`, `aria-haspopup`,
     translated `aria-label`) opening a `p-menu` (`FloraMenuPT`) of the three locales; active item

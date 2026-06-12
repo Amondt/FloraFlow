@@ -15,5 +15,16 @@
     "email": "Please enter a valid email address",
     "minLength": "Must be at least {min} characters",
     "maxLength": "Cannot exceed {max} characters"
+  },
+  "nav": {
+    "ariaLabel": "Main navigation",
+    "dashboard": "Dashboard",
+    "tasks": "Tasks",
+    "journal": "Journal",
+    "library": "Library",
+    "seeds": "Seeds"
+  },
+  "language": {
+    "switcher": "Change language"
   }
 }

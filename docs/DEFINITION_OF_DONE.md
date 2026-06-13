@@ -45,6 +45,16 @@ Implementing agents never tell the user to call `/gatekeeper` after an individua
 2. **Risk gate** — the moment a block touches **RLS, a new migration, an Edge Function handling secrets, or an AI-JSON → DB write**, run a focused `/gatekeeper [SECURITY]` on that surface immediately. Do not wait for phase end.
 3. **Phase gate** — full `/gatekeeper` against every `🔒 QA Criteria` + regression sweep, as the release gate for the phase.
 
+## Git commit — after every block
+
+After the user confirms verification, output a ready-to-paste command listing the exact files changed:
+
+```
+git add <file1> <file2> ... && git commit -m "type(scope): description" && git push
+```
+
+Use conventional commit types: `feat`, `fix`, `refactor`, `style`, `test`, `chore`. No `Co-Authored-By`, no Claude/AI reference.
+
 ## A block is done when ALL are true
 
 - [ ] `bun run format` applied
@@ -53,4 +63,4 @@ Implementing agents never tell the user to call `/gatekeeper` after an individua
 - [ ] User confirmed the block's verification (Browser Check / `db test` / SQL)
 - [ ] Risk gate cleared if the block touched RLS / secrets / migration / AI write
 - [ ] Block `[x]` set by the implementing agent (after all the above)
-- [ ] User reminded to `git commit`
+- [ ] User given a ready-to-paste git command (see format below)

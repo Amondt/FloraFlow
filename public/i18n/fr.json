@@ -8,7 +8,8 @@
     "add": "Ajouter",
     "back": "Retour",
     "retry": "Réessayer",
-    "loading": "Chargement"
+    "loading": "Chargement",
+    "backTo": "Retour à {{ label }}"
   },
   "validation": {
     "required": "Ce champ est obligatoire",
@@ -580,7 +581,8 @@
       "actionPointsRegionAriaLabel": "Actions Leaf Doctor",
       "actionPointsListAriaLabel": "Actions recommandées",
       "cardAriaLabel": "{plant} — {category} — {when}",
-      "yesterday": "Hier"
+      "yesterday": "Hier",
+      "openSoilCheckAria": "Ouvrir le bilan du sol pour {{ name }}"
     },
     "entryForm": {
       "dialogTitleEdit": "Modifier le soin",
@@ -871,7 +873,10 @@
         "mixSubstrate": "Mélanger le substrat",
         "trackSeeds": "Suivre les graines",
         "addToPlants": "Ajouter à mes plantes"
-      }
+      },
+      "speciesIdentityAria": "Identité de l'espèce",
+      "selectVarietyAria": "Sélectionner une variété",
+      "tablistAria": "Sections du profil botanique"
     },
     "care": {
       "title": "Recommandations d'entretien",
@@ -884,7 +889,40 @@
       "humidity": "Humidité",
       "compatible": "Humidité de zone compatible",
       "humidityLow": "L'humidité de la zone ({{ zone }}%) est inférieure à la plage idéale de cette plante ({{ range }}).",
-      "humidityHigh": "L'humidité de la zone ({{ zone }}%) est supérieure à la plage idéale de cette plante ({{ range }})."
+      "humidityHigh": "L'humidité de la zone ({{ zone }}%) est supérieure à la plage idéale de cette plante ({{ range }}).",
+      "sunlightLabels": {
+        "fullSun": "Plein soleil",
+        "partShade": "Mi-ombre",
+        "fullShade": "Ombre",
+        "filteredIndirect": "Lumière indirecte"
+      },
+      "wateringLabels": {
+        "frequent": "Tous les 1–2 jours",
+        "average": "Tous les 3–7 jours",
+        "minimum": "Tous les 7–14 jours",
+        "none": "Tolérant à la sécheresse"
+      },
+      "difficultyLabels": {
+        "beginner": "Débutant",
+        "intermediate": "Intermédiaire",
+        "advanced": "Avancé"
+      },
+      "maintenanceLabels": {
+        "low": "Faible",
+        "medium": "Moyen",
+        "high": "Élevé"
+      },
+      "soilTypeLabels": {
+        "wellDraining": "Drainant",
+        "sandy": "Sablonneux",
+        "loamy": "Limoneux",
+        "clay": "Argileux",
+        "peaty": "Tourbeux",
+        "chalky": "Calcaire",
+        "rich": "Riche",
+        "poor": "Pauvre",
+        "moistureRetaining": "Retient l'humidité"
+      }
     },
     "identifier": {
       "title": "Identifier une plante",
@@ -901,7 +939,12 @@
       "cancel": "Annuler",
       "confidenceHighPct": "{{ pct }}% — confiant",
       "confidenceLowPct": "{{ pct }}% — faible confiance",
-      "confidenceUncertainPct": "{{ pct }}% — incertain"
+      "confidenceUncertainPct": "{{ pct }}% — incertain",
+      "uploadDropzoneAria": "Cliquez ou déposez une photo de plante ici pour l'identifier",
+      "resultSectionAria": "Résultat de l'identification",
+      "viewUploadedPhotoAria": "Voir la photo téléchargée en plein écran",
+      "uploadedPhotoAria": "Photo téléchargée en plein écran",
+      "closeFullPhotoAria": "Fermer la photo en plein écran"
     },
     "substrate": {
       "title": "Guide de substrat",
@@ -921,13 +964,19 @@
       "close": "Fermer",
       "recommendedFromPlant": "Recommandé d'après le profil de substrat de cette plante",
       "recommendedFromSpecies": "Recommandé d'après les données de sol de l'espèce",
-      "recommendedFromPreset": "Recommandé d'après un préréglage de substrat"
+      "recommendedFromPreset": "Recommandé d'après un préréglage de substrat",
+      "volumeSectionAria": "Volume de substrat",
+      "potPresetsAria": "Tailles de pot prédéfinies",
+      "componentsTableAria": "Composants du substrat et volumes approximatifs",
+      "phLearnMoreAria": "En savoir plus sur la précision de l'estimation du pH"
     },
     "photo": {
       "previousAria": "Photo précédente",
       "nextAria": "Photo suivante",
       "closeGalleryAria": "Fermer la galerie",
-      "loadingPhotoAria": "Chargement de la photo"
+      "loadingPhotoAria": "Chargement de la photo",
+      "navigationAria": "Navigation photo",
+      "goToPhotoAria": "Aller à la photo {{ index }}"
     },
     "plantSelect": {
       "logEntriesAria": "{{ count }} entrées de journal"
@@ -940,7 +989,8 @@
       "emptyHint": "Suivez vos graines du sachet au jardin",
       "statsActive": "{total, plural, one {1 lot} other {# lots}} · {active} en croissance active",
       "statsStored": "{total, plural, one {1 lot} other {# lots}} en stockage",
-      "addBatch": "Ajouter un lot"
+      "addBatch": "Ajouter un lot",
+      "addBatchAriaLabel": "Ajouter un nouveau lot de graines à votre banque de graines"
     },
     "filter": {
       "aria": "Filtrer les lots par stade de croissance",
@@ -1022,7 +1072,11 @@
       "notesHint": "Facultatif — notes sur ce lot",
       "change": "Changer",
       "save": "Enregistrer le lot",
-      "saveChanges": "Enregistrer les modifications"
+      "saveChanges": "Enregistrer les modifications",
+      "formAriaLabel": "Formulaire de lot de graines",
+      "speciesTraitsAria": "Caractéristiques de l'espèce",
+      "loadingSpeciesTraitsAria": "Chargement des caractéristiques de l'espèce",
+      "changeSpeciesAria": "Changer l'espèce sélectionnée"
     }
   }
 }

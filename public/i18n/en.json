@@ -8,7 +8,8 @@
     "add": "Add",
     "back": "Back",
     "retry": "Retry",
-    "loading": "Loading"
+    "loading": "Loading",
+    "backTo": "Back to {{ label }}"
   },
   "validation": {
     "required": "This field is required",
@@ -580,7 +581,8 @@
       "actionPointsRegionAriaLabel": "Leaf Doctor action points",
       "actionPointsListAriaLabel": "Action points",
       "cardAriaLabel": "{plant} — {category} — {when}",
-      "yesterday": "Yesterday"
+      "yesterday": "Yesterday",
+      "openSoilCheckAria": "Open soil-check dialog for {{ name }}"
     },
     "entryForm": {
       "dialogTitleEdit": "Edit Care Event",
@@ -871,7 +873,10 @@
         "mixSubstrate": "Mix substrate",
         "trackSeeds": "Track seeds",
         "addToPlants": "Add to my plants"
-      }
+      },
+      "speciesIdentityAria": "Species identity",
+      "selectVarietyAria": "Select variety",
+      "tablistAria": "Plant profile sections"
     },
     "care": {
       "title": "Care recommendations",
@@ -884,7 +889,40 @@
       "humidity": "Humidity",
       "compatible": "Zone humidity compatible",
       "humidityLow": "Zone humidity ({{ zone }}%) is below this plant's ideal range ({{ range }}).",
-      "humidityHigh": "Zone humidity ({{ zone }}%) is above this plant's ideal range ({{ range }})."
+      "humidityHigh": "Zone humidity ({{ zone }}%) is above this plant's ideal range ({{ range }}).",
+      "sunlightLabels": {
+        "fullSun": "Full sun",
+        "partShade": "Part shade",
+        "fullShade": "Shade",
+        "filteredIndirect": "Indirect"
+      },
+      "wateringLabels": {
+        "frequent": "Every 1–2 days",
+        "average": "Every 3–7 days",
+        "minimum": "Every 7–14 days",
+        "none": "Drought-tolerant"
+      },
+      "difficultyLabels": {
+        "beginner": "Beginner",
+        "intermediate": "Intermediate",
+        "advanced": "Advanced"
+      },
+      "maintenanceLabels": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
+      },
+      "soilTypeLabels": {
+        "wellDraining": "Well-draining",
+        "sandy": "Sandy",
+        "loamy": "Loamy",
+        "clay": "Clay",
+        "peaty": "Peaty",
+        "chalky": "Chalky",
+        "rich": "Rich",
+        "poor": "Poor",
+        "moistureRetaining": "Moisture-retaining"
+      }
     },
     "identifier": {
       "title": "Identify a Plant",
@@ -901,7 +939,12 @@
       "cancel": "Cancel",
       "confidenceHighPct": "{{ pct }}% confident",
       "confidenceLowPct": "{{ pct }}% — low confidence",
-      "confidenceUncertainPct": "{{ pct }}% — uncertain"
+      "confidenceUncertainPct": "{{ pct }}% — uncertain",
+      "uploadDropzoneAria": "Click or drag a plant photo here to identify it",
+      "resultSectionAria": "Identification result",
+      "viewUploadedPhotoAria": "View uploaded photo full size",
+      "uploadedPhotoAria": "Uploaded photo full size",
+      "closeFullPhotoAria": "Close full-size photo"
     },
     "substrate": {
       "title": "Substrate Mix Guide",
@@ -921,13 +964,19 @@
       "close": "Close",
       "recommendedFromPlant": "Recommended from this plant's substrate profile",
       "recommendedFromSpecies": "Recommended from species soil data",
-      "recommendedFromPreset": "Recommended from a substrate preset"
+      "recommendedFromPreset": "Recommended from a substrate preset",
+      "volumeSectionAria": "Substrate volume",
+      "potPresetsAria": "Pot size presets",
+      "componentsTableAria": "Substrate components and approximate volumes",
+      "phLearnMoreAria": "Learn more about pH estimation accuracy"
     },
     "photo": {
       "previousAria": "Previous photo",
       "nextAria": "Next photo",
       "closeGalleryAria": "Close gallery",
-      "loadingPhotoAria": "Loading photo"
+      "loadingPhotoAria": "Loading photo",
+      "navigationAria": "Photo navigation",
+      "goToPhotoAria": "Go to photo {{ index }}"
     },
     "plantSelect": {
       "logEntriesAria": "{{ count }} log entries"
@@ -940,7 +989,8 @@
       "emptyHint": "Track your seeds from packet to garden",
       "statsActive": "{total, plural, one {1 batch} other {# batches}} · {active} actively growing",
       "statsStored": "{total, plural, one {1 batch} other {# batches}} in storage",
-      "addBatch": "Add batch"
+      "addBatch": "Add batch",
+      "addBatchAriaLabel": "Add a new seed batch to your seed bank"
     },
     "filter": {
       "aria": "Filter batches by growth stage",
@@ -1022,7 +1072,11 @@
       "notesHint": "Optional — any notes about this batch",
       "change": "Change",
       "save": "Save Batch",
-      "saveChanges": "Save Changes"
+      "saveChanges": "Save Changes",
+      "formAriaLabel": "Seed batch details form",
+      "speciesTraitsAria": "Species traits",
+      "loadingSpeciesTraitsAria": "Loading species traits",
+      "changeSpeciesAria": "Change selected species"
     }
   }
 }

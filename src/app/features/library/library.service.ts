@@ -39,8 +39,6 @@ export const PLACEMENT_OPTIONS = ['Indoor', 'Outdoor', 'Both'] as const;
 export const CARE_DIFFICULTY_OPTIONS = ['Beginner', 'Intermediate', 'Advanced'] as const;
 export const MAINTENANCE_OPTIONS = ['Low', 'Medium', 'High'] as const;
 
-export { SUNLIGHT_LABEL, WATERING_LABEL } from '../../shared/utils/botanical-label.util';
-
 @Injectable({ providedIn: 'root' })
 export class LibraryService {
   private readonly supabase = inject(SupabaseService);

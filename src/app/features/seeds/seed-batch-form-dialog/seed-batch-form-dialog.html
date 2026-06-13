@@ -13,7 +13,7 @@
     [formGroup]="form"
     novalidate
     class="flex flex-col gap-4"
-    aria-label="Seed batch details form"
+    [attr.aria-label]="'seeds.form.formAriaLabel' | transloco"
   >
     <div class="flex flex-col gap-1.5">
       @if (selectedSpeciesId() === null) {
@@ -126,7 +126,10 @@
             </div>
             <div class="flex flex-col gap-2 mt-2">
               @if (lockedBotanicalRecord(); as record) {
-                <div class="flex flex-wrap gap-1" aria-label="Species traits">
+                <div
+                  class="flex flex-wrap gap-1"
+                  [attr.aria-label]="'seeds.form.speciesTraitsAria' | transloco"
+                >
                   <app-botanical-tags
                     [placement]="record.placement"
                     [isToxicToPets]="record.is_toxic_to_pets"
@@ -135,7 +138,11 @@
                   />
                 </div>
               } @else if (isLoadingBotanicalRecord()) {
-                <div class="flex flex-wrap gap-1" role="status" aria-label="Loading species traits">
+                <div
+                  class="flex flex-wrap gap-1"
+                  role="status"
+                  [attr.aria-label]="'seeds.form.loadingSpeciesTraitsAria' | transloco"
+                >
                   <app-botanical-tags [isEnriching]="true" />
                 </div>
               }
@@ -143,7 +150,7 @@
                 <button
                   type="button"
                   class="cursor-pointer rounded-garden-sm text-xs font-medium text-primary-600 dark:text-primary-400 outline-none transition-colors hover:text-primary-700 dark:hover:text-primary-300 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1"
-                  aria-label="Change selected species"
+                  [attr.aria-label]="'seeds.form.changeSpeciesAria' | transloco"
                   (click)="clearLockedSpecies()"
                 >
                   {{ 'seeds.form.change' | transloco }}
@@ -222,7 +229,7 @@
       [label]="'common.cancel' | transloco"
       variant="text"
       [pt]="FloraButtonPT"
-      ariaLabel="Cancel and close dialog"
+      [ariaLabel]="'common.cancel' | transloco"
       (onClick)="onCancel()"
     />
     <p-button

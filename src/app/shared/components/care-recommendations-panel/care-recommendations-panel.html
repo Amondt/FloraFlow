@@ -21,7 +21,7 @@
               class="font-display inline-flex self-start items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
               [class]="difficultyClass()"
             >
-              {{ record().care_difficulty }}
+              {{ difficultyLabel() }}
             </span>
           </div>
         }
@@ -44,7 +44,7 @@
               {{ 'botanical.care.watering' | transloco }}
             </p>
             <p class="font-display text-sm font-medium text-neutral-700 dark:text-neutral-200">
-              {{ wateringLabel() }}
+              {{ wateringLabel() | transloco }}
             </p>
           </div>
         }
@@ -63,7 +63,7 @@
               class="font-display inline-flex self-start items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
               [class]="maintenanceLevelClass()"
             >
-              {{ record().maintenance_level }}
+              {{ maintenanceLevelLabel() }}
             </span>
           </div>
         }
@@ -81,12 +81,15 @@
           <i class="pi pi-sun text-[9px]" aria-hidden="true"></i>
           {{ 'botanical.care.sunlight' | transloco }}
         </p>
-        <ul class="flex flex-wrap gap-1.5" aria-label="Sunlight requirements">
+        <ul
+          class="flex flex-wrap gap-1.5"
+          [attr.aria-label]="'botanical.care.sunlight' | transloco"
+        >
           @for (label of sunlightLabels(); track label) {
             <li
               class="font-display inline-flex items-center rounded-full bg-primary-50 px-2.5 py-0.5 text-xs font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300"
             >
-              {{ label }}
+              {{ label | transloco }}
             </li>
           }
         </ul>
@@ -104,12 +107,15 @@
           <i class="pi pi-sort-alt text-[9px]" aria-hidden="true"></i>
           {{ 'botanical.care.preferredSoil' | transloco }}
         </p>
-        <ul class="flex flex-wrap gap-1.5" aria-label="Preferred soil types">
+        <ul
+          class="flex flex-wrap gap-1.5"
+          [attr.aria-label]="'botanical.care.preferredSoil' | transloco"
+        >
           @for (soil of preferredSoilTypes(); track soil) {
             <li
               class="font-display inline-flex items-center rounded-full bg-primary-50 px-2.5 py-0.5 text-xs font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300"
             >
-              {{ soil }}
+              {{ soil | transloco }}
             </li>
           }
         </ul>
@@ -137,7 +143,7 @@
     @if (record().ideal_humidity_min !== null || record().ideal_humidity_max !== null) {
       <div
         class="flex flex-col gap-2 rounded-garden-sm bg-neutral-50 p-2.5 dark:bg-neutral-800/60"
-        aria-label="Humidity requirements"
+        [attr.aria-label]="'botanical.care.humidity' | transloco"
       >
         <div class="flex items-center justify-between gap-2">
           <p
@@ -148,7 +154,7 @@
           </p>
           <p
             class="font-display text-sm font-medium text-neutral-700 dark:text-neutral-200"
-            aria-label="Ideal humidity range"
+            [attr.aria-label]="'botanical.dialog.fields.humidityRange' | transloco"
           >
             @if (record().ideal_humidity_min !== null && record().ideal_humidity_max !== null) {
               {{ record().ideal_humidity_min }}–{{ record().ideal_humidity_max }}%

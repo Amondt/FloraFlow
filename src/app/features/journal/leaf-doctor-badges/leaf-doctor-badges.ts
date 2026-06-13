@@ -1,5 +1,5 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { TranslocoService } from '@jsverse/transloco';
 import { LocaleService } from '../../../core/services/locale.service';
 import {
   confidenceBadgeClass,
@@ -11,7 +11,7 @@ import {
 @Component({
   selector: 'app-leaf-doctor-badges',
   standalone: true,
-  imports: [TranslocoPipe],
+  imports: [],
   templateUrl: './leaf-doctor-badges.html',
 })
 export class LeafDoctorBadgesComponent {

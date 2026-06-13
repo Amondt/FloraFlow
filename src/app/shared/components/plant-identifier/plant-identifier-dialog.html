@@ -16,7 +16,7 @@
         #photoInputRef
         accept="image/*"
         class="sr-only"
-        aria-label="Choose a plant photo to identify"
+        [attr.aria-label]="'botanical.identifier.uploadDropzoneAria' | transloco"
         (change)="onFileChange($event)"
       />
       <button
@@ -28,7 +28,7 @@
             ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/10'
             : 'border-neutral-200 dark:border-neutral-600 hover:border-primary-400 hover:bg-neutral-50 dark:hover:bg-neutral-800')
         "
-        aria-label="Click or drag a plant photo here to identify it"
+        [attr.aria-label]="'botanical.identifier.uploadDropzoneAria' | transloco"
         (click)="triggerPhotoInput()"
         (dragover)="onDragOver($event)"
         (dragleave)="onDragLeave()"
@@ -59,7 +59,7 @@
       <div
         class="flex flex-col items-center justify-center gap-4 py-10"
         role="status"
-        aria-label="Identifying plant species, please wait"
+        [attr.aria-label]="'botanical.identifier.identifying' | transloco"
       >
         <svg
           class="w-8 h-8 animate-spin text-primary-500"
@@ -91,14 +91,17 @@
     @if (identState() === 'result') {
       @let match = activeMatch();
       @if (match) {
-        <section aria-label="Identification result" class="flex flex-col gap-3">
+        <section
+          [attr.aria-label]="'botanical.identifier.resultSectionAria' | transloco"
+          class="flex flex-col gap-3"
+        >
           <!-- Photo (clickable, full-card height) + active species card -->
           <div class="flex gap-3">
             @if (uploadedPhotoUrl()) {
               <button
                 type="button"
                 class="cursor-zoom-in shrink-0 w-28 min-h-36 rounded-garden-sm overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
-                aria-label="View uploaded photo full size"
+                [attr.aria-label]="'botanical.identifier.viewUploadedPhotoAria' | transloco"
                 (click)="showPhotoLightbox.set(true)"
               >
                 <img
@@ -178,7 +181,7 @@
                   <p
                     class="flex items-center gap-1 text-xs font-display text-primary-500 dark:text-primary-400"
                     role="status"
-                    aria-label="Loading care data for species"
+                    [attr.aria-label]="'botanical.identifier.fetchingCare' | transloco"
                   >
                     <span
                       class="inline-block w-1.5 h-1.5 rounded-full bg-primary-400 animate-pulse"
@@ -188,7 +191,11 @@
                   </p>
                 }
               </div>
-              <div class="flex flex-col gap-2" role="group" aria-label="Species candidates">
+              <div
+                class="flex flex-col gap-2"
+                role="group"
+                [attr.aria-label]="'botanical.identifier.candidates' | transloco"
+              >
                 @for (candidate of allCandidates(); track candidate.scientific_name) {
                   @let chipRecord = candidateRecords().get(candidate.scientific_name);
                   <button
@@ -298,7 +305,7 @@
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="Uploaded photo full size"
+        [attr.aria-label]="'botanical.identifier.uploadedPhotoAria' | transloco"
         class="fixed inset-0 z-[9999] flex items-center justify-center bg-neutral-900/90 cursor-zoom-out"
         tabindex="-1"
         (click)="showPhotoLightbox.set(false)"
@@ -313,7 +320,7 @@
         <button
           type="button"
           class="cursor-pointer absolute top-4 right-4 flex items-center justify-center w-9 h-9 rounded-full bg-neutral-800/70 text-white hover:bg-neutral-700/90 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-white"
-          aria-label="Close full-size photo"
+          [attr.aria-label]="'botanical.identifier.closeFullPhotoAria' | transloco"
           (click)="showPhotoLightbox.set(false)"
         >
           <i class="pi pi-times text-sm" aria-hidden="true"></i>
@@ -329,7 +336,7 @@
           label="Cancel"
           variant="text"
           [pt]="FloraButtonPT"
-          ariaLabel="Cancel and close dialog"
+          [ariaLabel]="'common.cancel' | transloco"
           (onClick)="onVisibleChange(false)"
         />
       }
@@ -338,7 +345,7 @@
           label="Cancel"
           variant="text"
           [pt]="FloraButtonPT"
-          ariaLabel="Cancel and close dialog"
+          [ariaLabel]="'common.cancel' | transloco"
           [disabled]="true"
         />
       }
@@ -351,7 +358,7 @@
             'transition-colors duration-150 rounded px-2 py-1 ' +
             FLORA_FOCUS
           "
-          aria-label="Try another photo"
+          [attr.aria-label]="'botanical.identifier.tryAnother' | transloco"
           (click)="tryAnother()"
         >
           {{ 'botanical.identifier.tryAnother' | transloco }}
@@ -365,7 +372,7 @@
               'transition-colors duration-150 rounded px-2 py-1 ' +
               FLORA_FOCUS
             "
-            aria-label="View full species profile"
+            [attr.aria-label]="'botanical.identifier.viewProfile' | transloco"
             (click)="viewProfile()"
           >
             {{ 'botanical.identifier.viewProfile' | transloco }}
@@ -398,7 +405,7 @@
             'transition-colors duration-150 rounded px-2 py-1 ' +
             FLORA_FOCUS
           "
-          aria-label="Try another photo"
+          [attr.aria-label]="'botanical.identifier.tryAnother' | transloco"
           (click)="tryAnother()"
         >
           {{ 'botanical.identifier.tryAnother' | transloco }}

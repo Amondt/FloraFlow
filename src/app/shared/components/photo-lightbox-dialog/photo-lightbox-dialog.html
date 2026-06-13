@@ -71,14 +71,14 @@
       @if (hasMultiple()) {
         <div
           class="flex items-center justify-center gap-2 mt-5 pointer-events-auto"
-          aria-label="Photo navigation"
+          [attr.aria-label]="'botanical.photo.navigationAria' | transloco"
         >
           @for (photo of photos(); track $index) {
             <button
               type="button"
               class="cursor-pointer pointer-events-auto w-2.5 h-2.5 rounded-full transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1 focus-visible:ring-offset-black/50"
               [class]="$index === activeIndex() ? 'bg-white' : 'bg-white/35 hover:bg-white/60'"
-              [attr.aria-label]="'Go to photo ' + ($index + 1)"
+              [attr.aria-label]="'botanical.photo.goToPhotoAria' | transloco: { index: $index + 1 }"
               [attr.aria-current]="$index === activeIndex() ? 'true' : null"
               (click)="goToIndex($index)"
             ></button>

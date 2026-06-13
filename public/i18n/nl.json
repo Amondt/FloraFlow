@@ -8,7 +8,8 @@
     "add": "Toevoegen",
     "back": "Terug",
     "retry": "Opnieuw proberen",
-    "loading": "Laden"
+    "loading": "Laden",
+    "backTo": "Terug naar {{ label }}"
   },
   "validation": {
     "required": "Dit veld is verplicht",
@@ -580,7 +581,8 @@
       "actionPointsRegionAriaLabel": "Leaf Doctor actiepunten",
       "actionPointsListAriaLabel": "Actiepunten",
       "cardAriaLabel": "{plant} — {category} — {when}",
-      "yesterday": "Gisteren"
+      "yesterday": "Gisteren",
+      "openSoilCheckAria": "Bodemcheck-dialoog openen voor {{ name }}"
     },
     "entryForm": {
       "dialogTitleEdit": "Zorg bewerken",
@@ -871,7 +873,10 @@
         "mixSubstrate": "Substraat mengen",
         "trackSeeds": "Zaden bijhouden",
         "addToPlants": "Toevoegen aan mijn planten"
-      }
+      },
+      "speciesIdentityAria": "Soortidentiteit",
+      "selectVarietyAria": "Selecteer een variëteit",
+      "tablistAria": "Botanisch profielsecties"
     },
     "care": {
       "title": "Verzorgingsaanbevelingen",
@@ -884,7 +889,40 @@
       "humidity": "Luchtvochtigheid",
       "compatible": "Zoneluchtvochtigheid compatibel",
       "humidityLow": "De luchtvochtigheid van de zone ({{ zone }}%) is lager dan het ideale bereik van deze plant ({{ range }}).",
-      "humidityHigh": "De luchtvochtigheid van de zone ({{ zone }}%) is hoger dan het ideale bereik van deze plant ({{ range }})."
+      "humidityHigh": "De luchtvochtigheid van de zone ({{ zone }}%) is hoger dan het ideale bereik van deze plant ({{ range }}).",
+      "sunlightLabels": {
+        "fullSun": "Volle zon",
+        "partShade": "Halfschaduw",
+        "fullShade": "Schaduw",
+        "filteredIndirect": "Indirect licht"
+      },
+      "wateringLabels": {
+        "frequent": "Elke 1–2 dagen",
+        "average": "Elke 3–7 dagen",
+        "minimum": "Elke 7–14 dagen",
+        "none": "Droogtetolerant"
+      },
+      "difficultyLabels": {
+        "beginner": "Beginner",
+        "intermediate": "Gemiddeld",
+        "advanced": "Gevorderd"
+      },
+      "maintenanceLabels": {
+        "low": "Laag",
+        "medium": "Gemiddeld",
+        "high": "Hoog"
+      },
+      "soilTypeLabels": {
+        "wellDraining": "Goed drainerend",
+        "sandy": "Zandig",
+        "loamy": "Lemig",
+        "clay": "Kleiachtig",
+        "peaty": "Veenachtig",
+        "chalky": "Kalkachtig",
+        "rich": "Rijk",
+        "poor": "Arm",
+        "moistureRetaining": "Vochtvasthoudend"
+      }
     },
     "identifier": {
       "title": "Een plant identificeren",
@@ -901,7 +939,12 @@
       "cancel": "Annuleren",
       "confidenceHighPct": "{{ pct }}% — betrouwbaar",
       "confidenceLowPct": "{{ pct }}% — lage betrouwbaarheid",
-      "confidenceUncertainPct": "{{ pct }}% — onzeker"
+      "confidenceUncertainPct": "{{ pct }}% — onzeker",
+      "uploadDropzoneAria": "Klik of sleep een plantenfoto hier om het te identificeren",
+      "resultSectionAria": "Identificatieresultaat",
+      "viewUploadedPhotoAria": "Geüploade foto op volledig scherm bekijken",
+      "uploadedPhotoAria": "Geüploade foto op volledig scherm",
+      "closeFullPhotoAria": "Foto op volledig scherm sluiten"
     },
     "substrate": {
       "title": "Substraatmixgids",
@@ -921,13 +964,19 @@
       "close": "Sluiten",
       "recommendedFromPlant": "Aanbevolen op basis van het substraatprofiel van deze plant",
       "recommendedFromSpecies": "Aanbevolen op basis van bodemgegevens van de soort",
-      "recommendedFromPreset": "Aanbevolen op basis van een substraatpreset"
+      "recommendedFromPreset": "Aanbevolen op basis van een substraatpreset",
+      "volumeSectionAria": "Substraatvolume",
+      "potPresetsAria": "Potgrootte-presets",
+      "componentsTableAria": "Substraatcomponenten en geschatte volumes",
+      "phLearnMoreAria": "Meer informatie over de nauwkeurigheid van de pH-schatting"
     },
     "photo": {
       "previousAria": "Vorige foto",
       "nextAria": "Volgende foto",
       "closeGalleryAria": "Galerij sluiten",
-      "loadingPhotoAria": "Foto laden"
+      "loadingPhotoAria": "Foto laden",
+      "navigationAria": "Fotonavigatie",
+      "goToPhotoAria": "Ga naar foto {{ index }}"
     },
     "plantSelect": {
       "logEntriesAria": "{{ count }} logboekvermeldingen"
@@ -940,7 +989,8 @@
       "emptyHint": "Volg je zaden van het zakje tot de tuin",
       "statsActive": "{total, plural, one {1 partij} other {# partijen}} · {active} actief groeiend",
       "statsStored": "{total, plural, one {1 partij} other {# partijen}} in opslag",
-      "addBatch": "Partij toevoegen"
+      "addBatch": "Partij toevoegen",
+      "addBatchAriaLabel": "Een nieuw zadenpakket toevoegen aan uw zaadbank"
     },
     "filter": {
       "aria": "Partijen filteren op groeifase",
@@ -1022,7 +1072,11 @@
       "notesHint": "Optioneel — notities over deze partij",
       "change": "Wijzigen",
       "save": "Partij opslaan",
-      "saveChanges": "Wijzigingen opslaan"
+      "saveChanges": "Wijzigingen opslaan",
+      "formAriaLabel": "Zadenpartij formulier",
+      "speciesTraitsAria": "Soortkenmerken",
+      "loadingSpeciesTraitsAria": "Soortkenmerken laden",
+      "changeSpeciesAria": "Geselecteerde soort wijzigen"
     }
   }
 }

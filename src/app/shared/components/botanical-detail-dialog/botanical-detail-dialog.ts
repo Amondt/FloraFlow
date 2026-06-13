@@ -1,9 +1,16 @@
-import { Component, computed, effect, input, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { LocaleService } from '../../../core/services/locale.service';
 import { CachedBotanicalRecord } from '../../../features/library/library.service';
-import { getSunlightLabels, getWateringLabel } from '../../utils/botanical-label.util';
+import {
+  CARE_DIFFICULTY_KEY,
+  MAINTENANCE_LEVEL_KEY,
+  getSoilTypeLabels,
+  getSunlightLabels,
+  getWateringLabel,
+} from '../../utils/botanical-label.util';
 import { FloraButtonPT, FloraDetailDialogPT } from '../../ui/pt/index';
 import { SpeciesPhotoCarouselComponent } from '../species-photo-carousel/species-photo-carousel';
 import { PhotoLightboxDialogComponent } from '../photo-lightbox-dialog/photo-lightbox-dialog';
@@ -72,6 +79,9 @@ function extractCultivarLabel(scientificName: string): string {
   templateUrl: './botanical-detail-dialog.html',
 })
 export class BotanicalDetailDialogComponent {
+  private readonly t = inject(TranslocoService);
+  private readonly localeService = inject(LocaleService);
+
   readonly records = input<CachedBotanicalRecord[]>([]);
   readonly visible = input<boolean>(false);
   readonly isEnriching = input<boolean>(false);
@@ -141,8 +151,18 @@ export class BotanicalDetailDialogComponent {
   protected readonly wateringLabel = computed(() =>
     getWateringLabel(this.activeRecord()?.watering),
   );
-  protected readonly preferredSoilTypes = computed(
-    () => this.activeRecord()?.preferred_soil_type ?? [],
+  protected readonly difficultyLabel = computed(() => {
+    const _lang = this.localeService.locale();
+    const key = CARE_DIFFICULTY_KEY[this.activeRecord()?.care_difficulty ?? ''];
+    return key ? this.t.translate(key) : (this.activeRecord()?.care_difficulty ?? '');
+  });
+  protected readonly maintenanceLevelLabel = computed(() => {
+    const _lang = this.localeService.locale();
+    const key = MAINTENANCE_LEVEL_KEY[this.activeRecord()?.maintenance_level ?? ''];
+    return key ? this.t.translate(key) : (this.activeRecord()?.maintenance_level ?? '');
+  });
+  protected readonly preferredSoilTypes = computed(() =>
+    getSoilTypeLabels(this.activeRecord()?.preferred_soil_type),
   );
 
   protected readonly difficultyClass = computed(() => {

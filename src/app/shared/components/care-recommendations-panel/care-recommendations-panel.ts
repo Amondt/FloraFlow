@@ -3,7 +3,13 @@ import { Message } from 'primeng/message';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { LocaleService } from '../../../core/services/locale.service';
 import { CachedBotanicalRecord } from '../../../features/library/library.service';
-import { getSunlightLabels, getWateringLabel } from '../../utils/botanical-label.util';
+import {
+  CARE_DIFFICULTY_KEY,
+  MAINTENANCE_LEVEL_KEY,
+  getSoilTypeLabels,
+  getSunlightLabels,
+  getWateringLabel,
+} from '../../utils/botanical-label.util';
 import { FloraMessagePT } from '../../ui/pt/index';
 
 @Component({
@@ -23,7 +29,21 @@ export class CareRecommendationsPanelComponent {
 
   protected readonly wateringLabel = computed(() => getWateringLabel(this.record().watering));
   protected readonly sunlightLabels = computed(() => getSunlightLabels(this.record().sunlight));
-  protected readonly preferredSoilTypes = computed(() => this.record().preferred_soil_type ?? []);
+  protected readonly preferredSoilTypes = computed(() =>
+    getSoilTypeLabels(this.record().preferred_soil_type),
+  );
+
+  protected readonly difficultyLabel = computed(() => {
+    const _lang = this.localeService.locale();
+    const key = CARE_DIFFICULTY_KEY[this.record().care_difficulty ?? ''];
+    return key ? this.t.translate(key) : (this.record().care_difficulty ?? '');
+  });
+
+  protected readonly maintenanceLevelLabel = computed(() => {
+    const _lang = this.localeService.locale();
+    const key = MAINTENANCE_LEVEL_KEY[this.record().maintenance_level ?? ''];
+    return key ? this.t.translate(key) : (this.record().maintenance_level ?? '');
+  });
 
   protected readonly difficultyClass = computed(() => {
     switch (this.record().care_difficulty) {

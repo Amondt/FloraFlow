@@ -43,7 +43,9 @@
         <a
           [routerLink]="'/tasks'"
           class="text-sm font-semibold font-display text-neutral-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
-          [attr.aria-label]="'Open soil-check dialog for ' + entry().plants.common_name"
+          [attr.aria-label]="
+            'journal.entryCard.openSoilCheckAria' | transloco: { name: entry().plants.common_name }
+          "
           >{{ entry().plants.common_name }}</a
         >
         @if (entry().plants.scientific_name) {

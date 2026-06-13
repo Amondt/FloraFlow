@@ -158,7 +158,7 @@ EN is always the source of truth and the `fallbackLang`.
     `seed-batch.service`, `weather.service`, etc.
   - format + lint + Manual Browser Check (urgency messages, dates, category labels switch locale).
 
-- [ ] **Block K — Final audit & lint gate** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **Block K — Final audit & lint gate** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - Repo-wide sweep for any surviving hardcoded user-facing text (templates + toast/aria literals);
     optionally run `@jsverse/transloco-keys-manager find` to list missing / unused keys.
   - Verify `en/fr/nl` key trees are identical (no missing FR/NL key).

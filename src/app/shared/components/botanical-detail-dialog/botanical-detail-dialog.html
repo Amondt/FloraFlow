@@ -12,7 +12,7 @@
     <!-- Identity strip — full-width stacked: carousel on top, text below -->
     <div
       class="border-b border-neutral-100 pb-4 dark:border-neutral-700"
-      aria-label="Species identity"
+      [attr.aria-label]="'botanical.dialog.speciesIdentityAria' | transloco"
     >
       <app-species-photo-carousel
         [photos]="galleryPhotos()"
@@ -56,7 +56,11 @@
 
     <!-- Cultivar picker -->
     @if (hasVarieties()) {
-      <div class="mt-4" role="group" aria-label="Select variety">
+      <div
+        class="mt-4"
+        role="group"
+        [attr.aria-label]="'botanical.dialog.selectVarietyAria' | transloco"
+      >
         <p
           class="mb-2 font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
         >
@@ -91,7 +95,11 @@
     <div
       class="-mx-6 mt-4 overflow-x-auto overflow-y-hidden border-b border-neutral-200 dark:border-neutral-700"
     >
-      <div class="flex px-6" role="tablist" aria-label="Plant profile sections">
+      <div
+        class="flex px-6"
+        role="tablist"
+        [attr.aria-label]="'botanical.dialog.tablistAria' | transloco"
+      >
         @for (tab of tabs; track tab.id) {
           <button
             type="button"
@@ -119,7 +127,10 @@
     >
       @switch (activeTab()) {
         @case ('overview') {
-          <section class="grid grid-cols-1 gap-3 sm:grid-cols-2" aria-label="Species overview">
+          <section
+            class="grid grid-cols-1 gap-3 sm:grid-cols-2"
+            [attr.aria-label]="'botanical.dialog.tabs.overview' | transloco"
+          >
             @if (rec.placement) {
               <div
                 class="flex items-start gap-3 rounded-garden-md bg-neutral-50 p-3 dark:bg-neutral-800/60"
@@ -179,7 +190,7 @@
                     class="mt-1 inline-flex items-center rounded-full px-2.5 py-0.5 font-display text-xs font-semibold"
                     [class]="difficultyClass()"
                   >
-                    {{ rec.care_difficulty }}
+                    {{ difficultyLabel() }}
                   </span>
                 </div>
               </div>
@@ -261,7 +272,7 @@
                     class="mt-1 inline-flex items-center rounded-full px-2.5 py-0.5 font-display text-xs font-semibold"
                     [class]="maintenanceLevelClass()"
                   >
-                    {{ rec.maintenance_level }}
+                    {{ maintenanceLevelLabel() }}
                   </span>
                 </div>
               </div>
@@ -398,7 +409,10 @@
         }
 
         @case ('care') {
-          <section class="grid grid-cols-1 gap-3 sm:grid-cols-2" aria-label="Care requirements">
+          <section
+            class="grid grid-cols-1 gap-3 sm:grid-cols-2"
+            [attr.aria-label]="'botanical.dialog.tabs.care' | transloco"
+          >
             @if (wateringLabel()) {
               <div
                 class="flex items-start gap-3 rounded-garden-md bg-neutral-50 p-3 dark:bg-neutral-800/60"
@@ -420,7 +434,7 @@
                   <p
                     class="mt-0.5 font-display text-sm font-medium text-neutral-700 dark:text-neutral-200"
                   >
-                    {{ wateringLabel() }}
+                    {{ wateringLabel() | transloco }}
                   </p>
                 </div>
               </div>
@@ -482,12 +496,15 @@
                   >
                     {{ 'botanical.dialog.fields.sunlight' | transloco }}
                   </p>
-                  <ul class="flex flex-wrap gap-1.5" aria-label="Sunlight requirements">
+                  <ul
+                    class="flex flex-wrap gap-1.5"
+                    [attr.aria-label]="'botanical.dialog.fields.sunlight' | transloco"
+                  >
                     @for (label of sunlightLabels(); track label) {
                       <li
                         class="inline-flex items-center rounded-full bg-primary-50 px-2.5 py-0.5 font-display text-xs font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300"
                       >
-                        {{ label }}
+                        {{ label | transloco }}
                       </li>
                     }
                   </ul>
@@ -509,12 +526,15 @@
                   >
                     {{ 'botanical.dialog.fields.preferredSoil' | transloco }}
                   </p>
-                  <ul class="flex flex-wrap gap-1.5" aria-label="Preferred soil types">
+                  <ul
+                    class="flex flex-wrap gap-1.5"
+                    [attr.aria-label]="'botanical.dialog.fields.preferredSoil' | transloco"
+                  >
                     @for (soil of preferredSoilTypes(); track soil) {
                       <li
                         class="inline-flex items-center rounded-full bg-neutral-100 px-2.5 py-0.5 font-display text-xs font-medium text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300"
                       >
-                        {{ soil }}
+                        {{ soil | transloco }}
                       </li>
                     }
                   </ul>
@@ -561,7 +581,7 @@
                   </p>
                   <p
                     class="mt-0.5 font-display text-sm font-medium text-neutral-700 dark:text-neutral-200"
-                    aria-label="Ideal humidity range"
+                    [attr.aria-label]="'botanical.dialog.fields.humidityRange' | transloco"
                   >
                     @if (rec.ideal_humidity_min !== null && rec.ideal_humidity_max !== null) {
                       {{ rec.ideal_humidity_min }}–{{ rec.ideal_humidity_max }}%
@@ -578,7 +598,10 @@
         }
 
         @case ('growth') {
-          <section class="grid grid-cols-1 gap-3 sm:grid-cols-2" aria-label="Growth information">
+          <section
+            class="grid grid-cols-1 gap-3 sm:grid-cols-2"
+            [attr.aria-label]="'botanical.dialog.tabs.growth' | transloco"
+          >
             @if (rec.cycle) {
               <div
                 class="flex items-start gap-3 rounded-garden-md bg-neutral-50 p-3 dark:bg-neutral-800/60"
@@ -724,7 +747,10 @@
                   >
                     {{ 'botanical.dialog.fields.propagation' | transloco }}
                   </p>
-                  <ul class="flex flex-wrap gap-1.5" aria-label="Propagation methods">
+                  <ul
+                    class="flex flex-wrap gap-1.5"
+                    [attr.aria-label]="'botanical.dialog.fields.propagation' | transloco"
+                  >
                     @for (method of rec.propagation_methods; track method) {
                       <li>
                         <span
@@ -742,7 +768,10 @@
         }
 
         @case ('safety') {
-          <section class="flex flex-col gap-3" aria-label="Safety information">
+          <section
+            class="flex flex-col gap-3"
+            [attr.aria-label]="'botanical.dialog.tabs.safety' | transloco"
+          >
             @if (rec.is_toxic_to_pets !== null) {
               <div
                 class="flex items-start gap-3 rounded-garden-md bg-neutral-50 p-3 dark:bg-neutral-800/60"
@@ -844,7 +873,7 @@
       <div
         class="mt-3 flex items-start gap-2 rounded-garden-sm border border-yellow-200 bg-yellow-50 p-3 dark:border-yellow-800 dark:bg-yellow-900/20"
         role="note"
-        aria-label="Advanced care advisory"
+        [attr.aria-label]="'botanical.dialog.advisory.title' | transloco"
       >
         <i
           class="pi pi-info-circle mt-0.5 shrink-0 text-sm text-warning-500"
@@ -863,7 +892,7 @@
       <button
         type="button"
         class="cursor-pointer mr-auto inline-flex items-center gap-1.5 text-sm font-medium font-display text-neutral-500 hover:text-primary-600 dark:text-neutral-400 dark:hover:text-primary-400 transition-colors duration-150 rounded px-2 py-1 outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-        [attr.aria-label]="'Back to ' + backLabel()"
+        [attr.aria-label]="'common.backTo' | transloco: { label: backLabel() }"
         (click)="visibleChange.emit(false)"
       >
         <i class="pi pi-arrow-left text-xs" aria-hidden="true"></i>
@@ -875,7 +904,7 @@
       variant="outlined"
       icon="pi pi-list-check"
       [pt]="FloraButtonPT"
-      ariaLabel="Open substrate mix guide for this species"
+      [ariaLabel]="'botanical.dialog.actions.mixSubstrate' | transloco"
       (onClick)="onMixWizardRequested()"
     />
     @if (showAddButton()) {
@@ -884,7 +913,7 @@
         variant="outlined"
         icon="pi pi-bookmark"
         [pt]="FloraButtonPT"
-        ariaLabel="Track seeds for this species in your seed bank"
+        [ariaLabel]="'botanical.dialog.actions.trackSeeds' | transloco"
         (onClick)="onSaveToSeeds()"
       />
       <p-button

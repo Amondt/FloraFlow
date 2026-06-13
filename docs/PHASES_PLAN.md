@@ -322,7 +322,7 @@
   - No page reload — theme change is immediate and reactive.
 - [ ] **4.2** i18n EN / FR / NL | Agent: `/visualizer`
   - Install and configure `@jsverse/transloco`; `LocaleService` wraps active locale as a Signal.
-  - Translation files: `src/assets/i18n/{en,fr,nl}.json` covering every user-facing string.
+  - Translation files: `public/i18n/{en,fr,nl}.json` covering every user-facing string.
   - `LanguageSwitcherComponent` added to the nav bar; selection persisted to localStorage (requires 1.7).
   - Full string audit across all components and templates — no hardcoded UI text left after this phase.
   - Language switch applies in the same render cycle without page reload.

@@ -4,6 +4,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { FLORA_HOVER } from '../../ui/pt/states.pt';
 import { ThemeToggleComponent } from '../theme-toggle/theme-toggle';
 import { LanguageSwitcherComponent } from '../language-switcher/language-switcher';
+import { SignOutButtonComponent } from '../sign-out-button/sign-out-button';
 
 @Component({
   selector: 'app-nav',
@@ -13,6 +14,7 @@ import { LanguageSwitcherComponent } from '../language-switcher/language-switche
     RouterLinkActive,
     ThemeToggleComponent,
     LanguageSwitcherComponent,
+    SignOutButtonComponent,
     TranslocoPipe,
   ],
   templateUrl: './nav.html',

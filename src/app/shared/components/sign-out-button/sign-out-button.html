@@ -1,0 +1,11 @@
+<button
+  type="button"
+  [class]="buttonClass"
+  [attr.aria-label]="'nav.signOutAriaLabel' | transloco"
+  [attr.aria-busy]="loggingOut()"
+  [disabled]="loggingOut()"
+  (click)="signOut()"
+>
+  <i [class]="loggingOut() ? 'pi pi-spinner pi-spin' : 'pi pi-power-off'" aria-hidden="true"></i>
+  {{ 'nav.signOut' | transloco }}
+</button>

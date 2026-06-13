@@ -23,7 +23,9 @@
     "tasks": "Tâches",
     "journal": "Journal",
     "library": "Bibliothèque",
-    "seeds": "Graines"
+    "seeds": "Graines",
+    "signOut": "Se déconnecter",
+    "signOutAriaLabel": "Se déconnecter de FloraFlow"
   },
   "language": {
     "switcher": "Changer de langue"

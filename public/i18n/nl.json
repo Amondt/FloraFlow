@@ -23,7 +23,9 @@
     "tasks": "Taken",
     "journal": "Dagboek",
     "library": "Bibliotheek",
-    "seeds": "Zaden"
+    "seeds": "Zaden",
+    "signOut": "Uitloggen",
+    "signOutAriaLabel": "Uitloggen bij FloraFlow"
   },
   "language": {
     "switcher": "Taal wijzigen"

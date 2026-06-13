@@ -11,7 +11,7 @@
 BEGIN;
 
 SELECT
-  plan (49);
+  plan (51);
 
 -- ── SETUP ─────────────────────────────────────────────────────────────────
 -- Disable FK triggers so we can insert profiles without auth.users rows.
@@ -1275,7 +1275,45 @@ SELECT
     'Anon role cannot SELECT from frost_date_cache'
   );
 
--- ── TEST 48: Authenticated INSERT on frost_date_cache is blocked ─────────────
+-- ═══════════════════════════════════════════════════════════════════════════
+-- Phase 4.5 — translations + diagnostics_i18n column defaults
+-- ═══════════════════════════════════════════════════════════════════════════
+-- ── TEST 48: translations defaults to NULL on cached_botanical_records ───────
+RESET ROLE;
+
+SELECT
+  set_config('request.jwt.claims', '{}', TRUE);
+
+SELECT
+  IS (
+    (
+      SELECT
+        translations
+      FROM
+        public.cached_botanical_records
+      WHERE
+        scientific_name = 'Testus planticus pgTAP'
+    ),
+    NULL::jsonb,
+    'translations is NULL by default on cached_botanical_records rows'
+  );
+
+-- ── TEST 49: diagnostics_i18n defaults to NULL on plant_journals ─────────────
+SELECT
+  IS (
+    (
+      SELECT
+        diagnostics_i18n
+      FROM
+        public.plant_journals
+      WHERE
+        id = 'cccccccc-cccc-cccc-cccc-cccccccccccc'
+    ),
+    NULL::jsonb,
+    'diagnostics_i18n is NULL by default on plant_journals rows'
+  );
+
+-- ── TEST 50: Authenticated INSERT on frost_date_cache is blocked ─────────────
 SET
   LOCAL ROLE authenticated;
 

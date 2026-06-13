@@ -111,6 +111,9 @@ The Anti-Hallucination Cache & Enrichment Sink. This table buffers raw external 
     -- plant_type avoids the SQL reserved word 'type'.
     -- check_depth_description / ideal_humidity_min/max / care_difficulty filled by AI Scribe (Phase 3.1).
     -- All nullable: AI Scribe enrichment handles missing values.
+    -- translations JSONB (Phase 4.5): per-locale AI translations of the 7 free-text prose fields.
+    --   Shape: { "fr": { "description": "...", "check_depth_description": "...", ... }, "nl": { ... } }
+    --   English base columns are never overwritten. Missing locale degrades to base English.
 
 ### 📸 2.5 Table: `plant_journals`
 
@@ -129,6 +132,11 @@ Historical logs, tracking notes, and compressed photo records mapped per plant c
         created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
     );
+
+    -- diagnostics_i18n JSONB (Phase 4.5): per-locale AI translations of the 3 Leaf Doctor prose fields.
+    --   Shape: { "fr": { "primary_condition": "...", "identified_plant": "...",
+    --                    "immediate_remedial_actions": ["...", ...] }, "nl": { ... } }
+    --   Written client-side under existing owner RLS. User-authored notes are never translated.
 
 ---
 

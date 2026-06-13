@@ -76,6 +76,7 @@ export type Database = {
           thumbnail_fetched: boolean
           thumbnail_url: string | null
           toxicity_notes: string | null
+          translations: Json | null
           watering: string | null
         }
         Insert: {
@@ -119,6 +120,7 @@ export type Database = {
           thumbnail_fetched?: boolean
           thumbnail_url?: string | null
           toxicity_notes?: string | null
+          translations?: Json | null
           watering?: string | null
         }
         Update: {
@@ -162,6 +164,7 @@ export type Database = {
           thumbnail_fetched?: boolean
           thumbnail_url?: string | null
           toxicity_notes?: string | null
+          translations?: Json | null
           watering?: string | null
         }
         Relationships: []
@@ -201,6 +204,7 @@ export type Database = {
           category: Database["public"]["Enums"]["log_category_type"]
           created_at: string
           diagnostics: Json | null
+          diagnostics_i18n: Json | null
           id: string
           image_storage_path: string | null
           logged_at: string
@@ -213,6 +217,7 @@ export type Database = {
           category?: Database["public"]["Enums"]["log_category_type"]
           created_at?: string
           diagnostics?: Json | null
+          diagnostics_i18n?: Json | null
           id?: string
           image_storage_path?: string | null
           logged_at?: string
@@ -225,6 +230,7 @@ export type Database = {
           category?: Database["public"]["Enums"]["log_category_type"]
           created_at?: string
           diagnostics?: Json | null
+          diagnostics_i18n?: Json | null
           id?: string
           image_storage_path?: string | null
           logged_at?: string

@@ -61,7 +61,7 @@ The two are complementary; 4.5 must not re-translate any enum or static label.
 
 ## Blocks
 
-- [ ] **Block A — Migration: translation storage** | Agent: `/plumber` · Model: Sonnet · Effort: low
+- [x] **Block A — Migration: translation storage** | Agent: `/plumber` · Model: Sonnet · Effort: low
   - New migration `supabase/migrations/<ts>_ai_content_translations.sql`:
     `ALTER TABLE public.cached_botanical_records ADD COLUMN IF NOT EXISTS translations JSONB;`
     and `ALTER TABLE public.plant_journals ADD COLUMN IF NOT EXISTS diagnostics_i18n JSONB;`

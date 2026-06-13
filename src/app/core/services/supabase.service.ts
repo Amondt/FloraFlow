@@ -46,6 +46,15 @@ export class SupabaseService {
     return { session: data.session, error };
   }
 
+  async signUp(
+    email: string,
+    password: string,
+  ): Promise<{ error: AuthError | null; needsEmailConfirmation: boolean }> {
+    const { data, error } = await this.client.auth.signUp({ email, password });
+    const needsEmailConfirmation = !error && !!data.user && data.session === null;
+    return { error, needsEmailConfirmation };
+  }
+
   async signOut(): Promise<{ error: AuthError | null }> {
     const { error } = await this.client.auth.signOut();
     return { error };

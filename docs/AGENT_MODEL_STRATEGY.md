@@ -24,12 +24,23 @@ FloraFlow's source-of-truth docs (`ANGULAR_PATTERNS.md`, `DESIGN_SYSTEM.md`, `AP
 
 ## Per-agent defaults
 
+### Role agents
+
 | Agent         | Default          | Escalate to Opus when…                                                                         |
 | ------------- | ---------------- | ---------------------------------------------------------------------------------------------- |
 | `/mind`       | Sonnet · `mid`   | **Writing a new phase plan from scratch** (multi-block, cross-doc) → Opus · `max`              |
 | `/visualizer` | Sonnet · `mid`   | A novel interaction or layout with no documented pattern → Opus · `mid`                         |
 | `/plumber`    | Sonnet · `mid`   | **Multi-role RLS, a security-sensitive migration, or a complex Edge Function** → Opus · `high` |
 | `/gatekeeper` | Sonnet · `mid`   | **A security audit or RLS verification** → Opus · `high`–`max`                                  |
+
+### Utility commands
+
+| Command      | Default            | Notes                                                                                               |
+| ------------ | ------------------ | --------------------------------------------------------------------------------------------------- |
+| `/align`     | Sonnet · `mid`     | Coverage, not deep reasoning — enumerating ambiguities. Opus · `mid` only for genuinely novel features with no doc precedent. |
+| `/diagnose`  | Sonnet · `high`    | Hypothesis generation IS the work — always budget `think hard`. Match **model** to the bug's layer (Sonnet · `high` for layer-isolated bugs; Opus · `high` when the bug spans UI + backend or has already resisted one fix). |
+| `/zoom-out`  | Sonnet · `low`     | Reading + summarizing. Bump to `think` only when you specifically want non-obvious coupling surfaced. Opus almost never needed. |
+| `/handoff`   | Sonnet · `low`     | Mechanical extraction — the cheapest task in the whole system. Never escalate.                      |
 
 ## Session workflow
 

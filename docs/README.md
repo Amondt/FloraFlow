@@ -1,166 +1,112 @@
-# FloraFlow (SproutRoute) - Developer Workspace Manual
+# FloraFlow — Developer Workspace Manual
 
-Welcome to the development repository for **FloraFlow**, an open-source, full-stack, free-tier smart gardening companion app built with Angular 21+ and managed through a multi-agent AI workflow.
+FloraFlow is a full-stack, free-tier smart gardening app built with Angular 21+ and developed through a multi-agent Claude Code workflow. This is the **human-facing operating manual**: environment setup, secret routing, and exactly how to drive the AI agents day to day.
 
-This document serves as your operational manual for configuring the local environment, routing system keys securely, and managing workspace AI agents.
+Agent behavioural rules live in `../CLAUDE.md`; engineering principles in `CODE_RULES.md`; the done-ritual and QA gates in `DEFINITION_OF_DONE.md`.
 
 ---
 
-## 1. ⚙️ Local Development Setup
+## 1. ⚙️ Local setup
 
-To establish a predictable local environment that perfectly mirrors our "Always Free 2026 Tech Stack," install the core prerequisites exactly as configured below.
+Prerequisites:
 
-### 1.1 Core Prerequisites
+- **Node.js** v22.x LTS or higher (Angular 21 compatibility)
+- **Bun** — package manager and script runner
+- **Supabase CLI** — always invoked via `bunx supabase` (never bare `supabase`)
+- **Docker Desktop** — runs the local Supabase container suite
 
-- **Node.js:** v22.x LTS or higher (Mandatory for Angular 21 compatibility primitives).
-- **Supabase CLI:** Installed globally via your package manager to simulate the Deno Edge environment locally.
-- **Docker Desktop:** Required locally to spin up the local isolated Supabase development container suite.
-
-### 1.2 Initial Workspace Bootstrap Execution
-
-Run the following initialization chain to install frontend dependencies and link your local repository:
+Bootstrap and run:
 
     bun install
-    supabase init
+    bunx supabase init     # only if supabase/ is not yet initialised
+    bun run dev            # Angular serve + Tailwind watch → http://localhost:4200
 
 ---
 
-## 2. 🔐 Environment Variables & Secret Masking
+## 2. 🔐 Environment variables
 
-Never commit plain text API credentials or service role keys to this public repository. All external transactions are piped through serverless Supabase Edge Functions (Deno) to hide secret keys away from client inspection frameworks.
+Never commit credentials. Client-safe values reach the browser; everything else stays in Edge Function secrets (Deno), invisible to the client bundle. Create a `.env` in the project root:
 
-Create a `.env` file in your root folder and map these required connection strings:
+    # Client-safe — shipped to the browser
+    SUPABASE_URL=your_supabase_endpoint_url
+    SUPABASE_ANON_KEY=your_public_anon_key
 
-    # --- CLIENT INTERFACE BINDINGS (Cloudflare/Vercel Targets) ---
-    SUPABASE_URL=your_local_or_production_supabase_endpoint_url
-    SUPABASE_ANON_KEY=your_public_anonymous_client_access_token
+    # Edge Function secrets — never in the frontend bundle
+    ANTHROPIC_API_KEY=your_anthropic_api_key    # Claude: enrichment, vision, plant-ID
+    RESEND_API_KEY=your_resend_api_key          # Monday-morning digest email
+    # PERENUAL_API_KEY=...                       # legacy — Perenual retired in Phase 3.16; kept only for old data
 
-    # --- EDGE VAULT CREDENTIALS (Masked Serverless Environment) ---
-    # Locked to Deno runtime containers. Banned from frontend bundles.
-    ANTHROPIC_API_KEY=your_anthropic_api_key
-    PERENUAL_API_KEY=your_perenual_botanical_index_credential_token
-    PLANTNET_API_KEY=your_plantnet_computer_vision_access_token
-    RESEND_API_KEY=your_resend_email_infrastructure_token
+Botanical search now uses the keyless **iNaturalist** taxa API (Phase 3.16), so no botanical-registry key is required.
 
 ---
 
-## 3. 🤖 Multi-Agent AI Workflow (Claude Code Slash Commands)
+## 3. 🤖 The multi-agent workflow
 
-This workspace uses **Claude Code custom slash commands** to switch between focused engineering roles. Each agent role is defined as a markdown file in `.claude/commands/` — when you invoke a slash command, Claude Code loads that file as its working context for the session.
+Each agent is a Claude Code slash command — a markdown prompt file in `.claude/commands/` that Claude Code loads as its working context when you invoke it. No external runtime, package, or `skills.sh`; just prompt files.
 
-There is no external tool, package manager, or `skills.sh` runtime involved. The agents are plain markdown prompt files.
-
-### 3.1 Standard Feature Workflow
-
-This is the normal flow for any new feature or phase task:
+### 3.1 Your session loop
 
 ```
-Step 1 — Plan
-  /mind <task description>
-  → reads PHASES_PLAN.md, produces a numbered block plan
-  → saves the plan to docs/plans/phase-N/PHASE_X_Y_PLAN.md
-  → you review and approve before any code is written
-
-Step 2 — Build (block by block)
-  /visualizer <block description>   ← Angular components, UI, templates
-  /plumber <block description>      ← migrations, RLS, Edge Functions
-
-  After each block:
-  → agent runs bun run lint
-  → agent outputs a Manual Browser Check or db test command
-  → you confirm before moving to the next block
-
-Step 3 — QA
-  /gatekeeper                       ← after all blocks are confirmed
-  → runs Vitest, pgTAP, security checks
-  → marks PHASES_PLAN.md checkbox [x]
-
-Step 4 — Commit
-  git commit && git push
+0. Start on Sonnet (/model). Run the app:  bun run dev
+1. Fuzzy idea?       → /align <idea>        → one-paragraph brief        (skip if already clear)
+2. Plan it           → /mind <brief>        → numbered block plan saved to docs/plans/
+                                              Opus + "ultrathink" ONLY for a brand-new phase plan
+                                              review & approve before any code
+3. Build one block   → /visualizer <block>  (UI)   or   /plumber <block>  (data / RLS / Edge)
+                        default Sonnet · "think" (mid)
+4. Verify each block → agent runs format+lint, hands you a Manual Browser Check or db-test / SQL
+                        YOU run it → on pass: block checked, git commit
+5. Security-sensitive → /gatekeeper [SECURITY] on that block NOW
+   block?                (touches RLS / secrets / a migration / an AI→DB write)
+6. Stuck?            → /diagnose <symptom>       Unfamiliar code? → /zoom-out <area>
+7. Phase's last      → /gatekeeper (full)        → it marks the PHASES_PLAN.md checkbox
+   block done                                    → git commit && git push
+8. Context filling   → /handoff → paste the brief into a fresh session
 ```
 
-### 3.2 Utility Commands (Use As Needed)
+**You are the verifier.** Agents never self-certify — nothing is "done" until you confirm the Manual Browser Check or `bunx supabase db test`. Full rules: `DEFINITION_OF_DONE.md`.
 
-These slot in around the standard flow — they don't replace it.
+### 3.2 The agents
 
-| Command | When to use |
-|---|---|
-| `/align <feature idea>` | Before `/mind` when the feature is still fuzzy — resolves ambiguities, produces a clear brief |
-| `/diagnose <bug description>` | When something is broken — runs a 6-phase investigation loop |
-| `/zoom-out <area of code>` | When an agent (or you) needs a map of an unfamiliar area before touching it |
-| `/handoff` | At the end of a long session — compacts the conversation into a brief for the next session |
+| Command       | Role                                     | Reads before acting                                       |
+| ------------- | ---------------------------------------- | --------------------------------------------------------- |
+| `/mind`       | Architecture & planning                  | `APP_SPEC`, `DB_SCHEMA_MATRIX`, `PHASES_PLAN`, `PLANS_GUIDE` |
+| `/visualizer` | Angular components & UI                  | `DESIGN_SYSTEM`, `APP_SPEC`, `ANGULAR_PATTERNS`, `CODE_RULES` |
+| `/plumber`    | Supabase, migrations, Edge Functions     | `DB_SCHEMA_MATRIX`, `BACKEND_PATTERNS`, `AI_PROMPT_MANIFEST`, `CODE_RULES` |
+| `/gatekeeper` | QA, tests, security                      | `PHASES_PLAN`, `DEFINITION_OF_DONE`, `CODE_RULES`         |
+| `/align`      | Pre-feature interview → brief            | run before `/mind` when the feature is fuzzy              |
+| `/diagnose`   | Disciplined bug-investigation loop       | —                                                         |
+| `/zoom-out`   | Map an unfamiliar area before touching   | —                                                         |
+| `/handoff`    | Compact a long session into a brief      | —                                                         |
 
-### 3.3 Role Agents
+Which **model + effort** to run each agent at: `AGENT_MODEL_STRATEGY.md`.
 
-| Command | Role | Reads before acting |
-|---|---|---|
-| `/mind` | **The Mind** — Architecture & planning | `APP_SPEC.md`, `DB_SCHEMA_MATRIX.md`, `PHASES_PLAN.md` |
-| `/visualizer` | **The Visualizer** — Angular components & UI | `DESIGN_SYSTEM.md`, `APP_SPEC.md`, `ANGULAR_PATTERNS.md` |
-| `/plumber` | **The Plumber** — Supabase, migrations, Edge Functions | `DB_SCHEMA_MATRIX.md`, `BACKEND_PATTERNS.md`, `AI_PROMPT_MANIFEST.md` |
-| `/gatekeeper` | **The Gatekeeper** — QA, tests, security | `PHASES_PLAN.md`, `DB_SCHEMA_MATRIX.md` |
+### 3.3 Editing agents
 
-> Which **model and effort** to run each agent at — and when to escalate from Sonnet to Opus — is documented in `AGENT_MODEL_STRATEGY.md`.
-
-### 3.4 Agent Source Files
-
-All agent definitions live in `.claude/commands/`. Edit them directly to adjust any agent's behaviour:
-
-    .claude/
-    └── commands/
-        ├── mind.md          # The Mind — architect role
-        ├── visualizer.md    # The Visualizer — frontend role
-        ├── plumber.md       # The Plumber — data role
-        ├── gatekeeper.md    # The Gatekeeper — QA role
-        ├── align.md         # Pre-feature alignment
-        ├── diagnose.md      # Bug investigation loop
-        ├── zoom-out.md      # Code orientation map
-        └── handoff.md       # Session compaction
-
+All agent definitions live in `.claude/commands/*.md` — edit them directly to adjust any agent's behaviour.
 
 ---
 
-## 4. 🎛️ Local Verification and Quality Hooks
+## 4. 🎛️ Local verification
 
-Before opening up a Pull Request, you must trigger your local testing harness to confirm code syntax compliance across framework layers.
-
-### 4.1 Check Database Integrity & RLS Verification
-
-Validate your PostgreSQL schema changes and local Row-Level Security rules by executing:
-
-    supabase db test
-
-### 4.2 Run Quality Assurance Engine
-
-Invoke the **Gatekeeper Agent** directly via its slash command:
-
-    # General Code Elegance Check
-    /gatekeeper review the current codebase
-
-    # Target Security Verification (Audits Supabase Isolation Contexts)
-    /gatekeeper [SECURITY] audit the current RLS policies
+- `bun run check` — Prettier + ESLint (run after every code block)
+- `bun run test` — Vitest unit and component tests
+- `bunx supabase db test` — RLS + schema integrity (pgTAP)
+- `/gatekeeper [SECURITY]` — security audit of RLS isolation and client-bundle key leakage
 
 ---
 
-## 📁 System Code Directory Map Reference
-
-When operating inside this workspace, adhere strictly to this standardized layout to keep domain spaces separated:
+## 📁 Directory map
 
     flora-flow-root/
-    ├── src/                      # Angular 21 Application Root Directory
-    │   ├── app/                  # Application Logic, Routing & Signals Codebase
-    │   └── assets/               # Static icons and image compression schemas
-    ├── supabase/                 # Supabase Infrastructure Framework Directory
-    │   ├── functions/            # Serverless Deno Edge Functions (Claude AI & Webhooks)
-    │   └── migrations/           # Incremental DDL SQL Database Schema Scripts
-    ├── docs/                     # Centralized Markdown Source-of-Truth Suite
-    │   ├── README.md             # This File: Operational Manual
-    │   ├── PRD.md                # High-Level Roadmap, Module Specifications & Personas
-    │   ├── APP_SPEC.md           # Folder Patterns, Routing & Signal State Models
-    │   ├── DB_SCHEMA_MATRIX.md   # Database Blueprints, Indexes & RLS Policy Matrix
-    │   ├── DESIGN_SYSTEM.md      # Tailwind v4 tokens & PrimeNG PassThrough Rules
-    │   ├── AI_PROMPT_MANIFEST.md # Claude System Prompts & Strict JSON Schemas
-    │   ├── PHASES_PLAN.md        # Iterative Build Roadmap & QA Verification Checklists
-    │   ├── ANGULAR_PATTERNS.md   # Angular 21 Required Syntax & Pattern Reference
-    │   ├── BACKEND_PATTERNS.md   # Supabase JS v2 & Deno Edge Function Patterns
-    │   └── AGENT_MODEL_STRATEGY.md # Which model + effort to run each agent at
-    └── package.json              # Client Dependency and Testing Script Declarations
+    ├── src/                      # Angular 21 application
+    │   └── app/                  # logic, routing, Signals
+    ├── public/
+    │   └── i18n/                 # Transloco EN / FR / NL translation files
+    ├── supabase/
+    │   ├── functions/            # Deno Edge Functions (Claude AI & webhooks)
+    │   │   └── _shared/          # shared Edge logic + generated DB types
+    │   ├── migrations/           # incremental DDL SQL
+    │   └── tests/                # pgTAP RLS tests
+    ├── docs/                     # source-of-truth suite (index in CLAUDE.md)
+    └── package.json

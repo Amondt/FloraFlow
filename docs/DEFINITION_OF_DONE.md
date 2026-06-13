@@ -50,7 +50,7 @@ Implementing agents never tell the user to call `/gatekeeper` after an individua
 After the user confirms verification, output a ready-to-paste command listing the exact files changed:
 
 ```
-git add <file1> <file2> ... && git commit -m "type(scope): description" && git push
+git add <file1> <file2> ... -and git commit -m "type(scope): description" && git push
 ```
 
 Use conventional commit types: `feat`, `fix`, `refactor`, `style`, `test`, `chore`. No `Co-Authored-By`, no Claude/AI reference.

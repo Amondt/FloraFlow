@@ -780,5 +780,128 @@
     "easyUpkeep": "Maintenance facile",
     "moderateUpkeep": "Maintenance modérée",
     "highUpkeep": "Maintenance élevée"
+  },
+  "botanical": {
+    "dialog": {
+      "tabs": {
+        "overview": "Vue d'ensemble",
+        "care": "Entretien",
+        "growth": "Croissance",
+        "safety": "Sécurité"
+      },
+      "varieties": "Variétés",
+      "ranks": {
+        "subspecies": "Sous-espèce",
+        "variety": "Variété",
+        "form": "Forme",
+        "hybrid": "Hybride"
+      },
+      "fields": {
+        "placement": "Emplacement",
+        "careDifficulty": "Difficulté d'entretien",
+        "growthRate": "Vitesse de croissance",
+        "maintenance": "Maintenance",
+        "nativeRegion": "Région d'origine",
+        "maxHeight": "Hauteur max",
+        "maxSpread": "Largeur max",
+        "tropicalSpecies": "Espèce tropicale",
+        "tropicalDesc": "Prospère dans la chaleur et l'humidité — à maintenir au-dessus de 10 °C et à l'abri des courants froids.",
+        "airPurifying": "Purifiant d'air",
+        "airPurifyingDesc": "Filtre les COV intérieurs selon les recherches de la NASA Clean Air Study.",
+        "watering": "Arrosage",
+        "idealSoilPh": "pH du sol idéal",
+        "phScale": "Échelle de 0 (acide) à 14 (alcalin)",
+        "sunlight": "Luminosité",
+        "preferredSoil": "Sol préféré",
+        "soilMoistureCheck": "Vérification de l'humidité du sol",
+        "humidityRange": "Plage d'humidité",
+        "lifecycle": "Cycle de vie",
+        "plantType": "Type de plante",
+        "flowering": "Floraison",
+        "producesFlowers": "Produit des fleurs",
+        "fruit": "Fructification",
+        "producesFruit": "Produit des fruits",
+        "propagation": "Propagation",
+        "petSafety": "Sécurité animaux",
+        "toxicToPets": "Toxique pour les animaux",
+        "safeForPets": "Sûr pour chats et chiens",
+        "humanSafety": "Sécurité humaine",
+        "toxicToHumans": "Toxique pour les humains",
+        "safeForHumans": "Sûr pour contact humain"
+      },
+      "lifecycle": {
+        "annual": "Complète son cycle en une saison de croissance",
+        "perennial": "Revient année après année",
+        "biennial": "Cycle de vie biennal",
+        "default": "Cycle de vie pluriannuel"
+      },
+      "attribution": "Noms d'espèces via iNaturalist",
+      "attributionAi": "· profil d'entretien généré par IA (Claude) — non vérifié scientifiquement",
+      "advisory": {
+        "title": "Entretien avancé",
+        "body": "cette espèce nécessite une attention constante, un arrosage précis et des conditions environnementales spécifiques. Assurez-vous de pouvoir répondre à ses besoins avant de l'ajouter à votre serre."
+      },
+      "actions": {
+        "mixSubstrate": "Mélanger le substrat",
+        "trackSeeds": "Suivre les graines",
+        "addToPlants": "Ajouter à mes plantes"
+      }
+    },
+    "care": {
+      "title": "Recommandations d'entretien",
+      "difficulty": "Difficulté",
+      "watering": "Arrosage",
+      "maintenance": "Maintenance",
+      "sunlight": "Luminosité",
+      "preferredSoil": "Sol préféré",
+      "soilMoisture": "Humidité du sol",
+      "humidity": "Humidité",
+      "compatible": "Humidité de zone compatible",
+      "humidityLow": "L'humidité de la zone ({{ zone }}%) est inférieure à la plage idéale de cette plante ({{ range }}).",
+      "humidityHigh": "L'humidité de la zone ({{ zone }}%) est supérieure à la plage idéale de cette plante ({{ range }})."
+    },
+    "identifier": {
+      "title": "Identifier une plante",
+      "uploadTitle": "Choisir une photo ou en prendre une",
+      "uploadHint": "JPG, PNG ou WEBP · compressé à < 300 Ko",
+      "identifying": "Identification de l'espèce…",
+      "candidates": "Candidats",
+      "fetchingCare": "Chargement des données d'entretien…",
+      "errorInvalidImage": "L'image ne semble pas montrer une plante. Essayez une photo nette d'une feuille ou d'une tige.",
+      "errorApi": "Service d'identification indisponible — réessayez dans un moment.",
+      "tryAnother": "Réessayer",
+      "viewProfile": "Voir le profil",
+      "useThisSpecies": "Utiliser cette espèce",
+      "cancel": "Annuler"
+    },
+    "substrate": {
+      "title": "Guide de substrat",
+      "profile": "Profil de substrat",
+      "howMuch": "Quelle quantité de substrat vous faut-il ?",
+      "potHint": "Choisissez le diamètre de votre pot — nous estimerons le volume à mélanger.",
+      "volumeLabel": "Ou entrez le volume (L)",
+      "recipe": "Recette du mélange",
+      "component": "Composant",
+      "approxVolume": "~Volume",
+      "estimatedPh": "pH estimé :",
+      "phDisclaimer": "Estimations — le pH réel varie selon la marque et l'âge du substrat.",
+      "phPopover": "Le pH est calculé à partir des valeurs typiques des composants rapportées dans les recherches horticoles — les résultats réels dépendent de la marque, de l'âge et de la qualité de l'eau utilisée. Pour plus de précision, testez votre mélange avec un pH-mètre après mélange.",
+      "basedOnPot": "Basé sur le pot sélectionné",
+      "pickPotAbove": "Ou choisissez une taille de pot ci-dessus",
+      "speciesNudge": "Associez une espèce à votre plante pour voir aussi la compatibilité pH.",
+      "close": "Fermer",
+      "recommendedFromPlant": "Recommandé d'après le profil de substrat de cette plante",
+      "recommendedFromSpecies": "Recommandé d'après les données de sol de l'espèce",
+      "recommendedFromPreset": "Recommandé d'après un préréglage de substrat"
+    },
+    "photo": {
+      "previousAria": "Photo précédente",
+      "nextAria": "Photo suivante",
+      "closeGalleryAria": "Fermer la galerie",
+      "loadingPhotoAria": "Chargement de la photo"
+    },
+    "plantSelect": {
+      "logEntriesAria": "{{ count }} entrées de journal"
+    }
   }
 }

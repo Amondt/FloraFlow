@@ -10,7 +10,9 @@
   <!-- Custom header: title + optional plant subtitle -->
   <ng-template #header>
     <div class="flex flex-col">
-      <span class="font-display text-base font-semibold">Substrate Mix Guide</span>
+      <span class="font-display text-base font-semibold">{{
+        'botanical.substrate.title' | transloco
+      }}</span>
       @if (plant()) {
         <span class="font-display mt-0.5 text-xs font-normal text-primary-200">
           {{ plant()!.common_name }}
@@ -21,10 +23,10 @@
 
   <div class="flex flex-col gap-6">
     <!-- ── Profile selector ─────────────────────────────────── -->
-    <section aria-label="Substrate profile">
+    <section [attr.aria-label]="'botanical.substrate.profile' | transloco">
       <div class="mb-3 flex flex-col gap-1">
         <h2 class="font-display text-sm font-medium text-neutral-700 dark:text-neutral-200">
-          Substrate profile
+          {{ 'botanical.substrate.profile' | transloco }}
         </h2>
         @if (recommendationSourceLabel()) {
           <p
@@ -81,10 +83,10 @@
     <!-- ── Volume section ────────────────────────────────────── -->
     <section aria-label="Substrate volume">
       <h2 class="mb-1 font-display text-sm font-medium text-neutral-700 dark:text-neutral-200">
-        How much substrate do you need?
+        {{ 'botanical.substrate.howMuch' | transloco }}
       </h2>
       <p class="mb-3 font-display text-xs text-neutral-500 dark:text-neutral-400">
-        Pick your pot's diameter — we'll estimate the volume to mix.
+        {{ 'botanical.substrate.potHint' | transloco }}
       </p>
 
       <!-- Chip strip -->
@@ -112,7 +114,7 @@
           [for]="volumeInputId"
           class="font-display text-xs font-medium text-neutral-500 dark:text-neutral-400"
         >
-          Or enter volume (L)
+          {{ 'botanical.substrate.volumeLabel' | transloco }}
         </label>
         <p-inputnumber
           [inputId]="volumeInputId"
@@ -133,9 +135,9 @@
           role="note"
         >
           @if (selectedChipDiameter() !== null) {
-            Based on the selected pot size
+            {{ 'botanical.substrate.basedOnPot' | transloco }}
           } @else {
-            Or pick a pot size above
+            {{ 'botanical.substrate.pickPotAbove' | transloco }}
           }
         </small>
       </div>
@@ -144,7 +146,7 @@
     <!-- ── Mix recipe table ───────────────────────────────────── -->
     <section aria-label="Mix recipe">
       <h2 class="mb-3 font-display text-sm font-medium text-neutral-700 dark:text-neutral-200">
-        Mix recipe
+        {{ 'botanical.substrate.recipe' | transloco }}
       </h2>
       <table
         class="w-full font-display text-sm"
@@ -156,7 +158,7 @@
               scope="col"
               class="pb-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
             >
-              Component
+              {{ 'botanical.substrate.component' | transloco }}
             </th>
             <th
               scope="col"
@@ -168,7 +170,7 @@
               scope="col"
               class="w-20 pb-2 text-right text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
             >
-              ~Volume
+              {{ 'botanical.substrate.approxVolume' | transloco }}
             </th>
           </tr>
         </thead>
@@ -194,7 +196,7 @@
     <section aria-label="pH estimate">
       <!-- Layer 1: pH estimate with ~ prefix (always visible) -->
       <p class="font-display text-sm text-neutral-700 dark:text-neutral-200">
-        Estimated pH:
+        {{ 'botanical.substrate.estimatedPh' | transloco }}
         <strong class="text-neutral-900 dark:text-neutral-100">
           ~{{ mixResult().phLow }}–{{ mixResult().phHigh }}
         </strong>
@@ -204,7 +206,7 @@
       <div class="mt-1.5 flex items-center gap-1.5">
         <i class="pi pi-info-circle text-xs text-neutral-400" aria-hidden="true"></i>
         <span class="font-display text-xs text-neutral-400 dark:text-neutral-500">
-          Estimates — actual pH varies by brand and substrate age.
+          {{ 'botanical.substrate.phDisclaimer' | transloco }}
         </span>
         <button
           type="button"
@@ -225,9 +227,7 @@
         <p
           class="max-w-xs font-display text-sm leading-relaxed text-neutral-700 dark:text-neutral-200"
         >
-          pH is calculated from typical component values reported in horticultural research — actual
-          results depend on the brand, age, and water quality you use. For precision, test your mix
-          with a pH meter after blending.
+          {{ 'botanical.substrate.phPopover' | transloco }}
         </p>
       </p-popover>
 
@@ -257,7 +257,7 @@
       <!-- Species nudge (plant exists but has no scientific name and pH data unavailable) -->
       @if (showSpeciesNudge()) {
         <p class="mt-3 font-display text-xs italic text-neutral-400 dark:text-neutral-500">
-          Link a species to your plant to also see pH compatibility.
+          {{ 'botanical.substrate.speciesNudge' | transloco }}
         </p>
       }
     </section>
@@ -277,7 +277,7 @@
       </button>
     }
     <p-button
-      label="Close"
+      [label]="'botanical.substrate.close' | transloco"
       variant="text"
       [pt]="FloraButtonPT"
       ariaLabel="Close substrate mix guide"

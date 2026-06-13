@@ -1,5 +1,6 @@
 import { Component, input, model, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Select, SelectModule } from 'primeng/select';
 import { FloraSelectGhostPT, FloraSelectPT } from '../../ui/pt/index';
 import { LeafIconComponent } from '../leaf-icon/leaf-icon';
@@ -20,7 +21,7 @@ export interface PlantOptionGroup {
 @Component({
   selector: 'app-plant-select',
   standalone: true,
-  imports: [FormsModule, SelectModule, LeafIconComponent],
+  imports: [FormsModule, SelectModule, LeafIconComponent, TranslocoPipe],
   templateUrl: './plant-select.html',
 })
 export class PlantSelectComponent {

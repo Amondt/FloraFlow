@@ -1,5 +1,7 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { Message } from 'primeng/message';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { LocaleService } from '../../../core/services/locale.service';
 import { CachedBotanicalRecord } from '../../../features/library/library.service';
 import { getSunlightLabels, getWateringLabel } from '../../utils/botanical-label.util';
 import { FloraMessagePT } from '../../ui/pt/index';
@@ -7,10 +9,13 @@ import { FloraMessagePT } from '../../ui/pt/index';
 @Component({
   selector: 'app-care-recommendations-panel',
   standalone: true,
-  imports: [Message],
+  imports: [Message, TranslocoPipe],
   templateUrl: './care-recommendations-panel.html',
 })
 export class CareRecommendationsPanelComponent {
+  private readonly t = inject(TranslocoService);
+  private readonly localeService = inject(LocaleService);
+
   readonly record = input.required<CachedBotanicalRecord>();
   readonly zoneHumidity = input<number | null>(null);
 
@@ -60,6 +65,7 @@ export class CareRecommendationsPanelComponent {
   });
 
   protected readonly humidityWarningText = computed((): string => {
+    const _lang = this.localeService.locale();
     const zone = this.zoneHumidity();
     const min = this.record().ideal_humidity_min;
     const max = this.record().ideal_humidity_max;
@@ -71,7 +77,7 @@ export class CareRecommendationsPanelComponent {
       min !== null && max !== null ? `${min}–${max}%` : min !== null ? `≥${min}%` : `≤${max}%`;
 
     return status === 'low'
-      ? `Zone humidity (${zone}%) is below this plant's ideal range (${range}).`
-      : `Zone humidity (${zone}%) is above this plant's ideal range (${range}).`;
+      ? this.t.translate('botanical.care.humidityLow', { zone, range })
+      : this.t.translate('botanical.care.humidityHigh', { zone, range });
   });
 }

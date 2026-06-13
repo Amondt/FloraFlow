@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { CareRecommendationsPanelComponent } from './care-recommendations-panel';
 import type { CachedBotanicalRecord } from '../../../features/library/library.service';
+import { provideTranslocoTesting } from '../../../testing/transloco-testing';
 
 function makeRecord(overrides: Partial<CachedBotanicalRecord> = {}): CachedBotanicalRecord {
   return {
@@ -55,6 +56,7 @@ describe('CareRecommendationsPanelComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [CareRecommendationsPanelComponent],
+      providers: [...provideTranslocoTesting()],
     })
       .overrideTemplate(CareRecommendationsPanelComponent, '')
       .compileComponents();

@@ -133,7 +133,7 @@ EN is always the source of truth and the `fallbackLang`.
   - Update `library.spec`.
   - format + lint + Manual Browser Check (library filters + results in all three locales).
 
-- [ ] **Block H — Botanical & shared dialogs** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+- [x] **Block H — Botanical & shared dialogs** | Agent: `/visualizer` · Model: Sonnet · Effort: low
   - `botanical-detail-dialog`, `species-photo-carousel`, `botanical-tags`,
     `care-recommendations-panel`, `plant-identifier-dialog`, `substrate-mix-wizard-dialog`,
     `plant-select`, `photo-lightbox-dialog`. Add `botanical.*` keys.

@@ -1,6 +1,7 @@
 import { Component, computed, effect, input, output, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { CachedBotanicalRecord } from '../../../features/library/library.service';
 import { getSunlightLabels, getWateringLabel } from '../../utils/botanical-label.util';
 import { FloraButtonPT, FloraDetailDialogPT } from '../../ui/pt/index';
@@ -12,23 +13,23 @@ import { buildGalleryPhotos } from '../../utils/botanical-photo.util';
 type DialogTab = 'overview' | 'care' | 'growth' | 'safety';
 
 const DIALOG_TABS: { id: DialogTab; label: string; icon: string }[] = [
-  { id: 'overview', label: 'Overview', icon: 'pi pi-compass' },
-  { id: 'care', label: 'Care', icon: 'pi pi-heart' },
-  { id: 'growth', label: 'Growth', icon: 'pi pi-chart-line' },
-  { id: 'safety', label: 'Safety', icon: 'pi pi-shield' },
+  { id: 'overview', label: 'botanical.dialog.tabs.overview', icon: 'pi pi-compass' },
+  { id: 'care', label: 'botanical.dialog.tabs.care', icon: 'pi pi-heart' },
+  { id: 'growth', label: 'botanical.dialog.tabs.growth', icon: 'pi pi-chart-line' },
+  { id: 'safety', label: 'botanical.dialog.tabs.safety', icon: 'pi pi-shield' },
 ];
 
 function inatRankLabel(rank: string | null): string | null {
   switch (rank) {
     case 'subspecies':
-      return 'Subspecies';
+      return 'botanical.dialog.ranks.subspecies';
     case 'variety':
-      return 'Variety';
+      return 'botanical.dialog.ranks.variety';
     case 'form':
-      return 'Form';
+      return 'botanical.dialog.ranks.form';
     case 'hybrid':
     case 'genushybrid':
-      return 'Hybrid';
+      return 'botanical.dialog.ranks.hybrid';
     default:
       return null;
   }
@@ -64,6 +65,7 @@ function extractCultivarLabel(scientificName: string): string {
   imports: [
     ButtonModule,
     DialogModule,
+    TranslocoPipe,
     SpeciesPhotoCarouselComponent,
     PhotoLightboxDialogComponent,
   ],

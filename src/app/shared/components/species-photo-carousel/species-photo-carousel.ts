@@ -1,10 +1,11 @@
 import { Component, computed, effect, input, output, signal } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { LeafIconComponent } from '../leaf-icon/leaf-icon';
 
 @Component({
   selector: 'app-species-photo-carousel',
   standalone: true,
-  imports: [LeafIconComponent],
+  imports: [LeafIconComponent, TranslocoPipe],
   templateUrl: './species-photo-carousel.html',
 })
 export class SpeciesPhotoCarouselComponent {

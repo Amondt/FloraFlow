@@ -1,9 +1,10 @@
 import { Component, computed, effect, input, model, signal } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-photo-lightbox-dialog',
   standalone: true,
-  imports: [],
+  imports: [TranslocoPipe],
   templateUrl: './photo-lightbox-dialog.html',
   host: {
     '(document:keydown.escape)': 'onEscapeKey()',

@@ -10,7 +10,7 @@
     <button
       type="button"
       class="cursor-zoom-out absolute inset-0 w-full h-full bg-neutral-950/95"
-      aria-label="Close gallery"
+      [attr.aria-label]="'botanical.photo.closeGalleryAria' | transloco"
       tabindex="-1"
       (click)="close()"
     ></button>
@@ -26,7 +26,7 @@
           <div
             class="absolute inset-0 flex items-center justify-center pointer-events-none"
             role="status"
-            aria-label="Loading photo"
+            [attr.aria-label]="'botanical.photo.loadingPhotoAria' | transloco"
           >
             <span
               class="block w-10 h-10 rounded-full border-2 border-white/20 border-t-white animate-spin"
@@ -48,7 +48,7 @@
           <button
             type="button"
             class="cursor-pointer pointer-events-auto absolute left-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-12 h-12 rounded-full bg-black/70 text-white ring-1 ring-white/30 hover:bg-black/90 shadow-lg transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-white disabled:opacity-30 disabled:cursor-not-allowed"
-            aria-label="Previous photo"
+            [attr.aria-label]="'botanical.photo.previousAria' | transloco"
             [disabled]="!hasPrev()"
             (click)="prev()"
           >
@@ -58,7 +58,7 @@
           <button
             type="button"
             class="cursor-pointer pointer-events-auto absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-12 h-12 rounded-full bg-black/70 text-white ring-1 ring-white/30 hover:bg-black/90 shadow-lg transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-white disabled:opacity-30 disabled:cursor-not-allowed"
-            aria-label="Next photo"
+            [attr.aria-label]="'botanical.photo.nextAria' | transloco"
             [disabled]="!hasNext()"
             (click)="next()"
           >
@@ -94,7 +94,7 @@
     <button
       type="button"
       class="cursor-pointer absolute top-4 right-4 z-20 flex items-center justify-center w-10 h-10 rounded-full bg-neutral-800/80 text-white ring-1 ring-white/20 hover:bg-neutral-700/90 shadow-lg transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-white"
-      aria-label="Close gallery"
+      [attr.aria-label]="'botanical.photo.closeGalleryAria' | transloco"
       (click)="close()"
     >
       <i class="pi pi-times" aria-hidden="true"></i>

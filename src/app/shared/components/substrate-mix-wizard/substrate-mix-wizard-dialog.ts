@@ -1,5 +1,7 @@
-import { Component, computed, input, linkedSignal, model, viewChild } from '@angular/core';
+import { Component, computed, inject, input, linkedSignal, model, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { LocaleService } from '../../../core/services/locale.service';
 import { DialogModule } from 'primeng/dialog';
 import { Popover, PopoverModule } from 'primeng/popover';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -33,10 +35,20 @@ import type {
 @Component({
   selector: 'app-substrate-mix-wizard-dialog',
   standalone: true,
-  imports: [DialogModule, PopoverModule, InputNumberModule, ButtonModule, FormsModule],
+  imports: [
+    DialogModule,
+    PopoverModule,
+    InputNumberModule,
+    ButtonModule,
+    FormsModule,
+    TranslocoPipe,
+  ],
   templateUrl: './substrate-mix-wizard-dialog.html',
 })
 export class SubstrateMixWizardDialogComponent {
+  private readonly t = inject(TranslocoService);
+  private readonly localeService = inject(LocaleService);
+
   readonly visible = model<boolean>(false);
   readonly plant = input<Plant | null>(null);
   readonly botanicalRecord = input<CachedBotanicalRecord | null>(null);
@@ -101,15 +113,16 @@ export class SubstrateMixWizardDialogComponent {
 
   // Note label — always visible when there is a data-backed recommendation, regardless of selection
   protected readonly recommendationSourceLabel = computed<string | null>(() => {
+    const _lang = this.localeService.locale();
     const p = this.plant();
-    if (p?.substrate_factor) return "Recommended from this plant's substrate profile";
+    if (p?.substrate_factor) return this.t.translate('botanical.substrate.recommendedFromPlant');
     const record = this.botanicalRecord();
     if (record?.preferred_soil_type?.length) {
       const mapped = preferredSoilToProfile(record.preferred_soil_type);
-      if (mapped) return 'Recommended from species soil data';
+      if (mapped) return this.t.translate('botanical.substrate.recommendedFromSpecies');
     }
     const preset = this.substratePreset();
-    if (preset) return 'Recommended from a substrate preset';
+    if (preset) return this.t.translate('botanical.substrate.recommendedFromPreset');
     return null;
   });
 

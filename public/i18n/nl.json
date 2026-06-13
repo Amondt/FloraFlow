@@ -780,5 +780,128 @@
     "easyUpkeep": "Laag onderhoud",
     "moderateUpkeep": "Gemiddeld onderhoud",
     "highUpkeep": "Hoog onderhoud"
+  },
+  "botanical": {
+    "dialog": {
+      "tabs": {
+        "overview": "Overzicht",
+        "care": "Verzorging",
+        "growth": "Groei",
+        "safety": "Veiligheid"
+      },
+      "varieties": "Variëteiten",
+      "ranks": {
+        "subspecies": "Ondersoort",
+        "variety": "Variëteit",
+        "form": "Vorm",
+        "hybrid": "Hybride"
+      },
+      "fields": {
+        "placement": "Plaatsing",
+        "careDifficulty": "Verzorgingsmoeilijkheid",
+        "growthRate": "Groeisnelheid",
+        "maintenance": "Onderhoud",
+        "nativeRegion": "Herkomstgebied",
+        "maxHeight": "Max hoogte",
+        "maxSpread": "Max breedte",
+        "tropicalSpecies": "Tropische soort",
+        "tropicalDesc": "Gedijt in warmte en vochtigheid — houd boven 10 °C en vermijd koude tochtige plekken.",
+        "airPurifying": "Luchtzuiverend",
+        "airPurifyingDesc": "Filtert binnenlucht VOS op basis van NASA Clean Air Study onderzoek.",
+        "watering": "Bewatering",
+        "idealSoilPh": "Ideale bodem-pH",
+        "phScale": "Schaal van 0 (zuur) tot 14 (alkalisch)",
+        "sunlight": "Belichting",
+        "preferredSoil": "Voorkeurbodem",
+        "soilMoistureCheck": "Bodemvochtigheidscontrole",
+        "humidityRange": "Luchtvochtigheidsbereik",
+        "lifecycle": "Levenscyclus",
+        "plantType": "Planttype",
+        "flowering": "Bloei",
+        "producesFlowers": "Produceert bloemen",
+        "fruit": "Vrucht",
+        "producesFruit": "Produceert vruchten",
+        "propagation": "Vermeerdering",
+        "petSafety": "Veiligheid voor huisdieren",
+        "toxicToPets": "Giftig voor huisdieren",
+        "safeForPets": "Veilig voor katten en honden",
+        "humanSafety": "Menselijke veiligheid",
+        "toxicToHumans": "Giftig voor mensen",
+        "safeForHumans": "Veilig voor menselijk contact"
+      },
+      "lifecycle": {
+        "annual": "Voltooit zijn leven in één groeiseizoen",
+        "perennial": "Keert jaar na jaar terug",
+        "biennial": "Tweejarige levenscyclus",
+        "default": "Meerjarige levenscyclus"
+      },
+      "attribution": "Soortsnamen via iNaturalist",
+      "attributionAi": "· zorgprofiel gegenereerd door AI (Claude) — niet wetenschappelijk geverifieerd",
+      "advisory": {
+        "title": "Geavanceerde verzorging",
+        "body": "deze soort vereist consistente aandacht, nauwkeurige bewatering en specifieke omgevingsomstandigheden. Zorg dat u aan de behoeften kunt voldoen voordat u de plant aan uw kas toevoegt."
+      },
+      "actions": {
+        "mixSubstrate": "Substraat mengen",
+        "trackSeeds": "Zaden bijhouden",
+        "addToPlants": "Toevoegen aan mijn planten"
+      }
+    },
+    "care": {
+      "title": "Verzorgingsaanbevelingen",
+      "difficulty": "Moeilijkheid",
+      "watering": "Bewatering",
+      "maintenance": "Onderhoud",
+      "sunlight": "Belichting",
+      "preferredSoil": "Voorkeurbodem",
+      "soilMoisture": "Bodemvochtigheid",
+      "humidity": "Luchtvochtigheid",
+      "compatible": "Zoneluchtvochtigheid compatibel",
+      "humidityLow": "De luchtvochtigheid van de zone ({{ zone }}%) is lager dan het ideale bereik van deze plant ({{ range }}).",
+      "humidityHigh": "De luchtvochtigheid van de zone ({{ zone }}%) is hoger dan het ideale bereik van deze plant ({{ range }})."
+    },
+    "identifier": {
+      "title": "Een plant identificeren",
+      "uploadTitle": "Kies een foto of maak er een",
+      "uploadHint": "JPG, PNG of WEBP · gecomprimeerd tot < 300 KB",
+      "identifying": "Soort identificeren…",
+      "candidates": "Kandidaten",
+      "fetchingCare": "Verzorgingsgegevens laden…",
+      "errorInvalidImage": "De afbeelding lijkt geen plant te tonen. Probeer een duidelijke foto van een blad of stengel.",
+      "errorApi": "Identificatieservice niet beschikbaar — probeer het later opnieuw.",
+      "tryAnother": "Opnieuw proberen",
+      "viewProfile": "Profiel bekijken",
+      "useThisSpecies": "Deze soort gebruiken",
+      "cancel": "Annuleren"
+    },
+    "substrate": {
+      "title": "Substraatmixgids",
+      "profile": "Substraatprofiel",
+      "howMuch": "Hoeveel substraat heeft u nodig?",
+      "potHint": "Kies de diameter van uw pot — we schatten het te mengen volume.",
+      "volumeLabel": "Of voer volume in (L)",
+      "recipe": "Mixrecept",
+      "component": "Component",
+      "approxVolume": "~Volume",
+      "estimatedPh": "Geschatte pH:",
+      "phDisclaimer": "Schattingen — de werkelijke pH varieert per merk en substraatleeftijd.",
+      "phPopover": "De pH wordt berekend op basis van typische componentwaarden uit tuinbouwonderzoek — werkelijke resultaten hangen af van het merk, de leeftijd en de waterkwaliteit die u gebruikt. Test uw mix met een pH-meter na het mengen voor nauwkeurigheid.",
+      "basedOnPot": "Gebaseerd op de geselecteerde potmaat",
+      "pickPotAbove": "Of kies hierboven een potmaat",
+      "speciesNudge": "Koppel een soort aan uw plant om ook pH-compatibiliteit te zien.",
+      "close": "Sluiten",
+      "recommendedFromPlant": "Aanbevolen op basis van het substraatprofiel van deze plant",
+      "recommendedFromSpecies": "Aanbevolen op basis van bodemgegevens van de soort",
+      "recommendedFromPreset": "Aanbevolen op basis van een substraatpreset"
+    },
+    "photo": {
+      "previousAria": "Vorige foto",
+      "nextAria": "Volgende foto",
+      "closeGalleryAria": "Galerij sluiten",
+      "loadingPhotoAria": "Foto laden"
+    },
+    "plantSelect": {
+      "logEntriesAria": "{{ count }} logboekvermeldingen"
+    }
   }
 }

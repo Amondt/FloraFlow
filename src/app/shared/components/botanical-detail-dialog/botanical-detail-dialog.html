@@ -60,10 +60,10 @@
         <p
           class="mb-2 font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
         >
-          Varieties
-          @if (uniformVarietyRank(); as rank) {
+          {{ 'botanical.dialog.varieties' | transloco }}
+          @if (uniformVarietyRank(); as rankKey) {
             <span class="ml-1 normal-case tracking-normal font-normal"
-              >·<span class="ml-1">{{ rank }}</span></span
+              >·<span class="ml-1">{{ rankKey | transloco }}</span></span
             >
           }
         </p>
@@ -77,7 +77,9 @@
             >
               {{ chip.label }}
               @if (chip.rankLabel) {
-                <span class="ml-1 text-[10px] font-normal opacity-60">{{ chip.rankLabel }}</span>
+                <span class="ml-1 text-[10px] font-normal opacity-60">{{
+                  chip.rankLabel | transloco
+                }}</span>
               }
             </button>
           }
@@ -101,7 +103,7 @@
             (click)="activeTab.set(tab.id)"
           >
             <i [class]="tab.icon + ' text-xs'" aria-hidden="true"></i>
-            {{ tab.label }}
+            {{ tab.label | transloco }}
           </button>
         }
       </div>
@@ -130,7 +132,7 @@
                   <p
                     class="font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
                   >
-                    Placement
+                    {{ 'botanical.dialog.fields.placement' | transloco }}
                   </p>
                   <span
                     class="mt-1 inline-flex items-center rounded-full px-2.5 py-0.5 font-display text-xs font-semibold"
@@ -171,7 +173,7 @@
                   <p
                     class="font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
                   >
-                    Care difficulty
+                    {{ 'botanical.dialog.fields.careDifficulty' | transloco }}
                   </p>
                   <span
                     class="mt-1 inline-flex items-center rounded-full px-2.5 py-0.5 font-display text-xs font-semibold"
@@ -212,7 +214,7 @@
                   <p
                     class="font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
                   >
-                    Growth rate
+                    {{ 'botanical.dialog.fields.growthRate' | transloco }}
                   </p>
                   <span
                     class="mt-1 inline-flex items-center rounded-full px-2.5 py-0.5 font-display text-xs font-semibold"
@@ -253,7 +255,7 @@
                   <p
                     class="font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
                   >
-                    Maintenance
+                    {{ 'botanical.dialog.fields.maintenance' | transloco }}
                   </p>
                   <span
                     class="mt-1 inline-flex items-center rounded-full px-2.5 py-0.5 font-display text-xs font-semibold"
@@ -294,7 +296,7 @@
                   <p
                     class="font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
                   >
-                    Native region
+                    {{ 'botanical.dialog.fields.nativeRegion' | transloco }}
                   </p>
                   <p
                     class="mt-0.5 font-display text-sm font-medium text-neutral-700 dark:text-neutral-200"
@@ -317,7 +319,7 @@
                   <p
                     class="font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
                   >
-                    Max height
+                    {{ 'botanical.dialog.fields.maxHeight' | transloco }}
                   </p>
                   <p
                     class="mt-0.5 font-display text-sm font-medium text-neutral-700 dark:text-neutral-200"
@@ -340,7 +342,7 @@
                   <p
                     class="font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
                   >
-                    Max spread
+                    {{ 'botanical.dialog.fields.maxSpread' | transloco }}
                   </p>
                   <p
                     class="mt-0.5 font-display text-sm font-medium text-neutral-700 dark:text-neutral-200"
@@ -363,10 +365,10 @@
                   <p
                     class="font-display text-xs font-semibold uppercase tracking-widest text-primary-600 dark:text-primary-400"
                   >
-                    Tropical species
+                    {{ 'botanical.dialog.fields.tropicalSpecies' | transloco }}
                   </p>
                   <p class="mt-0.5 font-display text-xs text-primary-500 dark:text-primary-400">
-                    Thrives in warmth and humidity — keep above 10 °C and avoid cold draughts.
+                    {{ 'botanical.dialog.fields.tropicalDesc' | transloco }}
                   </p>
                 </div>
               </div>
@@ -384,10 +386,10 @@
                   <p
                     class="font-display text-xs font-semibold uppercase tracking-widest text-green-700 dark:text-green-400"
                   >
-                    Air purifying
+                    {{ 'botanical.dialog.fields.airPurifying' | transloco }}
                   </p>
                   <p class="mt-0.5 font-display text-xs text-green-600 dark:text-green-400">
-                    Filters indoor VOCs per NASA Clean Air Study research.
+                    {{ 'botanical.dialog.fields.airPurifyingDesc' | transloco }}
                   </p>
                 </div>
               </div>
@@ -413,7 +415,7 @@
                   <p
                     class="font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
                   >
-                    Watering
+                    {{ 'botanical.dialog.fields.watering' | transloco }}
                   </p>
                   <p
                     class="mt-0.5 font-display text-sm font-medium text-neutral-700 dark:text-neutral-200"
@@ -436,7 +438,7 @@
                   <p
                     class="font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
                   >
-                    Ideal soil pH
+                    {{ 'botanical.dialog.fields.idealSoilPh' | transloco }}
                   </p>
                   <p
                     class="mt-0.5 font-display text-sm font-medium text-neutral-700 dark:text-neutral-200"
@@ -450,7 +452,7 @@
                     }
                   </p>
                   <p class="mt-0.5 font-display text-xs text-neutral-400">
-                    Scale 0 (acid) to 14 (alkaline)
+                    {{ 'botanical.dialog.fields.phScale' | transloco }}
                   </p>
                 </div>
               </div>
@@ -478,7 +480,7 @@
                   <p
                     class="mb-1.5 font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
                   >
-                    Sunlight
+                    {{ 'botanical.dialog.fields.sunlight' | transloco }}
                   </p>
                   <ul class="flex flex-wrap gap-1.5" aria-label="Sunlight requirements">
                     @for (label of sunlightLabels(); track label) {
@@ -505,7 +507,7 @@
                   <p
                     class="mb-1.5 font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
                   >
-                    Preferred soil
+                    {{ 'botanical.dialog.fields.preferredSoil' | transloco }}
                   </p>
                   <ul class="flex flex-wrap gap-1.5" aria-label="Preferred soil types">
                     @for (soil of preferredSoilTypes(); track soil) {
@@ -532,7 +534,7 @@
                   <p
                     class="font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
                   >
-                    Soil moisture check
+                    {{ 'botanical.dialog.fields.soilMoistureCheck' | transloco }}
                   </p>
                   <p
                     class="mt-0.5 font-display text-sm leading-relaxed text-neutral-700 dark:text-neutral-200"
@@ -555,7 +557,7 @@
                   <p
                     class="font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
                   >
-                    Humidity range
+                    {{ 'botanical.dialog.fields.humidityRange' | transloco }}
                   </p>
                   <p
                     class="mt-0.5 font-display text-sm font-medium text-neutral-700 dark:text-neutral-200"
@@ -599,7 +601,7 @@
                   <p
                     class="font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
                   >
-                    Lifecycle
+                    {{ 'botanical.dialog.fields.lifecycle' | transloco }}
                   </p>
                   <p
                     class="mt-0.5 font-display text-sm font-medium text-neutral-700 dark:text-neutral-200"
@@ -609,19 +611,19 @@
                   <p class="mt-0.5 font-display text-xs text-neutral-400">
                     @switch (rec.cycle) {
                       @case ('Annual') {
-                        Completes its life in one growing season
+                        {{ 'botanical.dialog.lifecycle.annual' | transloco }}
                       }
                       @case ('Perennial') {
-                        Returns year after year
+                        {{ 'botanical.dialog.lifecycle.perennial' | transloco }}
                       }
                       @case ('Biennial') {
-                        Two-year life cycle
+                        {{ 'botanical.dialog.lifecycle.biennial' | transloco }}
                       }
                       @case ('Biannual') {
-                        Two-year life cycle
+                        {{ 'botanical.dialog.lifecycle.biennial' | transloco }}
                       }
                       @default {
-                        Multi-year life cycle
+                        {{ 'botanical.dialog.lifecycle.default' | transloco }}
                       }
                     }
                   </p>
@@ -641,7 +643,7 @@
                   <p
                     class="font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
                   >
-                    Plant type
+                    {{ 'botanical.dialog.fields.plantType' | transloco }}
                   </p>
                   <p
                     class="mt-0.5 font-display text-sm font-medium text-neutral-700 dark:text-neutral-200"
@@ -664,12 +666,12 @@
                   <p
                     class="font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
                   >
-                    Flowering
+                    {{ 'botanical.dialog.fields.flowering' | transloco }}
                   </p>
                   <p
                     class="mt-0.5 font-display text-sm font-medium text-neutral-700 dark:text-neutral-200"
                   >
-                    Produces flowers
+                    {{ 'botanical.dialog.fields.producesFlowers' | transloco }}
                   </p>
                   @if (rec.flowering_season) {
                     <p class="mt-0.5 font-display text-xs text-neutral-500 dark:text-neutral-400">
@@ -692,12 +694,12 @@
                   <p
                     class="font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
                   >
-                    Fruit
+                    {{ 'botanical.dialog.fields.fruit' | transloco }}
                   </p>
                   <p
                     class="mt-0.5 font-display text-sm font-medium text-neutral-700 dark:text-neutral-200"
                   >
-                    Produces fruit
+                    {{ 'botanical.dialog.fields.producesFruit' | transloco }}
                   </p>
                   @if (rec.fruit_season) {
                     <p class="mt-0.5 font-display text-xs text-neutral-500 dark:text-neutral-400">
@@ -720,7 +722,7 @@
                   <p
                     class="mb-1.5 font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
                   >
-                    Propagation
+                    {{ 'botanical.dialog.fields.propagation' | transloco }}
                   </p>
                   <ul class="flex flex-wrap gap-1.5" aria-label="Propagation methods">
                     @for (method of rec.propagation_methods; track method) {
@@ -760,11 +762,11 @@
                   <p
                     class="font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
                   >
-                    Pet safety
+                    {{ 'botanical.dialog.fields.petSafety' | transloco }}
                   </p>
                   @if (rec.is_toxic_to_pets) {
                     <p class="mt-0.5 font-display text-sm font-medium text-danger-500">
-                      Toxic to pets
+                      {{ 'botanical.dialog.fields.toxicToPets' | transloco }}
                     </p>
                     @if (rec.toxicity_notes) {
                       <p
@@ -775,7 +777,7 @@
                     }
                   } @else {
                     <p class="mt-0.5 font-display text-sm font-medium text-success-500">
-                      Safe for cats and dogs
+                      {{ 'botanical.dialog.fields.safeForPets' | transloco }}
                     </p>
                   }
                 </div>
@@ -801,11 +803,11 @@
                   <p
                     class="font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
                   >
-                    Human safety
+                    {{ 'botanical.dialog.fields.humanSafety' | transloco }}
                   </p>
                   @if (rec.is_toxic_to_humans) {
                     <p class="mt-0.5 font-display text-sm font-medium text-danger-500">
-                      Toxic to humans
+                      {{ 'botanical.dialog.fields.toxicToHumans' | transloco }}
                     </p>
                     @if (rec.human_toxicity_notes) {
                       <p
@@ -816,7 +818,7 @@
                     }
                   } @else {
                     <p class="mt-0.5 font-display text-sm font-medium text-success-500">
-                      Safe for human contact
+                      {{ 'botanical.dialog.fields.safeForHumans' | transloco }}
                     </p>
                   }
                 </div>
@@ -831,9 +833,9 @@
     <p
       class="mt-4 border-t border-neutral-100 pt-3 font-display text-xs text-neutral-400 dark:border-neutral-700"
     >
-      Species names via iNaturalist
+      {{ 'botanical.dialog.attribution' | transloco }}
       @if (rec.is_ai_enriched) {
-        · care profile generated by AI (Claude) — not scientifically verified
+        {{ 'botanical.dialog.attributionAi' | transloco }}
       }
     </p>
 
@@ -849,9 +851,8 @@
           aria-hidden="true"
         ></i>
         <p class="font-display text-xs text-yellow-700 dark:text-yellow-300">
-          <strong class="font-semibold">Advanced care</strong> — this species requires consistent
-          attention, precise watering, and specific environmental conditions. Make sure you can meet
-          its needs before adding it to your greenhouse.
+          <strong class="font-semibold">{{ 'botanical.dialog.advisory.title' | transloco }}</strong>
+          — {{ 'botanical.dialog.advisory.body' | transloco }}
         </p>
       </div>
     }
@@ -870,7 +871,7 @@
       </button>
     }
     <p-button
-      label="Mix substrate"
+      [label]="'botanical.dialog.actions.mixSubstrate' | transloco"
       variant="outlined"
       icon="pi pi-list-check"
       [pt]="FloraButtonPT"
@@ -879,7 +880,7 @@
     />
     @if (showAddButton()) {
       <p-button
-        label="Track seeds"
+        [label]="'botanical.dialog.actions.trackSeeds' | transloco"
         variant="outlined"
         icon="pi pi-bookmark"
         [pt]="FloraButtonPT"
@@ -887,7 +888,7 @@
         (onClick)="onSaveToSeeds()"
       />
       <p-button
-        label="Add to my plants"
+        [label]="'botanical.dialog.actions.addToPlants' | transloco"
         [pt]="FloraButtonPT"
         [ariaLabel]="
           'Add ' +

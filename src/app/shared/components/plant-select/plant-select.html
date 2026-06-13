@@ -65,7 +65,9 @@
       @if (opt.count) {
         <span
           class="shrink-0 text-xs font-mono tabular-nums text-neutral-400 dark:text-neutral-500"
-          [attr.aria-label]="opt.count + ' log entries'"
+          [attr.aria-label]="
+            'botanical.plantSelect.logEntriesAria' | transloco: { count: opt.count }
+          "
         >
           {{ opt.count }}
         </span>

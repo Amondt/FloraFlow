@@ -8,7 +8,7 @@
       <div
         class="absolute inset-0 flex items-center justify-center"
         role="status"
-        aria-label="Loading photo"
+        [attr.aria-label]="'botanical.photo.loadingPhotoAria' | transloco"
       >
         <span
           class="block w-8 h-8 rounded-full border-2 border-neutral-600/30 border-t-primary-500 animate-spin"
@@ -45,7 +45,7 @@
     <button
       type="button"
       class="cursor-pointer absolute left-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-10 h-10 rounded-full bg-black/65 text-white ring-1 ring-white/25 shadow-lg outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-150"
-      aria-label="Previous photo"
+      [attr.aria-label]="'botanical.photo.previousAria' | transloco"
       [disabled]="!hasPrev()"
       (click)="$event.stopPropagation(); prev()"
     >
@@ -55,7 +55,7 @@
     <button
       type="button"
       class="cursor-pointer absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-10 h-10 rounded-full bg-black/65 text-white ring-1 ring-white/25 shadow-lg outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-150"
-      aria-label="Next photo"
+      [attr.aria-label]="'botanical.photo.nextAria' | transloco"
       [disabled]="!hasNext()"
       (click)="$event.stopPropagation(); next()"
     >

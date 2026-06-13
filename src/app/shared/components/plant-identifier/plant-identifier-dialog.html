@@ -1,7 +1,7 @@
 <p-dialog
   [visible]="visible()"
   (visibleChange)="onVisibleChange($event)"
-  header="Identify a Plant"
+  [header]="'botanical.identifier.title' | transloco"
   [modal]="true"
   [draggable]="false"
   [resizable]="false"
@@ -44,10 +44,10 @@
             <span
               class="block text-sm font-medium font-display text-neutral-700 dark:text-neutral-200"
             >
-              Choose a photo or take one
+              {{ 'botanical.identifier.uploadTitle' | transloco }}
             </span>
             <span class="block text-xs font-display text-neutral-400 dark:text-neutral-500 mt-0.5">
-              JPG, PNG or WEBP · compressed to &lt; 300 KB
+              {{ 'botanical.identifier.uploadHint' | transloco }}
             </span>
           </span>
         </span>
@@ -82,7 +82,7 @@
           ></path>
         </svg>
         <p class="text-sm font-display text-neutral-500 dark:text-neutral-400">
-          Identifying species…
+          {{ 'botanical.identifier.identifying' | transloco }}
         </p>
       </div>
     }
@@ -172,7 +172,7 @@
                 <p
                   class="text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 uppercase tracking-wider"
                 >
-                  Candidates
+                  {{ 'botanical.identifier.candidates' | transloco }}
                 </p>
                 @if (isEnrichingCandidates()) {
                   <p
@@ -184,7 +184,7 @@
                       class="inline-block w-1.5 h-1.5 rounded-full bg-primary-400 animate-pulse"
                       aria-hidden="true"
                     ></span>
-                    Fetching care data…
+                    {{ 'botanical.identifier.fetchingCare' | transloco }}
                   </p>
                 }
               </div>
@@ -354,7 +354,7 @@
           aria-label="Try another photo"
           (click)="tryAnother()"
         >
-          Try another
+          {{ 'botanical.identifier.tryAnother' | transloco }}
         </button>
         @if (mode() !== 'prefill') {
           <button
@@ -368,13 +368,17 @@
             aria-label="View full species profile"
             (click)="viewProfile()"
           >
-            View profile
+            {{ 'botanical.identifier.viewProfile' | transloco }}
             <i class="pi pi-arrow-right text-xs" aria-hidden="true"></i>
           </button>
         }
         @if (mode() !== 'browse') {
           <p-button
-            [label]="mode() === 'prefill' ? 'Use this species' : 'Add to my plants'"
+            [label]="
+              mode() === 'prefill'
+                ? ('botanical.identifier.useThisSpecies' | transloco)
+                : ('botanical.dialog.actions.addToPlants' | transloco)
+            "
             [pt]="FloraButtonPT"
             [ariaLabel]="
               mode() === 'prefill'
@@ -397,7 +401,7 @@
           aria-label="Try another photo"
           (click)="tryAnother()"
         >
-          Try another
+          {{ 'botanical.identifier.tryAnother' | transloco }}
         </button>
       }
     }

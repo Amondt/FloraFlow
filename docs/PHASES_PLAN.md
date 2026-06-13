@@ -339,6 +339,22 @@
   - "Already have an account? Sign in" link on the register page.
   - Plan: `docs/plans/phase-4/PHASE_4_4_PLAN.md`
 
+- [ ] **4.5 Multilingual AI Content** | Agent: `/plumber` → `/visualizer`
+  - Extends 4.2 to the AI-generated prose Transloco cannot key: botanical free-text in the global
+    cache (`description`, `check_depth_description`, `toxicity_notes`, `human_toxicity_notes`,
+    `native_region`, `fruit_season`, `flowering_season`) and per-user Leaf Doctor diagnoses
+    (`primary_condition`, `identified_plant`, `immediate_remedial_actions`).
+  - On-demand translate-and-cache: a free-text field is AI-translated the first time it is viewed
+    in FR/NL, then stored — each (record × language) pair is translated at most once. English stays
+    canonical and is never overwritten.
+  - Migration: `translations JSONB` on `cached_botanical_records`, `diagnostics_i18n JSONB` on
+    `plant_journals` (per-locale sub-objects). No RLS change — existing policies cover both.
+  - Two Edge Functions over a shared `_shared/translate.ts` core (Haiku): `translate-botanical-record`
+    (cache, service-role write) and `translate-text` (generic, no write); the journal caches its
+    translation client-side under owner RLS.
+  - Controlled-vocabulary enums and static labels are out of scope here — they belong to 4.2 Blocks H + J.
+  - Plan: `docs/plans/phase-4/PHASE_4_5_PLAN.md`
+
 ### 🔒 Phase 4 QA Criteria
 
 1. No `flora-theme` key in localStorage + browser set to dark → `.dark` on `<html>` on first paint.
@@ -346,6 +362,8 @@
 3. Clicking "Sign out" in the nav clears the Supabase session and redirects to `/login`; navigating to `/dashboard` after signing out redirects back to `/login`.
 4. Submitting `/register` with valid unique credentials produces either the confirmation-pending state or a redirect into the app (`/dashboard` → `/onboarding` for a new user); submitting with mismatched passwords shows a field-level error.
 5. `bun run lint` — zero errors after all Phase 4 code.
+6. First FR/NL view of an untranslated species shimmers, then renders the AI free-text in that language; reload is instant (DB translation cached, no second AI call). Base English columns are unchanged.
+7. A past Leaf Doctor diagnosis translates on demand into the active language and persists for that user only; controlled-vocabulary badges and labels remain handled by 4.2.
 
 ---
 

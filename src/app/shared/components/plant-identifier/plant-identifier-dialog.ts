@@ -12,6 +12,8 @@ import {
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { LocaleService } from '../../../core/services/locale.service';
 import { FloraFormDialogPT, FloraButtonPT, FloraMessagePT, FLORA_FOCUS } from '../../ui/pt/index';
 import {
   PlantIdentifierService,
@@ -43,10 +45,19 @@ type IdentErrorKind = 'invalid-image' | 'api-error';
 @Component({
   selector: 'app-plant-identifier-dialog',
   standalone: true,
-  imports: [DialogModule, ButtonModule, MessageModule, LeafIconComponent, BotanicalTagsComponent],
+  imports: [
+    DialogModule,
+    ButtonModule,
+    MessageModule,
+    TranslocoPipe,
+    LeafIconComponent,
+    BotanicalTagsComponent,
+  ],
   templateUrl: './plant-identifier-dialog.html',
 })
 export class PlantIdentifierDialogComponent {
+  private readonly t = inject(TranslocoService);
+  private readonly localeService = inject(LocaleService);
   private readonly identifierService = inject(PlantIdentifierService);
   private readonly _libraryService = inject(LibraryService);
   private readonly _poll = new EnrichmentPoll();
@@ -109,11 +120,12 @@ export class PlantIdentifierDialogComponent {
     getConfidenceBadgeLabel(this.activeMatch()?.confidence_score ?? 0),
   );
 
-  protected readonly errorMessage = computed(() =>
-    this.identErrorKind() === 'invalid-image'
-      ? "The image doesn't appear to show a plant. Try a clear photo of a leaf or stem."
-      : 'Identification service unavailable — try again in a moment.',
-  );
+  protected readonly errorMessage = computed(() => {
+    const _lang = this.localeService.locale();
+    return this.identErrorKind() === 'invalid-image'
+      ? this.t.translate('botanical.identifier.errorInvalidImage')
+      : this.t.translate('botanical.identifier.errorApi');
+  });
 
   protected candidateChipBadgeClass(score: number): string {
     return getConfidenceBadgeClass(score);

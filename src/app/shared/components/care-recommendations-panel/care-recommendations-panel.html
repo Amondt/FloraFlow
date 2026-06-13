@@ -1,6 +1,6 @@
-<section aria-label="Care recommendations">
+<section [attr.aria-label]="'botanical.care.title' | transloco">
   <p class="font-display mb-3 text-xs font-semibold uppercase tracking-widest text-neutral-400">
-    Care recommendations
+    {{ 'botanical.care.title' | transloco }}
   </p>
 
   <div class="flex flex-col gap-2">
@@ -15,7 +15,7 @@
               class="flex items-center gap-1 font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
             >
               <i class="pi pi-star text-[9px]" aria-hidden="true"></i>
-              Difficulty
+              {{ 'botanical.care.difficulty' | transloco }}
             </p>
             <span
               class="font-display inline-flex self-start items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
@@ -41,7 +41,7 @@
               >
                 <path d="M12 3C12 3 4 11 4 16a8 8 0 0 0 16 0C20 11 12 3 12 3z" />
               </svg>
-              Watering
+              {{ 'botanical.care.watering' | transloco }}
             </p>
             <p class="font-display text-sm font-medium text-neutral-700 dark:text-neutral-200">
               {{ wateringLabel() }}
@@ -57,7 +57,7 @@
               class="flex items-center gap-1 font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
             >
               <i class="pi pi-clock text-[9px]" aria-hidden="true"></i>
-              Maintenance
+              {{ 'botanical.care.maintenance' | transloco }}
             </p>
             <span
               class="font-display inline-flex self-start items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
@@ -79,7 +79,7 @@
           class="flex items-center gap-1 font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
         >
           <i class="pi pi-sun text-[9px]" aria-hidden="true"></i>
-          Sunlight
+          {{ 'botanical.care.sunlight' | transloco }}
         </p>
         <ul class="flex flex-wrap gap-1.5" aria-label="Sunlight requirements">
           @for (label of sunlightLabels(); track label) {
@@ -102,7 +102,7 @@
           class="flex items-center gap-1 font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
         >
           <i class="pi pi-sort-alt text-[9px]" aria-hidden="true"></i>
-          Preferred soil
+          {{ 'botanical.care.preferredSoil' | transloco }}
         </p>
         <ul class="flex flex-wrap gap-1.5" aria-label="Preferred soil types">
           @for (soil of preferredSoilTypes(); track soil) {
@@ -125,7 +125,7 @@
           class="flex items-center gap-1 font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
         >
           <i class="pi pi-info-circle text-[9px]" aria-hidden="true"></i>
-          Soil moisture
+          {{ 'botanical.care.soilMoisture' | transloco }}
         </p>
         <p class="font-display text-sm leading-relaxed text-neutral-700 dark:text-neutral-200">
           {{ record().check_depth_description }}
@@ -144,7 +144,7 @@
             class="flex items-center gap-1 font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
           >
             <i class="pi pi-cloud text-[9px]" aria-hidden="true"></i>
-            Humidity
+            {{ 'botanical.care.humidity' | transloco }}
           </p>
           <p
             class="font-display text-sm font-medium text-neutral-700 dark:text-neutral-200"
@@ -166,7 +166,7 @@
             role="status"
           >
             <i class="pi pi-check-circle text-xs" aria-hidden="true"></i>
-            Zone humidity compatible
+            {{ 'botanical.care.compatible' | transloco }}
           </p>
         }
 

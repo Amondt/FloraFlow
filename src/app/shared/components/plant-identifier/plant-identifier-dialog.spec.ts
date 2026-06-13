@@ -4,6 +4,7 @@ import { PlantIdentifierDialogComponent } from './plant-identifier-dialog';
 import { PlantIdentifierService } from '../../../core/services/plant-identifier.service';
 import type { BotanicalCacheRow } from '../../../core/services/plant-identifier.service';
 import { LibraryService } from '../../../features/library/library.service';
+import { provideTranslocoTesting } from '../../../testing/transloco-testing';
 
 const mockIdentifierService = {
   identify: vi.fn(),
@@ -21,6 +22,7 @@ function setup() {
     providers: [
       { provide: PlantIdentifierService, useValue: mockIdentifierService },
       { provide: LibraryService, useValue: mockLibraryService },
+      ...provideTranslocoTesting(),
     ],
   }).overrideTemplate(PlantIdentifierDialogComponent, '');
 

@@ -127,7 +127,7 @@ EN is always the source of truth and the `fallbackLang`.
   - Update `journal.service.spec`, `journal-entry-form.spec`, `leaf-doctor-dialog.spec`.
   - format + lint + Manual Browser Check (journal feed, entry form, Leaf Doctor — all locales).
 
-- [ ] **Block G — Library page & filters** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+- [x] **Block G — Library page & filters** | Agent: `/visualizer` · Model: Sonnet · Effort: low
   - `library.html` (filter section headings, tooltips, empty/loading states, pagination) +
     `botanical-record-card`. Add `library.*` keys.
   - Update `library.spec`.

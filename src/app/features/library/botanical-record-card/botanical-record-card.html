@@ -15,7 +15,7 @@
       class="absolute top-3 right-3 text-xs font-semibold font-display px-2 py-0.5 rounded-full bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300 border border-primary-200 dark:border-primary-700 pointer-events-none"
       aria-hidden="true"
     >
-      {{ varietyCount() }} varieties
+      {{ 'library.card.varieties' | transloco: { count: varietyCount() } }}
     </span>
   }
   @if (galleryPhotos().length > 0) {
@@ -24,8 +24,8 @@
       class="cursor-zoom-in flex-shrink-0 w-28 h-28 rounded-garden-sm overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
       [attr.aria-label]="
         galleryPhotos().length > 1
-          ? 'View photo gallery of ' + record().common_name
-          : 'View full-size photo of ' + record().common_name
+          ? ('library.card.viewGalleryAriaLabel' | transloco: { name: record().common_name })
+          : ('library.card.viewPhotoAriaLabel' | transloco: { name: record().common_name })
       "
       (click)="showLightbox.set(true); $event.stopPropagation()"
     >

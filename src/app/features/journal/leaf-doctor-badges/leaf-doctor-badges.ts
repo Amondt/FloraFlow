@@ -1,5 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { LocaleService } from '../../../core/services/locale.service';
 import {
   confidenceBadgeClass,
   confidenceBadgeKey,
@@ -15,6 +16,7 @@ import {
 })
 export class LeafDoctorBadgesComponent {
   private readonly t = inject(TranslocoService);
+  private readonly localeService = inject(LocaleService);
 
   readonly confidenceScore = input.required<number>();
   readonly riskAssessment = input.required<string>();
@@ -22,13 +24,15 @@ export class LeafDoctorBadgesComponent {
   protected readonly confidenceBadgeClass = confidenceBadgeClass;
   protected readonly riskBadgeClass = riskBadgeClass;
 
-  protected readonly confidenceLabel = computed(() =>
-    this.t.translate(confidenceBadgeKey(this.confidenceScore())),
-  );
+  protected readonly confidenceLabel = computed(() => {
+    const _lang = this.localeService.locale();
+    return this.t.translate(confidenceBadgeKey(this.confidenceScore()));
+  });
 
-  protected readonly riskLabel = computed(() =>
-    this.t.translate(riskBadgeKey(this.riskAssessment())),
-  );
+  protected readonly riskLabel = computed(() => {
+    const _lang = this.localeService.locale();
+    return this.t.translate(riskBadgeKey(this.riskAssessment()));
+  });
 
   protected readonly confidenceAriaLabel = computed(() =>
     this.t.translate('leafDoctor.badge.confidenceAriaLabel', { label: this.confidenceLabel() }),

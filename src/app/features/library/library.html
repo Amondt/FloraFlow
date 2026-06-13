@@ -1,4 +1,4 @@
-﻿<main class="p-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen" aria-labelledby="library-heading">
+<main class="p-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen" aria-labelledby="library-heading">
   <div class="max-w-5xl mx-auto">
     <!-- Page header -->
     <header class="mb-10">
@@ -7,44 +7,44 @@
           <p
             class="text-xs font-semibold uppercase tracking-widest text-primary-600 dark:text-primary-400 font-display mb-1"
           >
-            Botanical Registry
+            {{ 'library.subtitle' | transloco }}
           </p>
           <h1
             id="library-heading"
             class="text-3xl font-semibold font-display text-neutral-900 dark:text-white"
           >
-            Plant browser
+            {{ 'library.heading' | transloco }}
           </h1>
           <p class="text-sm text-neutral-500 dark:text-neutral-400 font-display mt-1">
-            A shared species database. Search or filter to find a plant, then add it to your garden.
+            {{ 'library.description' | transloco }}
           </p>
         </div>
         <div class="flex items-center gap-3 mt-1">
           <button
             type="button"
             class="cursor-pointer inline-flex flex-shrink-0 items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
-            aria-label="Identify a plant from a photo"
+            [attr.aria-label]="'library.identifyPlantAriaLabel' | transloco"
             (click)="identifierVisible.set(true)"
           >
             <i class="pi pi-camera text-xs" aria-hidden="true"></i>
-            Identify plant
+            {{ 'library.identifyPlant' | transloco }}
           </button>
           <button
             type="button"
             class="cursor-pointer inline-flex flex-shrink-0 items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
-            aria-label="Open substrate mix guide"
+            [attr.aria-label]="'library.mixSubstrateAriaLabel' | transloco"
             (click)="wizardVisible.set(true)"
           >
             <i class="pi pi-list-check text-xs" aria-hidden="true"></i>
-            Mix substrate
+            {{ 'library.mixSubstrate' | transloco }}
           </button>
         </div>
       </div>
     </header>
 
-    <!-- Search bar - prominent, full-width -->
+    <!-- Search bar -->
     <div id="library-search-area" class="mb-8">
-      <label for="library-search" class="sr-only">Search botanical registry</label>
+      <label for="library-search" class="sr-only">{{ 'library.searchLabel' | transloco }}</label>
       <div class="relative">
         <i
           class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 text-sm pointer-events-none"
@@ -58,21 +58,24 @@
           class="pl-10"
           [ngModel]="searchQuery()"
           (ngModelChange)="onSearchQueryChange($event)"
-          placeholder="Search by common or scientific name..."
+          [placeholder]="'library.searchPlaceholder' | transloco"
           autocomplete="off"
-          aria-label="Search botanical registry"
+          [attr.aria-label]="'library.searchLabel' | transloco"
           aria-describedby="search-hint"
         />
       </div>
       <p id="search-hint" class="text-xs text-neutral-400 font-display mt-1.5" role="note">
-        Type 2+ characters to search, or apply a filter to browse.
+        {{ 'library.searchHint' | transloco }}
       </p>
     </div>
 
     <!-- Two-column layout: filter sidebar + results -->
     <div class="flex gap-6 items-start">
       <!-- Filter sidebar -->
-      <aside class="w-52 shrink-0 self-start sticky top-6 z-10" aria-label="Filter options">
+      <aside
+        class="w-52 shrink-0 self-start sticky top-6 z-10"
+        [attr.aria-label]="'library.filterPanelAriaLabel' | transloco"
+      >
         <div
           class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md p-4 max-h-[calc(100vh-3rem)] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
@@ -80,21 +83,22 @@
             <span
               class="text-xs font-semibold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 font-display"
             >
-              Filters
+              {{ 'library.filtersHeading' | transloco }}
             </span>
             @if (hasActiveFilters()) {
               <button
                 type="button"
                 class="text-xs font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded cursor-pointer"
-                aria-label="Clear all active filters"
+                [attr.aria-label]="'library.clearAll' | transloco"
                 (click)="clearFilters()"
               >
-                Clear all
+                {{ 'library.clearAll' | transloco }}
               </button>
             }
           </div>
 
           <!-- Placement -->
+          @let placementTooltip = 'library.filter.placementTooltip' | transloco;
           <details class="group mb-4" open>
             <summary
               class="flex items-center justify-between py-0.5 mb-2 cursor-pointer list-none select-none outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
@@ -103,14 +107,14 @@
                 <h2
                   class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display"
                 >
-                  Placement
+                  {{ 'library.filter.placement' | transloco }}
                 </h2>
                 <span
                   class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-help"
-                  (mouseenter)="showTooltip($event, 'Where the plant can thrive')"
+                  (mouseenter)="showTooltip($event, placementTooltip)"
                   (mouseleave)="hideTooltip()"
                   tabindex="0"
-                  aria-label="More info about placement"
+                  [attr.aria-label]="'library.filter.placement' | transloco"
                 >
                   <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
                 </span>
@@ -126,7 +130,11 @@
                 aria-hidden="true"
               ></i>
             </summary>
-            <div class="flex flex-col gap-0.5" role="group" aria-label="Filter by placement">
+            <div
+              class="flex flex-col gap-0.5"
+              role="group"
+              [attr.aria-label]="'library.filter.placementAriaLabel' | transloco"
+            >
               @for (opt of PLACEMENT_OPTIONS; track opt) {
                 <button
                   type="button"
@@ -134,13 +142,14 @@
                   [attr.aria-pressed]="filters().placement === opt"
                   (click)="togglePlacementFilter(opt)"
                 >
-                  {{ opt }}
+                  {{ filterLabels().placement[opt] }}
                 </button>
               }
             </div>
           </details>
 
           <!-- Sunlight -->
+          @let sunlightTooltip = 'library.filter.sunlightTooltip' | transloco;
           <details class="group mb-4" open>
             <summary
               class="flex items-center justify-between py-0.5 mb-2 cursor-pointer list-none select-none outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
@@ -149,14 +158,14 @@
                 <h2
                   class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display"
                 >
-                  Sunlight
+                  {{ 'library.filter.sunlight' | transloco }}
                 </h2>
                 <span
                   class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-help"
-                  (mouseenter)="showTooltip($event, 'Required daily light level')"
+                  (mouseenter)="showTooltip($event, sunlightTooltip)"
                   (mouseleave)="hideTooltip()"
                   tabindex="0"
-                  aria-label="More info about sunlight"
+                  [attr.aria-label]="'library.filter.sunlight' | transloco"
                 >
                   <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
                 </span>
@@ -172,7 +181,11 @@
                 aria-hidden="true"
               ></i>
             </summary>
-            <div class="flex flex-col gap-0.5" role="group" aria-label="Filter by sunlight">
+            <div
+              class="flex flex-col gap-0.5"
+              role="group"
+              [attr.aria-label]="'library.filter.sunlightAriaLabel' | transloco"
+            >
               @for (opt of SUNLIGHT_OPTIONS; track opt) {
                 <button
                   type="button"
@@ -180,13 +193,14 @@
                   [attr.aria-pressed]="isFilterActive('sunlight', opt)"
                   (click)="toggleFilter('sunlight', opt)"
                 >
-                  {{ SUNLIGHT_LABEL[opt] }}
+                  {{ filterLabels().sunlight[opt] }}
                 </button>
               }
             </div>
           </details>
 
           <!-- Watering -->
+          @let wateringTooltip = 'library.filter.wateringTooltip' | transloco;
           <details class="group mb-4" open>
             <summary
               class="flex items-center justify-between py-0.5 mb-2 cursor-pointer list-none select-none outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
@@ -195,14 +209,14 @@
                 <h2
                   class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display"
                 >
-                  Watering
+                  {{ 'library.filter.watering' | transloco }}
                 </h2>
                 <span
                   class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-help"
-                  (mouseenter)="showTooltip($event, 'How often the plant needs water')"
+                  (mouseenter)="showTooltip($event, wateringTooltip)"
                   (mouseleave)="hideTooltip()"
                   tabindex="0"
-                  aria-label="More info about watering"
+                  [attr.aria-label]="'library.filter.watering' | transloco"
                 >
                   <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
                 </span>
@@ -218,7 +232,11 @@
                 aria-hidden="true"
               ></i>
             </summary>
-            <div class="flex flex-col gap-0.5" role="group" aria-label="Filter by watering">
+            <div
+              class="flex flex-col gap-0.5"
+              role="group"
+              [attr.aria-label]="'library.filter.wateringAriaLabel' | transloco"
+            >
               @for (opt of WATERING_OPTIONS; track opt) {
                 <button
                   type="button"
@@ -226,7 +244,7 @@
                   [attr.aria-pressed]="isFilterActive('watering', opt)"
                   (click)="toggleFilter('watering', opt)"
                 >
-                  {{ opt }}
+                  {{ filterLabels().watering[opt] }}
                 </button>
               }
             </div>
@@ -241,7 +259,7 @@
                 <h2
                   class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display"
                 >
-                  Plant traits
+                  {{ 'library.filter.traits' | transloco }}
                 </h2>
                 @if (hasTraitFilters()) {
                   <span
@@ -261,14 +279,14 @@
                   class="text-sm font-display text-neutral-600 dark:text-neutral-400 cursor-pointer"
                   for="filter-tropical"
                 >
-                  Tropical only
+                  {{ 'library.filter.tropical' | transloco }}
                 </label>
                 <p-toggleswitch
                   inputId="filter-tropical"
                   [ngModel]="isTropicalFilter()"
                   (ngModelChange)="setTropicalFilter($event)"
                   [pt]="FloraToggleSwitchPT"
-                  ariaLabel="Show tropical plants only"
+                  [ariaLabel]="'library.filter.tropicalAriaLabel' | transloco"
                   class="flex-shrink-0"
                 />
               </div>
@@ -277,14 +295,14 @@
                   class="text-sm font-display text-neutral-600 dark:text-neutral-400 cursor-pointer"
                   for="filter-air-purifying"
                 >
-                  Air-purifying
+                  {{ 'library.filter.airPurifying' | transloco }}
                 </label>
                 <p-toggleswitch
                   inputId="filter-air-purifying"
                   [ngModel]="airPurifyingFilter()"
                   (ngModelChange)="setAirPurifyingFilter($event)"
                   [pt]="FloraToggleSwitchPT"
-                  ariaLabel="Show air-purifying plants only"
+                  [ariaLabel]="'library.filter.airPurifyingAriaLabel' | transloco"
                   class="flex-shrink-0"
                 />
               </div>
@@ -293,14 +311,14 @@
                   class="text-sm font-display text-neutral-600 dark:text-neutral-400 cursor-pointer"
                   for="filter-safe-humans"
                 >
-                  Child-safe
+                  {{ 'library.filter.childSafe' | transloco }}
                 </label>
                 <p-toggleswitch
                   inputId="filter-safe-humans"
                   [ngModel]="isSafeForHumansFilter()"
                   (ngModelChange)="setSafeForHumansFilter($event)"
                   [pt]="FloraToggleSwitchPT"
-                  ariaLabel="Show child-safe plants only"
+                  [ariaLabel]="'library.filter.childSafeAriaLabel' | transloco"
                   class="flex-shrink-0"
                 />
               </div>
@@ -309,14 +327,14 @@
                   class="text-sm font-display text-neutral-600 dark:text-neutral-400 cursor-pointer"
                   for="filter-pet-safe"
                 >
-                  Pet-safe
+                  {{ 'library.filter.petSafe' | transloco }}
                 </label>
                 <p-toggleswitch
                   inputId="filter-pet-safe"
                   [ngModel]="isPetSafeFilter()"
                   (ngModelChange)="setPetSafeFilter($event)"
                   [pt]="FloraToggleSwitchPT"
-                  ariaLabel="Show pet-safe plants only"
+                  [ariaLabel]="'library.filter.petSafeAriaLabel' | transloco"
                   class="flex-shrink-0"
                 />
               </div>
@@ -324,6 +342,7 @@
           </details>
 
           <!-- Care Difficulty -->
+          @let difficultyTooltip = 'library.filter.difficultyTooltip' | transloco;
           <details class="group mb-4">
             <summary
               class="flex items-center justify-between py-0.5 mb-2 cursor-pointer list-none select-none outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
@@ -332,14 +351,14 @@
                 <h2
                   class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display"
                 >
-                  Difficulty
+                  {{ 'library.filter.difficulty' | transloco }}
                 </h2>
                 <span
                   class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-help"
-                  (mouseenter)="showTooltip($event, 'Skill level to keep the plant healthy')"
+                  (mouseenter)="showTooltip($event, difficultyTooltip)"
                   (mouseleave)="hideTooltip()"
                   tabindex="0"
-                  aria-label="More info about care difficulty"
+                  [attr.aria-label]="'library.filter.difficulty' | transloco"
                 >
                   <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
                 </span>
@@ -355,7 +374,11 @@
                 aria-hidden="true"
               ></i>
             </summary>
-            <div class="flex flex-col gap-0.5" role="group" aria-label="Filter by care difficulty">
+            <div
+              class="flex flex-col gap-0.5"
+              role="group"
+              [attr.aria-label]="'library.filter.difficultyAriaLabel' | transloco"
+            >
               @for (opt of CARE_DIFFICULTY_OPTIONS; track opt) {
                 <button
                   type="button"
@@ -367,13 +390,14 @@
                     [class]="checkboxIndicatorClass(isMultiFilterActive('careDifficulty', opt))"
                     aria-hidden="true"
                   ></span>
-                  {{ opt }}
+                  {{ filterLabels().careDifficulty[opt] }}
                 </button>
               }
             </div>
           </details>
 
           <!-- Maintenance -->
+          @let maintenanceTooltip = 'library.filter.maintenanceTooltip' | transloco;
           <details class="group mb-4">
             <summary
               class="flex items-center justify-between py-0.5 mb-2 cursor-pointer list-none select-none outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
@@ -382,16 +406,14 @@
                 <h2
                   class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display"
                 >
-                  Maintenance
+                  {{ 'library.filter.maintenance' | transloco }}
                 </h2>
                 <span
                   class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-help"
-                  (mouseenter)="
-                    showTooltip($event, 'Weekly time investment to keep the plant happy')
-                  "
+                  (mouseenter)="showTooltip($event, maintenanceTooltip)"
                   (mouseleave)="hideTooltip()"
                   tabindex="0"
-                  aria-label="More info about maintenance"
+                  [attr.aria-label]="'library.filter.maintenance' | transloco"
                 >
                   <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
                 </span>
@@ -410,7 +432,7 @@
             <div
               class="flex flex-col gap-0.5"
               role="group"
-              aria-label="Filter by maintenance level"
+              [attr.aria-label]="'library.filter.maintenanceAriaLabel' | transloco"
             >
               @for (opt of MAINTENANCE_OPTIONS; track opt) {
                 <button
@@ -423,13 +445,14 @@
                     [class]="checkboxIndicatorClass(isMultiFilterActive('maintenanceLevel', opt))"
                     aria-hidden="true"
                   ></span>
-                  {{ opt }}
+                  {{ filterLabels().maintenance[opt] }}
                 </button>
               }
             </div>
           </details>
 
           <!-- Lifecycle -->
+          @let lifecycleTooltipText = 'library.filter.lifecycleTooltip' | transloco;
           <details class="group mb-4">
             <summary
               class="flex items-center justify-between py-0.5 mb-2 cursor-pointer list-none select-none outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
@@ -438,14 +461,14 @@
                 <h2
                   class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display"
                 >
-                  Lifecycle
+                  {{ 'library.filter.lifecycle' | transloco }}
                 </h2>
                 <span
                   class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-help"
-                  (mouseenter)="showTooltip($event, lifecycleTooltip)"
+                  (mouseenter)="showTooltip($event, lifecycleTooltipText)"
                   (mouseleave)="hideTooltip()"
                   tabindex="0"
-                  aria-label="More info about lifecycle"
+                  [attr.aria-label]="'library.filter.lifecycle' | transloco"
                 >
                   <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
                 </span>
@@ -461,7 +484,11 @@
                 aria-hidden="true"
               ></i>
             </summary>
-            <div class="flex flex-col gap-0.5" role="group" aria-label="Filter by lifecycle">
+            <div
+              class="flex flex-col gap-0.5"
+              role="group"
+              [attr.aria-label]="'library.filter.lifecycleAriaLabel' | transloco"
+            >
               @for (opt of CYCLE_OPTIONS; track opt) {
                 <button
                   type="button"
@@ -469,13 +496,14 @@
                   [attr.aria-pressed]="isFilterActive('cycle', opt)"
                   (click)="toggleFilter('cycle', opt)"
                 >
-                  {{ opt }}
+                  {{ filterLabels().cycle[opt] }}
                 </button>
               }
             </div>
           </details>
 
           <!-- Soil pH -->
+          @let soilPhTooltip = 'library.filter.soilPhTooltip' | transloco;
           <details class="group">
             <summary
               class="flex items-center justify-between py-0.5 mb-2 cursor-pointer list-none select-none outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
@@ -484,16 +512,14 @@
                 <h2
                   class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display"
                 >
-                  Soil pH
+                  {{ 'library.filter.soilPh' | transloco }}
                 </h2>
                 <span
                   class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-help"
-                  (mouseenter)="
-                    showTooltip($event, 'Soil acidity scale 0 (very acid) to 14 (alkaline)')
-                  "
+                  (mouseenter)="showTooltip($event, soilPhTooltip)"
                   (mouseleave)="hideTooltip()"
                   tabindex="0"
-                  aria-label="More info about soil pH"
+                  [attr.aria-label]="'library.filter.soilPh' | transloco"
                 >
                   <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
                 </span>
@@ -514,10 +540,10 @@
                 <button
                   type="button"
                   class="text-xs font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded cursor-pointer"
-                  aria-label="Reset pH range filter"
+                  [attr.aria-label]="'library.filter.resetPh' | transloco"
                   (click)="clearPhFilter()"
                 >
-                  Reset
+                  {{ 'library.filter.resetPh' | transloco }}
                 </button>
               </div>
             }
@@ -531,7 +557,7 @@
                 [pt]="FloraSliderPT"
                 (onChange)="onPhChange($event)"
                 (onSlideEnd)="onPhSlideEnd($event)"
-                aria-label="Filter by soil pH range"
+                [attr.aria-label]="'library.filter.soilPhAriaLabel' | transloco"
               />
             </div>
             <div class="flex justify-between">
@@ -547,44 +573,47 @@
       </aside>
 
       <!-- Results area -->
-      <section class="flex-1 min-w-0" aria-label="Browse results" [attr.aria-busy]="isLoading()">
-        <!-- Always-present loading indicator for initial load (no existing results).
-             Uses a class toggle, never removed from DOM, so it reacts in the same render
-             frame as the isLoading() signal write — no branch-switch delay. -->
+      <section
+        class="flex-1 min-w-0"
+        [attr.aria-label]="'library.resultsAriaLabel' | transloco"
+        [attr.aria-busy]="isLoading()"
+      >
         <div
           [class.hidden]="!isInitialLoad()"
           class="flex items-center gap-2 mb-4 text-sm text-neutral-500 dark:text-neutral-400 font-display"
           role="status"
           aria-live="polite"
-          [attr.aria-label]="isInitialLoad() ? 'Loading botanical records' : null"
+          [attr.aria-label]="isInitialLoad() ? ('library.loadingAriaLabel' | transloco) : null"
         >
           <span
             class="w-4 h-4 border-2 border-neutral-200 dark:border-neutral-700 border-t-primary-500 dark:border-t-primary-400 rounded-full animate-spin shrink-0"
             aria-hidden="true"
           ></span>
-          Loading plants…
+          {{ 'library.loading' | transloco }}
         </div>
 
         @if (!hasSearchCriteria()) {
           <div
             class="flex flex-col items-center justify-center py-20 text-center"
             role="status"
-            aria-label="Library ready — search or filter to explore"
+            [attr.aria-label]="'library.noSearchCriteriaAriaLabel' | transloco"
           >
             <i
               class="pi pi-search text-4xl text-neutral-300 dark:text-neutral-600 mb-4"
               aria-hidden="true"
             ></i>
             <p class="text-neutral-500 dark:text-neutral-400 font-display text-sm mb-1">
-              Search by name or apply filters to discover plant species.
+              {{ 'library.noSearchCriteriaText' | transloco }}
             </p>
             <p class="text-xs text-neutral-400 dark:text-neutral-500 font-display">
-              Try &ldquo;Monstera&rdquo;, &ldquo;Lavender&rdquo; &mdash; tap any result to explore
-              its full plant profile.
+              {{ 'library.noSearchCriteriaHint' | transloco }}
             </p>
           </div>
         } @else if (isInitialLoad()) {
-          <ul class="flex flex-col gap-4" aria-label="Loading botanical records">
+          <ul
+            class="flex flex-col gap-4"
+            [attr.aria-label]="'library.loadingResultsAriaLabel' | transloco"
+          >
             @for (_ of loadingPlaceholders; track $index) {
               <li aria-hidden="true">
                 <p-skeleton height="8.5rem" [pt]="FloraSkeletonPT" />
@@ -598,18 +627,18 @@
               aria-hidden="true"
             ></i>
             <p class="text-neutral-500 dark:text-neutral-400 font-display text-sm mb-1">
-              No species match your current search or filters.
+              {{ 'library.noResultsText' | transloco }}
             </p>
             <p class="text-xs text-neutral-400 dark:text-neutral-500 font-display mb-3">
-              Care fields (watering, sunlight, lifecycle) may be missing for some cached species.
+              {{ 'library.noResultsHint' | transloco }}
             </p>
             <button
               type="button"
               class="text-sm font-medium font-display text-primary-600 hover:text-primary-700 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 rounded cursor-pointer"
-              aria-label="Clear all active filters and search"
+              [attr.aria-label]="'library.clearAllAriaLabel' | transloco"
               (click)="clearFilters(); searchQuery.set('')"
             >
-              Clear all
+              {{ 'library.clearAll' | transloco }}
             </button>
           </div>
         } @else {
@@ -618,7 +647,7 @@
               <div
                 class="absolute inset-0 z-10 flex items-start justify-center pt-10 bg-neutral-50/70 dark:bg-neutral-900/70 rounded-garden-sm"
                 role="status"
-                aria-label="Updating results"
+                [attr.aria-label]="'library.updatingAriaLabel' | transloco"
               >
                 <span
                   class="w-5 h-5 border-2 border-neutral-200 dark:border-neutral-700 border-t-primary-500 dark:border-t-primary-400 rounded-full animate-spin"
@@ -632,7 +661,7 @@
               aria-live="polite"
               aria-atomic="true"
             >
-              {{ groupedResults().length }} species
+              {{ 'library.speciesCount' | transloco: { count: groupedResults().length } }}
             </p>
             @if (enrichingCount() > 0) {
               <div
@@ -645,13 +674,13 @@
                   class="w-3 h-3 border border-primary-500 border-t-transparent rounded-full animate-spin shrink-0"
                   aria-hidden="true"
                 ></span>
-                Enriching plant details for {{ enrichingCount() }} species…
+                {{ 'library.enrichingStatus' | transloco: { count: enrichingCount() } }}
               </div>
             }
             <ul
               class="flex flex-col gap-4 transition-opacity duration-200"
               [class.opacity-40]="isReloading()"
-              aria-label="Botanical records"
+              [attr.aria-label]="'library.resultsAriaLabel' | transloco"
             >
               @for (group of pagedGroupedResults(); track group.representative.scientific_name) {
                 <li>
@@ -671,7 +700,7 @@
             @if (totalPages() > 1) {
               <nav
                 class="flex items-center justify-center gap-1 mt-6 pt-4 border-t border-neutral-200 dark:border-neutral-700"
-                aria-label="Results pagination"
+                [attr.aria-label]="'library.paginationAriaLabel' | transloco"
               >
                 <!-- Previous -->
                 <button
@@ -679,7 +708,7 @@
                   class="w-8 h-8 inline-flex items-center justify-center rounded-garden-sm text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                   [disabled]="!hasPrevPage()"
                   (click)="goToPage(currentPage() - 1)"
-                  aria-label="Go to previous page"
+                  [attr.aria-label]="'library.prevPageAriaLabel' | transloco"
                 >
                   <i class="pi pi-chevron-left text-xs" aria-hidden="true"></i>
                 </button>
@@ -702,7 +731,7 @@
                           ? 'bg-primary-500 text-white font-semibold'
                           : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800'
                       "
-                      [attr.aria-label]="'Go to page ' + (item + 1)"
+                      [attr.aria-label]="'library.pageAriaLabel' | transloco: { page: item + 1 }"
                       [attr.aria-current]="item === currentPage() ? 'page' : null"
                       (click)="goToPage(item)"
                     >
@@ -717,7 +746,7 @@
                   class="w-8 h-8 inline-flex items-center justify-center rounded-garden-sm text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                   [disabled]="!hasNextPage()"
                   (click)="goToPage(currentPage() + 1)"
-                  aria-label="Go to next page"
+                  [attr.aria-label]="'library.nextPageAriaLabel' | transloco"
                 >
                   <i class="pi pi-chevron-right text-xs" aria-hidden="true"></i>
                 </button>
@@ -778,7 +807,7 @@
       [visible]="wizardFromBotanicalRecord() !== null"
       (visibleChange)="onBotanicalWizardClose($event)"
       [botanicalRecord]="wizardFromBotanicalRecord()"
-      backLabel="Plant details"
+      [backLabel]="'library.heading' | transloco"
     />
   } @error {
     <span></span>

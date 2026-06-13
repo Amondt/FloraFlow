@@ -1,5 +1,6 @@
 import { Component, input } from '@angular/core';
 import { TagModule } from 'primeng/tag';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { FloraTagPT } from '../../ui/pt/index';
 
 /**
@@ -12,7 +13,7 @@ import { FloraTagPT } from '../../ui/pt/index';
 @Component({
   selector: 'app-botanical-tags',
   standalone: true,
-  imports: [TagModule],
+  imports: [TagModule, TranslocoPipe],
   templateUrl: './botanical-tags.html',
   host: { class: 'contents' },
 })

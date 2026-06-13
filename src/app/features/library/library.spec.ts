@@ -5,6 +5,7 @@ import { signal } from '@angular/core';
 import { LibraryComponent } from './library';
 import { CachedBotanicalRecord, LibraryService, PAGE_SIZE } from './library.service';
 import { PlantService } from '../tasks/plant.service';
+import { provideTranslocoTesting } from '../../testing/transloco-testing';
 
 // Creates N records each with a unique common_name so groupBotanicalRecords()
 // produces exactly N groups, giving totalPages = ceil(N / PAGE_SIZE).
@@ -26,6 +27,7 @@ describe('LibraryComponent – pageItems', () => {
     await TestBed.configureTestingModule({
       imports: [LibraryComponent],
       providers: [
+        ...provideTranslocoTesting(),
         provideRouter([]),
         {
           provide: LibraryService,

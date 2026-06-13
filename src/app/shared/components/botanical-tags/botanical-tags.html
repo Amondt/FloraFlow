@@ -1,8 +1,18 @@
 @if (placement() === 'Indoor' || placement() === 'Both') {
-  <p-tag value="Indoor" severity="secondary" icon="pi pi-home" [pt]="FloraTagPT" />
+  <p-tag
+    [value]="'tags.placementIndoor' | transloco"
+    severity="secondary"
+    icon="pi pi-home"
+    [pt]="FloraTagPT"
+  />
 }
 @if (placement() === 'Outdoor' || placement() === 'Both') {
-  <p-tag value="Outdoor" severity="secondary" icon="pi pi-sun" [pt]="FloraTagPT" />
+  <p-tag
+    [value]="'tags.placementOutdoor' | transloco"
+    severity="secondary"
+    icon="pi pi-sun"
+    [pt]="FloraTagPT"
+  />
 }
 @if (!placement() && isEnriching()) {
   <span
@@ -11,7 +21,12 @@
   ></span>
 }
 @if (isTropical() === true) {
-  <p-tag value="Tropical" severity="secondary" icon="pi pi-globe" [pt]="FloraTagPT" />
+  <p-tag
+    [value]="'tags.tropical' | transloco"
+    severity="secondary"
+    icon="pi pi-globe"
+    [pt]="FloraTagPT"
+  />
 } @else if (isTropical() === null && isEnriching()) {
   <span
     class="h-5 w-14 rounded-full bg-neutral-200 dark:bg-neutral-700 animate-[flora-skeleton_1.5s_ease-in-out_infinite] [animation-delay:150ms]"
@@ -20,13 +35,18 @@
 }
 @if (isToxicToPets() === true) {
   <p-tag
-    value="Toxic (pets)"
+    [value]="'tags.toxicPets' | transloco"
     severity="danger"
     icon="pi pi-exclamation-triangle"
     [pt]="FloraTagPT"
   />
 } @else if (isToxicToPets() === false) {
-  <p-tag value="Pet-safe" severity="success" icon="pi pi-check-circle" [pt]="FloraTagPT" />
+  <p-tag
+    [value]="'tags.petSafe' | transloco"
+    severity="success"
+    icon="pi pi-check-circle"
+    [pt]="FloraTagPT"
+  />
 } @else if (isEnriching()) {
   <span
     class="h-5 w-14 rounded-full bg-neutral-200 dark:bg-neutral-700 animate-[flora-skeleton_1.5s_ease-in-out_infinite] [animation-delay:300ms]"
@@ -35,20 +55,40 @@
 }
 @if (isToxicToHumans() === true) {
   <p-tag
-    value="Toxic (humans)"
+    [value]="'tags.toxicHumans' | transloco"
     severity="danger"
     icon="pi pi-exclamation-triangle"
     [pt]="FloraTagPT"
   />
 } @else if (isToxicToHumans() === false) {
-  <p-tag value="Child-safe" severity="success" icon="pi pi-check-circle" [pt]="FloraTagPT" />
+  <p-tag
+    [value]="'tags.childSafe' | transloco"
+    severity="success"
+    icon="pi pi-check-circle"
+    [pt]="FloraTagPT"
+  />
 }
 @if (careDifficulty() === 'Beginner') {
-  <p-tag value="Easy care" severity="success" icon="pi pi-star" [pt]="FloraTagPT" />
+  <p-tag
+    [value]="'tags.easyCare' | transloco"
+    severity="success"
+    icon="pi pi-star"
+    [pt]="FloraTagPT"
+  />
 } @else if (careDifficulty() === 'Intermediate') {
-  <p-tag value="Moderate care" severity="warn" icon="pi pi-star" [pt]="FloraTagPT" />
+  <p-tag
+    [value]="'tags.moderateCare' | transloco"
+    severity="warn"
+    icon="pi pi-star"
+    [pt]="FloraTagPT"
+  />
 } @else if (careDifficulty() === 'Advanced') {
-  <p-tag value="Expert care" severity="danger" icon="pi pi-star" [pt]="FloraTagPT" />
+  <p-tag
+    [value]="'tags.expertCare' | transloco"
+    severity="danger"
+    icon="pi pi-star"
+    [pt]="FloraTagPT"
+  />
 } @else if (isEnriching()) {
   <span
     class="h-5 w-20 rounded-full bg-neutral-200 dark:bg-neutral-700 animate-[flora-skeleton_1.5s_ease-in-out_infinite] [animation-delay:450ms]"
@@ -56,11 +96,26 @@
   ></span>
 }
 @if (maintenanceLevel() === 'Low') {
-  <p-tag value="Easy upkeep" severity="success" icon="pi pi-clock" [pt]="FloraTagPT" />
+  <p-tag
+    [value]="'tags.easyUpkeep' | transloco"
+    severity="success"
+    icon="pi pi-clock"
+    [pt]="FloraTagPT"
+  />
 } @else if (maintenanceLevel() === 'Medium') {
-  <p-tag value="Moderate upkeep" severity="warn" icon="pi pi-clock" [pt]="FloraTagPT" />
+  <p-tag
+    [value]="'tags.moderateUpkeep' | transloco"
+    severity="warn"
+    icon="pi pi-clock"
+    [pt]="FloraTagPT"
+  />
 } @else if (maintenanceLevel() === 'High') {
-  <p-tag value="High upkeep" severity="danger" icon="pi pi-clock" [pt]="FloraTagPT" />
+  <p-tag
+    [value]="'tags.highUpkeep' | transloco"
+    severity="danger"
+    icon="pi pi-clock"
+    [pt]="FloraTagPT"
+  />
 } @else if (isEnriching()) {
   <span
     class="h-5 w-16 rounded-full bg-neutral-200 dark:bg-neutral-700 animate-[flora-skeleton_1.5s_ease-in-out_infinite] [animation-delay:600ms]"

@@ -16,6 +16,8 @@ import { SliderModule, SliderSlideEndEvent } from 'primeng/slider';
 import { ToastModule } from 'primeng/toast';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { MessageService } from 'primeng/api';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { LocaleService } from '../../core/services/locale.service';
 import {
   CARE_DIFFICULTY_OPTIONS,
   CachedBotanicalRecord,
@@ -25,7 +27,6 @@ import {
   MAINTENANCE_OPTIONS,
   PAGE_SIZE,
   PLACEMENT_OPTIONS,
-  SUNLIGHT_LABEL,
   SUNLIGHT_OPTIONS,
   WATERING_OPTIONS,
 } from './library.service';
@@ -48,6 +49,39 @@ import { SubstrateMixWizardDialogComponent } from '../../shared/components/subst
 import { PlantService } from '../tasks/plant.service';
 import { PlantFormData } from '../tasks/plant.model';
 import { plantAddedDetail } from '../../shared/utils/plant-message.util';
+
+const PLACEMENT_KEY: Record<string, string> = {
+  Indoor: 'library.filter.placementIndoor',
+  Outdoor: 'library.filter.placementOutdoor',
+  Both: 'library.filter.placementBoth',
+};
+const WATERING_FILTER_KEY: Record<string, string> = {
+  Frequent: 'library.filter.wateringFrequent',
+  Average: 'library.filter.wateringAverage',
+  Minimum: 'library.filter.wateringMinimum',
+  None: 'library.filter.wateringNone',
+};
+const SUNLIGHT_FILTER_KEY: Record<string, string> = {
+  full_sun: 'library.filter.sunlightFullSun',
+  part_shade: 'library.filter.sunlightPartShade',
+  full_shade: 'library.filter.sunlightShade',
+  filtered_indirect: 'library.filter.sunlightIndirect',
+};
+const CYCLE_KEY: Record<string, string> = {
+  Perennial: 'library.filter.cyclePerennial',
+  Annual: 'library.filter.cycleAnnual',
+  Biennial: 'library.filter.cycleBiennial',
+};
+const CARE_DIFFICULTY_KEY: Record<string, string> = {
+  Beginner: 'library.filter.difficultyBeginner',
+  Intermediate: 'library.filter.difficultyIntermediate',
+  Advanced: 'library.filter.difficultyAdvanced',
+};
+const MAINTENANCE_KEY: Record<string, string> = {
+  Low: 'library.filter.maintenanceLow',
+  Medium: 'library.filter.maintenanceMedium',
+  High: 'library.filter.maintenanceHigh',
+};
 import { EnrichmentPoll } from '../../shared/utils/enrichment-poll';
 import {
   PlantIdentifierDialogComponent,
@@ -65,6 +99,7 @@ import {
     SliderModule,
     ToastModule,
     ToggleSwitchModule,
+    TranslocoPipe,
     BotanicalDetailDialogComponent,
     BotanicalRecordCardComponent,
     PlantFormDialogComponent,
@@ -79,6 +114,8 @@ export class LibraryComponent {
   private readonly plantService = inject(PlantService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
+  private readonly t = inject(TranslocoService);
+  private readonly localeService = inject(LocaleService);
 
   protected readonly FloraInputTextPT = FloraInputTextPT;
   protected readonly FloraSkeletonPT = FloraSkeletonPT;
@@ -93,10 +130,30 @@ export class LibraryComponent {
   protected readonly PLACEMENT_OPTIONS = [...PLACEMENT_OPTIONS];
   protected readonly CARE_DIFFICULTY_OPTIONS = [...CARE_DIFFICULTY_OPTIONS];
   protected readonly MAINTENANCE_OPTIONS = [...MAINTENANCE_OPTIONS];
-  protected readonly SUNLIGHT_LABEL = SUNLIGHT_LABEL;
   protected readonly loadingPlaceholders = [1, 2, 3, 4, 5, 6];
-  protected readonly lifecycleTooltip =
-    'Annual: 1 season\nBiennial: 2 years\nPerennial: returns every year';
+
+  readonly filterLabels = computed(() => {
+    const _lang = this.localeService.locale();
+    const t = this.t;
+    return {
+      placement: Object.fromEntries(
+        PLACEMENT_OPTIONS.map((o) => [o, t.translate(PLACEMENT_KEY[o])]),
+      ),
+      watering: Object.fromEntries(
+        WATERING_OPTIONS.map((o) => [o, t.translate(WATERING_FILTER_KEY[o])]),
+      ),
+      sunlight: Object.fromEntries(
+        SUNLIGHT_OPTIONS.map((o) => [o, t.translate(SUNLIGHT_FILTER_KEY[o])]),
+      ),
+      cycle: Object.fromEntries(CYCLE_OPTIONS.map((o) => [o, t.translate(CYCLE_KEY[o])])),
+      careDifficulty: Object.fromEntries(
+        CARE_DIFFICULTY_OPTIONS.map((o) => [o, t.translate(CARE_DIFFICULTY_KEY[o])]),
+      ),
+      maintenance: Object.fromEntries(
+        MAINTENANCE_OPTIONS.map((o) => [o, t.translate(MAINTENANCE_KEY[o])]),
+      ),
+    };
+  });
 
   readonly tooltipText = signal('');
   readonly tooltipPos = signal<{ x: number; y: number } | null>(null);
@@ -568,7 +625,7 @@ export class LibraryComponent {
     if (this.plantService.error() || !newPlant) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Add failed',
+        summary: this.t.translate('library.toast.addFailed'),
         detail: this.plantService.error()!,
       });
     } else {
@@ -577,7 +634,7 @@ export class LibraryComponent {
       this.prefillRecord.set(null);
       this.messageService.add({
         severity: 'success',
-        summary: 'Plant added',
+        summary: this.t.translate('library.toast.plantAdded'),
         detail: plantAddedDetail(data.common_name, newPlant.next_check_due_at),
       });
     }

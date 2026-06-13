@@ -40,6 +40,9 @@ export class LocaleService {
   });
 
   setLocale(locale: Locale): void {
-    this.locale.set(locale);
+    this.translocoService.load(locale).subscribe(() => {
+      this.translocoService.setActiveLang(locale);
+      this.locale.set(locale);
+    });
   }
 }

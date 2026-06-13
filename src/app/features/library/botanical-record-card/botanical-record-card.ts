@@ -1,5 +1,7 @@
-import { Component, computed, input, output, signal } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { TagModule } from 'primeng/tag';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { LocaleService } from '../../../core/services/locale.service';
 import { CachedBotanicalRecord } from '../library.service';
 import { FloraTagPT } from '../../../shared/ui/pt/index';
 import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-icon';
@@ -10,10 +12,19 @@ import { buildGalleryPhotos } from '../../../shared/utils/botanical-photo.util';
 @Component({
   selector: 'app-botanical-record-card',
   standalone: true,
-  imports: [TagModule, LeafIconComponent, BotanicalTagsComponent, PhotoLightboxDialogComponent],
+  imports: [
+    TagModule,
+    TranslocoPipe,
+    LeafIconComponent,
+    BotanicalTagsComponent,
+    PhotoLightboxDialogComponent,
+  ],
   templateUrl: './botanical-record-card.html',
 })
 export class BotanicalRecordCardComponent {
+  private readonly t = inject(TranslocoService);
+  private readonly localeService = inject(LocaleService);
+
   readonly record = input.required<CachedBotanicalRecord>();
   readonly selected = input<boolean>(false);
   readonly isEnriching = input<boolean>(false);
@@ -25,26 +36,29 @@ export class BotanicalRecordCardComponent {
   protected readonly galleryPhotos = computed(() => buildGalleryPhotos(this.record()));
 
   protected readonly ariaLabel = computed(() => {
+    const _lang = this.localeService.locale();
     const r = this.record();
     const count = this.varietyCount();
+    const sciLabel = this.t.translate('library.card.scientificName');
     const base =
       r.common_name && r.scientific_name
-        ? `${r.common_name}, scientific name ${r.scientific_name}`
+        ? `${r.common_name}, ${sciLabel} ${r.scientific_name}`
         : (r.common_name ?? r.scientific_name ?? 'Unknown species');
-    return count > 1 ? `${base}, ${count} varieties` : base;
+    return count > 1 ? this.t.translate('library.card.varieties', { count }) + ` — ${base}` : base;
   });
 
   protected readonly rankBadge = computed((): string | null => {
+    const _lang = this.localeService.locale();
     switch (this.record().inat_rank) {
       case 'subspecies':
-        return 'Subspecies';
+        return this.t.translate('library.card.rankSubspecies');
       case 'variety':
-        return 'Variety';
+        return this.t.translate('library.card.rankVariety');
       case 'form':
-        return 'Form';
+        return this.t.translate('library.card.rankForm');
       case 'hybrid':
       case 'genushybrid':
-        return 'Hybrid';
+        return this.t.translate('library.card.rankHybrid');
       default:
         return null;
     }

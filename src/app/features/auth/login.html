@@ -1,3 +1,5 @@
+<app-auth-page-controls />
+
 <main
   class="min-h-screen bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center px-4"
   aria-labelledby="login-heading"
@@ -112,5 +114,12 @@
         />
       </section>
     </form>
+
+    <p class="mt-6 text-sm text-neutral-500 dark:text-neutral-400 font-display text-center">
+      {{ 'auth.login.dontHaveAccount' | transloco }}
+      <a routerLink="/register" class="text-primary-600 dark:text-primary-400 hover:underline">
+        {{ 'auth.login.createOneLink' | transloco }}
+      </a>
+    </p>
   </article>
 </main>

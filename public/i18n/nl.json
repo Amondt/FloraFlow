@@ -42,7 +42,31 @@
       "submitAriaLabel": "Inloggen bij FloraFlow",
       "emailRequired": "E-mailadres is verplicht.",
       "emailInvalid": "Voer een geldig e-mailadres in.",
-      "passwordRequired": "Wachtwoord is verplicht."
+      "passwordRequired": "Wachtwoord is verplicht.",
+      "dontHaveAccount": "Heeft u geen account?",
+      "createOneLink": "Account aanmaken"
+    },
+    "register": {
+      "title": "Uw FloraFlow-account aanmaken",
+      "subtitle": "Begin vandaag met het bijhouden van uw planten.",
+      "formLabel": "Registratieformulier",
+      "credentialsLabel": "Accountgegevens",
+      "emailLabel": "E-mailadres",
+      "passwordLabel": "Wachtwoord",
+      "confirmPasswordLabel": "Wachtwoord bevestigen",
+      "submitButton": "Account aanmaken",
+      "submitAriaLabel": "Uw FloraFlow-account aanmaken",
+      "emailRequired": "E-mailadres is verplicht.",
+      "emailInvalid": "Voer een geldig e-mailadres in.",
+      "passwordRequired": "Wachtwoord is verplicht.",
+      "passwordMinLength": "Wachtwoord moet minimaal 8 tekens bevatten.",
+      "confirmPasswordRequired": "Bevestig uw wachtwoord.",
+      "passwordsMismatch": "Wachtwoorden komen niet overeen.",
+      "confirmationTitle": "Controleer uw inbox",
+      "confirmationMessage": "We hebben een bevestigingslink gestuurd naar {{ email }}. Klik erop om uw account te activeren.",
+      "returnToSignIn": "Terug naar inloggen",
+      "alreadyHaveAccount": "Heeft u al een account?",
+      "signInLink": "Inloggen"
     }
   },
   "onboarding": {

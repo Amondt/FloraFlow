@@ -1,16 +1,24 @@
 import { Component, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { FloraButtonPT, FloraInputTextPT, FLORA_ERROR } from '../../shared/ui/pt/index';
 import { SupabaseService } from '../../core/services/supabase.service';
+import { AuthPageControlsComponent } from '../../shared/components/auth-page-controls/auth-page-controls';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, ButtonModule, InputTextModule, TranslocoPipe],
+  imports: [
+    ReactiveFormsModule,
+    ButtonModule,
+    InputTextModule,
+    TranslocoPipe,
+    RouterLink,
+    AuthPageControlsComponent,
+  ],
   templateUrl: './login.html',
 })
 export class LoginComponent {

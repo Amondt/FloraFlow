@@ -1,0 +1,202 @@
+<app-auth-page-controls />
+
+<main
+  class="min-h-screen bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center px-4"
+  aria-labelledby="register-heading"
+>
+  <article
+    class="w-full max-w-sm bg-white dark:bg-neutral-800 rounded-garden-lg shadow-sm border border-neutral-200 dark:border-neutral-700 p-8"
+  >
+    @if (state() === 'form') {
+      <header class="mb-6">
+        <h1
+          id="register-heading"
+          class="text-2xl font-semibold font-display text-neutral-900 dark:text-white"
+        >
+          {{ 'auth.register.title' | transloco }}
+        </h1>
+        <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400 font-display">
+          {{ 'auth.register.subtitle' | transloco }}
+        </p>
+      </header>
+
+      <form
+        [formGroup]="form"
+        (ngSubmit)="onSubmit()"
+        novalidate
+        [attr.aria-label]="'auth.register.formLabel' | transloco"
+      >
+        <section
+          [attr.aria-label]="'auth.register.credentialsLabel' | transloco"
+          class="flex flex-col gap-5"
+        >
+          <div class="flex flex-col gap-1.5">
+            <label
+              for="flora-register-email"
+              class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+            >
+              {{ 'auth.register.emailLabel' | transloco }}
+              <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
+              <span class="sr-only">(required)</span>
+            </label>
+            <input
+              pInputText
+              id="flora-register-email"
+              type="email"
+              autocomplete="email"
+              placeholder="you@example.com"
+              formControlName="email"
+              [pt]="FloraInputTextPT"
+              [class]="email.invalid && email.touched ? FLORA_ERROR : ''"
+              [attr.aria-describedby]="
+                email.invalid && email.touched ? 'flora-register-email-error' : null
+              "
+              [attr.aria-invalid]="email.invalid && email.touched"
+              aria-required="true"
+            />
+            @if (email.invalid && email.touched) {
+              <small
+                id="flora-register-email-error"
+                class="text-danger-500 text-xs font-display"
+                role="alert"
+              >
+                {{ emailError() | transloco }}
+              </small>
+            }
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label
+              for="flora-register-password"
+              class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+            >
+              {{ 'auth.register.passwordLabel' | transloco }}
+              <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
+              <span class="sr-only">(required)</span>
+            </label>
+            <input
+              pInputText
+              id="flora-register-password"
+              type="password"
+              autocomplete="new-password"
+              placeholder="••••••••"
+              formControlName="password"
+              [pt]="FloraInputTextPT"
+              [class]="password.invalid && password.touched ? FLORA_ERROR : ''"
+              [attr.aria-describedby]="
+                password.invalid && password.touched ? 'flora-register-password-error' : null
+              "
+              [attr.aria-invalid]="password.invalid && password.touched"
+              aria-required="true"
+            />
+            @if (password.invalid && password.touched) {
+              <small
+                id="flora-register-password-error"
+                class="text-danger-500 text-xs font-display"
+                role="alert"
+              >
+                {{ passwordError() | transloco }}
+              </small>
+            }
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label
+              for="flora-register-confirm-password"
+              class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
+            >
+              {{ 'auth.register.confirmPasswordLabel' | transloco }}
+              <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
+              <span class="sr-only">(required)</span>
+            </label>
+            <input
+              pInputText
+              id="flora-register-confirm-password"
+              type="password"
+              autocomplete="new-password"
+              placeholder="••••••••"
+              formControlName="confirmPassword"
+              [pt]="FloraInputTextPT"
+              [class]="
+                (confirmPassword.invalid && confirmPassword.touched) ||
+                (form.hasError('passwordsMatch') && confirmPassword.touched)
+                  ? FLORA_ERROR
+                  : ''
+              "
+              [attr.aria-describedby]="
+                (confirmPassword.invalid && confirmPassword.touched) ||
+                (form.hasError('passwordsMatch') && confirmPassword.touched)
+                  ? 'flora-register-confirm-password-error'
+                  : null
+              "
+              [attr.aria-invalid]="
+                (confirmPassword.invalid && confirmPassword.touched) ||
+                (form.hasError('passwordsMatch') && confirmPassword.touched)
+              "
+              aria-required="true"
+            />
+            @if (
+              (confirmPassword.invalid && confirmPassword.touched) ||
+              (form.hasError('passwordsMatch') && confirmPassword.touched)
+            ) {
+              <small
+                id="flora-register-confirm-password-error"
+                class="text-danger-500 text-xs font-display"
+                role="alert"
+              >
+                {{ confirmPasswordError() | transloco }}
+              </small>
+            }
+          </div>
+
+          @if (authError()) {
+            <div
+              role="alert"
+              class="px-4 py-3 rounded-garden-sm bg-red-50 dark:bg-danger-500/10 border border-danger-500 text-red-900 dark:text-danger-500 text-sm font-display"
+            >
+              {{ authError() }}
+            </div>
+          }
+
+          <p-button
+            type="submit"
+            [label]="'auth.register.submitButton' | transloco"
+            [pt]="FloraButtonPT"
+            [loading]="loading()"
+            [disabled]="loading()"
+            [ariaLabel]="'auth.register.submitAriaLabel' | transloco"
+            class="w-full"
+            styleClass="w-full justify-center"
+          />
+        </section>
+      </form>
+
+      <p class="mt-6 text-sm text-neutral-500 dark:text-neutral-400 font-display text-center">
+        {{ 'auth.register.alreadyHaveAccount' | transloco }}
+        <a routerLink="/login" class="text-primary-600 dark:text-primary-400 hover:underline">
+          {{ 'auth.register.signInLink' | transloco }}
+        </a>
+      </p>
+    } @else {
+      <header class="mb-4">
+        <h1
+          id="register-heading"
+          class="text-2xl font-semibold font-display text-neutral-900 dark:text-white"
+        >
+          {{ 'auth.register.confirmationTitle' | transloco }}
+        </h1>
+      </header>
+
+      <p class="text-sm text-neutral-600 dark:text-neutral-400 font-display mb-6">
+        {{ 'auth.register.confirmationMessage' | transloco: { email: submittedEmail() } }}
+      </p>
+
+      <a
+        routerLink="/login"
+        class="text-sm text-primary-600 dark:text-primary-400 hover:underline font-display"
+      >
+        {{ 'auth.register.returnToSignIn' | transloco }}
+      </a>
+    }
+  </article>
+</main>

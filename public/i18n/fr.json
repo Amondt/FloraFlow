@@ -42,7 +42,31 @@
       "submitAriaLabel": "Se connecter à FloraFlow",
       "emailRequired": "L'adresse e-mail est obligatoire.",
       "emailInvalid": "Veuillez entrer une adresse e-mail valide.",
-      "passwordRequired": "Le mot de passe est obligatoire."
+      "passwordRequired": "Le mot de passe est obligatoire.",
+      "dontHaveAccount": "Vous n'avez pas de compte ?",
+      "createOneLink": "Créer un compte"
+    },
+    "register": {
+      "title": "Créer votre compte FloraFlow",
+      "subtitle": "Commencez à suivre vos plantes aujourd'hui.",
+      "formLabel": "Formulaire de création de compte",
+      "credentialsLabel": "Informations du compte",
+      "emailLabel": "Adresse e-mail",
+      "passwordLabel": "Mot de passe",
+      "confirmPasswordLabel": "Confirmer le mot de passe",
+      "submitButton": "Créer un compte",
+      "submitAriaLabel": "Créer votre compte FloraFlow",
+      "emailRequired": "L'adresse e-mail est obligatoire.",
+      "emailInvalid": "Veuillez entrer une adresse e-mail valide.",
+      "passwordRequired": "Le mot de passe est obligatoire.",
+      "passwordMinLength": "Le mot de passe doit contenir au moins 8 caractères.",
+      "confirmPasswordRequired": "Veuillez confirmer votre mot de passe.",
+      "passwordsMismatch": "Les mots de passe ne correspondent pas.",
+      "confirmationTitle": "Vérifiez votre boîte de réception",
+      "confirmationMessage": "Nous avons envoyé un lien de confirmation à {{ email }}. Cliquez dessus pour activer votre compte.",
+      "returnToSignIn": "Retour à la connexion",
+      "alreadyHaveAccount": "Vous avez déjà un compte ?",
+      "signInLink": "Se connecter"
     }
   },
   "onboarding": {

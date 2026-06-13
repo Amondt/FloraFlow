@@ -4,12 +4,12 @@
 
 ---
 
-- [ ] **Block A — `SupabaseService.signUp()` + new-user profile check** | Agent: `/plumber` · Model: Sonnet · Effort: low
+- [x] **Block A — `SupabaseService.signUp()` + new-user profile check** | Agent: `/plumber` · Model: Sonnet · Effort: low
   - Add `async signUp(email, password)` to `src/app/core/services/supabase.service.ts`, mirroring the shape of `signInWithPassword` directly above it.
   - Returns `{ error: AuthError | null; needsEmailConfirmation: boolean }`.
   - `needsEmailConfirmation` is `true` when `data.user` is set but `data.session` is `null` — Supabase requires a confirmation click before the account is active. With local auto-confirm, `data.session` is populated and the flag stays `false`. (No `session` is returned — callers branch on the flag + `error`; see Block B.)
   - **Profile dependency check (required for Block B's `/dashboard` redirect):** every user so far was created manually, so this is the first time the app registers one itself. Confirm in Studio that signing up a new auth user auto-creates a `profiles` row with `has_completed_onboarding = false` (the standard `handle_new_user` trigger on `auth.users`). If no such trigger exists, `onboardingGuard` / `ProfileService` will break for self-registered users — add a one-line migration creating it **before** Block B ships.
-  - _Awareness note (no code):_ with Supabase email-enumeration protection enabled, signing up an *existing* email returns an obfuscated user + null session — indistinguishable from a genuine confirmation-pending. Harmless under local auto-confirm; revisit if this ever runs against a hosted project.
+  - _Awareness note (no code):_ with Supabase email-enumeration protection enabled, signing up an _existing_ email returns an obfuscated user + null session — indistinguishable from a genuine confirmation-pending. Harmless under local auto-confirm; revisit if this ever runs against a hosted project.
 
 **Verification:**
 
@@ -22,12 +22,20 @@ No browser check needed — service method only. Studio query for the profile-tr
 
 ```sql
 -- After signing up a test user, confirm the row exists:
-select id, has_completed_onboarding from public.profiles order by created_at desc limit 1;
+select
+  id,
+  has_completed_onboarding
+from
+  public.profiles
+order by
+  created_at desc
+limit
+  1;
 ```
 
 ---
 
-- [ ] **Block B — Register component & route** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **Block B — Register component & route** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - New files: `src/app/features/auth/register.ts` + `register.html` (flat in `features/auth/`, matching `login.ts`).
   - `app.routes.ts`: add `{ path: 'register', loadComponent: () => import('./features/auth/register').then((m) => m.RegisterComponent) }` immediately after the `login` route (public, no guard) — before the shell route.
   - **Reuse login's visual scaffold verbatim** for sibling consistency: same `<main>` / `<article>` shell, header, field anatomy, and the **raw `<div role="alert">` error banner** from `login.html:86`. Match login exactly — do not introduce `<p-message>` here; login's §6.5 deviation is pre-existing and out of scope for this phase.
@@ -65,7 +73,7 @@ App running at: http://localhost:4200/register
 
 ---
 
-- [ ] **Block C — Login → Register link** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+- [x] **Block C — Login → Register link** | Agent: `/visualizer` · Model: Sonnet · Effort: low
   - `login.ts`: add `RouterLink` to the component `imports` (it currently imports only `Router`, for programmatic navigation).
   - `login.html`: add a "Don't have an account? Create one" line as the **last child of `<article>`**, after `</form>` (`login.html:106`):
     ```html

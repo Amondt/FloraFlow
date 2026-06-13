@@ -320,18 +320,18 @@
   - Tailwind `dark:` variants handle all token switching — no manual class juggling in components.
   - `ThemeToggleComponent` in the nav bar renders a sun / moon icon button (requires 1.7).
   - No page reload — theme change is immediate and reactive.
-- [ ] **4.2** i18n EN / FR / NL | Agent: `/visualizer`
+- [x] **4.2** i18n EN / FR / NL | Agent: `/visualizer`
   - Install and configure `@jsverse/transloco`; `LocaleService` wraps active locale as a Signal.
   - Translation files: `public/i18n/{en,fr,nl}.json` covering every user-facing string.
   - `LanguageSwitcherComponent` added to the nav bar; selection persisted to localStorage (requires 1.7).
   - Full string audit across all components and templates — no hardcoded UI text left after this phase.
   - Language switch applies in the same render cycle without page reload.
-- [ ] **4.3 Logout Button** | Agent: `/visualizer`
+- [x] **4.3 Logout Button** | Agent: `/visualizer`
   - "Sign out" button in the top nav, pushed to the far right with `ml-auto`.
   - Calls `SupabaseService.signOut()` then navigates to `/login` unconditionally (Supabase clears the local session immediately regardless of network state).
   - Spinner replaces icon while the call is in-flight; button disabled during that window.
   - Plan: `docs/plans/phase-4/PHASE_4_3_PLAN.md`
-- [ ] **4.4 Create Account (Sign-up)** | Agent: `/plumber` → `/visualizer`
+- [x] **4.4 Create Account (Sign-up)** | Agent: `/plumber` → `/visualizer`
   - New `SupabaseService.signUp()` method returning `{ error, needsEmailConfirmation }`.
   - New `/register` route (public, no guard) with email + password + confirm-password form.
   - On success: shows "Check your inbox" state when email confirmation is required, or navigates to `/dashboard` when auto-confirmed (local dev) — `onboardingGuard` then routes the new user to `/onboarding`.

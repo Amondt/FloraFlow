@@ -42,7 +42,31 @@
       "submitAriaLabel": "Sign in to FloraFlow",
       "emailRequired": "Email address is required.",
       "emailInvalid": "Please enter a valid email address.",
-      "passwordRequired": "Password is required."
+      "passwordRequired": "Password is required.",
+      "dontHaveAccount": "Don't have an account?",
+      "createOneLink": "Create one"
+    },
+    "register": {
+      "title": "Create your FloraFlow account",
+      "subtitle": "Start tracking your plants today.",
+      "formLabel": "Create account form",
+      "credentialsLabel": "Account credentials",
+      "emailLabel": "Email address",
+      "passwordLabel": "Password",
+      "confirmPasswordLabel": "Confirm password",
+      "submitButton": "Create account",
+      "submitAriaLabel": "Create your FloraFlow account",
+      "emailRequired": "Email address is required.",
+      "emailInvalid": "Please enter a valid email address.",
+      "passwordRequired": "Password is required.",
+      "passwordMinLength": "Password must be at least 8 characters.",
+      "confirmPasswordRequired": "Confirm password is required.",
+      "passwordsMismatch": "Passwords do not match.",
+      "confirmationTitle": "Check your inbox",
+      "confirmationMessage": "We sent a confirmation link to {{ email }}. Click it to activate your account.",
+      "returnToSignIn": "Return to sign in",
+      "alreadyHaveAccount": "Already have an account?",
+      "signInLink": "Sign in"
     }
   },
   "onboarding": {

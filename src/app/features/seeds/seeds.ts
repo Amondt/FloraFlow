@@ -1,5 +1,7 @@
 import { Component, DestroyRef, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { LocaleService } from '../../core/services/locale.service';
 import { ButtonModule } from 'primeng/button';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -8,7 +10,13 @@ import { Message } from 'primeng/message';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { SeedBatchService } from './seed-batch.service';
 import { SeedBatchCardComponent } from './seed-batch-card/seed-batch-card';
-import { SeedBatch, SeedBatchFormData, SeedStage, SEED_STAGE_OPTIONS } from './seed-batch.model';
+import {
+  SeedBatch,
+  SeedBatchFormData,
+  SeedStage,
+  SEED_STAGE_OPTIONS,
+  SEED_STAGE_LABEL_KEYS,
+} from './seed-batch.model';
 import { SeedBatchFormDialogComponent } from './seed-batch-form-dialog/seed-batch-form-dialog';
 import { PlantFormDialogComponent } from '../tasks/plant-form-dialog/plant-form-dialog';
 import { PlantFormData } from '../tasks/plant.model';
@@ -32,6 +40,7 @@ import { PendingDeleteManager } from '../../shared/utils/pending-delete';
     ConfirmDialogModule,
     ToastModule,
     Message,
+    TranslocoPipe,
     SeedBatchCardComponent,
     SeedBatchFormDialogComponent,
     PlantFormDialogComponent,
@@ -40,6 +49,8 @@ import { PendingDeleteManager } from '../../shared/utils/pending-delete';
   templateUrl: './seeds.html',
 })
 export class SeedsComponent implements OnInit {
+  private readonly t = inject(TranslocoService);
+  private readonly localeService = inject(LocaleService);
   protected readonly batchService = inject(SeedBatchService);
   private readonly plantService = inject(PlantService);
   private readonly confirmService = inject(ConfirmationService);
@@ -73,6 +84,15 @@ export class SeedsComponent implements OnInit {
     scientific_name: string | null;
     inat_taxon_id: number | null;
   } | null>(null);
+
+  protected readonly selectedStageLabel = computed(() => {
+    const _lang = this.localeService.locale();
+    return this.t.translate(SEED_STAGE_LABEL_KEYS[this.selectedStageFilter()]);
+  });
+
+  protected stageKey(stage: SeedStage | 'All' | 'Archived'): string {
+    return SEED_STAGE_LABEL_KEYS[stage];
+  }
 
   protected readonly filteredBatches = computed(() => {
     const filter = this.selectedStageFilter();
@@ -140,37 +160,43 @@ export class SeedsComponent implements OnInit {
 
   protected confirmAdvance(batch: SeedBatch): void {
     const nextStage = this.nextStageName(batch);
+    const nextStageLabel = this.t.translate(
+      SEED_STAGE_LABEL_KEYS[nextStage as SeedStage] ?? nextStage,
+    );
     this.confirmService.confirm({
-      message: `Advance '${batch.common_name}' to ${nextStage}?`,
-      header: 'Advance stage',
-      acceptLabel: 'Advance',
-      rejectLabel: 'Cancel',
+      message: this.t.translate('seeds.toast.advanceMessage', {
+        name: batch.common_name,
+        stage: nextStageLabel,
+      }),
+      header: this.t.translate('seeds.toast.advanceHeader'),
+      acceptLabel: this.t.translate('seeds.toast.advanceAccept'),
+      rejectLabel: this.t.translate('common.cancel'),
       accept: () => void this._doAdvance(batch, nextStage),
     });
   }
 
   protected confirmArchive(batch: SeedBatch): void {
     this.confirmService.confirm({
-      message: `Archive '${batch.common_name}'? It will move to your archive.`,
-      header: 'Archive batch',
-      acceptLabel: 'Archive',
-      rejectLabel: 'Cancel',
+      message: this.t.translate('seeds.toast.archiveMessage', { name: batch.common_name }),
+      header: this.t.translate('seeds.toast.archiveHeader'),
+      acceptLabel: this.t.translate('seeds.toast.archiveAccept'),
+      rejectLabel: this.t.translate('common.cancel'),
       accept: () => void this._doArchive(batch),
     });
   }
 
   protected onDeleteRequested(batch: SeedBatch): void {
     this.confirmService.confirm({
-      message: `Remove "${batch.common_name}"? You can undo this.`,
-      header: 'Delete batch',
-      acceptLabel: 'Delete',
-      rejectLabel: 'Cancel',
+      message: this.t.translate('seeds.toast.deleteMessage', { name: batch.common_name }),
+      header: this.t.translate('seeds.toast.deleteHeader'),
+      acceptLabel: this.t.translate('common.delete'),
+      rejectLabel: this.t.translate('common.cancel'),
       accept: () => {
         this.batchService.optimisticallyRemoveBatch(batch);
         this.messageService.add({
           severity: 'warn',
-          summary: 'Batch deleted',
-          detail: `"${batch.common_name}" removed. Tap Undo to cancel.`,
+          summary: this.t.translate('seeds.toast.deletedSummary'),
+          detail: this.t.translate('seeds.toast.deletedDetail', { name: batch.common_name }),
           life: 5000,
           data: { canUndo: true, batch },
         });
@@ -180,7 +206,7 @@ export class SeedsComponent implements OnInit {
             this.batchService.restoreBatch(batch);
             this.messageService.add({
               severity: 'error',
-              summary: 'Delete failed',
+              summary: this.t.translate('seeds.toast.deleteFailed'),
               detail: this.batchService.error()!,
             });
           }
@@ -212,10 +238,12 @@ export class SeedsComponent implements OnInit {
     const isEdit = this.editTarget() !== null;
     this.messageService.add({
       severity: 'success',
-      summary: isEdit ? 'Batch updated' : 'Batch saved',
+      summary: isEdit
+        ? this.t.translate('seeds.toast.updatedSummary')
+        : this.t.translate('seeds.toast.savedSummary'),
       detail: isEdit
-        ? `'${batch.common_name}' has been updated.`
-        : `'${batch.common_name}' added to your seed bank.`,
+        ? this.t.translate('seeds.toast.updatedDetail', { name: batch.common_name })
+        : this.t.translate('seeds.toast.savedDetail', { name: batch.common_name }),
     });
   }
 
@@ -234,14 +262,14 @@ export class SeedsComponent implements OnInit {
     if (this.plantService.error() || !newPlant) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Add plant failed',
-        detail: this.plantService.error() ?? 'Unexpected error — please try again.',
+        summary: this.t.translate('seeds.toast.plantAddFailed'),
+        detail: this.plantService.error() ?? this.t.translate('seeds.toast.unexpectedError'),
       });
     } else {
       this.messageService.add({
         severity: 'success',
-        summary: 'Plant added to your greenhouse',
-        detail: `'${data.common_name}' is now in your care schedule.`,
+        summary: this.t.translate('seeds.toast.plantAdded'),
+        detail: this.t.translate('seeds.toast.plantAddedDetail', { name: data.common_name }),
       });
     }
   }
@@ -251,17 +279,23 @@ export class SeedsComponent implements OnInit {
     if (this.batchService.error()) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Advance failed',
+        summary: this.t.translate('seeds.toast.advanceFailed'),
         detail: this.batchService.error()!,
       });
     } else {
+      const nextStageLabel = this.t.translate(
+        SEED_STAGE_LABEL_KEYS[nextStage as SeedStage] ?? nextStage,
+      );
       this.messageService.add({
         severity: 'success',
-        summary: 'Stage advanced',
+        summary: this.t.translate('seeds.toast.advanceSuccess'),
         detail:
           nextStage === 'Transplanted Outside'
-            ? `'${batch.common_name}' is transplanted outside and has been archived.`
-            : `'${batch.common_name}' is now ${nextStage}.`,
+            ? this.t.translate('seeds.toast.advanceTransplanted', { name: batch.common_name })
+            : this.t.translate('seeds.toast.advanceTo', {
+                name: batch.common_name,
+                stage: nextStageLabel,
+              }),
       });
     }
   }
@@ -271,14 +305,14 @@ export class SeedsComponent implements OnInit {
     if (this.batchService.error()) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Archive failed',
+        summary: this.t.translate('seeds.toast.archiveFailed'),
         detail: this.batchService.error()!,
       });
     } else {
       this.messageService.add({
         severity: 'success',
-        summary: 'Batch archived',
-        detail: `'${batch.common_name}' has been moved to your archive.`,
+        summary: this.t.translate('seeds.toast.archiveSuccess'),
+        detail: this.t.translate('seeds.toast.archiveDetail', { name: batch.common_name }),
       });
     }
   }

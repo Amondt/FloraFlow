@@ -903,5 +903,97 @@
     "plantSelect": {
       "logEntriesAria": "{{ count }} logboekvermeldingen"
     }
+  },
+  "seeds": {
+    "header": {
+      "tagline": "Kiemtracker",
+      "title": "Zaadbank",
+      "emptyHint": "Volg je zaden van het zakje tot de tuin",
+      "statsActive": "{total, plural, one {1 partij} other {# partijen}} · {active} actief groeiend",
+      "statsStored": "{total, plural, one {1 partij} other {# partijen}} in opslag",
+      "addBatch": "Partij toevoegen"
+    },
+    "filter": {
+      "aria": "Partijen filteren op groeifase",
+      "liveCount": "{count, plural, one {1 partij} other {# partijen}}",
+      "liveArchived": "gearchiveerd",
+      "liveInStage": "in fase {stage}"
+    },
+    "stages": {
+      "all": "Alle",
+      "stored": "Opgeslagen",
+      "sownIndoors": "Binnen gezaaid",
+      "germinated": "Gekiemd",
+      "pottedUp": "Verpot",
+      "hardenedOff": "Afgehard",
+      "transplantedOutside": "Buiten geplant",
+      "archived": "Gearchiveerd"
+    },
+    "empty": {
+      "noArchived": "Er zijn nog geen partijen gearchiveerd.",
+      "noAny": "Nog geen zaadpartijen. Begin je zaden bij te houden van zakje tot tuin.",
+      "noStage": "Geen partijen in de fase « {{ stage }} ».",
+      "startTracking": "Begin met bijhouden",
+      "loadingAria": "Zaadpartijen laden",
+      "sectionAria": "Lijst van zaadpartijen",
+      "batchesAria": "Zaadpartijen"
+    },
+    "error": {
+      "loadFailed": "Kon zaadpartijen niet laden — controleer je verbinding en ververs de pagina."
+    },
+    "toast": {
+      "advanceHeader": "Fase doorschuiven",
+      "advanceMessage": "'{{ name }}' naar {{ stage }} doorschuiven?",
+      "advanceAccept": "Doorschuiven",
+      "advanceSuccess": "Fase doorgeschoven",
+      "advanceTo": "'{{ name }}' is nu {{ stage }}.",
+      "advanceTransplanted": "'{{ name }}' is buiten geplant en gearchiveerd.",
+      "advanceFailed": "Doorschuiven mislukt",
+      "archiveHeader": "Partij archiveren",
+      "archiveMessage": "'{{ name }}' archiveren? Het wordt naar je archief verplaatst.",
+      "archiveAccept": "Archiveren",
+      "archiveSuccess": "Partij gearchiveerd",
+      "archiveDetail": "'{{ name }}' is naar je archief verplaatst.",
+      "archiveFailed": "Archiveren mislukt",
+      "deleteHeader": "Partij verwijderen",
+      "deleteMessage": "« {{ name }} » verwijderen? Je kunt dit ongedaan maken.",
+      "deletedSummary": "Partij verwijderd",
+      "deletedDetail": "« {{ name }} » verwijderd. Tik op Ongedaan maken om te herstellen.",
+      "undo": "Ongedaan maken",
+      "savedSummary": "Partij opgeslagen",
+      "updatedSummary": "Partij bijgewerkt",
+      "savedDetail": "'{{ name }}' toegevoegd aan je zaadbank.",
+      "updatedDetail": "'{{ name }}' is bijgewerkt.",
+      "saveFailed": "Opslaan mislukt",
+      "updateFailed": "Bijwerken mislukt",
+      "plantAdded": "Plant toegevoegd aan je kas",
+      "plantAddedDetail": "'{{ name }}' staat nu in je verzorgingsplanning.",
+      "plantAddFailed": "Plant toevoegen mislukt",
+      "deleteFailed": "Verwijderen mislukt",
+      "unexpectedError": "Onverwachte fout — probeer opnieuw."
+    },
+    "card": {
+      "archivedBadge": "Gearchiveerd",
+      "archivedAt": "Gearchiveerd {{ date }}",
+      "sown": "Gezaaid",
+      "germinated": "Gekiemd",
+      "archive": "Archiveren",
+      "advanceStage": "Fase doorschuiven",
+      "graduateToPlant": "Promoveren tot plant"
+    },
+    "form": {
+      "titleAdd": "Zaadpartij toevoegen",
+      "titleEdit": "Partij bewerken",
+      "species": "Soort",
+      "speciesRequired": "Selecteer een soort.",
+      "brand": "Merk",
+      "brandHint": "Zaadmerk of leverancier",
+      "packetYear": "Zaakjaar",
+      "notes": "Notities",
+      "notesHint": "Optioneel — notities over deze partij",
+      "change": "Wijzigen",
+      "save": "Partij opslaan",
+      "saveChanges": "Wijzigingen opslaan"
+    }
   }
 }

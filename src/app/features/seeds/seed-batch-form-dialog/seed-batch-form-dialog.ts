@@ -9,6 +9,8 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { LocaleService } from '../../../core/services/locale.service';
 import {
   ReactiveFormsModule,
   FormsModule,
@@ -52,12 +54,15 @@ import { SeedBatch, SeedBatchFormData } from '../seed-batch.model';
     AutoCompleteModule,
     TextareaModule,
     ButtonModule,
+    TranslocoPipe,
     LeafIconComponent,
     BotanicalTagsComponent,
   ],
   templateUrl: './seed-batch-form-dialog.html',
 })
 export class SeedBatchFormDialogComponent {
+  private readonly t = inject(TranslocoService);
+  private readonly localeService = inject(LocaleService);
   private readonly batchService = inject(SeedBatchService);
   private readonly messageService = inject(MessageService);
   private readonly botanicalSearch = inject(BotanicalSearchService);
@@ -101,17 +106,26 @@ export class SeedBatchFormDialogComponent {
     notes: new FormControl<string | null>(null),
   });
 
-  protected readonly dialogTitle = computed(() =>
-    this.editTarget() ? 'Edit Batch' : 'Add a Seed Batch',
-  );
+  protected readonly dialogTitle = computed(() => {
+    const _lang = this.localeService.locale();
+    return this.editTarget()
+      ? this.t.translate('seeds.form.titleEdit')
+      : this.t.translate('seeds.form.titleAdd');
+  });
 
-  protected readonly submitLabel = computed(() =>
-    this.editTarget() ? 'Save Changes' : 'Save Batch',
-  );
+  protected readonly submitLabel = computed(() => {
+    const _lang = this.localeService.locale();
+    return this.editTarget()
+      ? this.t.translate('seeds.form.saveChanges')
+      : this.t.translate('seeds.form.save');
+  });
 
-  protected readonly submitAriaLabel = computed(() =>
-    this.editTarget() ? 'Save changes to this seed batch' : 'Add seeds to your seed bank',
-  );
+  protected readonly submitAriaLabel = computed(() => {
+    const _lang = this.localeService.locale();
+    return this.editTarget()
+      ? this.t.translate('seeds.form.saveChanges')
+      : this.t.translate('seeds.form.save');
+  });
 
   get nameCtrl() {
     return this.form.controls.common_name;
@@ -271,8 +285,10 @@ export class SeedBatchFormDialogComponent {
     } catch (e) {
       this.messageService.add({
         severity: 'error',
-        summary: this.editTarget() ? 'Update failed' : 'Save failed',
-        detail: e instanceof Error ? e.message : 'Unexpected error.',
+        summary: this.editTarget()
+          ? this.t.translate('seeds.toast.updateFailed')
+          : this.t.translate('seeds.toast.saveFailed'),
+        detail: e instanceof Error ? e.message : this.t.translate('seeds.toast.unexpectedError'),
       });
     } finally {
       this.saving.set(false);

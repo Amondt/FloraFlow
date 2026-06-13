@@ -140,7 +140,7 @@ EN is always the source of truth and the `fallbackLang`.
   - Update `species-photo-carousel.spec`, `photo-lightbox-dialog.spec`, `plant-identifier-dialog.spec`.
   - format + lint + Manual Browser Check (species detail dialog + identifier + substrate wizard).
 
-- [ ] **Block I — Seeds** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+- [x] **Block I — Seeds** | Agent: `/visualizer` · Model: Sonnet · Effort: low
   - `seeds.html`, `seed-batch-card`, `seed-batch-form-dialog` (+ stage-label strings, toasts).
     Add `seeds.*` keys.
   - Update `seed-batch.service.spec`.

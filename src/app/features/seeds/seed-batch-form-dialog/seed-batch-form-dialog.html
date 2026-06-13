@@ -21,7 +21,7 @@
           [for]="commonNameId"
           class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
         >
-          Species
+          {{ 'seeds.form.species' | transloco }}
           <span aria-hidden="true" class="text-danger-500 ml-0.5">*</span>
           <span class="sr-only">(required)</span>
         </label>
@@ -83,12 +83,12 @@
             class="text-danger-500 text-xs font-display"
             role="alert"
           >
-            Please select a species.
+            {{ 'seeds.form.speciesRequired' | transloco }}
           </small>
         }
       } @else {
         <span class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display">
-          Species
+          {{ 'seeds.form.species' | transloco }}
         </span>
         <article
           role="status"
@@ -146,7 +146,7 @@
                   aria-label="Change selected species"
                   (click)="clearLockedSpecies()"
                 >
-                  Change
+                  {{ 'seeds.form.change' | transloco }}
                 </button>
               </div>
             </div>
@@ -160,7 +160,7 @@
         [for]="brandId"
         class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
       >
-        Brand
+        {{ 'seeds.form.brand' | transloco }}
       </label>
       <input
         pInputText
@@ -171,7 +171,7 @@
         autocomplete="off"
       />
       <small [id]="brandId + '-hint'" class="text-neutral-400 text-xs font-display" role="note">
-        Seed brand or supplier
+        {{ 'seeds.form.brandHint' | transloco }}
       </small>
     </div>
 
@@ -180,7 +180,7 @@
         [for]="packetYearId"
         class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
       >
-        Packet year
+        {{ 'seeds.form.packetYear' | transloco }}
       </label>
       <input
         pInputText
@@ -200,7 +200,7 @@
         [for]="notesId"
         class="text-sm font-medium text-neutral-700 dark:text-neutral-200 font-display"
       >
-        Notes
+        {{ 'seeds.form.notes' | transloco }}
       </label>
       <textarea
         pTextarea
@@ -212,14 +212,14 @@
         [attr.aria-describedby]="notesId + '-hint'"
       ></textarea>
       <small [id]="notesId + '-hint'" class="text-neutral-400 text-xs font-display" role="note">
-        Optional — any notes about this batch
+        {{ 'seeds.form.notesHint' | transloco }}
       </small>
     </div>
   </form>
 
   <ng-template #footer>
     <p-button
-      label="Cancel"
+      [label]="'common.cancel' | transloco"
       variant="text"
       [pt]="FloraButtonPT"
       ariaLabel="Cancel and close dialog"

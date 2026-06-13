@@ -6,10 +6,10 @@
           class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium font-display text-neutral-500 bg-neutral-200 dark:bg-neutral-700 dark:text-neutral-400"
         >
           <i class="pi pi-box text-[10px] mr-1" aria-hidden="true"></i>
-          Archived
+          {{ 'seeds.card.archivedBadge' | transloco }}
         </span>
       } @else {
-        <span [class]="stageBadgeClass()">{{ batch().current_stage }}</span>
+        <span [class]="stageBadgeClass()">{{ stageKey(batch().current_stage) | transloco }}</span>
       }
     </div>
 
@@ -28,7 +28,7 @@
 
     @if (isArchived()) {
       <p class="text-xs text-neutral-400 dark:text-neutral-500 font-display mt-2">
-        Archived {{ formatDate(batch().archived_at!) }}
+        {{ 'seeds.card.archivedAt' | transloco: { date: formatDate(batch().archived_at!) } }}
       </p>
     }
 
@@ -50,13 +50,17 @@
       <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2">
         @if (batch().sown_at) {
           <p class="text-xs font-display text-neutral-400 dark:text-neutral-500">
-            <span class="font-medium text-neutral-500 dark:text-neutral-400">Sown</span>
+            <span class="font-medium text-neutral-500 dark:text-neutral-400">{{
+              'seeds.card.sown' | transloco
+            }}</span>
             {{ formatDate(batch().sown_at!) }}
           </p>
         }
         @if (batch().germinated_at) {
           <p class="text-xs font-display text-neutral-400 dark:text-neutral-500">
-            <span class="font-medium text-neutral-500 dark:text-neutral-400">Germinated</span>
+            <span class="font-medium text-neutral-500 dark:text-neutral-400">{{
+              'seeds.card.germinated' | transloco
+            }}</span>
             {{ formatDate(batch().germinated_at!) }}
           </p>
         }
@@ -89,7 +93,7 @@
           class="absolute top-1/2 left-1/2 size-11 -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"
         ></span>
         <i class="pi pi-trash text-[10px]" aria-hidden="true"></i>
-        Delete
+        {{ 'common.delete' | transloco }}
       </button>
     } @else {
       <button
@@ -103,7 +107,7 @@
           class="absolute top-1/2 left-1/2 size-11 -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"
         ></span>
         <i class="pi pi-box text-[10px]" aria-hidden="true"></i>
-        Archive
+        {{ 'seeds.card.archive' | transloco }}
       </button>
 
       <button
@@ -117,7 +121,7 @@
           class="absolute top-1/2 left-1/2 size-11 -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"
         ></span>
         <i class="pi pi-pencil text-[10px]" aria-hidden="true"></i>
-        Edit
+        {{ 'common.edit' | transloco }}
       </button>
 
       <button
@@ -131,7 +135,7 @@
           class="absolute top-1/2 left-1/2 size-11 -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"
         ></span>
         <i class="pi pi-trash text-[10px]" aria-hidden="true"></i>
-        Delete
+        {{ 'common.delete' | transloco }}
       </button>
 
       <div class="flex-1" aria-hidden="true"></div>
@@ -144,7 +148,7 @@
           (click)="advanceRequested.emit()"
         >
           <i class="pi pi-arrow-right text-xs" aria-hidden="true"></i>
-          Advance Stage
+          {{ 'seeds.card.advanceStage' | transloco }}
         </button>
       }
 
@@ -156,7 +160,7 @@
           (click)="graduateRequested.emit()"
         >
           <i class="pi pi-external-link text-xs" aria-hidden="true"></i>
-          Graduate to Plant
+          {{ 'seeds.card.graduateToPlant' | transloco }}
         </button>
       }
     }

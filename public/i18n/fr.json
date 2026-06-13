@@ -903,5 +903,97 @@
     "plantSelect": {
       "logEntriesAria": "{{ count }} entrées de journal"
     }
+  },
+  "seeds": {
+    "header": {
+      "tagline": "Suivi de germination",
+      "title": "Banque de graines",
+      "emptyHint": "Suivez vos graines du sachet au jardin",
+      "statsActive": "{total, plural, one {1 lot} other {# lots}} · {active} en croissance active",
+      "statsStored": "{total, plural, one {1 lot} other {# lots}} en stockage",
+      "addBatch": "Ajouter un lot"
+    },
+    "filter": {
+      "aria": "Filtrer les lots par stade de croissance",
+      "liveCount": "{count, plural, one {1 lot} other {# lots}}",
+      "liveArchived": "archivé(s)",
+      "liveInStage": "au stade {stage}"
+    },
+    "stages": {
+      "all": "Tous",
+      "stored": "Stocké",
+      "sownIndoors": "Semé en intérieur",
+      "germinated": "Germé",
+      "pottedUp": "Rempoté",
+      "hardenedOff": "Endurci",
+      "transplantedOutside": "Transplanté en extérieur",
+      "archived": "Archivé"
+    },
+    "empty": {
+      "noArchived": "Aucun lot n'a encore été archivé.",
+      "noAny": "Aucun lot de graines pour l'instant. Commencez à suivre vos graines du sachet au jardin.",
+      "noStage": "Aucun lot au stade « {{ stage }} ».",
+      "startTracking": "Commencer le suivi",
+      "loadingAria": "Chargement des lots de graines",
+      "sectionAria": "Liste des lots de graines",
+      "batchesAria": "Lots de graines"
+    },
+    "error": {
+      "loadFailed": "Impossible de charger les lots — vérifiez votre connexion et actualisez."
+    },
+    "toast": {
+      "advanceHeader": "Avancer le stade",
+      "advanceMessage": "Avancer '{{ name }}' vers {{ stage }} ?",
+      "advanceAccept": "Avancer",
+      "advanceSuccess": "Stade avancé",
+      "advanceTo": "'{{ name }}' est maintenant {{ stage }}.",
+      "advanceTransplanted": "'{{ name }}' est transplanté en extérieur et a été archivé.",
+      "advanceFailed": "Échec de l'avancement",
+      "archiveHeader": "Archiver le lot",
+      "archiveMessage": "Archiver '{{ name }}' ? Il sera déplacé dans vos archives.",
+      "archiveAccept": "Archiver",
+      "archiveSuccess": "Lot archivé",
+      "archiveDetail": "'{{ name }}' a été déplacé dans vos archives.",
+      "archiveFailed": "Échec de l'archivage",
+      "deleteHeader": "Supprimer le lot",
+      "deleteMessage": "Supprimer « {{ name }} » ? Vous pouvez annuler.",
+      "deletedSummary": "Lot supprimé",
+      "deletedDetail": "« {{ name }} » supprimé. Appuyez sur Annuler pour rétablir.",
+      "undo": "Annuler l'action",
+      "savedSummary": "Lot enregistré",
+      "updatedSummary": "Lot mis à jour",
+      "savedDetail": "'{{ name }}' ajouté à votre banque de graines.",
+      "updatedDetail": "'{{ name }}' a été mis à jour.",
+      "saveFailed": "Échec de l'enregistrement",
+      "updateFailed": "Échec de la mise à jour",
+      "plantAdded": "Plante ajoutée à votre serre",
+      "plantAddedDetail": "'{{ name }}' est maintenant dans votre planning d'entretien.",
+      "plantAddFailed": "Échec de l'ajout de plante",
+      "deleteFailed": "Suppression échouée",
+      "unexpectedError": "Erreur inattendue — veuillez réessayer."
+    },
+    "card": {
+      "archivedBadge": "Archivé",
+      "archivedAt": "Archivé {{ date }}",
+      "sown": "Semé",
+      "germinated": "Germé",
+      "archive": "Archiver",
+      "advanceStage": "Avancer le stade",
+      "graduateToPlant": "Transformer en plante"
+    },
+    "form": {
+      "titleAdd": "Ajouter un lot de graines",
+      "titleEdit": "Modifier le lot",
+      "species": "Espèce",
+      "speciesRequired": "Veuillez sélectionner une espèce.",
+      "brand": "Marque",
+      "brandHint": "Marque ou fournisseur de graines",
+      "packetYear": "Année du sachet",
+      "notes": "Notes",
+      "notesHint": "Facultatif — notes sur ce lot",
+      "change": "Changer",
+      "save": "Enregistrer le lot",
+      "saveChanges": "Enregistrer les modifications"
+    }
   }
 }

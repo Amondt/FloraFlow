@@ -6,6 +6,17 @@ export type SeedStage =
   | 'Hardened Off'
   | 'Transplanted Outside';
 
+export const SEED_STAGE_LABEL_KEYS: Record<SeedStage | 'All' | 'Archived', string> = {
+  All: 'seeds.stages.all',
+  Archived: 'seeds.stages.archived',
+  Stored: 'seeds.stages.stored',
+  'Sown Indoors': 'seeds.stages.sownIndoors',
+  Germinated: 'seeds.stages.germinated',
+  'Potted Up': 'seeds.stages.pottedUp',
+  'Hardened Off': 'seeds.stages.hardenedOff',
+  'Transplanted Outside': 'seeds.stages.transplantedOutside',
+};
+
 export const SEED_STAGE_OPTIONS: SeedStage[] = [
   'Stored',
   'Sown Indoors',

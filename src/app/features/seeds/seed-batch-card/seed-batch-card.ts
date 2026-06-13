@@ -1,5 +1,11 @@
 import { Component, computed, input, output } from '@angular/core';
-import { SeedBatch, SeedStage, SEED_STAGE_OPTIONS } from '../seed-batch.model';
+import { TranslocoPipe } from '@jsverse/transloco';
+import {
+  SeedBatch,
+  SeedStage,
+  SEED_STAGE_OPTIONS,
+  SEED_STAGE_LABEL_KEYS,
+} from '../seed-batch.model';
 
 const STAGE_BADGE_COLORS: Record<SeedStage, string> = {
   Stored: 'text-neutral-400 bg-neutral-100 dark:bg-neutral-700 dark:text-neutral-400',
@@ -17,7 +23,7 @@ const BADGE_BASE =
 @Component({
   selector: 'app-seed-batch-card',
   standalone: true,
-  imports: [],
+  imports: [TranslocoPipe],
   templateUrl: './seed-batch-card.html',
 })
 export class SeedBatchCardComponent {
@@ -56,6 +62,10 @@ export class SeedBatchCardComponent {
   readonly stageBadgeClass = computed(
     () => `${BADGE_BASE} ${STAGE_BADGE_COLORS[this.batch().current_stage]}`,
   );
+
+  stageKey(stage: SeedStage): string {
+    return SEED_STAGE_LABEL_KEYS[stage];
+  }
 
   formatDate(iso: string): string {
     return new Date(iso).toLocaleDateString('en-GB', {

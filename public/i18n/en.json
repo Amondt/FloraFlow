@@ -903,5 +903,97 @@
     "plantSelect": {
       "logEntriesAria": "{{ count }} log entries"
     }
+  },
+  "seeds": {
+    "header": {
+      "tagline": "Germination tracker",
+      "title": "Seed bank",
+      "emptyHint": "Track your seeds from packet to garden",
+      "statsActive": "{total, plural, one {1 batch} other {# batches}} · {active} actively growing",
+      "statsStored": "{total, plural, one {1 batch} other {# batches}} in storage",
+      "addBatch": "Add batch"
+    },
+    "filter": {
+      "aria": "Filter batches by growth stage",
+      "liveCount": "{count, plural, one {1 batch} other {# batches}}",
+      "liveArchived": "archived",
+      "liveInStage": "in {stage} stage"
+    },
+    "stages": {
+      "all": "All",
+      "stored": "Stored",
+      "sownIndoors": "Sown Indoors",
+      "germinated": "Germinated",
+      "pottedUp": "Potted Up",
+      "hardenedOff": "Hardened Off",
+      "transplantedOutside": "Transplanted Outside",
+      "archived": "Archived"
+    },
+    "empty": {
+      "noArchived": "No batches have been archived yet.",
+      "noAny": "No seed batches yet. Start tracking your seeds from packet to garden.",
+      "noStage": "No batches in the \"{{ stage }}\" stage.",
+      "startTracking": "Start tracking seeds",
+      "loadingAria": "Loading seed batches",
+      "sectionAria": "Seed batch list",
+      "batchesAria": "Seed batches"
+    },
+    "error": {
+      "loadFailed": "Failed to load seed batches — check your connection and refresh."
+    },
+    "toast": {
+      "advanceHeader": "Advance stage",
+      "advanceMessage": "Advance '{{ name }}' to {{ stage }}?",
+      "advanceAccept": "Advance",
+      "advanceSuccess": "Stage advanced",
+      "advanceTo": "'{{ name }}' is now {{ stage }}.",
+      "advanceTransplanted": "'{{ name }}' is transplanted outside and has been archived.",
+      "advanceFailed": "Advance failed",
+      "archiveHeader": "Archive batch",
+      "archiveMessage": "Archive '{{ name }}'? It will move to your archive.",
+      "archiveAccept": "Archive",
+      "archiveSuccess": "Batch archived",
+      "archiveDetail": "'{{ name }}' has been moved to your archive.",
+      "archiveFailed": "Archive failed",
+      "deleteHeader": "Delete batch",
+      "deleteMessage": "Remove \"{{ name }}\"? You can undo this.",
+      "deletedSummary": "Batch deleted",
+      "deletedDetail": "\"{{ name }}\" removed. Tap Undo to cancel.",
+      "undo": "Undo",
+      "savedSummary": "Batch saved",
+      "updatedSummary": "Batch updated",
+      "savedDetail": "'{{ name }}' added to your seed bank.",
+      "updatedDetail": "'{{ name }}' has been updated.",
+      "saveFailed": "Save failed",
+      "updateFailed": "Update failed",
+      "plantAdded": "Plant added to your greenhouse",
+      "plantAddedDetail": "'{{ name }}' is now in your care schedule.",
+      "plantAddFailed": "Add plant failed",
+      "deleteFailed": "Delete failed",
+      "unexpectedError": "Unexpected error — please try again."
+    },
+    "card": {
+      "archivedBadge": "Archived",
+      "archivedAt": "Archived {{ date }}",
+      "sown": "Sown",
+      "germinated": "Germinated",
+      "archive": "Archive",
+      "advanceStage": "Advance Stage",
+      "graduateToPlant": "Graduate to Plant"
+    },
+    "form": {
+      "titleAdd": "Add a Seed Batch",
+      "titleEdit": "Edit Batch",
+      "species": "Species",
+      "speciesRequired": "Please select a species.",
+      "brand": "Brand",
+      "brandHint": "Seed brand or supplier",
+      "packetYear": "Packet year",
+      "notes": "Notes",
+      "notesHint": "Optional — any notes about this batch",
+      "change": "Change",
+      "save": "Save Batch",
+      "saveChanges": "Save Changes"
+    }
   }
 }

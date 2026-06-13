@@ -295,7 +295,8 @@
       "plantDeleteMessage": "Supprimer « {name} » ? Vous pouvez annuler.",
       "plantDeleted": "Plante supprimée",
       "plantDeletedDetail": "« {name} » supprimée. Appuyez sur Annuler pour revenir en arrière.",
-      "plantDeleteFailed": "Échec de la suppression"
+      "plantDeleteFailed": "Échec de la suppression",
+      "plantAdded": "Plante ajoutée"
     },
     "location": {
       "dialogHeader": "Alertes gel",
@@ -385,6 +386,7 @@
       "plantUpdatedDetail": "« {name} » a été enregistré.",
       "addFailed": "Ajout échoué",
       "plantAdded": "Plante ajoutée",
+      "plantAddedDetail": "\"{{ name }}\" ajouté(e). Première vérification le {{ date }}.",
       "deleteHeader": "Supprimer la plante",
       "deleteMessage": "Supprimer « {name} » ? Vous pouvez annuler.",
       "plantDeleted": "Plante supprimée",
@@ -482,6 +484,27 @@
       "potDiameterUnit": "(cm, facultatif)",
       "potDiameterPlaceholder": "Ex. : 15",
       "potDiameterHint": "Aide à calculer les volumes lors du mélange de substrat",
+      "containerOptions": {
+        "terracotta": "Terre cuite",
+        "plastic": "Plastique",
+        "ceramic": "Céramique",
+        "fabric": "Tissu",
+        "selfWatering": "Auto-arrosant",
+        "ground": "En terre"
+      },
+      "substrateOptions": {
+        "highDrainageAroid": "Aroid drainant",
+        "heavyPeat": "Tourbe lourde",
+        "standardPotting": "Terreau standard",
+        "desertSucculent": "Succulent désertique",
+        "sphagnumMossMix": "Mélange sphaigne"
+      },
+      "growthStageOptions": {
+        "seedling": "Semis",
+        "juvenile": "Juvénile",
+        "mature": "Mature",
+        "dormant": "Dormant"
+      },
       "growthStageLabel": "Stade de croissance",
       "growthStageHint": "Semis vérifié plus souvent ; Dormant moins souvent.",
       "cancel": "Annuler",
@@ -495,6 +518,9 @@
     }
   },
   "journal": {
+    "error": {
+      "loadFailed": "Impossible de charger le journal — vérifiez votre connexion et rafraîchissez."
+    },
     "subtitle": "Journal botanique",
     "heading": "Carnet de soins",
     "entryCount": "{count, plural, =1 {1 entrée} other {# entrées}} pour toutes les plantes",
@@ -872,7 +898,10 @@
       "tryAnother": "Réessayer",
       "viewProfile": "Voir le profil",
       "useThisSpecies": "Utiliser cette espèce",
-      "cancel": "Annuler"
+      "cancel": "Annuler",
+      "confidenceHighPct": "{{ pct }}% — confiant",
+      "confidenceLowPct": "{{ pct }}% — faible confiance",
+      "confidenceUncertainPct": "{{ pct }}% — incertain"
     },
     "substrate": {
       "title": "Guide de substrat",

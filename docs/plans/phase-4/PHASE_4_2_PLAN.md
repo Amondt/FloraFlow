@@ -146,7 +146,7 @@ EN is always the source of truth and the `fallbackLang`.
   - Update `seed-batch.service.spec`.
   - format + lint + Manual Browser Check (seed list, add/edit, stage transitions — all locales).
 
-- [ ] **Block J — Dynamic strings, enum labels & util refactor** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **Block J — Dynamic strings, enum labels & util refactor** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - `plant-message.util.ts` → returns `{ key, params }`; callers translate via `translate()`.
     Update `plant-message.util.spec`.
   - `date.util.ts` relative-time strings → ICU plural keys (`{count, plural, …}`) + params.

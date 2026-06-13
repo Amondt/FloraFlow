@@ -558,10 +558,14 @@ export class ZoneDetailComponent {
           detail: this.plantService.error() ?? 'Something went wrong.',
         });
       } else {
+        const { key: dKey, params: dParams } = plantAddedDetail(
+          formData.common_name,
+          newPlant.next_check_due_at,
+        );
         this.messageService.add({
           severity: 'success',
-          summary: 'Plant added',
-          detail: plantAddedDetail(formData.common_name, newPlant.next_check_due_at),
+          summary: this.t.translate('zones.toast.plantAdded'),
+          detail: this.t.translate(dKey, dParams),
         });
       }
     }

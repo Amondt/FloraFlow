@@ -19,6 +19,7 @@ import { Select, SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
 import { MessageService } from 'primeng/api';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { LocaleService } from '../../../core/services/locale.service';
 import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-icon';
 import { BotanicalTagsComponent } from '../../../shared/components/botanical-tags/botanical-tags';
 import {
@@ -48,8 +49,11 @@ import {
   SubstrateFactor,
   GrowthStage,
   CONTAINER_VECTOR_OPTIONS,
+  CONTAINER_VECTOR_LABEL_KEYS,
   SUBSTRATE_FACTOR_OPTIONS,
+  SUBSTRATE_FACTOR_LABEL_KEYS,
   GROWTH_STAGE_OPTIONS,
+  GROWTH_STAGE_LABEL_KEYS,
 } from '../plant.model';
 
 @Component({
@@ -74,6 +78,7 @@ import {
 export class PlantFormDialogComponent {
   private readonly zoneService = inject(ZoneService);
   private readonly t = inject(TranslocoService);
+  private readonly localeService = inject(LocaleService);
   private readonly botanicalSearch = inject(BotanicalSearchService);
   private readonly _libraryService = inject(LibraryService);
   private readonly messageService = inject(MessageService, { optional: true });
@@ -132,14 +137,40 @@ export class PlantFormDialogComponent {
     growth_stage: new FormControl<GrowthStage>('Mature', { nonNullable: true }),
   });
 
-  readonly dialogTitle = computed(() =>
-    this.plant()
+  readonly dialogTitle = computed(() => {
+    const _lang = this.localeService.locale();
+    return this.plant()
       ? this.t.translate('tasks.plantForm.dialogTitleEdit')
-      : this.t.translate('tasks.plantForm.dialogTitleAdd'),
-  );
+      : this.t.translate('tasks.plantForm.dialogTitleAdd');
+  });
+
   readonly zoneOptions = computed(() =>
     this.zoneService.zones().map((z) => ({ label: z.name, value: z.id })),
   );
+
+  readonly translatedContainerOptions = computed(() => {
+    const _lang = this.localeService.locale();
+    return CONTAINER_VECTOR_OPTIONS.map((v) => ({
+      label: this.t.translate(CONTAINER_VECTOR_LABEL_KEYS[v]),
+      value: v,
+    }));
+  });
+
+  readonly translatedSubstrateOptions = computed(() => {
+    const _lang = this.localeService.locale();
+    return SUBSTRATE_FACTOR_OPTIONS.map((v) => ({
+      label: this.t.translate(SUBSTRATE_FACTOR_LABEL_KEYS[v]),
+      value: v,
+    }));
+  });
+
+  readonly translatedGrowthStageOptions = computed(() => {
+    const _lang = this.localeService.locale();
+    return GROWTH_STAGE_OPTIONS.map((v) => ({
+      label: this.t.translate(GROWTH_STAGE_LABEL_KEYS[v]),
+      value: v,
+    }));
+  });
 
   get nameCtrl() {
     return this.form.controls.common_name;

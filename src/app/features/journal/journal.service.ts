@@ -88,7 +88,7 @@ export class JournalService {
       .order('logged_at', { ascending: false });
 
     if (error) {
-      this.entriesError.set('Failed to load journal entries — check your connection and refresh.');
+      this.entriesError.set(error.message);
       this.loadingEntries.set(false);
       return;
     }

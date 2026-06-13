@@ -295,7 +295,8 @@
       "plantDeleteMessage": "Remove “{name}”? You can undo this.",
       "plantDeleted": "Plant deleted",
       "plantDeletedDetail": "“{name}” removed. Tap Undo to cancel.",
-      "plantDeleteFailed": "Delete failed"
+      "plantDeleteFailed": "Delete failed",
+      "plantAdded": "Plant added"
     },
     "location": {
       "dialogHeader": "Frost alerts",
@@ -385,6 +386,7 @@
       "plantUpdatedDetail": "{name} has been saved.",
       "addFailed": "Add plant failed",
       "plantAdded": "Plant added",
+      "plantAddedDetail": "\"{{ name }}\" added. First check on {{ date }}.",
       "deleteHeader": "Delete plant",
       "deleteMessage": "Remove {name}? You can undo this.",
       "plantDeleted": "Plant deleted",
@@ -482,6 +484,27 @@
       "potDiameterUnit": "(cm, optional)",
       "potDiameterPlaceholder": "e.g. 15",
       "potDiameterHint": "Helps calculate volumes when mixing substrate",
+      "containerOptions": {
+        "terracotta": "Terracotta",
+        "plastic": "Plastic",
+        "ceramic": "Ceramic",
+        "fabric": "Fabric",
+        "selfWatering": "Self-Watering",
+        "ground": "Ground"
+      },
+      "substrateOptions": {
+        "highDrainageAroid": "High-Drainage Aroid",
+        "heavyPeat": "Heavy Peat",
+        "standardPotting": "Standard Potting",
+        "desertSucculent": "Desert Succulent",
+        "sphagnumMossMix": "Sphagnum Moss Mix"
+      },
+      "growthStageOptions": {
+        "seedling": "Seedling",
+        "juvenile": "Juvenile",
+        "mature": "Mature",
+        "dormant": "Dormant"
+      },
       "growthStageLabel": "Growth stage",
       "growthStageHint": "Seedling checks more often; Dormant less often.",
       "cancel": "Cancel",
@@ -495,6 +518,9 @@
     }
   },
   "journal": {
+    "error": {
+      "loadFailed": "Failed to load journal entries — check your connection and refresh."
+    },
     "subtitle": "Botanical journal",
     "heading": "Care log",
     "entryCount": "{count, plural, =1 {1 entry} other {# entries}} across all plants",
@@ -872,7 +898,10 @@
       "tryAnother": "Try another",
       "viewProfile": "View profile",
       "useThisSpecies": "Use this species",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "confidenceHighPct": "{{ pct }}% confident",
+      "confidenceLowPct": "{{ pct }}% — low confidence",
+      "confidenceUncertainPct": "{{ pct }}% — uncertain"
     },
     "substrate": {
       "title": "Substrate Mix Guide",

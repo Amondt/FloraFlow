@@ -6,6 +6,15 @@ export type ContainerVector =
   | 'Self-Watering'
   | 'Ground';
 
+export const CONTAINER_VECTOR_LABEL_KEYS: Record<ContainerVector, string> = {
+  Terracotta: 'tasks.plantForm.containerOptions.terracotta',
+  Plastic: 'tasks.plantForm.containerOptions.plastic',
+  Ceramic: 'tasks.plantForm.containerOptions.ceramic',
+  Fabric: 'tasks.plantForm.containerOptions.fabric',
+  'Self-Watering': 'tasks.plantForm.containerOptions.selfWatering',
+  Ground: 'tasks.plantForm.containerOptions.ground',
+};
+
 export const CONTAINER_VECTOR_OPTIONS: ContainerVector[] = [
   'Terracotta',
   'Plastic',
@@ -22,6 +31,14 @@ export type SubstrateFactor =
   | 'Desert Succulent'
   | 'Sphagnum Moss Mix';
 
+export const SUBSTRATE_FACTOR_LABEL_KEYS: Record<SubstrateFactor, string> = {
+  'High-Drainage Aroid': 'tasks.plantForm.substrateOptions.highDrainageAroid',
+  'Heavy Peat': 'tasks.plantForm.substrateOptions.heavyPeat',
+  'Standard Potting': 'tasks.plantForm.substrateOptions.standardPotting',
+  'Desert Succulent': 'tasks.plantForm.substrateOptions.desertSucculent',
+  'Sphagnum Moss Mix': 'tasks.plantForm.substrateOptions.sphagnumMossMix',
+};
+
 export const SUBSTRATE_FACTOR_OPTIONS: SubstrateFactor[] = [
   'High-Drainage Aroid',
   'Heavy Peat',
@@ -31,6 +48,13 @@ export const SUBSTRATE_FACTOR_OPTIONS: SubstrateFactor[] = [
 ];
 
 export type GrowthStage = 'Seedling' | 'Juvenile' | 'Mature' | 'Dormant';
+
+export const GROWTH_STAGE_LABEL_KEYS: Record<GrowthStage, string> = {
+  Seedling: 'tasks.plantForm.growthStageOptions.seedling',
+  Juvenile: 'tasks.plantForm.growthStageOptions.juvenile',
+  Mature: 'tasks.plantForm.growthStageOptions.mature',
+  Dormant: 'tasks.plantForm.growthStageOptions.dormant',
+};
 
 export const GROWTH_STAGE_OPTIONS: GrowthStage[] = ['Seedling', 'Juvenile', 'Mature', 'Dormant'];
 

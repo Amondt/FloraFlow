@@ -30,5 +30,5 @@ export const CATEGORY_ICON: Record<LogCategoryType, string> = {
 };
 
 export const CATEGORY_OPTIONS: { label: string; value: LogCategoryType }[] = (
-  Object.keys(CATEGORY_LABEL) as LogCategoryType[]
-).map((value) => ({ label: CATEGORY_LABEL[value], value }));
+  Object.keys(CATEGORY_KEY) as LogCategoryType[]
+).map((value) => ({ label: CATEGORY_KEY[value], value }));

@@ -14,9 +14,23 @@ export function getConfidenceBadgeClass(score: number): string {
 }
 
 /**
- * Returns the human-readable confidence badge label for a score.
+ * Returns a translation key + params for the verbose confidence badge label.
  *
- * Used in the active match card (verbose) and candidate chips (percent-only).
+ * Used in the active match card where the text must follow the active locale.
+ */
+export function getConfidenceBadgeKeyAndParams(score: number): {
+  key: string;
+  params: { pct: number };
+} {
+  const pct = Math.round(score * 100);
+  if (score > 0.75) return { key: 'botanical.identifier.confidenceHighPct', params: { pct } };
+  if (score >= 0.5) return { key: 'botanical.identifier.confidenceLowPct', params: { pct } };
+  return { key: 'botanical.identifier.confidenceUncertainPct', params: { pct } };
+}
+
+/**
+ * Returns the compact percentage-only label for candidate chips, or the
+ * human-readable verbose label (EN only) when verbose=true.
  */
 export function getConfidenceBadgeLabel(score: number, verbose = true): string {
   const pct = Math.round(score * 100);

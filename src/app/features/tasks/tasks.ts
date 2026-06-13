@@ -264,10 +264,14 @@ export class TasksComponent {
           detail: this.plantService.error()!,
         });
       } else {
+        const { key: dKey, params: dParams } = plantAddedDetail(
+          data.common_name,
+          newPlant.next_check_due_at,
+        );
         this.messageService.add({
           severity: 'success',
           summary: this.t.translate('tasks.toast.plantAdded'),
-          detail: plantAddedDetail(data.common_name, newPlant.next_check_due_at),
+          detail: this.t.translate(dKey, dParams),
         });
       }
     }

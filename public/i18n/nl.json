@@ -295,7 +295,8 @@
       "plantDeleteMessage": "“{name}” verwijderen? U kunt dit ongedaan maken.",
       "plantDeleted": "Plant verwijderd",
       "plantDeletedDetail": "“{name}” verwijderd. Tik op Ongedaan maken om te annuleren.",
-      "plantDeleteFailed": "Verwijderen mislukt"
+      "plantDeleteFailed": "Verwijderen mislukt",
+      "plantAdded": "Plant toegevoegd"
     },
     "location": {
       "dialogHeader": "Vorstalarmen",
@@ -385,6 +386,7 @@
       "plantUpdatedDetail": "{name} is opgeslagen.",
       "addFailed": "Plant toevoegen mislukt",
       "plantAdded": "Plant toegevoegd",
+      "plantAddedDetail": "\"{{ name }}\" toegevoegd. Eerste controle op {{ date }}.",
       "deleteHeader": "Plant verwijderen",
       "deleteMessage": "{name} verwijderen? U kunt dit ongedaan maken.",
       "plantDeleted": "Plant verwijderd",
@@ -482,6 +484,27 @@
       "potDiameterUnit": "(cm, facultatief)",
       "potDiameterPlaceholder": "Bijv. 15",
       "potDiameterHint": "Helpt volumes te berekenen bij het mengen van substraat",
+      "containerOptions": {
+        "terracotta": "Terracotta",
+        "plastic": "Plastic",
+        "ceramic": "Keramiek",
+        "fabric": "Stof",
+        "selfWatering": "Zelfwaterend",
+        "ground": "In de grond"
+      },
+      "substrateOptions": {
+        "highDrainageAroid": "Aroid met hoge drainage",
+        "heavyPeat": "Zware veen",
+        "standardPotting": "Standaard potgrond",
+        "desertSucculent": "Woestijn-succulent",
+        "sphagnumMossMix": "Sphagnummix"
+      },
+      "growthStageOptions": {
+        "seedling": "Zaailing",
+        "juvenile": "Juveniel",
+        "mature": "Volwassen",
+        "dormant": "Slapend"
+      },
       "growthStageLabel": "Groeistadium",
       "growthStageHint": "Zaailing vaker controleren; Slapend minder vaak.",
       "cancel": "Annuleren",
@@ -495,6 +518,9 @@
     }
   },
   "journal": {
+    "error": {
+      "loadFailed": "Kan het dagboek niet laden — controleer uw verbinding en vernieuw de pagina."
+    },
     "subtitle": "Botanisch dagboek",
     "heading": "Zorglogboek",
     "entryCount": "{count, plural, =1 {1 vermelding} other {# vermeldingen}} voor alle planten",
@@ -872,7 +898,10 @@
       "tryAnother": "Opnieuw proberen",
       "viewProfile": "Profiel bekijken",
       "useThisSpecies": "Deze soort gebruiken",
-      "cancel": "Annuleren"
+      "cancel": "Annuleren",
+      "confidenceHighPct": "{{ pct }}% — betrouwbaar",
+      "confidenceLowPct": "{{ pct }}% — lage betrouwbaarheid",
+      "confidenceUncertainPct": "{{ pct }}% — onzeker"
     },
     "substrate": {
       "title": "Substraatmixgids",

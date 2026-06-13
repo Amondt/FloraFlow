@@ -260,7 +260,9 @@
         [inputId]="containerId"
         [ariaLabelledBy]="containerId + '-label'"
         formControlName="container_vector"
-        [options]="CONTAINER_VECTOR_OPTIONS"
+        [options]="translatedContainerOptions()"
+        optionLabel="label"
+        optionValue="value"
         [pt]="FloraSelectPT"
         appendTo="body"
       />
@@ -279,7 +281,9 @@
         [inputId]="substrateId"
         [ariaLabelledBy]="substrateId + '-label'"
         formControlName="substrate_factor"
-        [options]="SUBSTRATE_FACTOR_OPTIONS"
+        [options]="translatedSubstrateOptions()"
+        optionLabel="label"
+        optionValue="value"
         [pt]="FloraSelectPT"
         appendTo="body"
       />
@@ -330,7 +334,9 @@
         [inputId]="growthStageId"
         [ariaLabelledBy]="growthStageId + '-label'"
         formControlName="growth_stage"
-        [options]="GROWTH_STAGE_OPTIONS"
+        [options]="translatedGrowthStageOptions()"
+        optionLabel="label"
+        optionValue="value"
         [pt]="FloraSelectPT"
         appendTo="body"
       />

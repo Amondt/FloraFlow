@@ -632,10 +632,14 @@ export class LibraryComponent {
       this.showAddDialog.set(false);
       this.selectedGroupKey.set(null);
       this.prefillRecord.set(null);
+      const { key: dKey, params: dParams } = plantAddedDetail(
+        data.common_name,
+        newPlant.next_check_due_at,
+      );
       this.messageService.add({
         severity: 'success',
         summary: this.t.translate('library.toast.plantAdded'),
-        detail: plantAddedDetail(data.common_name, newPlant.next_check_due_at),
+        detail: this.t.translate(dKey, dParams),
       });
     }
   }

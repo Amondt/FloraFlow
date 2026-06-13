@@ -132,7 +132,7 @@
         </ul>
       } @else if (journalService.entriesError()) {
         <p-message severity="error" [pt]="FloraMessagePT">
-          {{ journalService.entriesError() }}
+          {{ 'journal.error.loadFailed' | transloco }}
         </p-message>
       } @else if (journalService.entries().length === 0) {
         <div class="flex flex-col items-center justify-center py-20 text-center" role="status">

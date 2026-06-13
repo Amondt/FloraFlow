@@ -26,6 +26,7 @@ import { LibraryService } from '../../../features/library/library.service';
 import { blurActiveElement } from '../../utils/dom';
 import {
   getConfidenceBadgeClass,
+  getConfidenceBadgeKeyAndParams,
   getConfidenceBadgeLabel,
 } from '../../utils/plant-identifier.util';
 import { EnrichmentPoll } from '../../utils/enrichment-poll';
@@ -116,9 +117,13 @@ export class PlantIdentifierDialogComponent {
     getConfidenceBadgeClass(this.activeMatch()?.confidence_score ?? 0),
   );
 
-  protected readonly confidenceBadgeLabel = computed(() =>
-    getConfidenceBadgeLabel(this.activeMatch()?.confidence_score ?? 0),
-  );
+  protected readonly confidenceBadgeLabel = computed(() => {
+    const _lang = this.localeService.locale();
+    const { key, params } = getConfidenceBadgeKeyAndParams(
+      this.activeMatch()?.confidence_score ?? 0,
+    );
+    return this.t.translate(key, params);
+  });
 
   protected readonly errorMessage = computed(() => {
     const _lang = this.localeService.locale();

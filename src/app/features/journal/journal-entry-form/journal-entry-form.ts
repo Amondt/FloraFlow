@@ -87,7 +87,7 @@ export class JournalEntryFormComponent implements OnDestroy {
   protected readonly translatedCategoryOptions = computed(() =>
     CATEGORY_OPTIONS.map((opt) => ({
       ...opt,
-      label: this.t.translate(CATEGORY_KEY[opt.value]),
+      label: this.t.translate(opt.label),
     })),
   );
   protected readonly todayIso = (() => {

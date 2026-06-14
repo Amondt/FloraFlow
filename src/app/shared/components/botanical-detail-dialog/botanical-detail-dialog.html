@@ -35,11 +35,11 @@
           {{ rec.scientific_name }}
         </p>
       }
-      @if (rec.description) {
+      @if (rec.description && !isTranslating()) {
         <p class="font-display text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
           {{ rec.description }}
         </p>
-      } @else if (isEnriching()) {
+      } @else if (isTranslating() || isEnriching()) {
         <div class="mt-1 flex flex-col gap-1.5" aria-hidden="true">
           <span
             class="h-3.5 w-full rounded-garden-sm bg-neutral-200 dark:bg-neutral-700 animate-[flora-skeleton_1.5s_ease-in-out_infinite]"
@@ -309,11 +309,18 @@
                   >
                     {{ 'botanical.dialog.fields.nativeRegion' | transloco }}
                   </p>
-                  <p
-                    class="mt-0.5 font-display text-sm font-medium text-neutral-700 dark:text-neutral-200"
-                  >
-                    {{ rec.native_region }}
-                  </p>
+                  @if (isTranslating()) {
+                    <span
+                      class="mt-0.5 block h-3.5 w-40 rounded-garden-sm bg-neutral-200 dark:bg-neutral-700 animate-[flora-skeleton_1.5s_ease-in-out_infinite]"
+                      aria-hidden="true"
+                    ></span>
+                  } @else {
+                    <p
+                      class="mt-0.5 font-display text-sm font-medium text-neutral-700 dark:text-neutral-200"
+                    >
+                      {{ rec.native_region }}
+                    </p>
+                  }
                 </div>
               </div>
             }
@@ -556,11 +563,22 @@
                   >
                     {{ 'botanical.dialog.fields.soilMoistureCheck' | transloco }}
                   </p>
-                  <p
-                    class="mt-0.5 font-display text-sm leading-relaxed text-neutral-700 dark:text-neutral-200"
-                  >
-                    {{ rec.check_depth_description }}
-                  </p>
+                  @if (isTranslating()) {
+                    <div class="mt-1 flex flex-col gap-1.5" aria-hidden="true">
+                      <span
+                        class="h-3.5 w-full rounded-garden-sm bg-neutral-200 dark:bg-neutral-700 animate-[flora-skeleton_1.5s_ease-in-out_infinite]"
+                      ></span>
+                      <span
+                        class="h-3.5 w-3/4 rounded-garden-sm bg-neutral-200 dark:bg-neutral-700 animate-[flora-skeleton_1.5s_ease-in-out_infinite] [animation-delay:200ms]"
+                      ></span>
+                    </div>
+                  } @else {
+                    <p
+                      class="mt-0.5 font-display text-sm leading-relaxed text-neutral-700 dark:text-neutral-200"
+                    >
+                      {{ rec.check_depth_description }}
+                    </p>
+                  }
                 </div>
               </div>
             }
@@ -697,9 +715,16 @@
                     {{ 'botanical.dialog.fields.producesFlowers' | transloco }}
                   </p>
                   @if (rec.flowering_season) {
-                    <p class="mt-0.5 font-display text-xs text-neutral-500 dark:text-neutral-400">
-                      {{ rec.flowering_season }}
-                    </p>
+                    @if (isTranslating()) {
+                      <span
+                        class="mt-0.5 block h-3 w-24 rounded-garden-sm bg-neutral-200 dark:bg-neutral-700 animate-[flora-skeleton_1.5s_ease-in-out_infinite]"
+                        aria-hidden="true"
+                      ></span>
+                    } @else {
+                      <p class="mt-0.5 font-display text-xs text-neutral-500 dark:text-neutral-400">
+                        {{ rec.flowering_season }}
+                      </p>
+                    }
                   }
                 </div>
               </div>
@@ -725,9 +750,16 @@
                     {{ 'botanical.dialog.fields.producesFruit' | transloco }}
                   </p>
                   @if (rec.fruit_season) {
-                    <p class="mt-0.5 font-display text-xs text-neutral-500 dark:text-neutral-400">
-                      {{ rec.fruit_season }}
-                    </p>
+                    @if (isTranslating()) {
+                      <span
+                        class="mt-0.5 block h-3 w-24 rounded-garden-sm bg-neutral-200 dark:bg-neutral-700 animate-[flora-skeleton_1.5s_ease-in-out_infinite]"
+                        aria-hidden="true"
+                      ></span>
+                    } @else {
+                      <p class="mt-0.5 font-display text-xs text-neutral-500 dark:text-neutral-400">
+                        {{ rec.fruit_season }}
+                      </p>
+                    }
                   }
                 </div>
               </div>
@@ -798,11 +830,18 @@
                       {{ 'botanical.dialog.fields.toxicToPets' | transloco }}
                     </p>
                     @if (rec.toxicity_notes) {
-                      <p
-                        class="mt-1 font-display text-xs leading-relaxed text-neutral-500 dark:text-neutral-400"
-                      >
-                        {{ rec.toxicity_notes }}
-                      </p>
+                      @if (isTranslating()) {
+                        <span
+                          class="mt-1 block h-3.5 w-full rounded-garden-sm bg-neutral-200 dark:bg-neutral-700 animate-[flora-skeleton_1.5s_ease-in-out_infinite]"
+                          aria-hidden="true"
+                        ></span>
+                      } @else {
+                        <p
+                          class="mt-1 font-display text-xs leading-relaxed text-neutral-500 dark:text-neutral-400"
+                        >
+                          {{ rec.toxicity_notes }}
+                        </p>
+                      }
                     }
                   } @else {
                     <p class="mt-0.5 font-display text-sm font-medium text-success-500">
@@ -839,11 +878,18 @@
                       {{ 'botanical.dialog.fields.toxicToHumans' | transloco }}
                     </p>
                     @if (rec.human_toxicity_notes) {
-                      <p
-                        class="mt-1 font-display text-xs leading-relaxed text-neutral-500 dark:text-neutral-400"
-                      >
-                        {{ rec.human_toxicity_notes }}
-                      </p>
+                      @if (isTranslating()) {
+                        <span
+                          class="mt-1 block h-3.5 w-full rounded-garden-sm bg-neutral-200 dark:bg-neutral-700 animate-[flora-skeleton_1.5s_ease-in-out_infinite]"
+                          aria-hidden="true"
+                        ></span>
+                      } @else {
+                        <p
+                          class="mt-1 font-display text-xs leading-relaxed text-neutral-500 dark:text-neutral-400"
+                        >
+                          {{ rec.human_toxicity_notes }}
+                        </p>
+                      }
                     }
                   } @else {
                     <p class="mt-0.5 font-display text-sm font-medium text-success-500">

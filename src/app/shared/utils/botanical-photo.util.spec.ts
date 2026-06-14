@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { buildGalleryPhotos } from './botanical-photo.util';
-import type { CachedBotanicalRecord } from '../../features/library/library.service';
 
-function makeRecord(overrides: Partial<CachedBotanicalRecord> = {}): CachedBotanicalRecord {
+type BotanicalRecord = NonNullable<Parameters<typeof buildGalleryPhotos>[0]>;
+
+function makeRecord(overrides: Partial<Record<string, unknown>> = {}): BotanicalRecord {
   return {
     air_purifying: null,
     cached_at: '2024-01-01T00:00:00Z',
@@ -44,9 +45,10 @@ function makeRecord(overrides: Partial<CachedBotanicalRecord> = {}): CachedBotan
     thumbnail_fetched: false,
     thumbnail_url: null,
     toxicity_notes: null,
+    translations: null,
     watering: null,
     ...overrides,
-  };
+  } as unknown as BotanicalRecord;
 }
 
 describe('buildGalleryPhotos', () => {

@@ -1,10 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { CareRecommendationsPanelComponent } from './care-recommendations-panel';
-import type { CachedBotanicalRecord } from '../../../features/library/library.service';
 import { provideTranslocoTesting } from '../../../testing/transloco-testing';
 
-function makeRecord(overrides: Partial<CachedBotanicalRecord> = {}): CachedBotanicalRecord {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function makeRecord(overrides: Record<string, unknown> = {}): any {
   return {
     air_purifying: null,
     cached_at: '2024-01-01T00:00:00Z',
@@ -29,7 +29,6 @@ function makeRecord(overrides: Partial<CachedBotanicalRecord> = {}): CachedBotan
     max_height_cm: null,
     max_spread_cm: null,
     native_region: null,
-
     placement: null,
     plant_type: null,
     preferred_soil_type: null,
@@ -43,6 +42,7 @@ function makeRecord(overrides: Partial<CachedBotanicalRecord> = {}): CachedBotan
     regular_url: null,
     thumbnail_fetched: false,
     toxicity_notes: null,
+    translations: null,
     watering: null,
     inat_taxon_id: null,
     inat_species_id: null,
@@ -63,7 +63,7 @@ describe('CareRecommendationsPanelComponent', () => {
   });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function create(record: CachedBotanicalRecord, zoneHumidity?: number | null): any {
+  function create(record: any, zoneHumidity?: number | null): any {
     const fixture = TestBed.createComponent(CareRecommendationsPanelComponent);
     fixture.componentRef.setInput('record', record);
     if (zoneHumidity !== undefined) {

@@ -18,6 +18,11 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { MessageService } from 'primeng/api';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { LocaleService } from '../../core/services/locale.service';
+import { BotanicalTranslationService } from '../../core/services/botanical-translation.service';
+import {
+  hasLocaleTranslation,
+  localizeBotanical,
+} from '../../shared/utils/localize-botanical.util';
 import {
   CARE_DIFFICULTY_OPTIONS,
   CachedBotanicalRecord,
@@ -116,6 +121,7 @@ export class LibraryComponent {
   private readonly router = inject(Router);
   private readonly t = inject(TranslocoService);
   private readonly localeService = inject(LocaleService);
+  private readonly botanicalTranslationService = inject(BotanicalTranslationService);
 
   protected readonly FloraInputTextPT = FloraInputTextPT;
   protected readonly FloraSkeletonPT = FloraSkeletonPT;
@@ -179,7 +185,7 @@ export class LibraryComponent {
   private readonly _pendingAutoOpenName = signal<string | null>(null);
   private _savedGroupKey: string[] | null = null;
 
-  readonly groupedResults = computed(() => groupBotanicalRecords(this.results()));
+  readonly groupedResults = computed(() => groupBotanicalRecords(this.localizedResults()));
   readonly selectedKeySet = computed(() => new Set(this.selectedGroupKey() ?? []));
   readonly dialogRecords = computed((): CachedBotanicalRecord[] => {
     const keys = this.selectedGroupKey();
@@ -195,6 +201,9 @@ export class LibraryComponent {
 
   readonly dialogIsEnriching = computed(() =>
     this.dialogRecords().some((r) => this.enrichingNames().has(r.scientific_name)),
+  );
+  readonly dialogIsTranslating = computed(() =>
+    this.dialogRecords().some((r) => this.translatingNames().has(r.scientific_name)),
   );
   readonly detailVisible = computed(() => this.selectedGroupKey() !== null);
   readonly hasActiveFilters = computed(() => Object.keys(this.filters()).length > 0);
@@ -281,6 +290,14 @@ export class LibraryComponent {
   readonly enrichingNames = this._poll.enrichingNames;
   readonly enrichingCount = this._poll.enrichingCount;
 
+  private readonly _translationPoll = new EnrichmentPoll();
+  readonly translatingNames = this._translationPoll.enrichingNames;
+
+  readonly localizedResults = computed(() => {
+    const locale = this.localeService.locale();
+    return this.results().map((r) => localizeBotanical(r, locale));
+  });
+
   private _debounceTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly _destroyRef = inject(DestroyRef);
 
@@ -291,6 +308,7 @@ export class LibraryComponent {
         this._debounceTimer = null;
       }
       this._poll.stop();
+      this._translationPoll.stop();
     });
 
     afterNextRender(() => {
@@ -471,8 +489,10 @@ export class LibraryComponent {
     this.selectedGroupKey.set(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     this._poll.stop();
+    this._translationPoll.stop();
     this.currentPage.set(page);
     this._enrichCurrentPage();
+    this._translateCurrentPage();
   }
 
   private _activeHandle: 0 | 1 | null = null;
@@ -598,6 +618,7 @@ export class LibraryComponent {
 
   protected openGroup(group: SpeciesGroup): void {
     this.selectedGroupKey.set(group.varieties.map((v) => v.scientific_name));
+    this._translateDialogRecords();
   }
 
   protected onSeedsRequested(rec: CachedBotanicalRecord): void {
@@ -644,6 +665,44 @@ export class LibraryComponent {
     }
   }
 
+  private _startTranslationPoll(names: string[], locale: string): void {
+    this._translationPoll.start(names, async (pending) => {
+      const refreshed = await this.libraryService.refetchByScientificNames(pending);
+      if (refreshed.length === 0) return new Set(pending);
+      const refreshedMap = new Map(refreshed.map((r) => [r.scientific_name, r]));
+      this.results.update((current) =>
+        current.map((r) => refreshedMap.get(r.scientific_name) ?? r),
+      );
+      return new Set(
+        refreshed.filter((r) => !hasLocaleTranslation(r, locale)).map((r) => r.scientific_name),
+      );
+    });
+  }
+
+  private _triggerTranslation(records: CachedBotanicalRecord[]): void {
+    const locale = this.localeService.locale();
+    if (locale === 'en') return;
+    const untranslated = records.filter((r) => !hasLocaleTranslation(r, locale));
+    if (untranslated.length === 0) return;
+    this._startTranslationPoll(
+      untranslated.map((r) => r.scientific_name),
+      locale,
+    );
+    void this.botanicalTranslationService.triggerBotanicalTranslation(
+      untranslated,
+      locale,
+      this._translationPoll.controller?.signal,
+    );
+  }
+
+  private _translateCurrentPage(): void {
+    this._triggerTranslation(this.pagedGroupedResults().flatMap((g) => g.varieties));
+  }
+
+  private _translateDialogRecords(): void {
+    this._triggerTranslation(this.dialogRecords());
+  }
+
   // Starts the enrichment poll and triggers enrichment for records on the current
   // page only — avoids firing AI/iNat calls for all 1,000 loaded results at once.
   private _enrichCurrentPage(): void {
@@ -681,6 +740,7 @@ export class LibraryComponent {
 
   private async _load(query: string, f: LibraryFilters): Promise<void> {
     this._poll.stop();
+    this._translationPoll.stop();
     this.isLoading.set(true);
     try {
       // Fetch all matching records in one shot — grouping and client-side pagination
@@ -693,6 +753,7 @@ export class LibraryComponent {
       this.results.set(result.data);
       this.totalCount.set(result.count);
       this._enrichCurrentPage();
+      this._translateCurrentPage();
     } finally {
       this.isLoading.set(false);
       this.searchCompleted.set(true);

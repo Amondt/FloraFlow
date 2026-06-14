@@ -21,6 +21,7 @@ const RETURNED_ROW: JournalRow = {
   category: 'Observation',
   image_storage_path: null,
   diagnostics: null,
+  diagnostics_i18n: null,
   logged_at: '2024-01-01T00:00:00Z',
   created_at: '2024-01-01T00:00:00Z',
   updated_at: '2024-01-01T00:00:00Z',

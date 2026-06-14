@@ -71,7 +71,7 @@ The two are complementary; 4.5 must not re-translate any enum or static label.
     `src/types/database.types.ts` → `supabase/functions/_shared/database.types.ts`.
   - Document both columns in `docs/DB_SCHEMA_MATRIX.md §2.4` and `§2.5`.
 
-- [ ] **Block B — Shared translation core (`_shared/translate.ts`)** | Agent: `/plumber` · Model: Sonnet · Effort: mid
+- [x] **Block B — Shared translation core (`_shared/translate.ts`)** | Agent: `/plumber` · Model: Sonnet · Effort: mid
   - `SUPPORTED_TRANSLATION_LOCALES = ['fr','nl'] as const` + type + `LOCALE_LANGUAGE_NAME`
     (`{ fr: 'French', nl: 'Dutch' }`).
   - `TRANSLATION_SYSTEM_PROMPT` — translate the JSON _values_ into `{language}`; keep keys and
@@ -85,7 +85,7 @@ The two are complementary; 4.5 must not re-translate any enum or static label.
   - `TranslationError extends Error { status = 503 }` for upstream-AI failure (mirror
     `EnrichmentError`).
 
-- [ ] **Block C — Translation Edge Functions** | Agent: `/plumber` · Model: Sonnet · Effort: mid
+- [x] **Block C — Translation Edge Functions** | Agent: `/plumber` · Model: Sonnet · Effort: mid
   - `supabase/functions/translate-botanical-record/index.ts` — `{ scientificName, locale }`;
     resolve the bearer token to a user (as `claude-vision` does); validate locale. Load the row;
     if `row.translations?.[locale]` already exists, return the row unchanged (**cache-first — no
@@ -99,7 +99,7 @@ The two are complementary; 4.5 must not re-translate any enum or static label.
   - Verify with `bun run functions:serve` + `Invoke-RestMethod`; confirm `translations.fr`
     appears on the row in Studio and a second call returns instantly with no AI hit.
 
-- [ ] **Block D — Library: localize overlay + on-demand trigger** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **Block D — Library: localize overlay + on-demand trigger** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - `shared/utils/localize-botanical.util.ts` (+ spec) — pure `localizeBotanical(record, locale)`
     returning a shallow copy with the 7 free-text fields overlaid from `translations[locale]`,
     falling back to base.

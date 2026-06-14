@@ -20,6 +20,7 @@ const EDIT_ENTRY: JournalEntryWithPlant = {
   logged_at: '2024-06-01T12:00:00Z',
   image_storage_path: null,
   diagnostics: null,
+  diagnostics_i18n: null,
   created_at: '2024-06-01T12:00:00Z',
   updated_at: '2024-06-01T12:00:00Z',
   plants: { common_name: 'Monstera', scientific_name: null },

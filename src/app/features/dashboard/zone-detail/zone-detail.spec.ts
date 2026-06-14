@@ -87,6 +87,7 @@ function makeRecord(overrides: Partial<CachedBotanicalRecord> = {}): CachedBotan
     max_height_cm: null,
     max_spread_cm: null,
     air_purifying: null,
+    translations: null,
     thumbnail_url: null,
     regular_url: null,
     thumbnail_fetched: false,

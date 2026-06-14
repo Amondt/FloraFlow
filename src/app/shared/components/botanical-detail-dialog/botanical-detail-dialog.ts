@@ -85,6 +85,7 @@ export class BotanicalDetailDialogComponent {
   readonly records = input<CachedBotanicalRecord[]>([]);
   readonly visible = input<boolean>(false);
   readonly isEnriching = input<boolean>(false);
+  readonly isTranslating = input<boolean>(false);
   readonly showAddButton = input<boolean>(true);
   readonly backLabel = input<string | null>(null);
   readonly visibleChange = output<boolean>();

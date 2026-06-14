@@ -1,5 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { SupabaseService } from '../../core/services/supabase.service';
+import { environment } from '../../../environments/environment';
 import type { Database } from '../../../types/database.types';
 
 type JournalInsert = Database['public']['Tables']['plant_journals']['Insert'];
@@ -114,5 +115,60 @@ export class JournalService {
   getPublicUrl(path: string): string {
     return this.supabase.client.storage.from('plant-journal-images').getPublicUrl(path).data
       .publicUrl;
+  }
+
+  async translateDiagnostics(entryId: string, diagnostics: object, locale: string): Promise<void> {
+    const token = await this.supabase.getAuthToken();
+    if (!token) return;
+
+    const d = diagnostics as Record<string, unknown>;
+    const fields: Record<string, string | string[]> = {};
+
+    if (typeof d['primary_condition'] === 'string' && d['primary_condition'].length > 0) {
+      fields['primary_condition'] = d['primary_condition'];
+    }
+    if (typeof d['identified_plant'] === 'string' && d['identified_plant'].length > 0) {
+      fields['identified_plant'] = d['identified_plant'];
+    }
+    if (
+      Array.isArray(d['immediate_remedial_actions']) &&
+      d['immediate_remedial_actions'].length > 0
+    ) {
+      fields['immediate_remedial_actions'] = d['immediate_remedial_actions'] as string[];
+    }
+
+    if (Object.keys(fields).length === 0) return;
+
+    const url = `${environment.supabaseUrl}/functions/v1/translate-text`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ fields, locale }),
+    });
+    if (!response.ok) return;
+
+    const { translations } = (await response.json()) as { translations: Record<string, unknown> };
+
+    const entry = this.entries().find((e) => e.id === entryId);
+    const existing = (entry?.diagnostics_i18n ?? {}) as Record<string, unknown>;
+    const updatedI18n = { ...existing, [locale]: translations };
+
+    const { error } = await this.supabase.client
+      .from('plant_journals')
+      .update({ diagnostics_i18n: updatedI18n })
+      .eq('id', entryId);
+
+    if (error) return;
+
+    this.entries.update((list) =>
+      list.map((e) =>
+        e.id === entryId
+          ? { ...e, diagnostics_i18n: updatedI18n as JournalRow['diagnostics_i18n'] }
+          : e,
+      ),
+    );
   }
 }

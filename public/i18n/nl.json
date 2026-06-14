@@ -608,7 +608,8 @@
       "actionPointsListAriaLabel": "Actiepunten",
       "cardAriaLabel": "{plant} — {category} — {when}",
       "yesterday": "Gisteren",
-      "openSoilCheckAria": "Bodemcheck-dialoog openen voor {{ name }}"
+      "openSoilCheckAria": "Bodemcheck-dialoog openen voor {{ name }}",
+      "translating": "Vertaling bezig…"
     },
     "entryForm": {
       "dialogTitleEdit": "Zorg bewerken",

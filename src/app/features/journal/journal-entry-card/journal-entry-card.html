@@ -68,15 +68,29 @@
         >
           <i class="pi pi-check-circle text-success-500 text-sm shrink-0" aria-hidden="true"></i>
           {{ 'journal.entryCard.healthyCheckup' | transloco }}
-          @if (healthyIdentifiedPlant()) {
-            <span class="text-neutral-400 dark:text-neutral-500"
-              >· {{ healthyIdentifiedPlant() }}</span
-            >
+          @if (localizedHealthyIdentifiedPlant()) {
+            <span class="text-neutral-400 dark:text-neutral-500">
+              · {{ localizedHealthyIdentifiedPlant() }}
+              @if (isTranslating()) {
+                <span
+                  class="inline-block w-2 h-2 rounded-full bg-neutral-300 dark:bg-neutral-600 animate-pulse align-middle ml-0.5"
+                  aria-live="polite"
+                  [attr.aria-label]="'journal.entryCard.translating' | transloco"
+                ></span>
+              }
+            </span>
           }
         </p>
       } @else if (sickDiagnostics(); as diag) {
         <p class="text-sm text-neutral-600 dark:text-neutral-300 font-display leading-snug">
-          {{ diag.primary_condition }}
+          {{ localizedSickDiagnostics()?.primary_condition }}
+          @if (isTranslating()) {
+            <span
+              class="inline-block w-2 h-2 rounded-full bg-neutral-300 dark:bg-neutral-600 animate-pulse align-middle ml-0.5"
+              aria-live="polite"
+              [attr.aria-label]="'journal.entryCard.translating' | transloco"
+            ></span>
+          }
         </p>
         <app-leaf-doctor-badges
           [confidenceScore]="diag.confidence_score"
@@ -169,19 +183,19 @@
   </footer>
 
   @if (showDiagnostics()) {
-    @if (sickDiagnostics(); as diag) {
+    @if (localizedSickDiagnostics(); as localDiag) {
       <div
         [attr.id]="'diag-' + entry().id"
         class="border-t border-neutral-100 dark:border-neutral-700 px-3.5 py-3.5 relative z-20"
         role="region"
         [attr.aria-label]="'journal.entryCard.actionPointsRegionAriaLabel' | transloco"
       >
-        @if (diag.immediate_remedial_actions.length) {
+        @if (localDiag.immediate_remedial_actions.length) {
           <ul
             class="list-disc pl-4 space-y-0.5 text-xs font-display text-neutral-700 dark:text-neutral-300"
             [attr.aria-label]="'journal.entryCard.actionPointsListAriaLabel' | transloco"
           >
-            @for (action of diag.immediate_remedial_actions; track $index) {
+            @for (action of localDiag.immediate_remedial_actions; track $index) {
               <li>{{ action }}</li>
             }
           </ul>

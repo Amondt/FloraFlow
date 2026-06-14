@@ -117,7 +117,7 @@ The two are complementary; 4.5 must not re-translate any enum or static label.
   - format + lint + Manual Browser Check (library list + detail dialog in FR & NL: free-text
     shimmers then localizes; reload is instant).
 
-- [ ] **Block E — Journal: on-demand diagnosis translation** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **Block E — Journal: on-demand diagnosis translation** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - `shared/utils/localize-diagnostics.util.ts` (+ spec) — pure overlay of `primary_condition`,
     `identified_plant`, `immediate_remedial_actions` from `diagnostics_i18n[locale]`.
   - `journal.service.ts` — `translateDiagnostics(entryId, diagnostics, locale)`: call

@@ -608,7 +608,8 @@
       "actionPointsListAriaLabel": "Action points",
       "cardAriaLabel": "{plant} — {category} — {when}",
       "yesterday": "Yesterday",
-      "openSoilCheckAria": "Open soil-check dialog for {{ name }}"
+      "openSoilCheckAria": "Open soil-check dialog for {{ name }}",
+      "translating": "Translating…"
     },
     "entryForm": {
       "dialogTitleEdit": "Edit Care Event",

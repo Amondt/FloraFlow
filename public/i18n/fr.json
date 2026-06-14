@@ -608,7 +608,8 @@
       "actionPointsListAriaLabel": "Actions recommandées",
       "cardAriaLabel": "{plant} — {category} — {when}",
       "yesterday": "Hier",
-      "openSoilCheckAria": "Ouvrir le bilan du sol pour {{ name }}"
+      "openSoilCheckAria": "Ouvrir le bilan du sol pour {{ name }}",
+      "translating": "Traduction en cours…"
     },
     "entryForm": {
       "dialogTitleEdit": "Modifier le soin",

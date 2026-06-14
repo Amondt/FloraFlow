@@ -14,11 +14,16 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { LocaleService } from '../../../core/services/locale.service';
 import { CATEGORY_ICON, CATEGORY_KEY, type LogCategoryType } from '../journal-categories';
 import {
+  JournalService,
   type JournalEntryWithPlant,
   type LeafDoctorDiagnostics,
   type HealthyDiagnosticsBlob,
 } from '../journal.service';
 import { LeafDoctorBadgesComponent } from '../leaf-doctor-badges/leaf-doctor-badges';
+import {
+  localizeDiagnostics,
+  hasDiagnosticsTranslation,
+} from '../../../shared/utils/localize-diagnostics.util';
 
 const BADGE_BASE =
   'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium font-display';
@@ -59,6 +64,7 @@ const CATEGORY_ICON_COLOR: Record<LogCategoryType, string> = {
 export class JournalEntryCardComponent {
   private readonly t = inject(TranslocoService);
   private readonly localeService = inject(LocaleService);
+  private readonly journalService = inject(JournalService);
   readonly entry = input.required<JournalEntryWithPlant>();
   readonly imageUrl = input.required<string | null>();
   readonly editRequested = output<void>();
@@ -66,7 +72,9 @@ export class JournalEntryCardComponent {
 
   protected readonly showDiagnostics = signal(false);
   protected readonly showLightbox = signal(false);
+  protected readonly isTranslating = signal(false);
   private readonly lightboxEl = viewChild<ElementRef<HTMLDivElement>>('lightboxEl');
+  private readonly _translationTriggered = new Set<string>();
 
   constructor() {
     effect(() => {
@@ -74,10 +82,31 @@ export class JournalEntryCardComponent {
         Promise.resolve().then(() => this.lightboxEl()?.nativeElement.focus());
       }
     });
+
+    effect(() => {
+      const locale = this.localeService.locale();
+      if (locale === 'en') return;
+      const diag = this.diagnostics();
+      if (!diag) return;
+      if (hasDiagnosticsTranslation(this.entry().diagnostics_i18n, locale)) return;
+      const key = `${this.entry().id}:${locale}`;
+      if (this._translationTriggered.has(key)) return;
+      this._translationTriggered.add(key);
+      this.isTranslating.set(true);
+      void this.journalService
+        .translateDiagnostics(this.entry().id, diag, locale)
+        .finally(() => this.isTranslating.set(false));
+    });
   }
+
   protected readonly diagnostics = computed(
     () => this.entry().diagnostics as LeafDoctorDiagnostics | HealthyDiagnosticsBlob | null,
   );
+
+  protected readonly localizedDiagnostics = computed(() => {
+    const locale = this.localeService.locale();
+    return localizeDiagnostics(this.diagnostics(), this.entry().diagnostics_i18n, locale);
+  });
 
   protected readonly isHealthyEntry = computed(() => {
     const d = this.diagnostics();
@@ -90,9 +119,15 @@ export class JournalEntryCardComponent {
     return d as LeafDoctorDiagnostics;
   });
 
-  protected readonly healthyIdentifiedPlant = computed((): string | null => {
+  protected readonly localizedSickDiagnostics = computed((): LeafDoctorDiagnostics | null => {
+    const d = this.localizedDiagnostics();
+    if (!d || this.isHealthyEntry()) return null;
+    return d as LeafDoctorDiagnostics;
+  });
+
+  protected readonly localizedHealthyIdentifiedPlant = computed((): string | null => {
     if (!this.isHealthyEntry()) return null;
-    return (this.diagnostics() as HealthyDiagnosticsBlob).identified_plant ?? null;
+    return (this.localizedDiagnostics() as HealthyDiagnosticsBlob | null)?.identified_plant ?? null;
   });
 
   protected readonly speciesMismatchWarning = computed((): string | null => {

@@ -50,8 +50,7 @@ Thumbs.db
 !.env.example
 
 # Claude Code (personal config — never commit)
-# CLAUDE.md
-# .claude/settings.local.json
+.claude/
 
 # Supabase local state
 supabase/.temp/
@@ -68,3 +67,12 @@ supabase/backups/
 
 # Personal data exports — not for public repo
 cached_botanical_records_rows.csv
+
+# Dev-only seed scaffolding — internal, not for contributors
+supabase/dev/
+
+# Personal SQL scratchpad
+supabase/snippets/
+
+# Auto-generated botanical seed dump (regenerate with: bun run export-seed)
+supabase/seed.sql

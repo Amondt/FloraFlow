@@ -355,6 +355,13 @@
   - Controlled-vocabulary enums and static labels are out of scope here — they belong to 4.2 Blocks H + J.
   - Plan: `docs/plans/phase-4/PHASE_4_5_PLAN.md`
 
+- [ ] **4.6 Google OAuth Login** | Agent: `/plumber` → `/visualizer`
+  - New `SupabaseService.signInWithOAuth()` calls `client.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: \`${window.location.origin}/dashboard\` } })`and returns`{ error }` — the browser redirects to Google on success, so only the pre-redirect failure path returns to the caller.
+  - "Continue with Google" outlined button on the **login page only**, separated from the email/password form by an "or" divider; button label + divider text via Transloco (EN/FR/NL).
+  - No Angular callback handling: after Google returns, the app reloads at `/dashboard` and the existing `authGuard` + `onboardingGuard` chain routes a brand-new Google user to `/onboarding` and a returning user to `/dashboard`. New OAuth users get their `profiles` row from the same `handle_new_user` trigger 4.4 relies on — no migration.
+  - One-time external setup (user-run, no code): Google Cloud OAuth client + local Supabase Google provider config (`config.toml`) + redirect-URL allow-list — documented in the plan.
+  - Plan: `docs/plans/phase-4/PHASE_4_6_PLAN.md`
+
 ### 🔒 Phase 4 QA Criteria
 
 1. No `flora-theme` key in localStorage + browser set to dark → `.dark` on `<html>` on first paint.
@@ -364,6 +371,7 @@
 5. `bun run lint` — zero errors after all Phase 4 code.
 6. First FR/NL view of an untranslated species shimmers, then renders the AI free-text in that language; reload is instant (DB translation cached, no second AI call). Base English columns are unchanged.
 7. A past Leaf Doctor diagnosis translates on demand into the active language and persists for that user only; controlled-vocabulary badges and labels remain handled by 4.2.
+8. Clicking "Continue with Google" on `/login` redirects to Google's consent screen; after approval a brand-new Google user lands on `/onboarding` and a returning user on `/dashboard`, with no dedicated Angular callback route. The button label and "or" divider switch language in the same render cycle.
 
 ---
 

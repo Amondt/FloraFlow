@@ -339,7 +339,7 @@
   - "Already have an account? Sign in" link on the register page.
   - Plan: `docs/plans/phase-4/PHASE_4_4_PLAN.md`
 
-- [ ] **4.5 Multilingual AI Content** | Agent: `/plumber` → `/visualizer`
+- [x] **4.5 Multilingual AI Content** | Agent: `/plumber` → `/visualizer`
   - Extends 4.2 to the AI-generated prose Transloco cannot key: botanical free-text in the global
     cache (`description`, `check_depth_description`, `toxicity_notes`, `human_toxicity_notes`,
     `native_region`, `fruit_season`, `flowering_season`) and per-user Leaf Doctor diagnoses

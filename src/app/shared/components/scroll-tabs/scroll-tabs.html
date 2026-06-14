@@ -1,0 +1,49 @@
+<div class="flex border-b border-neutral-200 dark:border-neutral-700">
+  @if (canScrollLeft()) {
+    <button
+      type="button"
+      class="cursor-pointer shrink-0 flex items-center px-2 text-neutral-400 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500"
+      aria-label="Scroll filters left"
+      (click)="scrollLeft()"
+    >
+      <i class="pi pi-chevron-left text-xs" aria-hidden="true"></i>
+    </button>
+  }
+
+  <!-- Positioning context for the fade overlays (does not scroll) -->
+  <div class="relative flex-1 min-w-0">
+    @if (canScrollLeft()) {
+      <div
+        class="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-neutral-50 dark:from-neutral-900 to-transparent z-10"
+        aria-hidden="true"
+      ></div>
+    }
+
+    @if (canScrollRight()) {
+      <div
+        class="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-neutral-50 dark:from-neutral-900 to-transparent z-10"
+        aria-hidden="true"
+      ></div>
+    }
+
+    <div
+      #tabsEl
+      role="tablist"
+      [attr.aria-label]="ariaLabel()"
+      class="flex w-full overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+    >
+      <ng-content />
+    </div>
+  </div>
+
+  @if (canScrollRight()) {
+    <button
+      type="button"
+      class="cursor-pointer shrink-0 flex items-center px-2 text-neutral-400 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500"
+      aria-label="Scroll filters right"
+      (click)="scrollRight()"
+    >
+      <i class="pi pi-chevron-right text-xs" aria-hidden="true"></i>
+    </button>
+  }
+</div>

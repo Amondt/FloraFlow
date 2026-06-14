@@ -26,6 +26,7 @@ import { JournalService, type JournalEntryWithPlant } from './journal.service';
 import { JournalEntryFormComponent } from './journal-entry-form/journal-entry-form';
 import { JournalEntryCardComponent } from './journal-entry-card/journal-entry-card';
 import { LeafDoctorDialogComponent } from './leaf-doctor-dialog/leaf-doctor-dialog';
+import { ScrollTabsComponent } from '../../shared/components/scroll-tabs/scroll-tabs';
 import {
   CATEGORY_ICON,
   CATEGORY_KEY,
@@ -68,6 +69,7 @@ const CATEGORY_FILTER_OPTIONS: FilterOption[] = [
     JournalEntryFormComponent,
     JournalEntryCardComponent,
     LeafDoctorDialogComponent,
+    ScrollTabsComponent,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './journal.html',

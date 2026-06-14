@@ -18,6 +18,7 @@ import {
   SEED_STAGE_LABEL_KEYS,
 } from './seed-batch.model';
 import { SeedBatchFormDialogComponent } from './seed-batch-form-dialog/seed-batch-form-dialog';
+import { ScrollTabsComponent } from '../../shared/components/scroll-tabs/scroll-tabs';
 import { PlantFormDialogComponent } from '../tasks/plant-form-dialog/plant-form-dialog';
 import { PlantFormData } from '../tasks/plant.model';
 import { PlantService } from '../tasks/plant.service';
@@ -44,6 +45,7 @@ import { PendingDeleteManager } from '../../shared/utils/pending-delete';
     SeedBatchCardComponent,
     SeedBatchFormDialogComponent,
     PlantFormDialogComponent,
+    ScrollTabsComponent,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './seeds.html',

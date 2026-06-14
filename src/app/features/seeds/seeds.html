@@ -1,43 +1,41 @@
 <main class="p-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen" aria-labelledby="seeds-heading">
   <div class="max-w-5xl mx-auto">
-    <header class="mb-8">
-      <div class="flex items-end justify-between gap-4">
-        <div>
-          <p
-            class="text-xs font-semibold uppercase tracking-widest text-primary-600 dark:text-primary-400 font-display mb-1"
-          >
-            {{ 'seeds.header.tagline' | transloco }}
-          </p>
-          <h1
-            id="seeds-heading"
-            class="text-3xl font-semibold font-display text-neutral-900 dark:text-white"
-          >
-            {{ 'seeds.header.title' | transloco }}
-          </h1>
-          @if (!batchService.loading()) {
-            <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1 font-display">
-              @let total = totalCount();
-              @let active = activeCount();
-              @if (total === 0) {
-                {{ 'seeds.header.emptyHint' | transloco }}
-              } @else if (active > 0) {
-                {{ 'seeds.header.statsActive' | transloco: { total: total, active: active } }}
-              } @else {
-                {{ 'seeds.header.statsStored' | transloco: { total: total } }}
-              }
-            </p>
-          }
-        </div>
-        <button
-          type="button"
-          class="cursor-pointer inline-flex items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
-          [attr.aria-label]="'seeds.header.addBatchAriaLabel' | transloco"
-          (click)="openCreateDialog()"
+    <header class="mb-8 flex items-start justify-between gap-4">
+      <div>
+        <p
+          class="text-xs font-semibold uppercase tracking-widest text-primary-600 dark:text-primary-400 font-display mb-1"
         >
-          <i class="pi pi-plus text-xs" aria-hidden="true"></i>
-          {{ 'seeds.header.addBatch' | transloco }}
-        </button>
+          {{ 'seeds.header.tagline' | transloco }}
+        </p>
+        <h1
+          id="seeds-heading"
+          class="text-3xl font-semibold font-display text-neutral-900 dark:text-white"
+        >
+          {{ 'seeds.header.title' | transloco }}
+        </h1>
+        @if (!batchService.loading()) {
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1 font-display">
+            @let total = totalCount();
+            @let active = activeCount();
+            @if (total === 0) {
+              {{ 'seeds.header.emptyHint' | transloco }}
+            } @else if (active > 0) {
+              {{ 'seeds.header.statsActive' | transloco: { total: total, active: active } }}
+            } @else {
+              {{ 'seeds.header.statsStored' | transloco: { total: total } }}
+            }
+          </p>
+        }
       </div>
+      <button
+        type="button"
+        class="cursor-pointer inline-flex items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1 shrink-0"
+        [attr.aria-label]="'seeds.header.addBatchAriaLabel' | transloco"
+        (click)="openCreateDialog()"
+      >
+        <i class="pi pi-plus text-xs" aria-hidden="true"></i>
+        {{ 'seeds.header.addBatch' | transloco }}
+      </button>
     </header>
 
     @if (!batchService.loading()) {

@@ -2,52 +2,58 @@
   class="w-full bg-white dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700"
 >
   <nav class="px-6 flex items-stretch" [attr.aria-label]="'nav.ariaLabel' | transloco">
-    <a
-      [routerLink]="'/dashboard'"
-      [class]="linkBase"
-      [routerLinkActive]="linkActive"
-      ariaCurrentWhenActive="page"
+    <!-- Scrollable links: overflow-x-auto is scoped here so it never clips
+         the absolutely-positioned language-switcher dropdown outside this div. -->
+    <div
+      class="flex items-stretch flex-1 min-w-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
-      {{ 'nav.dashboard' | transloco }}
-    </a>
+      <a
+        [routerLink]="'/dashboard'"
+        [class]="linkBase"
+        [routerLinkActive]="linkActive"
+        ariaCurrentWhenActive="page"
+      >
+        {{ 'nav.dashboard' | transloco }}
+      </a>
 
-    <a
-      [routerLink]="'/tasks'"
-      [class]="linkBase"
-      [routerLinkActive]="linkActive"
-      ariaCurrentWhenActive="page"
-    >
-      {{ 'nav.tasks' | transloco }}
-    </a>
+      <a
+        [routerLink]="'/tasks'"
+        [class]="linkBase"
+        [routerLinkActive]="linkActive"
+        ariaCurrentWhenActive="page"
+      >
+        {{ 'nav.tasks' | transloco }}
+      </a>
 
-    <a
-      [routerLink]="'/journal'"
-      [class]="linkBase"
-      [routerLinkActive]="linkActive"
-      ariaCurrentWhenActive="page"
-    >
-      {{ 'nav.journal' | transloco }}
-    </a>
+      <a
+        [routerLink]="'/journal'"
+        [class]="linkBase"
+        [routerLinkActive]="linkActive"
+        ariaCurrentWhenActive="page"
+      >
+        {{ 'nav.journal' | transloco }}
+      </a>
 
-    <a
-      [routerLink]="'/library'"
-      [class]="linkBase"
-      [routerLinkActive]="linkActive"
-      ariaCurrentWhenActive="page"
-    >
-      {{ 'nav.library' | transloco }}
-    </a>
+      <a
+        [routerLink]="'/library'"
+        [class]="linkBase"
+        [routerLinkActive]="linkActive"
+        ariaCurrentWhenActive="page"
+      >
+        {{ 'nav.library' | transloco }}
+      </a>
 
-    <a
-      [routerLink]="'/seeds'"
-      [class]="linkBase"
-      [routerLinkActive]="linkActive"
-      ariaCurrentWhenActive="page"
-    >
-      {{ 'nav.seeds' | transloco }}
-    </a>
+      <a
+        [routerLink]="'/seeds'"
+        [class]="linkBase"
+        [routerLinkActive]="linkActive"
+        ariaCurrentWhenActive="page"
+      >
+        {{ 'nav.seeds' | transloco }}
+      </a>
+    </div>
 
-    <div class="ml-auto flex items-center gap-1">
+    <div class="flex items-center gap-1 shrink-0">
       <app-language-switcher />
       <app-theme-toggle />
       <app-sign-out-button />

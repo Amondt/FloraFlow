@@ -1,68 +1,66 @@
 <main class="p-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen" aria-labelledby="journal-heading">
   <div class="max-w-5xl mx-auto">
     <!-- Header -->
-    <header class="mb-8">
-      <p
-        class="text-xs font-semibold uppercase tracking-widest text-primary-600 dark:text-primary-400 font-display mb-1"
-      >
-        {{ 'journal.subtitle' | transloco }}
-      </p>
-      <div class="flex items-end justify-between gap-4">
-        <div>
-          <h1
-            id="journal-heading"
-            class="text-3xl font-semibold font-display text-neutral-900 dark:text-white"
+    <header class="mb-8 flex items-start justify-between gap-4">
+      <div>
+        <p
+          class="text-xs font-semibold uppercase tracking-widest text-primary-600 dark:text-primary-400 font-display mb-1"
+        >
+          {{ 'journal.subtitle' | transloco }}
+        </p>
+        <h1
+          id="journal-heading"
+          class="text-3xl font-semibold font-display text-neutral-900 dark:text-white"
+        >
+          {{ 'journal.heading' | transloco }}
+        </h1>
+        @if (journalService.entries().length > 0) {
+          <p
+            class="text-sm text-neutral-500 dark:text-neutral-400 font-display mt-1"
+            aria-live="polite"
+            aria-atomic="true"
           >
-            {{ 'journal.heading' | transloco }}
-          </h1>
-          @if (journalService.entries().length > 0) {
-            <p
-              class="text-sm text-neutral-500 dark:text-neutral-400 font-display mt-1"
-              aria-live="polite"
-              aria-atomic="true"
-            >
-              {{ 'journal.entryCount' | transloco: { count: journalService.entries().length } }}
-            </p>
-          }
-        </div>
-
-        @if (hasPlants()) {
-          <div class="flex items-center gap-2 shrink-0">
-            <!-- Plant filter -->
-            <app-plant-select
-              inputId="journal-plant-filter"
-              [value]="selectedPlant()"
-              (valueChange)="onPlantFilterChange($event)"
-              [options]="plantSelectOptions()"
-              [grouped]="true"
-              [ariaLabel]="'journal.filterByPlantAriaLabel' | transloco"
-              [ghost]="true"
-            />
-
-            <!-- Diagnose plant -->
-            <button
-              type="button"
-              class="cursor-pointer inline-flex items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
-              [attr.aria-label]="'journal.diagnosePlantAriaLabel' | transloco"
-              (click)="openDiagnosisDialog()"
-            >
-              <i class="pi pi-eye text-xs" aria-hidden="true"></i>
-              {{ 'journal.diagnosePlant' | transloco }}
-            </button>
-
-            <!-- New entry -->
-            <button
-              type="button"
-              class="cursor-pointer inline-flex items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
-              [attr.aria-label]="'journal.logCareEventAriaLabel' | transloco"
-              (click)="openDialog()"
-            >
-              <i class="pi pi-plus text-xs" aria-hidden="true"></i>
-              {{ 'journal.logCareEvent' | transloco }}
-            </button>
-          </div>
+            {{ 'journal.entryCount' | transloco: { count: journalService.entries().length } }}
+          </p>
         }
       </div>
+
+      @if (hasPlants()) {
+        <div class="flex items-center gap-2 shrink-0">
+          <!-- Plant filter -->
+          <app-plant-select
+            inputId="journal-plant-filter"
+            [value]="selectedPlant()"
+            (valueChange)="onPlantFilterChange($event)"
+            [options]="plantSelectOptions()"
+            [grouped]="true"
+            [ariaLabel]="'journal.filterByPlantAriaLabel' | transloco"
+            [ghost]="true"
+          />
+
+          <!-- Diagnose plant -->
+          <button
+            type="button"
+            class="cursor-pointer inline-flex items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
+            [attr.aria-label]="'journal.diagnosePlantAriaLabel' | transloco"
+            (click)="openDiagnosisDialog()"
+          >
+            <i class="pi pi-eye text-xs" aria-hidden="true"></i>
+            {{ 'journal.diagnosePlant' | transloco }}
+          </button>
+
+          <!-- New entry -->
+          <button
+            type="button"
+            class="cursor-pointer inline-flex items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
+            [attr.aria-label]="'journal.logCareEventAriaLabel' | transloco"
+            (click)="openDialog()"
+          >
+            <i class="pi pi-plus text-xs" aria-hidden="true"></i>
+            {{ 'journal.logCareEvent' | transloco }}
+          </button>
+        </div>
+      }
     </header>
 
     <!-- Category tab bar -->

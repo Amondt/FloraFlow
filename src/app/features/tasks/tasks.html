@@ -1,64 +1,62 @@
 <main class="p-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen" aria-labelledby="tasks-heading">
   <div class="max-w-5xl mx-auto">
-    <header class="mb-8">
-      <p
-        class="text-xs font-semibold uppercase tracking-widest text-primary-600 dark:text-primary-400 font-display mb-1"
-      >
-        {{ 'tasks.subtitle' | transloco }}
-      </p>
-      <div class="flex items-end justify-between gap-4">
-        <div>
-          <h1
-            id="tasks-heading"
-            class="text-3xl font-semibold font-display text-neutral-900 dark:text-white"
+    <header class="mb-8 flex items-start justify-between gap-4">
+      <div>
+        <p
+          class="text-xs font-semibold uppercase tracking-widest text-primary-600 dark:text-primary-400 font-display mb-1"
+        >
+          {{ 'tasks.subtitle' | transloco }}
+        </p>
+        <h1
+          id="tasks-heading"
+          class="text-3xl font-semibold font-display text-neutral-900 dark:text-white"
+        >
+          {{ 'tasks.heading' | transloco }}
+        </h1>
+        @if (!plantService.loading() && plantService.plants().length > 0) {
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1 font-display">
+            @let a = attentionCount();
+            @let s = soonCount();
+            @if (a > 0 && s > 0) {
+              {{ 'tasks.statusAttentionAndSoon' | transloco: { attention: a, soon: s } }}
+            } @else if (a > 0) {
+              {{ 'tasks.statusAttentionOnly' | transloco: { count: a } }}
+            } @else if (s > 0) {
+              {{ 'tasks.statusSoonOnly' | transloco: { count: s } }}
+            } @else {
+              {{ 'tasks.statusAllGood' | transloco }}
+            }
+          </p>
+        }
+      </div>
+      <div class="relative shrink-0">
+        <button
+          type="button"
+          [disabled]="!hasZones()"
+          [attr.aria-disabled]="!hasZones() || null"
+          [attr.aria-label]="
+            !hasZones()
+              ? ('tasks.addPlantDisabledAriaLabel' | transloco)
+              : ('tasks.addPlantAriaLabel' | transloco)
+          "
+          class="inline-flex items-center gap-1.5 text-sm font-medium font-display outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1 transition-colors duration-150"
+          [class]="
+            !hasZones()
+              ? 'text-neutral-400 dark:text-neutral-500 cursor-not-allowed opacity-50'
+              : 'text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 cursor-pointer'
+          "
+          (click)="openAddPlant()"
+        >
+          <i class="pi pi-plus text-xs" aria-hidden="true"></i>
+          {{ 'tasks.addPlant' | transloco }}
+        </button>
+        @if (!hasZones()) {
+          <span
+            class="absolute top-full left-0 right-0 mt-0.5 text-center text-xs font-display text-neutral-400 dark:text-neutral-500 pointer-events-none whitespace-nowrap"
+            aria-hidden="true"
+            >{{ 'tasks.addZoneFirst' | transloco }}</span
           >
-            {{ 'tasks.heading' | transloco }}
-          </h1>
-          @if (!plantService.loading() && plantService.plants().length > 0) {
-            <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1 font-display">
-              @let a = attentionCount();
-              @let s = soonCount();
-              @if (a > 0 && s > 0) {
-                {{ 'tasks.statusAttentionAndSoon' | transloco: { attention: a, soon: s } }}
-              } @else if (a > 0) {
-                {{ 'tasks.statusAttentionOnly' | transloco: { count: a } }}
-              } @else if (s > 0) {
-                {{ 'tasks.statusSoonOnly' | transloco: { count: s } }}
-              } @else {
-                {{ 'tasks.statusAllGood' | transloco }}
-              }
-            </p>
-          }
-        </div>
-        <div class="relative">
-          <button
-            type="button"
-            [disabled]="!hasZones()"
-            [attr.aria-disabled]="!hasZones() || null"
-            [attr.aria-label]="
-              !hasZones()
-                ? ('tasks.addPlantDisabledAriaLabel' | transloco)
-                : ('tasks.addPlantAriaLabel' | transloco)
-            "
-            class="inline-flex items-center gap-1.5 text-sm font-medium font-display outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1 transition-colors duration-150"
-            [class]="
-              !hasZones()
-                ? 'text-neutral-400 dark:text-neutral-500 cursor-not-allowed opacity-50'
-                : 'text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 cursor-pointer'
-            "
-            (click)="openAddPlant()"
-          >
-            <i class="pi pi-plus text-xs" aria-hidden="true"></i>
-            {{ 'tasks.addPlant' | transloco }}
-          </button>
-          @if (!hasZones()) {
-            <span
-              class="absolute top-full left-0 right-0 mt-0.5 text-center text-xs font-display text-neutral-400 dark:text-neutral-500 pointer-events-none whitespace-nowrap"
-              aria-hidden="true"
-              >{{ 'tasks.addZoneFirst' | transloco }}</span
-            >
-          }
-        </div>
+        }
       </div>
     </header>
 

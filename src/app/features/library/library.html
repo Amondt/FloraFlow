@@ -1,44 +1,42 @@
 <main class="p-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen" aria-labelledby="library-heading">
   <div class="max-w-5xl mx-auto">
     <!-- Page header -->
-    <header class="mb-10">
-      <div class="flex items-start justify-between gap-4">
-        <div>
-          <p
-            class="text-xs font-semibold uppercase tracking-widest text-primary-600 dark:text-primary-400 font-display mb-1"
-          >
-            {{ 'library.subtitle' | transloco }}
-          </p>
-          <h1
-            id="library-heading"
-            class="text-3xl font-semibold font-display text-neutral-900 dark:text-white"
-          >
-            {{ 'library.heading' | transloco }}
-          </h1>
-          <p class="text-sm text-neutral-500 dark:text-neutral-400 font-display mt-1">
-            {{ 'library.description' | transloco }}
-          </p>
-        </div>
-        <div class="flex items-center gap-3 mt-1">
-          <button
-            type="button"
-            class="cursor-pointer inline-flex flex-shrink-0 items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
-            [attr.aria-label]="'library.identifyPlantAriaLabel' | transloco"
-            (click)="identifierVisible.set(true)"
-          >
-            <i class="pi pi-camera text-xs" aria-hidden="true"></i>
-            {{ 'library.identifyPlant' | transloco }}
-          </button>
-          <button
-            type="button"
-            class="cursor-pointer inline-flex flex-shrink-0 items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
-            [attr.aria-label]="'library.mixSubstrateAriaLabel' | transloco"
-            (click)="wizardVisible.set(true)"
-          >
-            <i class="pi pi-list-check text-xs" aria-hidden="true"></i>
-            {{ 'library.mixSubstrate' | transloco }}
-          </button>
-        </div>
+    <header class="mb-10 flex items-start justify-between gap-4">
+      <div class="min-w-0">
+        <p
+          class="text-xs font-semibold uppercase tracking-widest text-primary-600 dark:text-primary-400 font-display mb-1"
+        >
+          {{ 'library.subtitle' | transloco }}
+        </p>
+        <h1
+          id="library-heading"
+          class="text-3xl font-semibold font-display text-neutral-900 dark:text-white"
+        >
+          {{ 'library.heading' | transloco }}
+        </h1>
+        <p class="text-sm text-neutral-500 dark:text-neutral-400 font-display mt-1">
+          {{ 'library.description' | transloco }}
+        </p>
+      </div>
+      <div class="flex items-center gap-3 shrink-0">
+        <button
+          type="button"
+          class="cursor-pointer inline-flex flex-shrink-0 items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
+          [attr.aria-label]="'library.identifyPlantAriaLabel' | transloco"
+          (click)="identifierVisible.set(true)"
+        >
+          <i class="pi pi-camera text-xs" aria-hidden="true"></i>
+          {{ 'library.identifyPlant' | transloco }}
+        </button>
+        <button
+          type="button"
+          class="cursor-pointer inline-flex flex-shrink-0 items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
+          [attr.aria-label]="'library.mixSubstrateAriaLabel' | transloco"
+          (click)="wizardVisible.set(true)"
+        >
+          <i class="pi pi-list-check text-xs" aria-hidden="true"></i>
+          {{ 'library.mixSubstrate' | transloco }}
+        </button>
       </div>
     </header>
 

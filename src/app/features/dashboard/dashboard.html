@@ -4,92 +4,90 @@
 >
   <div class="max-w-5xl mx-auto">
     <!-- ── Page header ─────────────────────────────────────────────── -->
-    <header class="mb-8">
-      <p
-        class="text-xs font-semibold uppercase tracking-widest font-display text-neutral-400 dark:text-neutral-500 mb-2"
-      >
-        {{ todayLabel() }}
-      </p>
-      <div class="flex items-start justify-between gap-4">
-        <div>
-          <h1
-            id="dashboard-heading"
-            class="text-3xl font-semibold font-display text-neutral-900 dark:text-white"
-          >
-            {{ greeting() }}
-          </h1>
-          <p
-            class="text-sm font-display text-neutral-500 dark:text-neutral-400 mt-1"
-            aria-live="polite"
-            aria-atomic="true"
-          >
-            @if (zoneService.loading() || plantService.loading()) {
-              {{ 'dashboard.loading' | transloco }}
-            } @else {
-              {{ 'dashboard.plantCount' | transloco: { count: totalPlantCount() } }}
-              {{ 'dashboard.across' | transloco }}
-              {{ 'dashboard.zoneCount' | transloco: { count: totalZoneCount() } }}
-            }
-          </p>
-          @if (hasLocation()) {
-            <button
-              type="button"
-              (click)="openLocationDialog()"
-              class="cursor-pointer inline-flex items-center gap-1.5 text-xs font-medium font-display text-neutral-500 hover:text-primary-600 transition-colors duration-150 mt-1 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
-              [attr.aria-label]="'dashboard.editLocationAriaLabel' | transloco"
-            >
-              <i class="pi pi-map-marker text-xs" aria-hidden="true"></i>
-              {{
-                profileService.profile()?.location_name ??
-                  ('dashboard.locationSetFallback' | transloco)
-              }}
-            </button>
+    <header class="mb-8 flex items-start justify-between gap-4">
+      <div>
+        <p
+          class="text-xs font-semibold uppercase tracking-widest font-display text-neutral-400 dark:text-neutral-500 mb-2"
+        >
+          {{ todayLabel() }}
+        </p>
+        <h1
+          id="dashboard-heading"
+          class="text-3xl font-semibold font-display text-neutral-900 dark:text-white"
+        >
+          {{ greeting() }}
+        </h1>
+        <p
+          class="text-sm font-display text-neutral-500 dark:text-neutral-400 mt-1"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          @if (zoneService.loading() || plantService.loading()) {
+            {{ 'dashboard.loading' | transloco }}
+          } @else {
+            {{ 'dashboard.plantCount' | transloco: { count: totalPlantCount() } }}
+            {{ 'dashboard.across' | transloco }}
+            {{ 'dashboard.zoneCount' | transloco: { count: totalZoneCount() } }}
           }
-        </div>
-
-        <!-- Action buttons -->
-        <div class="flex items-center gap-2 flex-shrink-0 pt-1">
-          <!-- Identify plant -->
+        </p>
+        @if (hasLocation()) {
           <button
             type="button"
-            class="cursor-pointer inline-flex items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
-            [attr.aria-label]="'dashboard.identifyPlantAriaLabel' | transloco"
-            (click)="openIdentifierDialog()"
+            (click)="openLocationDialog()"
+            class="cursor-pointer inline-flex items-center gap-1.5 text-xs font-medium font-display text-neutral-500 hover:text-primary-600 transition-colors duration-150 mt-1 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
+            [attr.aria-label]="'dashboard.editLocationAriaLabel' | transloco"
           >
-            <i class="pi pi-camera text-xs" aria-hidden="true"></i>
-            {{ 'dashboard.identifyPlant' | transloco }}
+            <i class="pi pi-map-marker text-xs" aria-hidden="true"></i>
+            {{
+              profileService.profile()?.location_name ??
+                ('dashboard.locationSetFallback' | transloco)
+            }}
           </button>
+        }
+      </div>
 
-          <!-- Add plant -->
-          <div class="relative">
-            <button
-              type="button"
-              [disabled]="totalZoneCount() === 0"
-              [attr.aria-disabled]="totalZoneCount() === 0 || null"
-              [attr.aria-label]="
-                totalZoneCount() === 0
-                  ? ('dashboard.addPlantDisabledAriaLabel' | transloco)
-                  : ('dashboard.addPlantAriaLabel' | transloco)
-              "
-              class="inline-flex items-center gap-1.5 text-sm font-medium font-display outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1 transition-colors duration-150"
-              [class]="
-                totalZoneCount() === 0
-                  ? 'text-neutral-400 dark:text-neutral-500 cursor-not-allowed opacity-50'
-                  : 'text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 cursor-pointer'
-              "
-              (click)="openAddPlantDialog()"
+      <!-- Action buttons -->
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <!-- Identify plant -->
+        <button
+          type="button"
+          class="cursor-pointer inline-flex items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"
+          [attr.aria-label]="'dashboard.identifyPlantAriaLabel' | transloco"
+          (click)="openIdentifierDialog()"
+        >
+          <i class="pi pi-camera text-xs" aria-hidden="true"></i>
+          {{ 'dashboard.identifyPlant' | transloco }}
+        </button>
+
+        <!-- Add plant -->
+        <div class="relative">
+          <button
+            type="button"
+            [disabled]="totalZoneCount() === 0"
+            [attr.aria-disabled]="totalZoneCount() === 0 || null"
+            [attr.aria-label]="
+              totalZoneCount() === 0
+                ? ('dashboard.addPlantDisabledAriaLabel' | transloco)
+                : ('dashboard.addPlantAriaLabel' | transloco)
+            "
+            class="inline-flex items-center gap-1.5 text-sm font-medium font-display outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1 transition-colors duration-150"
+            [class]="
+              totalZoneCount() === 0
+                ? 'text-neutral-400 dark:text-neutral-500 cursor-not-allowed opacity-50'
+                : 'text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 cursor-pointer'
+            "
+            (click)="openAddPlantDialog()"
+          >
+            <i class="pi pi-plus text-xs" aria-hidden="true"></i>
+            {{ 'dashboard.addPlant' | transloco }}
+          </button>
+          @if (totalZoneCount() === 0) {
+            <span
+              class="absolute top-full left-0 right-0 mt-0.5 text-center text-xs font-display text-neutral-400 dark:text-neutral-500 pointer-events-none whitespace-nowrap"
+              aria-hidden="true"
+              >{{ 'dashboard.addZoneFirst' | transloco }}</span
             >
-              <i class="pi pi-plus text-xs" aria-hidden="true"></i>
-              {{ 'dashboard.addPlant' | transloco }}
-            </button>
-            @if (totalZoneCount() === 0) {
-              <span
-                class="absolute top-full left-0 right-0 mt-0.5 text-center text-xs font-display text-neutral-400 dark:text-neutral-500 pointer-events-none whitespace-nowrap"
-                aria-hidden="true"
-                >{{ 'dashboard.addZoneFirst' | transloco }}</span
-              >
-            }
-          </div>
+          }
         </div>
       </div>
     </header>

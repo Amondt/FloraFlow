@@ -21,7 +21,7 @@ import { SignOutButtonComponent } from '../sign-out-button/sign-out-button';
 })
 export class NavComponent {
   protected readonly linkBase = [
-    'inline-flex items-center h-14 px-4 -mb-px',
+    'inline-flex items-center h-14 px-4 -mb-px whitespace-nowrap',
     'text-sm font-medium font-display',
     'text-neutral-600 dark:text-neutral-300',
     'border-b-2 border-transparent',

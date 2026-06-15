@@ -10,7 +10,7 @@
 
 ---
 
-- [ ] **Block A — Bottom-anchored, full-width dialogs (`<md`)** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **Block A — Bottom-anchored, full-width dialogs (`<md`)** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - File: `src/app/shared/ui/pt/dialog.pt.ts`. Update the `root` slot of **all four** objects: `FloraDialogPT`, `FloraFormDialogPT`, `FloraDetailDialogPT`, `FloraConfirmDialogPT`.
   - Pattern (keep each object's existing `md:max-w-*` — only add the mobile-first overrides):
     ```
@@ -21,7 +21,7 @@
   - The mask (`max-md:items-end`) so PrimeNG aligns the panel to the bottom edge — verify against the PrimeNG dialog position model via context7 before finalising the mask/position approach (unstyled mode positions via the mask flex container).
   - `content` slot already has `overflow-y-auto` + `min-h-0` — keep it; that is what lets the body scroll when the iOS keyboard shrinks the viewport.
 
-- [ ] **Block B — Footer button stacking + safe area** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **Block B — Footer button stacking + safe area** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - Same file, `footer` slot of all four objects. Today it is `flex justify-end gap-3` → 3 buttons (e.g. botanical detail: Mix · Track seeds · Add) overflow at 375 px.
   - Make the footer stack and stretch on mobile, plus clear the home indicator:
     ```
@@ -30,7 +30,7 @@
     `items-stretch` makes child `<p-button>`s fill the width with no per-button `w-full` needed. `<p-button>`s in the back-link/footer that use `mr-auto` (botanical detail, substrate wizard) should drop to a plain stacked order on mobile — verify those two footers visually.
   - Header/`pcCloseButton` slots unchanged.
 
-- [ ] **Block C — Slider touch handle** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+- [x] **Block C — Slider touch handle** | Agent: `/visualizer` · Model: Sonnet · Effort: low
   - File: `src/app/shared/ui/pt/slider.pt.ts`. The `handle` / `startHandler` / `endHandler` are `w-4 h-4` (16 px) — far below the 44 px floor. Enlarge the **hit area** on coarse pointers without changing desktop:
     ```
     w-4 h-4 pointer-coarse:w-6 pointer-coarse:h-6

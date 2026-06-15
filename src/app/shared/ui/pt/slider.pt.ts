@@ -9,13 +9,14 @@ export const FloraSliderPT = {
   range: {
     class: 'absolute h-full bg-primary-500 rounded-full',
   },
+  // Touch hit area: visual dot grows from 16 px → 24 px on coarse-pointer (touch) devices.
   handle: {
-    class: `absolute top-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-white dark:bg-neutral-800 border-2 border-primary-500 rounded-full shadow-sm cursor-pointer cursor-grab active:cursor-grabbing ${FLORA_FOCUS}`,
+    class: `absolute top-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 pointer-coarse:w-6 pointer-coarse:h-6 bg-white dark:bg-neutral-800 border-2 border-primary-500 rounded-full shadow-sm cursor-pointer cursor-grab active:cursor-grabbing ${FLORA_FOCUS}`,
   },
   startHandler: {
-    class: `absolute top-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-white dark:bg-neutral-800 border-2 border-primary-500 rounded-full shadow-sm cursor-pointer cursor-grab active:cursor-grabbing ${FLORA_FOCUS}`,
+    class: `absolute top-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 pointer-coarse:w-6 pointer-coarse:h-6 bg-white dark:bg-neutral-800 border-2 border-primary-500 rounded-full shadow-sm cursor-pointer cursor-grab active:cursor-grabbing ${FLORA_FOCUS}`,
   },
   endHandler: {
-    class: `absolute top-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-white dark:bg-neutral-800 border-2 border-primary-500 rounded-full shadow-sm cursor-pointer cursor-grab active:cursor-grabbing ${FLORA_FOCUS}`,
+    class: `absolute top-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 pointer-coarse:w-6 pointer-coarse:h-6 bg-white dark:bg-neutral-800 border-2 border-primary-500 rounded-full shadow-sm cursor-pointer cursor-grab active:cursor-grabbing ${FLORA_FOCUS}`,
   },
 };

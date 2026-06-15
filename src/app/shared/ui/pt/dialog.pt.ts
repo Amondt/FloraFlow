@@ -3,6 +3,7 @@ import type { ConfirmDialogPassThroughOptions } from 'primeng/confirmdialog';
 
 const MOBILE_MASK = 'bg-neutral-900/50 backdrop-blur-sm max-md:!items-end';
 const MOBILE_DIALOG_ROOT = 'max-md:max-w-none max-md:rounded-t-garden-lg max-md:max-h-[92vh]';
+const MOBILE_FOOTER = 'max-md:flex-col max-md:items-stretch max-md:pb-safe-4';
 
 export const FloraDialogPT = {
   root: {
@@ -24,8 +25,7 @@ export const FloraDialogPT = {
       'flex-1 min-h-0 overflow-y-auto p-6 text-neutral-700 dark:text-neutral-200 text-base leading-relaxed font-display',
   },
   footer: {
-    class:
-      'shrink-0 bg-neutral-50 dark:bg-neutral-800 p-4 flex justify-end gap-3 border-t border-neutral-100 dark:border-neutral-700',
+    class: `shrink-0 bg-neutral-50 dark:bg-neutral-800 p-4 flex justify-end gap-3 ${MOBILE_FOOTER} border-t border-neutral-100 dark:border-neutral-700`,
   },
   mask: { class: MOBILE_MASK },
 } satisfies DialogPassThroughOptions;
@@ -50,8 +50,7 @@ export const FloraFormDialogPT = {
       'flex-1 min-h-0 overflow-y-auto p-6 text-neutral-700 dark:text-neutral-200 text-base leading-relaxed font-display',
   },
   footer: {
-    class:
-      'shrink-0 bg-neutral-50 dark:bg-neutral-800 p-4 flex justify-end gap-3 border-t border-neutral-100 dark:border-neutral-700',
+    class: `shrink-0 bg-neutral-50 dark:bg-neutral-800 p-4 flex justify-end gap-3 ${MOBILE_FOOTER} border-t border-neutral-100 dark:border-neutral-700`,
   },
   mask: { class: MOBILE_MASK },
 } satisfies DialogPassThroughOptions;
@@ -76,8 +75,7 @@ export const FloraDetailDialogPT = {
       'flex-1 min-h-0 overflow-y-auto p-6 text-neutral-700 dark:text-neutral-200 text-sm leading-relaxed font-display',
   },
   footer: {
-    class:
-      'shrink-0 bg-neutral-50 dark:bg-neutral-800 p-4 flex justify-end gap-3 border-t border-neutral-100 dark:border-neutral-700',
+    class: `shrink-0 bg-neutral-50 dark:bg-neutral-800 p-4 flex justify-end gap-3 ${MOBILE_FOOTER} border-t border-neutral-100 dark:border-neutral-700`,
   },
   mask: { class: MOBILE_MASK },
 } satisfies DialogPassThroughOptions;
@@ -99,7 +97,7 @@ export const FloraConfirmDialogPT = {
     class: 'p-6 text-neutral-700 dark:text-neutral-200 text-sm leading-relaxed font-display',
   },
   footer: {
-    class: 'p-4 flex justify-end gap-3 border-t border-neutral-100 dark:border-neutral-700',
+    class: `p-4 flex justify-end gap-3 ${MOBILE_FOOTER} border-t border-neutral-100 dark:border-neutral-700`,
   },
   pcAcceptButton: {
     root: {

@@ -209,8 +209,21 @@ textarea.flora-scrollbar::-webkit-resizer {
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
+/* pb-safe-4: keeps a 1rem minimum and adds the safe-area inset on top — use in dialogs/sheets
+   where p-4 already provides base padding but the bottom needs to clear the iOS home indicator. */
+.pb-safe-4 {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+}
 .h-bottom-nav {
   height: calc(3.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* Lock body scroll while any PrimeNG dialog mask is mounted in the DOM.
+   p-dialog-mask is always present on the mask element when a p-dialog or p-confirmdialog is open.
+   :has() is supported in all evergreen browsers (Chrome 105+, Safari 15.4+, Firefox 121+).
+   This replaces needing blockScroll=true on every dialog template. */
+html:has(.p-dialog-mask) {
+  overflow: hidden;
 }
 
 /* Plant thumbnail placeholder — diagonal stripe pattern used in tasks rows and soil-check dialog */

@@ -1,10 +1,12 @@
 import type { DialogPassThroughOptions } from 'primeng/dialog';
 import type { ConfirmDialogPassThroughOptions } from 'primeng/confirmdialog';
 
+const MOBILE_MASK = 'bg-neutral-900/50 backdrop-blur-sm max-md:!items-end';
+const MOBILE_DIALOG_ROOT = 'max-md:max-w-none max-md:rounded-t-garden-lg max-md:max-h-[92vh]';
+
 export const FloraDialogPT = {
   root: {
-    class:
-      'max-w-md w-full max-h-[90vh] flex flex-col bg-white dark:bg-neutral-900 rounded-garden-lg shadow-2xl overflow-hidden border-0',
+    class: `max-w-md w-full max-h-[90vh] flex flex-col bg-white dark:bg-neutral-900 md:rounded-garden-lg shadow-2xl overflow-hidden border-0 ${MOBILE_DIALOG_ROOT}`,
   },
   header: {
     class:
@@ -25,13 +27,12 @@ export const FloraDialogPT = {
     class:
       'shrink-0 bg-neutral-50 dark:bg-neutral-800 p-4 flex justify-end gap-3 border-t border-neutral-100 dark:border-neutral-700',
   },
-  mask: { class: 'bg-neutral-900/50 backdrop-blur-sm' },
+  mask: { class: MOBILE_MASK },
 } satisfies DialogPassThroughOptions;
 
 export const FloraFormDialogPT = {
   root: {
-    class:
-      'max-w-lg w-full max-h-[90vh] flex flex-col bg-white dark:bg-neutral-900 rounded-garden-lg shadow-2xl overflow-hidden border-0',
+    class: `max-w-lg w-full max-h-[90vh] flex flex-col bg-white dark:bg-neutral-900 md:rounded-garden-lg shadow-2xl overflow-hidden border-0 ${MOBILE_DIALOG_ROOT}`,
   },
   header: {
     class:
@@ -52,13 +53,12 @@ export const FloraFormDialogPT = {
     class:
       'shrink-0 bg-neutral-50 dark:bg-neutral-800 p-4 flex justify-end gap-3 border-t border-neutral-100 dark:border-neutral-700',
   },
-  mask: { class: 'bg-neutral-900/50 backdrop-blur-sm' },
+  mask: { class: MOBILE_MASK },
 } satisfies DialogPassThroughOptions;
 
 export const FloraDetailDialogPT = {
   root: {
-    class:
-      'max-w-2xl w-full max-h-[90vh] flex flex-col bg-white dark:bg-neutral-900 rounded-garden-lg shadow-2xl overflow-hidden border-0',
+    class: `max-w-2xl w-full max-h-[90vh] flex flex-col bg-white dark:bg-neutral-900 md:rounded-garden-lg shadow-2xl overflow-hidden border-0 ${MOBILE_DIALOG_ROOT}`,
   },
   header: {
     class:
@@ -79,7 +79,7 @@ export const FloraDetailDialogPT = {
     class:
       'shrink-0 bg-neutral-50 dark:bg-neutral-800 p-4 flex justify-end gap-3 border-t border-neutral-100 dark:border-neutral-700',
   },
-  mask: { class: 'bg-neutral-900/50 backdrop-blur-sm' },
+  mask: { class: MOBILE_MASK },
 } satisfies DialogPassThroughOptions;
 
 // PrimeNG v21 types ConfirmDialogPassThroughOptions.root as DialogPassThrough (a nested
@@ -88,7 +88,7 @@ export const FloraDetailDialogPT = {
 export const FloraConfirmDialogPT = {
   root: {
     class:
-      'max-w-sm w-full bg-white dark:bg-neutral-900 rounded-garden-lg shadow-2xl overflow-hidden',
+      'max-w-sm w-full bg-white dark:bg-neutral-900 md:rounded-garden-lg shadow-2xl overflow-hidden max-md:max-w-none max-md:rounded-t-garden-lg',
   },
   header: {
     class:
@@ -113,5 +113,5 @@ export const FloraConfirmDialogPT = {
         'inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-garden-sm bg-transparent text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors duration-150',
     },
   },
-  mask: { class: 'bg-neutral-900/50 backdrop-blur-sm' },
+  mask: { class: MOBILE_MASK },
 } as unknown as ConfirmDialogPassThroughOptions;

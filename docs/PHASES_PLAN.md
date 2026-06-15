@@ -377,74 +377,78 @@
 
 ## 5. Phase 5: Mobile Responsive & Touch UX
 
-- **Objective:** Make FloraFlow fully usable on smartphones — thumb-reachable navigation, touch-sized tap targets, filter sheets instead of sidebars, camera-aware photo capture, mobile-first dialog sizing, and pointer-event corrections for touch-only interactions.
+- **Objective:** Make FloraFlow fully usable on smartphones — thumb-reachable navigation, touch-sized tap targets, a filter sheet instead of the library sidebar, camera-aware photo capture, mobile-first dialog sizing, and pointer-event corrections for touch-only interactions.
+
+> **Foundation already in place — this phase is audit-and-fill, not greenfield.** `DESIGN_SYSTEM.md §8` documents the 44 px touch strategies; the `pointer-fine` variant already exists in `styles.input.css`; journal & seeds filters already use the shared `app-scroll-tabs`; `seed-batch-card` and the substrate wizard already carry Strategy-B tap-expanders. Each block notes what is already done so no effort is wasted re-doing it.
+
+> **All blocks are `/visualizer`, no DB migration.** Two shared presentational components get extracted along the way — `library-filters` (sidebar + sheet) and `photo-capture-input` (three photo surfaces) — to keep the work DRY (`CODE_RULES.md`).
 
 ### 📋 Phase 5 Tasks
 
-- [ ] **5.1 Viewport & PWA Shell Hardening** | Agent: `/visualizer`
-  - Add `viewport-fit=cover` to the `index.html` viewport meta so iOS Safari extends the layout under the notch and home indicator and reports correct safe-area insets.
-  - Add base safe-area utility classes to `styles.input.css` using `env(safe-area-inset-bottom)` so bottom-fixed elements never overlap the home indicator.
-  - Verify `manifest.webmanifest` has `"display": "standalone"` and a valid `start_url`.
+- [ ] **5.1 Viewport, Safe-Area & PWA Shell** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+  - `viewport-fit=cover` on the `index.html` viewport meta so iOS extends layout under the notch and reports safe-area insets.
+  - Safe-area utility classes in `styles.input.css` using `env(safe-area-inset-*)` for bottom-fixed elements. **`pointer-fine` already exists — do not re-add.**
+  - Verify `manifest.webmanifest` has `"display": "standalone"` + valid `start_url`.
+  - Plan: `docs/plans/phase-5/PHASE_5_1_PLAN.md`
 
-- [ ] **5.2 Responsive Bottom Navigation** | Agent: `/visualizer`
-  - On `md+` (≥768 px): keep the existing top `<header>` nav unchanged.
-  - On `<md` (<768 px): show a fixed bottom tab bar via `md:hidden` / `block md:hidden` Tailwind variants — pure CSS, no JS breakpoint observer.
-  - Bottom bar height: `calc(3.5rem + env(safe-area-inset-bottom, 0px))` so the tab bar clears the iPhone home indicator.
-  - Each tab shows a PrimeNG icon (`pi pi-*`) above a short label; active route highlighted with `text-primary-600`.
-  - All feature `<main>` wrappers gain `pb-20 md:pb-0` so content is never hidden beneath the tab bar.
-  - Top nav gains `max-md:hidden`; bottom nav gains `md:hidden` — both share the same `routerLink` + `routerLinkActive` logic.
+- [ ] **5.2 Shared Dialog PT + Slider Mobile Pass** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+  - Update **all four** dialog PT objects in `dialog.pt.ts` — `FloraDialogPT`, **`FloraFormDialogPT`** (the most-used; missing from the original plan), `FloraDetailDialogPT`, `FloraConfirmDialogPT`: on `<md` full-width + bottom-anchored (rounded top, flush bottom); `md+` unchanged.
+  - Footer slot stacks buttons full-width on `<md` (`max-md:flex-col max-md:items-stretch`) so 2–3 footer buttons never overflow; safe-area `padding-bottom`.
+  - `slider.pt.ts`: enlarge the pH handle hit area on coarse pointer (16 px → ≥ 24 px); desktop unchanged.
+  - Plan: `docs/plans/phase-5/PHASE_5_2_PLAN.md`
 
-- [ ] **5.3 Touch Target Sizing & Active Tap Feedback** | Agent: `/visualizer`
-  - All interactive controls reach a minimum 44×44 px tap zone on mobile — add `min-h-11` to PT `root` slots that currently use `h-control` (38 px) where the surrounding padding does not already cover the gap.
-  - Plant alert cards, zone cards, journal entry cards, and dashboard task chips gain `active:opacity-70 transition-opacity` so users see immediate tap feedback.
-  - Add `touch-action: manipulation` to interactive card lists (`<ul>` elements) to eliminate the 300 ms tap delay without `fastclick`.
-  - All `hover:`-only visual feedback classes gain a paired `active:` variant so touch users see the same state.
+- [ ] **5.3 Bottom Tab Bar + Mobile Utility Bar** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+  - `<md`: fixed bottom tab bar (`md:hidden`) — 5 routes (icon + label), height `calc(3.5rem + env(safe-area-inset-bottom))`, active = `text-primary-600`, `size-12` tap-expanders.
+  - `<md`: top nav collapses to a **slim bar that keeps the utility cluster** (language / theme / sign-out) right-aligned; only the route links are `max-md:hidden`. `md+`: top nav unchanged. (Material 3 "top app bar + navigation bar" — rationale + sources in the plan.)
+  - Feature `<main>` wrappers gain `pb-20 md:pb-0`; shared `routerLink`/`routerLinkActive` across both bars.
+  - Plan: `docs/plans/phase-5/PHASE_5_3_PLAN.md`
 
-- [ ] **5.4 Library Filter Bottom Sheet** | Agent: `/visualizer`
-  - On `md+`: sidebar `<aside>` unchanged (sticky, `w-52`).
-  - On `<md`: sidebar hidden (`max-md:hidden`); a "Filters" pill button appears above the results list.
-  - The pill button shows a badge with the count of active filters; badge hidden when no filters are set.
-  - Tapping the pill opens a full-width bottom sheet overlay that contains the same `<details>` filter sections.
-  - Sheet slides in from the bottom (CSS `transform` + `transition`), dismisses on outside tap or a visible "Done" button.
-  - All existing `filters()` signal logic and `clearFilters()` remain unchanged — only the presentation layer changes.
+- [ ] **5.4 Responsive Page Headers** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+  - The `flex items-start justify-between` header (title + action cluster) overflows on `<md` across dashboard, tasks, journal (worst: plant filter + Diagnose + New entry), library, seeds, zone-detail. Let the action cluster wrap/stack below the title, keeping the §6.7 ghost-button style.
+  - Plan: `docs/plans/phase-5/PHASE_5_4_PLAN.md`
 
-- [ ] **5.5 Responsive Page Layout & Overflow** | Agent: `/visualizer`
-  - Reduce side padding on mobile: `p-6` → `px-4 py-6 md:p-6` on every feature `<main>` wrapper (dashboard, tasks, journal, library, seeds, zone-detail).
-  - Dashboard header action buttons (`Add plant`, `Identify a plant`) wrap to a second row below `sm` via `flex-wrap`.
-  - Journal category tab bar gets `overflow-x-auto` with `scrollbar-gutter: stable` so tabs scroll horizontally on narrow screens without layout shift.
-  - Scheduler section-header secondary italics (`"Address first…"`, `"Monitor but no action needed yet"`) hidden on `<md` with `max-md:hidden` — recovers horizontal space for the section title and badge.
-  - Zero horizontal overflow verified on every route at 375 px viewport width.
+- [ ] **5.5 Page Padding & Overflow Sweep** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+  - `p-6` → `px-4 py-6 md:p-6` on every feature `<main>` (dashboard, tasks, journal, library, seeds, zone-detail).
+  - Scheduler section-header italic hints hidden `<md` (`max-md:hidden`).
+  - Zero horizontal overflow at 375 px on every route. **Journal/seeds tabs already responsive via `app-scroll-tabs` — no change.**
+  - Plan: `docs/plans/phase-5/PHASE_5_5_PLAN.md`
 
-- [ ] **5.6 Mobile-First Dialog Sizing** | Agent: `/visualizer`
-  - Update `FloraDialogPT`, `FloraConfirmDialogPT`, and `FloraDetailDialogPT`:
-    - `<md`: full-width, no horizontal margin, anchored to bottom (`position: fixed; bottom: 0`), top corners rounded, bottom corners flush.
-    - `md+`: centered modal unchanged (existing max-w and centered layout).
-  - Dialog content area is scrollable (`overflow-y: auto`) when the virtual keyboard shrinks the iOS Safari viewport.
-  - Bottom of dialog respects safe area: `padding-bottom: env(safe-area-inset-bottom, 0px)`.
+- [ ] **5.6 Touch Targets & Tap Feedback** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+  - Audit against `DESIGN_SYSTEM.md §8`; apply Strategy A/B where the 44 px gap isn't already covered (e.g. `plant-alert-card` edit/delete icons, library pagination `w-8 h-8`). **Skip already-done `seed-batch-card` + substrate chips.**
+  - `active:opacity-70 transition-opacity` on alert/zone/journal cards + dashboard task chips; `touch-action: manipulation` on card `<ul>` lists; pair `hover:` feedback with `active:`.
+  - Plan: `docs/plans/phase-5/PHASE_5_6_PLAN.md`
 
-- [ ] **5.7 Camera-Aware Photo Capture** | Agent: `/visualizer`
-  - In `journal-entry-form`: on `<md`, replace the single file `<input>` with two side-by-side labelled inputs:
-    - **Take photo** — `<input type="file" accept="image/*" capture="environment">`: launches the back camera directly (iOS + Android).
-    - **Choose from library** — `<input type="file" accept="image/*">`: opens the native media picker.
-  - Both inputs are visually styled as buttons via `<label>` wrappers; the raw `<input>` is visually hidden.
-  - On `md+`, the original single styled file input is shown unchanged (`max-md:hidden` / `md:block`).
-  - Both inputs call the same `onFileChange()` handler, feeding the existing canvas compression pipeline.
-  - No service or backend changes — the output blob is identical regardless of capture path.
+- [ ] **5.7 Library Filter Bottom Sheet** | Agent: `/visualizer` · Model: Opus · Effort: mid
+  - Extract a shared presentational `library-filters` component (the 9 `<details>` sections) so the desktop `<aside>` and the mobile sheet render the same markup (DRY/SRP); `library.ts` keeps `filters()`/`clearFilters()`.
+  - `<md`: hide sidebar; "Filters" pill + active-count badge above results; tap → full-width bottom sheet (CSS transform slide-up), dismiss on outside tap / "Done"; safe-area pad. `md+`: sidebar unchanged.
+  - Plan: `docs/plans/phase-5/PHASE_5_7_PLAN.md`
 
-- [ ] **5.8 Pointer Events & Hover Interaction Fixes** | Agent: `/visualizer`
-  - Replace `(mousedown)` on the library pH slider wrapper with `(pointerdown)` so the active-handle tracker fires on both mouse drag and touch drag.
-  - Convert the five CSS hover-only tooltips in the library filter sidebar (watering, sunlight, pet toxicity, lifecycle, soil pH) from `group-hover:visible` to a `signal<boolean>` tap-toggle per tooltip button.
-  - Each tooltip closes when another opens, and closes on a `(document:click)` listener so tapping outside dismisses it.
-  - Audit remaining `hover:` classes app-wide: any that reveal information (not just colour/opacity) gain a `focus-visible:` twin so keyboard and touch users always see the same content.
+- [ ] **5.8 Zone-Detail Card Footer Restructure** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+  - The zone-detail plant-card footer packs **7 actions in a non-wrapping row** → overflow at 375 px. Restructure for `<md`: keep primary "Check soil" prominent; secondary actions wrap or group. Preserve `z-20` layering over the card-cover button and the care-tips accordion.
+  - Plan: `docs/plans/phase-5/PHASE_5_8_PLAN.md`
 
-### 🔒 Phase 5 QA Criteria
+- [ ] **5.9 Camera-Aware Photo Capture (3 surfaces)** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+  - Extract a shared `photo-capture-input` component: `<md` shows **Take photo** (`capture="environment"`) + **Choose from library**; `md+` keeps the single styled trigger. Same `onFileChange` contract + canvas compression.
+  - Wire into **all three** surfaces: `journal-entry-form`, `plant-identifier-dialog` (replaces desktop-only drag-drop on `<md`), `leaf-doctor-dialog`.
+  - Plan: `docs/plans/phase-5/PHASE_5_9_PLAN.md`
 
-1. Chrome DevTools mobile emulation at 375×812 (iPhone 12): zero horizontal overflow on every route; all five bottom nav tabs reachable without scrolling.
-2. Journal entry form on touch emulation: **Take photo** triggers camera; **Choose from library** opens media picker — both produce a compressed image that appears in `compressedLabel()`.
-3. Library pH slider: drag-able with touch emulation (DevTools Sensors → Touch) without releasing unintentionally.
-4. Library at 375 px: filter sheet opens and closes correctly; one-column results grid; no sidebar overflow.
-5. All dialogs at 375 px: full-width, not clipped horizontally; Notes textarea scrollable with virtual keyboard open.
-6. `bun run lint` — zero errors after all Phase 5 code.
+- [ ] **5.10 Pointer/Hover Fixes + Carousel Swipe** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+  - Library pH slider wrapper `(mousedown)` → `(pointerdown)`.
+  - Library filter info tooltips: convert the current `(mouseenter)/(mouseleave)` popups (**not** `group-hover`) to a `signal<boolean>` tap-toggle; one open at a time; close on `(document:click)`.
+  - `species-photo-carousel`: add touch swipe + 44 px arrows on coarse pointer.
+  - App-wide: `hover:`-reveal-information classes get a `focus-visible:` twin.
+  - Plan: `docs/plans/phase-5/PHASE_5_10_PLAN.md`
+
+### 🔒 Phase 5 QA Acceptance Criteria
+
+1. DevTools 375×812 (iPhone 12): zero horizontal overflow on every route; all five bottom-nav tabs reachable by thumb; language/theme/sign-out still reachable on mobile.
+2. All four dialog PT types at 375 px: bottom-anchored, full-width, footer buttons stacked full-width; content scrollable with the virtual keyboard open.
+3. Zone-detail plant card at 375 px: all actions reachable, no horizontal overflow, primary action obvious; card-cover tap still opens the species dialog.
+4. All three photo surfaces (journal entry, plant identifier, Leaf Doctor) on touch emulation: **Take photo** triggers the camera; **Choose from library** opens the picker; both yield a compressed image.
+5. Library at 375 px: filter pill + active-count badge; sheet opens/closes; one-column results; no sidebar overflow. Desktop sidebar unchanged.
+6. pH slider draggable via touch without unintended release; filter info tooltips tappable; species carousel swipeable.
+7. Tap targets ≥ 44 px on coarse pointer across cards, nav, dialogs, and pagination.
+8. `bun run lint` — zero errors after all Phase 5 code.
 
 ---
 

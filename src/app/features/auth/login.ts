@@ -38,6 +38,7 @@ export class LoginComponent {
   });
 
   readonly loading = signal(false);
+  readonly googleLoading = signal(false);
   readonly authError = signal('');
 
   get email() {
@@ -72,5 +73,15 @@ export class LoginComponent {
     }
 
     await this.router.navigate(['/dashboard']);
+  }
+
+  async onGoogleSignIn(): Promise<void> {
+    this.googleLoading.set(true);
+    this.authError.set('');
+    const { error } = await this.supabase.signInWithOAuth();
+    if (error) {
+      this.authError.set(error.message);
+      this.googleLoading.set(false);
+    }
   }
 }

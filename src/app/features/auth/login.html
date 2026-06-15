@@ -115,6 +115,30 @@
       </section>
     </form>
 
+    <div class="my-6 flex items-center gap-3" aria-hidden="true">
+      <span class="h-px flex-1 bg-neutral-200 dark:bg-neutral-700"></span>
+      <span
+        class="text-xs font-display uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
+      >
+        {{ 'auth.login.orDivider' | transloco }}
+      </span>
+      <span class="h-px flex-1 bg-neutral-200 dark:bg-neutral-700"></span>
+    </div>
+
+    <p-button
+      type="button"
+      (onClick)="onGoogleSignIn()"
+      [label]="'auth.login.googleButton' | transloco"
+      icon="pi pi-google"
+      variant="outlined"
+      [pt]="FloraButtonPT"
+      [loading]="googleLoading()"
+      [disabled]="googleLoading() || loading()"
+      [ariaLabel]="'auth.login.googleAriaLabel' | transloco"
+      class="w-full"
+      styleClass="w-full justify-center"
+    />
+
     <p class="mt-6 text-sm text-neutral-500 dark:text-neutral-400 font-display text-center">
       {{ 'auth.login.dontHaveAccount' | transloco }}
       <a routerLink="/register" class="text-primary-600 dark:text-primary-400 hover:underline">

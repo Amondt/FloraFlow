@@ -8,7 +8,7 @@
 
 ---
 
-- [ ] **Block A — `SupabaseService.signInWithOAuth()`** | Agent: `/plumber` · Model: Sonnet · Effort: low
+- [x] **Block A — `SupabaseService.signInWithOAuth()`** | Agent: `/plumber` · Model: Sonnet · Effort: low
   - Add `async signInWithOAuth()` to `src/app/core/services/supabase.service.ts`, placed after `signUp()` and mirroring the `{ error }` shape of `signOut()`:
     ```ts
     async signInWithOAuth(): Promise<{ error: AuthError | null }> {
@@ -34,7 +34,7 @@ No browser check here — service method only. The end-to-end OAuth flow is exer
 
 ---
 
-- [ ] **Block B — Google Cloud + local Supabase provider config** | _user-run setup · no app code_
+- [x] **Block B — Google Cloud + local Supabase provider config** | _user-run setup · no app code_
   - One-time external wiring. Paste-ready values below; the secret never enters git.
 
   **1. Google Cloud Console** (`https://console.cloud.google.com`)
@@ -88,7 +88,7 @@ No browser check here — service method only. The end-to-end OAuth flow is exer
 
 ---
 
-- [ ] **Block C — Login page button + "or" divider + i18n** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **Block C — Login page button + "or" divider + i18n** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - **Login page only.** The register page deliberately does not get this button — out of scope for 4.6.
 
   **`src/app/features/auth/login.ts`**
@@ -121,6 +121,7 @@ No browser check here — service method only. The end-to-end OAuth flow is exer
     </div>
     ```
   - **Google button** — reuse `FloraButtonPT` with `variant="outlined"` (no new PT object; the outlined branch already handles dark-mode hover):
+
     ```html
     <p-button
       type="button"

@@ -44,7 +44,10 @@
       "emailInvalid": "Please enter a valid email address.",
       "passwordRequired": "Password is required.",
       "dontHaveAccount": "Don't have an account?",
-      "createOneLink": "Create one"
+      "createOneLink": "Create one",
+      "orDivider": "or",
+      "googleButton": "Continue with Google",
+      "googleAriaLabel": "Sign in to FloraFlow with Google"
     },
     "register": {
       "title": "Create your FloraFlow account",

@@ -44,7 +44,10 @@
       "emailInvalid": "Voer een geldig e-mailadres in.",
       "passwordRequired": "Wachtwoord is verplicht.",
       "dontHaveAccount": "Heeft u geen account?",
-      "createOneLink": "Account aanmaken"
+      "createOneLink": "Account aanmaken",
+      "orDivider": "of",
+      "googleButton": "Doorgaan met Google",
+      "googleAriaLabel": "Inloggen bij FloraFlow met Google"
     },
     "register": {
       "title": "Uw FloraFlow-account aanmaken",

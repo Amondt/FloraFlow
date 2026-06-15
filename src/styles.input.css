@@ -42,6 +42,13 @@
   --height-control: 2.375rem;
 }
 
+/* Prevent horizontal scroll on all viewports — PWA shell requirement.
+   The body must never scroll horizontally; any overflow is clipped. */
+html,
+body {
+  overflow-x: hidden;
+}
+
 /* Dark mode */
 @variant dark (&:where(.dark, .dark *));
 

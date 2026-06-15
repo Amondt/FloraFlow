@@ -55,6 +55,14 @@ export class SupabaseService {
     return { error, needsEmailConfirmation };
   }
 
+  async signInWithOAuth(): Promise<{ error: AuthError | null }> {
+    const { error } = await this.client.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${window.location.origin}/dashboard` },
+    });
+    return { error };
+  }
+
   async signOut(): Promise<{ error: AuthError | null }> {
     const { error } = await this.client.auth.signOut();
     return { error };

@@ -1,0 +1,89 @@
+<nav
+  class="md:hidden fixed inset-x-0 bottom-0 z-40 h-bottom-nav pb-safe flex items-stretch border-t border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800"
+  [attr.aria-label]="'nav.bottomAriaLabel' | transloco"
+>
+  <a
+    [routerLink]="'/dashboard'"
+    [routerLinkActive]="tabActive"
+    ariaCurrentWhenActive="page"
+    [class]="tabBase"
+    [attr.aria-label]="'nav.dashboard' | transloco"
+  >
+    <span
+      aria-hidden="true"
+      class="absolute top-1/2 left-1/2 size-12 -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"
+    ></span>
+    <i class="pi pi-home text-lg" aria-hidden="true"></i>
+    <span class="text-[0.6875rem] font-display font-medium leading-none">{{
+      'nav.dashboard' | transloco
+    }}</span>
+  </a>
+
+  <a
+    [routerLink]="'/tasks'"
+    [routerLinkActive]="tabActive"
+    ariaCurrentWhenActive="page"
+    [class]="tabBase"
+    [attr.aria-label]="'nav.tasks' | transloco"
+  >
+    <span
+      aria-hidden="true"
+      class="absolute top-1/2 left-1/2 size-12 -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"
+    ></span>
+    <i class="pi pi-check-square text-lg" aria-hidden="true"></i>
+    <span class="text-[0.6875rem] font-display font-medium leading-none">{{
+      'nav.tasks' | transloco
+    }}</span>
+  </a>
+
+  <a
+    [routerLink]="'/journal'"
+    [routerLinkActive]="tabActive"
+    ariaCurrentWhenActive="page"
+    [class]="tabBase"
+    [attr.aria-label]="'nav.journal' | transloco"
+  >
+    <span
+      aria-hidden="true"
+      class="absolute top-1/2 left-1/2 size-12 -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"
+    ></span>
+    <i class="pi pi-book text-lg" aria-hidden="true"></i>
+    <span class="text-[0.6875rem] font-display font-medium leading-none">{{
+      'nav.journal' | transloco
+    }}</span>
+  </a>
+
+  <a
+    [routerLink]="'/library'"
+    [routerLinkActive]="tabActive"
+    ariaCurrentWhenActive="page"
+    [class]="tabBase"
+    [attr.aria-label]="'nav.library' | transloco"
+  >
+    <span
+      aria-hidden="true"
+      class="absolute top-1/2 left-1/2 size-12 -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"
+    ></span>
+    <i class="pi pi-th-large text-lg" aria-hidden="true"></i>
+    <span class="text-[0.6875rem] font-display font-medium leading-none">{{
+      'nav.library' | transloco
+    }}</span>
+  </a>
+
+  <a
+    [routerLink]="'/seeds'"
+    [routerLinkActive]="tabActive"
+    ariaCurrentWhenActive="page"
+    [class]="tabBase"
+    [attr.aria-label]="'nav.seeds' | transloco"
+  >
+    <span
+      aria-hidden="true"
+      class="absolute top-1/2 left-1/2 size-12 -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"
+    ></span>
+    <i class="pi pi-inbox text-lg" aria-hidden="true"></i>
+    <span class="text-[0.6875rem] font-display font-medium leading-none">{{
+      'nav.seeds' | transloco
+    }}</span>
+  </a>
+</nav>

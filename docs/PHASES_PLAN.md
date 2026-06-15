@@ -385,7 +385,7 @@
 
 ### 📋 Phase 5 Tasks
 
-- [ ] **5.1 Viewport, Safe-Area & PWA Shell** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+- [x] **5.1 Viewport, Safe-Area & PWA Shell** | Agent: `/visualizer` · Model: Sonnet · Effort: low
   - `viewport-fit=cover` on the `index.html` viewport meta so iOS extends layout under the notch and reports safe-area insets.
   - Safe-area utility classes in `styles.input.css` using `env(safe-area-inset-*)` for bottom-fixed elements. **`pointer-fine` already exists — do not re-add.**
   - Verify `manifest.webmanifest` has `"display": "standalone"` + valid `start_url`.
@@ -397,7 +397,7 @@
   - `slider.pt.ts`: enlarge the pH handle hit area on coarse pointer (16 px → ≥ 24 px); desktop unchanged.
   - Plan: `docs/plans/phase-5/PHASE_5_2_PLAN.md`
 
-- [ ] **5.3 Bottom Tab Bar + Mobile Utility Bar** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **5.3 Bottom Tab Bar + Mobile Utility Bar** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - `<md`: fixed bottom tab bar (`md:hidden`) — 5 routes (icon + label), height `calc(3.5rem + env(safe-area-inset-bottom))`, active = `text-primary-600`, `size-12` tap-expanders.
   - `<md`: top nav collapses to a **slim bar that keeps the utility cluster** (language / theme / sign-out) right-aligned; only the route links are `max-md:hidden`. `md+`: top nav unchanged. (Material 3 "top app bar + navigation bar" — rationale + sources in the plan.)
   - Feature `<main>` wrappers gain `pb-20 md:pb-0`; shared `routerLink`/`routerLinkActive` across both bars.

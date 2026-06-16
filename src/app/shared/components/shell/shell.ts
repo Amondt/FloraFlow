@@ -3,6 +3,7 @@ import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs';
 import { NavComponent } from '../nav/nav';
+import { BottomNavComponent } from '../bottom-nav/bottom-nav';
 import { NetworkStatusService } from '../../../core/services/network-status.service';
 import { OfflineQueueService } from '../../../core/services/offline-queue.service';
 import { PushNotificationService } from '../../../core/services/push-notification.service';
@@ -12,7 +13,7 @@ import { ZoneService } from '../../../features/dashboard/zone.service';
 @Component({
   selector: 'app-shell',
   standalone: true,
-  imports: [RouterOutlet, NavComponent],
+  imports: [RouterOutlet, NavComponent, BottomNavComponent],
   templateUrl: './shell.html',
 })
 export class ShellComponent {

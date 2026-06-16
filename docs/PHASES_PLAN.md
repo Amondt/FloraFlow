@@ -391,7 +391,7 @@
   - Verify `manifest.webmanifest` has `"display": "standalone"` + valid `start_url`.
   - Plan: `docs/plans/phase-5/PHASE_5_1_PLAN.md`
 
-- [ ] **5.2 Shared Dialog PT + Slider Mobile Pass** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **5.2 Shared Dialog PT + Slider Mobile Pass** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - Update **all four** dialog PT objects in `dialog.pt.ts` — `FloraDialogPT`, **`FloraFormDialogPT`** (the most-used; missing from the original plan), `FloraDetailDialogPT`, `FloraConfirmDialogPT`: on `<md` full-width + bottom-anchored (rounded top, flush bottom); `md+` unchanged.
   - Footer slot stacks buttons full-width on `<md` (`max-md:flex-col max-md:items-stretch`) so 2–3 footer buttons never overflow; safe-area `padding-bottom`.
   - `slider.pt.ts`: enlarge the pH handle hit area on coarse pointer (16 px → ≥ 24 px); desktop unchanged.
@@ -403,7 +403,7 @@
   - Feature `<main>` wrappers gain `pb-20 md:pb-0`; shared `routerLink`/`routerLinkActive` across both bars.
   - Plan: `docs/plans/phase-5/PHASE_5_3_PLAN.md`
 
-- [ ] **5.4 Responsive Page Headers** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **5.4 Responsive Page Headers** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - The `flex items-start justify-between` header (title + action cluster) overflows on `<md` across dashboard, tasks, journal (worst: plant filter + Diagnose + New entry), library, seeds, zone-detail. Let the action cluster wrap/stack below the title, keeping the §6.7 ghost-button style.
   - Plan: `docs/plans/phase-5/PHASE_5_4_PLAN.md`
 

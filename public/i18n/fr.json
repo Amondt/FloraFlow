@@ -19,11 +19,13 @@
   },
   "nav": {
     "ariaLabel": "Navigation principale",
-    "dashboard": "Tableau de bord",
+    "homeAriaLabel": "FloraFlow — aller au Dashboard",
+    "dashboard": "Dashboard",
     "tasks": "Tâches",
     "journal": "Journal",
     "library": "Bibliothèque",
     "seeds": "Graines",
+    "bottomAriaLabel": "Navigation primaire",
     "signOut": "Se déconnecter",
     "signOutAriaLabel": "Se déconnecter de FloraFlow"
   },
@@ -94,7 +96,7 @@
       "title": "Tout est prêt !",
       "body": "Votre première zone est prête. Commencez à ajouter des plantes et à suivre leurs soins.",
       "cta": "Entrer dans votre serre",
-      "ctaAriaLabel": "Entrer dans votre serre et accéder au tableau de bord"
+      "ctaAriaLabel": "Entrer dans votre serre et accéder au Dashboard"
     }
   },
   "dashboard": {
@@ -216,8 +218,8 @@
     },
     "detail": {
       "breadcrumbAriaLabel": "Fil d'Ariane",
-      "backToDashboard": "← Tableau de bord",
-      "backToDashboardAriaLabel": "Retour au tableau de bord",
+      "backToDashboard": "← Dashboard",
+      "backToDashboardAriaLabel": "Retour au Dashboard",
       "loadingZoneAriaLabel": "Chargement de la zone",
       "loadingPlantsAriaLabel": "Chargement des plantes",
       "editZone": "Modifier la zone",
@@ -364,9 +366,9 @@
     "addPlantDisabledAriaLabel": "Ajouter une plante — ajoutez d'abord une zone",
     "addPlantAriaLabel": "Ajouter une nouvelle plante à votre serre",
     "addZoneFirst": "Ajoutez d'abord une zone",
-    "noZonesText": "Aucune zone configurée. Ajoutez une zone sur le tableau de bord avant de suivre des plantes.",
-    "goToDashboard": "Aller au tableau de bord",
-    "goToDashboardAriaLabel": "Aller au tableau de bord pour créer votre première zone",
+    "noZonesText": "Aucune zone configurée. Ajoutez une zone sur le Dashboard avant de suivre des plantes.",
+    "goToDashboard": "Aller au Dashboard",
+    "goToDashboardAriaLabel": "Aller au Dashboard pour créer votre première zone",
     "noPlantsText": "Aucune plante. Ajoutez votre première plante pour commencer le suivi.",
     "addFirstPlant": "Ajouter ma première plante",
     "addFirstPlantAriaLabel": "Ajouter ma première plante à mes tâches",

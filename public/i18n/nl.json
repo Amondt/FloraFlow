@@ -19,11 +19,13 @@
   },
   "nav": {
     "ariaLabel": "Hoofdnavigatie",
+    "homeAriaLabel": "FloraFlow — ga naar dashboard",
     "dashboard": "Dashboard",
     "tasks": "Taken",
     "journal": "Dagboek",
     "library": "Bibliotheek",
     "seeds": "Zaden",
+    "bottomAriaLabel": "Primaire navigatie",
     "signOut": "Uitloggen",
     "signOutAriaLabel": "Uitloggen bij FloraFlow"
   },

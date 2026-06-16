@@ -43,4 +43,19 @@ export class PlantSelectComponent {
   hide(): void {
     this._select()?.hide();
   }
+
+  /**
+   * On the mobile bottom-sheet variant (`ghost`), PrimeNG auto-scrolls the previously
+   * selected option into view, which can leave the sheet opened mid-list with a sliver
+   * of the prior group's last row peeking above the new sticky group header. A filter
+   * sheet should always open at the top of the first group, so force scrollTop back to 0.
+   * `flora-select-sheet-list` is a marker class set on the ghost PT's listContainer slot
+   * (select.pt.ts) — not a Tailwind utility — purely so we can query it here.
+   */
+  protected onPanelShow(): void {
+    if (!this.ghost()) return;
+    requestAnimationFrame(() => {
+      document.querySelector<HTMLElement>('.flora-select-sheet-list')?.scrollTo({ top: 0 });
+    });
+  }
 }

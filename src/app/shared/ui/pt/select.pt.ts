@@ -66,15 +66,31 @@ export const FloraSelectGhostPT = {
   dropdown: { class: 'flex items-center shrink-0 text-neutral-400 dark:text-neutral-500' },
   pcOverlay: {
     root: {
-      class:
+      class: [
         'mt-1 min-w-56 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md shadow-xl z-50 overflow-hidden',
+        // Mobile bottom sheet: override PrimeNG's inline absolute positioning with !important
+        // utilities so the panel anchors full-width to the bottom of the screen (thumb-reachable).
+        'max-md:!fixed max-md:!inset-x-0 max-md:!left-0 max-md:!right-0 max-md:!top-auto max-md:!bottom-0',
+        'max-md:!min-w-0 max-md:!w-full max-md:!max-w-none max-md:!mt-0',
+        'max-md:rounded-b-none max-md:rounded-t-garden-lg max-md:border-x-0 max-md:border-b-0 max-md:shadow-2xl max-md:pb-safe',
+        'max-md:animate-[flora-sheet-up_0.22s_ease-out]',
+      ].join(' '),
     },
   },
-  listContainer: { class: 'max-h-64 overflow-y-auto' },
-  list: { class: 'py-1' },
+  // flora-select-sheet-list is a marker class (not a Tailwind utility) so plant-select.ts can
+  // reset scrollTop to 0 on open — see onPanelShow() there for why that's needed.
+  listContainer: { class: 'flora-select-sheet-list max-h-64 overflow-y-auto max-md:max-h-[60vh]' },
+  // No vertical padding here — the sticky optionGroup header (top-0) must sit flush against
+  // the listContainer's own top edge. A py-1 here would leave a borderless gap above the
+  // header where the previous group's last row, still in normal flow just above the sticky
+  // point, peeks through. First/last option padding below makes up the lost breathing room.
+  list: { class: '' },
   option: ({ context = { selected: false } }: { context?: { selected: boolean } } = {}) => ({
     class: [
-      'px-3 py-2 text-sm cursor-pointer font-display',
+      // pointer-coarse:py-3 lifts touch rows to the 44px floor; desktop stays compact.
+      // first:mt-1 last:mb-1 replaces the old list-level py-1 without leaving a gap above
+      // the sticky group header (see the `list` slot comment).
+      'px-3 py-2 pointer-coarse:py-3 first:mt-1 last:mb-1 text-sm cursor-pointer font-display',
       'text-neutral-700 dark:text-neutral-200',
       FLORA_HOVER,
       {

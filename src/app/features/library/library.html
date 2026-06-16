@@ -1,7 +1,10 @@
-<main class="p-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen" aria-labelledby="library-heading">
+<main
+  class="p-6 pb-20 md:pb-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen"
+  aria-labelledby="library-heading"
+>
   <div class="max-w-5xl mx-auto">
     <!-- Page header -->
-    <header class="mb-10 flex items-start justify-between gap-4">
+    <header class="mb-10 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
       <div class="min-w-0">
         <p
           class="text-xs font-semibold uppercase tracking-widest text-primary-600 dark:text-primary-400 font-display mb-1"
@@ -18,7 +21,7 @@
           {{ 'library.description' | transloco }}
         </p>
       </div>
-      <div class="flex items-center gap-3 shrink-0">
+      <div class="flex items-center gap-3">
         <button
           type="button"
           class="cursor-pointer inline-flex flex-shrink-0 items-center gap-1.5 text-sm font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded px-2 py-1"

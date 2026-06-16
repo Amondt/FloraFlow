@@ -15,6 +15,7 @@
   [placeholder]="placeholder()"
   [attr.aria-required]="required() ? true : null"
   appendTo="body"
+  (onShow)="onPanelShow()"
 >
   <ng-template let-group #group>
     @if (group.label) {

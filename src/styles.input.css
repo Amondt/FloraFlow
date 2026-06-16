@@ -137,6 +137,15 @@ input[type='search']::-webkit-search-cancel-button:hover {
   }
 }
 
+/* Prevent touch "rubber-band" overscroll from revealing page background below the fixed
+   bottom-nav bar on mobile — scrolling past the bottom of the document briefly exposes
+   whatever's behind position:fixed elements until the bounce settles back. Vertical-only
+   so horizontal swipe gestures (carousels, scroll-tabs) are unaffected. */
+html,
+body {
+  overscroll-behavior-y: none;
+}
+
 /* pTooltip (appendTo="body") — renders in document.body, escapes overflow containers.
    PrimeNG unstyled mode produces no default visual; these rules provide the FloraFlow style.
    position: absolute is required — without it the tooltip renders as a static block in the
@@ -218,12 +227,25 @@ textarea.flora-scrollbar::-webkit-resizer {
   height: calc(3.5rem + env(safe-area-inset-bottom, 0px));
 }
 
-/* Lock body scroll while any PrimeNG dialog mask is mounted in the DOM.
-   p-dialog-mask is always present on the mask element when a p-dialog or p-confirmdialog is open.
+/* Lock body scroll while any dialog mask is mounted in the DOM.
+   `flora-dialog-mask` is applied via the shared mask PT in dialog.pt.ts — every p-dialog and
+   p-confirmdialog carries it. We use our own marker class because PrimeNG strips its native
+   `p-dialog-mask` class in unstyled mode, so that selector never matches.
    :has() is supported in all evergreen browsers (Chrome 105+, Safari 15.4+, Firefox 121+).
    This replaces needing blockScroll=true on every dialog template. */
-html:has(.p-dialog-mask) {
+html:has(.flora-dialog-mask) {
   overflow: hidden;
+}
+
+/* Slide-up entry for the mobile bottom-sheet variant of the ghost select overlay
+   (journal plant filter). Scoped to <md via the max-md: animate utility in select.pt.ts. */
+@keyframes flora-sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 
 /* Plant thumbnail placeholder — diagonal stripe pattern used in tasks rows and soil-check dialog */

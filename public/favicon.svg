@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="FloraFlow">
+  <defs>
+    <linearGradient id="ff-bg" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#10b981" />
+      <stop offset="1" stop-color="#047857" />
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" rx="11" fill="url(#ff-bg)" />
+  <path d="M9 39 C 9 21, 21 9, 39 9 C 39 27, 27 39, 9 39 Z" fill="#ffffff" />
+  <path d="M14.5 33.5 C 24 30, 20.5 19.5, 33 14.5" fill="none" stroke="#047857" stroke-width="2.4" stroke-linecap="round" />
+</svg>

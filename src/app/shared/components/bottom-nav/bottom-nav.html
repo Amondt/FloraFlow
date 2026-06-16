@@ -14,9 +14,7 @@
       class="absolute top-1/2 left-1/2 size-12 -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"
     ></span>
     <i class="pi pi-home text-lg" aria-hidden="true"></i>
-    <span class="text-[0.6875rem] font-display font-medium leading-none">{{
-      'nav.dashboard' | transloco
-    }}</span>
+    <span [class]="tabLabel">{{ 'nav.dashboard' | transloco }}</span>
   </a>
 
   <a
@@ -31,9 +29,7 @@
       class="absolute top-1/2 left-1/2 size-12 -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"
     ></span>
     <i class="pi pi-check-square text-lg" aria-hidden="true"></i>
-    <span class="text-[0.6875rem] font-display font-medium leading-none">{{
-      'nav.tasks' | transloco
-    }}</span>
+    <span [class]="tabLabel">{{ 'nav.tasks' | transloco }}</span>
   </a>
 
   <a
@@ -48,9 +44,7 @@
       class="absolute top-1/2 left-1/2 size-12 -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"
     ></span>
     <i class="pi pi-book text-lg" aria-hidden="true"></i>
-    <span class="text-[0.6875rem] font-display font-medium leading-none">{{
-      'nav.journal' | transloco
-    }}</span>
+    <span [class]="tabLabel">{{ 'nav.journal' | transloco }}</span>
   </a>
 
   <a
@@ -65,9 +59,7 @@
       class="absolute top-1/2 left-1/2 size-12 -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"
     ></span>
     <i class="pi pi-th-large text-lg" aria-hidden="true"></i>
-    <span class="text-[0.6875rem] font-display font-medium leading-none">{{
-      'nav.library' | transloco
-    }}</span>
+    <span [class]="tabLabel">{{ 'nav.library' | transloco }}</span>
   </a>
 
   <a
@@ -82,8 +74,6 @@
       class="absolute top-1/2 left-1/2 size-12 -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"
     ></span>
     <i class="pi pi-inbox text-lg" aria-hidden="true"></i>
-    <span class="text-[0.6875rem] font-display font-medium leading-none">{{
-      'nav.seeds' | transloco
-    }}</span>
+    <span [class]="tabLabel">{{ 'nav.seeds' | transloco }}</span>
   </a>
 </nav>

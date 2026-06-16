@@ -1,6 +1,9 @@
-<main class="p-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen" aria-labelledby="tasks-heading">
+<main
+  class="p-6 pb-20 md:pb-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen"
+  aria-labelledby="tasks-heading"
+>
   <div class="max-w-5xl mx-auto">
-    <header class="mb-8 flex items-start justify-between gap-4">
+    <header class="mb-8 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
       <div>
         <p
           class="text-xs font-semibold uppercase tracking-widest text-primary-600 dark:text-primary-400 font-display mb-1"
@@ -29,7 +32,7 @@
           </p>
         }
       </div>
-      <div class="relative shrink-0">
+      <div class="relative">
         <button
           type="button"
           [disabled]="!hasZones()"

@@ -17,4 +17,12 @@ export class BottomNavComponent {
   ].join(' ');
 
   protected readonly tabActive = '!text-primary-600 dark:!text-primary-400';
+
+  // truncate (not wrap) — longer FR/NL translations would otherwise wrap to two lines and
+  // break the bar's fixed height; max-w-full lets it shrink within the flex-1 tab instead
+  // of overflowing. leading-tight (not leading-none) — truncate's overflow-hidden clips to
+  // the line box, and leading-none's line-height (1) is too tight to fit descenders (g, y),
+  // shaving their tails off.
+  protected readonly tabLabel =
+    'max-w-full truncate text-[0.6875rem] font-display font-medium leading-tight';
 }

@@ -1,11 +1,21 @@
 <header
   class="w-full bg-white dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700"
 >
-  <nav class="px-6 flex items-stretch" [attr.aria-label]="'nav.ariaLabel' | transloco">
+  <nav class="px-3 lg:px-6 flex items-stretch" [attr.aria-label]="'nav.ariaLabel' | transloco">
+    <a
+      [routerLink]="'/dashboard'"
+      class="flex items-center pr-4 shrink-0 max-md:flex-1 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
+      [attr.aria-label]="'nav.homeAriaLabel' | transloco"
+    >
+      <!-- Wordmark shows on mobile (own row) and on wide desktop (≥lg, plenty of room);
+           hidden between md and lg where it would otherwise squeeze the nav links + utility
+           cluster (icon mark alone still carries the brand at that width). -->
+      <app-logo wordmarkClass="hidden max-md:inline lg:inline text-lg" />
+    </a>
     <!-- Scrollable links: overflow-x-auto is scoped here so it never clips
          the absolutely-positioned language-switcher dropdown outside this div. -->
     <div
-      class="flex items-stretch flex-1 min-w-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      class="max-md:hidden flex items-stretch flex-1 min-w-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
       <a
         [routerLink]="'/dashboard'"

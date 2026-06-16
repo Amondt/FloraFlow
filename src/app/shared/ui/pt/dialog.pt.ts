@@ -1,7 +1,10 @@
 import type { DialogPassThroughOptions } from 'primeng/dialog';
 import type { ConfirmDialogPassThroughOptions } from 'primeng/confirmdialog';
 
-const MOBILE_MASK = 'bg-neutral-900/50 backdrop-blur-sm max-md:!items-end';
+// `flora-dialog-mask` is a self-owned marker (not a Tailwind class) that the global
+// scroll-lock rule in styles.input.css targets. PrimeNG's own `p-dialog-mask` class is
+// stripped in unstyled mode, so we cannot rely on it for the `html:has(...)` selector.
+const MOBILE_MASK = 'flora-dialog-mask bg-neutral-900/50 backdrop-blur-sm max-md:!items-end';
 const MOBILE_DIALOG_ROOT = 'max-md:max-w-none max-md:rounded-t-garden-lg max-md:max-h-[92vh]';
 const MOBILE_FOOTER = 'max-md:flex-col max-md:items-stretch max-md:pb-safe-4';
 

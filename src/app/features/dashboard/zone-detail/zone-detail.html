@@ -1,5 +1,5 @@
 <main
-  class="p-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen"
+  class="p-6 pb-20 md:pb-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen"
   [attr.aria-labelledby]="zone() ? 'zone-detail-heading' : null"
 >
   <div class="max-w-5xl mx-auto">
@@ -59,7 +59,7 @@
           : z.window_orientation;
 
       <header class="mt-6 mb-8">
-        <div class="flex items-start justify-between gap-4">
+        <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <h1
             id="zone-detail-heading"
             class="text-3xl font-semibold font-display text-neutral-900 dark:text-white"
@@ -152,7 +152,7 @@
       <!-- ── Plants section ──────────────────────────────────────── -->
       <section aria-labelledby="plants-heading" [attr.aria-busy]="plantService.loading()">
         <!-- Section header: count + New plant button -->
-        <header class="flex items-center justify-between mb-4">
+        <header class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
           <h2
             id="plants-heading"
             class="text-xs font-semibold uppercase tracking-widest font-display text-neutral-500 dark:text-neutral-400"

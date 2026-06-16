@@ -5,6 +5,7 @@ import { FLORA_HOVER } from '../../ui/pt/states.pt';
 import { ThemeToggleComponent } from '../theme-toggle/theme-toggle';
 import { LanguageSwitcherComponent } from '../language-switcher/language-switcher';
 import { SignOutButtonComponent } from '../sign-out-button/sign-out-button';
+import { LogoComponent } from '../logo/logo';
 
 @Component({
   selector: 'app-nav',
@@ -15,13 +16,17 @@ import { SignOutButtonComponent } from '../sign-out-button/sign-out-button';
     ThemeToggleComponent,
     LanguageSwitcherComponent,
     SignOutButtonComponent,
+    LogoComponent,
     TranslocoPipe,
   ],
   templateUrl: './nav.html',
 })
 export class NavComponent {
+  // px-2 between md and lg — that band is tight: 5 tab links + the language/theme/sign-out
+  // cluster competing for the same row, and longer translations (French) overflow it first.
+  // lg: regains the roomier px-4 once the viewport has space to spare.
   protected readonly linkBase = [
-    'inline-flex items-center h-14 px-4 -mb-px whitespace-nowrap',
+    'inline-flex items-center h-14 px-2 lg:px-4 -mb-px whitespace-nowrap',
     'text-sm font-medium font-display',
     'text-neutral-600 dark:text-neutral-300',
     'border-b-2 border-transparent',

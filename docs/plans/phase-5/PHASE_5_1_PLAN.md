@@ -8,24 +8,28 @@
 
 ---
 
-- [ ] **Block A — Viewport meta** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+- [x] **Block A — Viewport meta** | Agent: `/visualizer` · Model: Sonnet · Effort: low
   - `src/index.html` — change the viewport meta to opt into the safe-area model:
     ```html
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     ```
   - Without `viewport-fit=cover`, iOS Safari letterboxes the page and `env(safe-area-inset-*)` all report `0` — so this must land before the safe-area utilities are meaningful.
 
-- [ ] **Block B — Safe-area utilities** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+- [x] **Block B — Safe-area utilities** | Agent: `/visualizer` · Model: Sonnet · Effort: low
   - `src/styles.input.css` — add small utilities the bottom-fixed components compose. Keep them lean (one purpose each):
     ```css
     /* Safe-area helpers — Phase 5 bottom-fixed elements (tab bar, bottom-anchored dialogs, filter sheet).
        env() resolves to 0 on devices without insets, so these are no-ops on desktop. */
-    .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
-    .h-bottom-nav { height: calc(3.5rem + env(safe-area-inset-bottom, 0px)); }
+    .pb-safe {
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    .h-bottom-nav {
+      height: calc(3.5rem + env(safe-area-inset-bottom, 0px));
+    }
     ```
   - Rationale: centralising the inset math here means 5.2/5.3/5.7 reference one source instead of repeating the `calc()`/`env()` expression (DRY).
 
-- [ ] **Block C — Manifest sanity check** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+- [x] **Block C — Manifest sanity check** | Agent: `/visualizer` · Model: Sonnet · Effort: low
   - Open `public/manifest.webmanifest`; confirm `"display": "standalone"` and a valid `"start_url"` (e.g. `"/"` or `"/dashboard"`). Add/fix only if wrong — no change if already correct.
 
 **Verification:**

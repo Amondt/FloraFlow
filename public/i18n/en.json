@@ -19,11 +19,13 @@
   },
   "nav": {
     "ariaLabel": "Main navigation",
+    "homeAriaLabel": "FloraFlow — go to dashboard",
     "dashboard": "Dashboard",
     "tasks": "Tasks",
     "journal": "Journal",
     "library": "Library",
     "seeds": "Seeds",
+    "bottomAriaLabel": "Primary navigation",
     "signOut": "Sign out",
     "signOutAriaLabel": "Sign out of FloraFlow"
   },

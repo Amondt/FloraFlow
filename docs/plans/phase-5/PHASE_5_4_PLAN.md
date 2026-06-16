@@ -8,7 +8,7 @@
 
 ---
 
-- [ ] **Block A — Header layout pattern** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **Block A — Header layout pattern** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - Apply a consistent responsive treatment to each header so the action cluster drops below the title on narrow screens instead of squeezing beside it. Two acceptable approaches (pick per page, keep consistent):
     - **Stack:** header becomes `flex-col items-start gap-3 md:flex-row md:items-start md:justify-between`; the action cluster sits under the title on `<md`.
     - **Wrap:** keep the row but let the cluster `flex-wrap` and align left on `<md`.

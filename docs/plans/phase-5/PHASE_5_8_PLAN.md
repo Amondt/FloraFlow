@@ -6,14 +6,14 @@
 
 ---
 
-- [ ] **Block A — Footer layout for `<md`** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **Block A — Footer layout for `<md`** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - Restructure the footer so it works on a phone while leaving the desktop row intact. Recommended approach (implementer may refine):
     - Make the footer `flex-wrap` on `<md` so actions flow onto multiple lines instead of overflowing, OR
     - Group: keep the primary **Check soil** action prominent (it already has the emphasised outlined style) and let the secondary actions (Edit, Delete, Care tips, Mix, Journal, Diagnose) wrap beneath, full row width.
   - Keep desktop (`md+`) as the current single row — only add the mobile-first wrapping/grouping.
   - The `<div class="flex-1">` spacer currently pushes Check soil to the right; on a wrapped layout that spacer should collapse (`max-md:hidden`) so wrapped rows align left.
 
-- [ ] **Block B — Preserve layering + a11y** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+- [x] **Block B — Preserve layering + a11y** | Agent: `/visualizer` · Model: Sonnet · Effort: low
   - The card has an absolute full-card "open species" cover button at `z-10`; the footer sits at `z-20` so its actions stay clickable. Any restructure must keep the footer (and the care-tips accordion + journal link) at `z-20 relative` so taps don't fall through to the cover.
   - Preserve every action's existing `aria-label` and the `aria-expanded` care-tips toggle. Confirm tap targets meet 44 px on coarse pointer (ties into 5.6).
 

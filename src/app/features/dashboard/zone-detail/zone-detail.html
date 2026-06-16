@@ -362,126 +362,124 @@
                     ></button>
                   }
                   <!-- Card body: thumbnail + content -->
-                  <div class="px-4 pt-4 pb-3 flex items-start gap-4">
+                  <div class="px-4 pt-4 pb-3">
                     @let plantRecord = enrichedRecordFor(ep.plant.scientific_name ?? '');
-                    @if (ep.plant.scientific_name && plantRecord?.thumbnail_url) {
-                      @let cardPhotos = galleryPhotosFor(ep.plant.scientific_name);
-                      @if (cardPhotos.length > 0) {
-                        <button
-                          type="button"
-                          class="relative z-20 flex-none w-28 h-28 rounded-garden-sm overflow-hidden cursor-zoom-in outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-                          [attr.aria-label]="
-                            (cardPhotos.length > 1
-                              ? 'zones.detail.viewGalleryAriaLabel'
-                              : 'zones.detail.viewPhotoAriaLabel'
-                            ) | transloco: { name: ep.plant.common_name }
-                          "
-                          (click)="
-                            openImageLightbox(
-                              $event,
-                              ep.plant.scientific_name!,
-                              ep.plant.common_name
-                            )
-                          "
-                        >
-                          <img
-                            class="w-full h-full object-cover block"
-                            loading="lazy"
-                            [src]="plantRecord!.regular_url ?? plantRecord!.thumbnail_url"
-                            [alt]="ep.plant.common_name"
-                          />
-                        </button>
-                      } @else {
-                        <div
-                          class="flex-none w-28 h-28 rounded-garden-sm overflow-hidden"
-                          aria-hidden="true"
-                        >
-                          <img
-                            class="w-full h-full object-cover block"
-                            loading="lazy"
-                            [src]="plantRecord!.regular_url ?? plantRecord!.thumbnail_url"
-                            [alt]="ep.plant.common_name"
-                          />
-                        </div>
-                      }
-                    } @else {
-                      <!-- Status-coloured leaf icon -->
-                      <div
-                        class="flex-none w-28 h-28 rounded-garden-sm flex items-center justify-center"
-                        [class]="
-                          ep.status === 'overdue'
-                            ? 'bg-yellow-50 dark:bg-yellow-900/20'
-                            : ep.status === 'due-today'
-                              ? 'bg-primary-50 dark:bg-primary-900/20'
-                              : 'bg-green-50 dark:bg-green-900/20'
-                        "
-                        aria-hidden="true"
-                      >
-                        <app-leaf-icon
-                          [class]="
-                            ep.status === 'overdue'
-                              ? 'text-warning-500'
-                              : ep.status === 'due-today'
-                                ? 'text-primary-500'
-                                : 'text-success-500'
-                          "
-                        />
-                      </div>
-                    }
 
-                    <!-- Name + badges + status chip -->
-                    <div class="flex-1 min-w-0">
-                      <div class="flex items-start justify-between gap-2">
-                        <!-- Common name + scientific name -->
+                    <!-- ── Mobile layout (hidden on md+) ──────────────────── -->
+                    <div class="md:hidden flex flex-col gap-2">
+                      <!-- Row 1: image + names (no chip, no truncation) -->
+                      <div class="flex items-start gap-3">
+                        @if (ep.plant.scientific_name && plantRecord?.thumbnail_url) {
+                          @let cardPhotosMobile = galleryPhotosFor(ep.plant.scientific_name);
+                          @if (cardPhotosMobile.length > 0) {
+                            <button
+                              type="button"
+                              class="relative z-20 flex-none w-20 h-20 rounded-garden-sm overflow-hidden cursor-zoom-in outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                              [attr.aria-label]="
+                                (cardPhotosMobile.length > 1
+                                  ? 'zones.detail.viewGalleryAriaLabel'
+                                  : 'zones.detail.viewPhotoAriaLabel'
+                                ) | transloco: { name: ep.plant.common_name }
+                              "
+                              (click)="
+                                openImageLightbox(
+                                  $event,
+                                  ep.plant.scientific_name!,
+                                  ep.plant.common_name
+                                )
+                              "
+                            >
+                              <img
+                                class="w-full h-full object-cover block"
+                                loading="lazy"
+                                [src]="plantRecord!.regular_url ?? plantRecord!.thumbnail_url"
+                                [alt]="ep.plant.common_name"
+                              />
+                            </button>
+                          } @else {
+                            <div
+                              class="flex-none w-20 h-20 rounded-garden-sm overflow-hidden"
+                              aria-hidden="true"
+                            >
+                              <img
+                                class="w-full h-full object-cover block"
+                                loading="lazy"
+                                [src]="plantRecord!.regular_url ?? plantRecord!.thumbnail_url"
+                                [alt]="ep.plant.common_name"
+                              />
+                            </div>
+                          }
+                        } @else {
+                          <div
+                            class="flex-none w-20 h-20 rounded-garden-sm flex items-center justify-center"
+                            [class]="
+                              ep.status === 'overdue'
+                                ? 'bg-yellow-50 dark:bg-yellow-900/20'
+                                : ep.status === 'due-today'
+                                  ? 'bg-primary-50 dark:bg-primary-900/20'
+                                  : 'bg-green-50 dark:bg-green-900/20'
+                            "
+                            aria-hidden="true"
+                          >
+                            <app-leaf-icon
+                              [class]="
+                                ep.status === 'overdue'
+                                  ? 'text-warning-500'
+                                  : ep.status === 'due-today'
+                                    ? 'text-primary-500'
+                                    : 'text-success-500'
+                              "
+                            />
+                          </div>
+                        }
                         <div class="flex-1 min-w-0">
                           <p
                             [id]="'plant-name-' + ep.plant.id"
-                            class="text-base font-semibold font-display text-neutral-900 dark:text-white truncate"
+                            class="text-base font-semibold font-display text-neutral-900 dark:text-white"
                           >
                             {{ ep.plant.common_name }}
                           </p>
                           @if (ep.plant.scientific_name) {
                             <p
-                              class="text-xs font-display text-neutral-400 dark:text-neutral-500 italic truncate mt-0.5"
+                              class="text-xs font-display text-neutral-400 dark:text-neutral-500 italic mt-0.5"
                             >
                               {{ ep.plant.scientific_name }}
                             </p>
                           }
-                        </div>
-
-                        <!-- Soil check status chip -->
-                        <span
-                          class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium font-display flex-shrink-0"
-                          [class]="
-                            ep.status === 'overdue'
-                              ? 'bg-yellow-100 text-warning-500 dark:bg-yellow-900/30 dark:text-yellow-400'
-                              : ep.status === 'due-today'
-                                ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400'
-                                : 'bg-green-100 text-success-500 dark:bg-green-900/30 dark:text-green-400'
-                          "
-                          [attr.aria-label]="
-                            'zones.detail.soilCheckStatusAriaLabel'
-                              | transloco: { label: ep.nextCheckLabel }
-                          "
-                        >
-                          <i
-                            class="text-xs"
+                          <!-- Soil check status chip: below the names, more prominent -->
+                          <span
+                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium font-display flex-shrink-0 mt-1.5"
                             [class]="
                               ep.status === 'overdue'
-                                ? 'pi pi-exclamation-triangle'
+                                ? 'bg-yellow-100 text-warning-500 dark:bg-yellow-900/30 dark:text-yellow-400'
                                 : ep.status === 'due-today'
-                                  ? 'pi pi-clock'
-                                  : 'pi pi-check-circle'
+                                  ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400'
+                                  : 'bg-green-100 text-success-500 dark:bg-green-900/30 dark:text-green-400'
                             "
-                            aria-hidden="true"
-                          ></i>
-                          {{ ep.nextCheckLabel }}
-                        </span>
+                            [attr.aria-label]="
+                              'zones.detail.soilCheckStatusAriaLabel'
+                                | transloco: { label: ep.nextCheckLabel }
+                            "
+                          >
+                            <i
+                              class="text-xs"
+                              [class]="
+                                ep.status === 'overdue'
+                                  ? 'pi pi-exclamation-triangle'
+                                  : ep.status === 'due-today'
+                                    ? 'pi pi-clock'
+                                    : 'pi pi-check-circle'
+                              "
+                              aria-hidden="true"
+                            ></i>
+                            {{ ep.nextCheckLabel }}
+                          </span>
+                        </div>
                       </div>
 
-                      <!-- Container + substrate badges -->
+                      <!-- Row 2: tags full-width (container + substrate + botanical) -->
                       <div
-                        class="flex flex-wrap gap-1.5 mt-2.5"
+                        class="flex flex-wrap gap-1.5"
                         [attr.aria-label]="'zones.detail.plantSetupAriaLabel' | transloco"
                       >
                         <span
@@ -494,27 +492,180 @@
                         >
                           {{ ep.plant.substrate_factor }}
                         </span>
+                        @if (ep.plant.scientific_name) {
+                          @let botanicalMobile = enrichedRecordFor(ep.plant.scientific_name);
+                          @if (botanicalMobile) {
+                            <app-botanical-tags
+                              [placement]="botanicalMobile.placement"
+                              [isTropical]="botanicalMobile.is_tropical"
+                              [careDifficulty]="botanicalMobile.care_difficulty"
+                            />
+                          }
+                        }
                       </div>
-                      @if (ep.plant.scientific_name) {
-                        @let botanical = enrichedRecordFor(ep.plant.scientific_name);
-                        @if (botanical) {
-                          <div
-                            class="flex flex-wrap gap-1.5 mt-2"
+
+                      <!-- Row 3: last checked -->
+                      <p class="text-xs font-display text-neutral-400 dark:text-neutral-500">
+                        {{ ep.lastCheckedLabel }}
+                      </p>
+                    </div>
+
+                    <!-- ── Desktop layout (hidden below md) — original ──── -->
+                    <div class="hidden md:flex md:items-start md:gap-4">
+                      @if (ep.plant.scientific_name && plantRecord?.thumbnail_url) {
+                        @let cardPhotos = galleryPhotosFor(ep.plant.scientific_name);
+                        @if (cardPhotos.length > 0) {
+                          <button
+                            type="button"
+                            class="relative z-20 flex-none w-28 h-28 rounded-garden-sm overflow-hidden cursor-zoom-in outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                             [attr.aria-label]="
-                              'zones.detail.speciesCharacteristicsAriaLabel' | transloco
+                              (cardPhotos.length > 1
+                                ? 'zones.detail.viewGalleryAriaLabel'
+                                : 'zones.detail.viewPhotoAriaLabel'
+                              ) | transloco: { name: ep.plant.common_name }
+                            "
+                            (click)="
+                              openImageLightbox(
+                                $event,
+                                ep.plant.scientific_name!,
+                                ep.plant.common_name
+                              )
                             "
                           >
-                            <app-botanical-tags
-                              [placement]="botanical.placement"
-                              [isTropical]="botanical.is_tropical"
-                              [careDifficulty]="botanical.care_difficulty"
+                            <img
+                              class="w-full h-full object-cover block"
+                              loading="lazy"
+                              [src]="plantRecord!.regular_url ?? plantRecord!.thumbnail_url"
+                              [alt]="ep.plant.common_name"
+                            />
+                          </button>
+                        } @else {
+                          <div
+                            class="flex-none w-28 h-28 rounded-garden-sm overflow-hidden"
+                            aria-hidden="true"
+                          >
+                            <img
+                              class="w-full h-full object-cover block"
+                              loading="lazy"
+                              [src]="plantRecord!.regular_url ?? plantRecord!.thumbnail_url"
+                              [alt]="ep.plant.common_name"
                             />
                           </div>
                         }
+                      } @else {
+                        <!-- Status-coloured leaf icon -->
+                        <div
+                          class="flex-none w-28 h-28 rounded-garden-sm flex items-center justify-center"
+                          [class]="
+                            ep.status === 'overdue'
+                              ? 'bg-yellow-50 dark:bg-yellow-900/20'
+                              : ep.status === 'due-today'
+                                ? 'bg-primary-50 dark:bg-primary-900/20'
+                                : 'bg-green-50 dark:bg-green-900/20'
+                          "
+                          aria-hidden="true"
+                        >
+                          <app-leaf-icon
+                            [class]="
+                              ep.status === 'overdue'
+                                ? 'text-warning-500'
+                                : ep.status === 'due-today'
+                                  ? 'text-primary-500'
+                                  : 'text-success-500'
+                            "
+                          />
+                        </div>
                       }
-                      <p class="text-xs font-display text-neutral-400 dark:text-neutral-500 mt-1.5">
-                        {{ ep.lastCheckedLabel }}
-                      </p>
+
+                      <!-- Name + badges + status chip -->
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-start justify-between gap-2">
+                          <!-- Common name + scientific name -->
+                          <div class="flex-1 min-w-0">
+                            <p
+                              [id]="'plant-name-' + ep.plant.id"
+                              class="text-base font-semibold font-display text-neutral-900 dark:text-white truncate"
+                            >
+                              {{ ep.plant.common_name }}
+                            </p>
+                            @if (ep.plant.scientific_name) {
+                              <p
+                                class="text-xs font-display text-neutral-400 dark:text-neutral-500 italic truncate mt-0.5"
+                              >
+                                {{ ep.plant.scientific_name }}
+                              </p>
+                            }
+                          </div>
+
+                          <!-- Soil check status chip -->
+                          <span
+                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium font-display flex-shrink-0"
+                            [class]="
+                              ep.status === 'overdue'
+                                ? 'bg-yellow-100 text-warning-500 dark:bg-yellow-900/30 dark:text-yellow-400'
+                                : ep.status === 'due-today'
+                                  ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400'
+                                  : 'bg-green-100 text-success-500 dark:bg-green-900/30 dark:text-green-400'
+                            "
+                            [attr.aria-label]="
+                              'zones.detail.soilCheckStatusAriaLabel'
+                                | transloco: { label: ep.nextCheckLabel }
+                            "
+                          >
+                            <i
+                              class="text-xs"
+                              [class]="
+                                ep.status === 'overdue'
+                                  ? 'pi pi-exclamation-triangle'
+                                  : ep.status === 'due-today'
+                                    ? 'pi pi-clock'
+                                    : 'pi pi-check-circle'
+                              "
+                              aria-hidden="true"
+                            ></i>
+                            {{ ep.nextCheckLabel }}
+                          </span>
+                        </div>
+
+                        <!-- Container + substrate badges -->
+                        <div
+                          class="flex flex-wrap gap-1.5 mt-2.5"
+                          [attr.aria-label]="'zones.detail.plantSetupAriaLabel' | transloco"
+                        >
+                          <span
+                            class="inline-flex items-center px-2 py-0.5 rounded-garden-sm text-xs font-medium font-display bg-neutral-100 border border-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+                          >
+                            {{ ep.plant.container_vector }}
+                          </span>
+                          <span
+                            class="inline-flex items-center px-2 py-0.5 rounded-garden-sm text-xs font-medium font-display bg-neutral-100 border border-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+                          >
+                            {{ ep.plant.substrate_factor }}
+                          </span>
+                        </div>
+                        @if (ep.plant.scientific_name) {
+                          @let botanical = enrichedRecordFor(ep.plant.scientific_name);
+                          @if (botanical) {
+                            <div
+                              class="flex flex-wrap gap-1.5 mt-2"
+                              [attr.aria-label]="
+                                'zones.detail.speciesCharacteristicsAriaLabel' | transloco
+                              "
+                            >
+                              <app-botanical-tags
+                                [placement]="botanical.placement"
+                                [isTropical]="botanical.is_tropical"
+                                [careDifficulty]="botanical.care_difficulty"
+                              />
+                            </div>
+                          }
+                        }
+                        <p
+                          class="text-xs font-display text-neutral-400 dark:text-neutral-500 mt-1.5"
+                        >
+                          {{ ep.lastCheckedLabel }}
+                        </p>
+                      </div>
                     </div>
                   </div>
 
@@ -544,7 +695,7 @@
                   }
                   <!-- Card footer: actions -->
                   <footer
-                    class="px-4 pb-3 pt-3 border-t border-neutral-100 dark:border-neutral-700 flex items-center gap-1 relative z-20"
+                    class="px-4 pb-3 pt-3 border-t border-neutral-100 dark:border-neutral-700 flex flex-wrap items-center gap-1 relative z-20"
                   >
                     <button
                       type="button"
@@ -590,7 +741,7 @@
                         ></i>
                       </button>
                     }
-                    <div class="flex-1" aria-hidden="true"></div>
+                    <div class="flex-1 max-md:hidden" aria-hidden="true"></div>
                     <button
                       type="button"
                       class="inline-flex items-center gap-1 text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500 pointer-coarse:min-h-11"
@@ -627,7 +778,7 @@
                     </button>
                     <button
                       type="button"
-                      class="inline-flex items-center gap-1 text-xs font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 border border-primary-200 dark:border-primary-800 hover:border-primary-400 dark:hover:border-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors cursor-pointer px-2.5 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500 pointer-coarse:min-h-11"
+                      class="inline-flex items-center gap-1 text-xs font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 border border-primary-200 dark:border-primary-800 hover:border-primary-400 dark:hover:border-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors cursor-pointer px-2.5 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500 pointer-coarse:min-h-11 max-md:w-full max-md:justify-center"
                       [attr.aria-label]="
                         'zones.detail.checkSoilAriaLabel'
                           | transloco: { name: ep.plant.common_name }

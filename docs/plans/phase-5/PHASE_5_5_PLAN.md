@@ -8,15 +8,15 @@
 
 ---
 
-- [ ] **Block A — Mobile side padding** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+- [x] **Block A — Mobile side padding** | Agent: `/visualizer` · Model: Sonnet · Effort: low
   - On every feature `<main>`, change `p-6` → `px-4 py-6 md:p-6`:
     - `dashboard.html`, `tasks.html`, `journal.html`, `library.html`, `seeds.html`, `zone-detail/zone-detail.html`.
   - If 5.3 added `pb-20 md:pb-0` to these same elements, fold both into the one class list.
 
-- [ ] **Block B — Scheduler section-header italics** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+- [x] **Block B — Scheduler section-header italics** | Agent: `/visualizer` · Model: Sonnet · Effort: low
   - `tasks.html`: the per-section italic hint `<p>` ("Address first…", "Monitor but no action needed yet", etc.) crowds the heading + count badge on narrow screens. Add `max-md:hidden` to each of those hint paragraphs (overdue / due-today / due-this-week / upcoming).
 
-- [ ] **Block C — Overflow audit at 375 px** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+- [x] **Block C — Overflow audit at 375 px** | Agent: `/visualizer` · Model: Sonnet · Effort: low
   - Walk every route at 375 px and confirm nothing forces a horizontal scrollbar. Likely suspects to spot-check (most are handled in their own blocks, listed here for the sweep): long species names in cards (already `truncate`/`min-w-0`), the substrate-wizard recipe `<table>`, badge rows (`flex-wrap` already), the dashboard frost alert.
   - Fix any stray overflow with `min-w-0` on the flex child or `flex-wrap` on the row — do not introduce horizontal scroll on page-level containers.
 

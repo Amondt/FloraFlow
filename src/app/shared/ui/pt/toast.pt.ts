@@ -1,7 +1,10 @@
 import type { ToastPassThroughOptions } from 'primeng/toast';
 
 export const FloraToastPT = {
-  root: { class: 'z-50 flex flex-col gap-2 max-w-sm w-full' },
+  root: {
+    class:
+      'z-50 flex flex-col gap-2 max-w-sm w-full max-md:max-w-[calc(100vw_-_1rem)] max-md:!right-2',
+  },
   message: ({ instance }: { instance?: { message?: { severity?: string | null } } } = {}) => ({
     class: [
       'flex items-start gap-3 p-4 rounded-garden-md shadow-lg border font-display text-sm',

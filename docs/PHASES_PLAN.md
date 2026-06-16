@@ -423,7 +423,7 @@
   - `<md`: hide sidebar; "Filters" pill + active-count badge above results; tap → full-width bottom sheet (CSS transform slide-up), dismiss on outside tap / "Done"; safe-area pad. `md+`: sidebar unchanged.
   - Plan: `docs/plans/phase-5/PHASE_5_7_PLAN.md`
 
-- [ ] **5.8 Zone-Detail Card Footer Restructure** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **5.8 Zone-Detail Card Footer Restructure** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - The zone-detail plant-card footer packs **7 actions in a non-wrapping row** → overflow at 375 px. Restructure for `<md`: keep primary "Check soil" prominent; secondary actions wrap or group. Preserve `z-20` layering over the card-cover button and the care-tips accordion.
   - Plan: `docs/plans/phase-5/PHASE_5_8_PLAN.md`
 

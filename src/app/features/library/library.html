@@ -1,5 +1,5 @@
 <main
-  class="p-6 pb-20 md:pb-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen"
+  class="px-4 py-6 md:p-6 pb-20 md:pb-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen"
   aria-labelledby="library-heading"
 >
   <div class="max-w-5xl mx-auto">
@@ -679,7 +679,7 @@
               </div>
             }
             <ul
-              class="flex flex-col gap-4 transition-opacity duration-200"
+              class="flex flex-col gap-4 touch-manipulation transition-opacity duration-200"
               [class.opacity-40]="isReloading()"
               [attr.aria-label]="'library.resultsAriaLabel' | transloco"
             >
@@ -706,11 +706,15 @@
                 <!-- Previous -->
                 <button
                   type="button"
-                  class="w-8 h-8 inline-flex items-center justify-center rounded-garden-sm text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                  class="relative w-8 h-8 inline-flex items-center justify-center rounded-garden-sm text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                   [disabled]="!hasPrevPage()"
                   (click)="goToPage(currentPage() - 1)"
                   [attr.aria-label]="'library.prevPageAriaLabel' | transloco"
                 >
+                  <span
+                    aria-hidden="true"
+                    class="absolute top-1/2 left-1/2 size-11 -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"
+                  ></span>
                   <i class="pi pi-chevron-left text-xs" aria-hidden="true"></i>
                 </button>
 
@@ -726,7 +730,7 @@
                   } @else {
                     <button
                       type="button"
-                      class="w-8 h-8 inline-flex items-center justify-center rounded-garden-sm text-sm font-display transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 cursor-pointer"
+                      class="relative w-8 h-8 inline-flex items-center justify-center rounded-garden-sm text-sm font-display transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 cursor-pointer"
                       [class]="
                         item === currentPage()
                           ? 'bg-primary-500 text-white font-semibold'
@@ -736,6 +740,10 @@
                       [attr.aria-current]="item === currentPage() ? 'page' : null"
                       (click)="goToPage(item)"
                     >
+                      <span
+                        aria-hidden="true"
+                        class="absolute top-1/2 left-1/2 size-11 -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"
+                      ></span>
                       {{ item + 1 }}
                     </button>
                   }
@@ -744,11 +752,15 @@
                 <!-- Next -->
                 <button
                   type="button"
-                  class="w-8 h-8 inline-flex items-center justify-center rounded-garden-sm text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                  class="relative w-8 h-8 inline-flex items-center justify-center rounded-garden-sm text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                   [disabled]="!hasNextPage()"
                   (click)="goToPage(currentPage() + 1)"
                   [attr.aria-label]="'library.nextPageAriaLabel' | transloco"
                 >
+                  <span
+                    aria-hidden="true"
+                    class="absolute top-1/2 left-1/2 size-11 -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"
+                  ></span>
                   <i class="pi pi-chevron-right text-xs" aria-hidden="true"></i>
                 </button>
               </nav>

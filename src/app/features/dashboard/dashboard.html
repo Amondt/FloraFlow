@@ -1,5 +1,5 @@
 <main
-  class="p-6 min-h-screen bg-neutral-50 dark:bg-neutral-900 pb-20 md:pb-6"
+  class="px-4 py-6 md:p-6 min-h-screen bg-neutral-50 dark:bg-neutral-900 pb-20 md:pb-6"
   aria-labelledby="dashboard-heading"
 >
   <div class="max-w-5xl mx-auto">
@@ -106,7 +106,7 @@
           class="pi pi-exclamation-triangle text-warning-500 mt-0.5 flex-shrink-0"
           aria-hidden="true"
         ></i>
-        <div class="flex-1">
+        <div class="flex-1 min-w-0">
           <p class="text-sm font-semibold font-display text-warning-500">
             {{ 'dashboard.frostRiskHeading' | transloco }}
           </p>
@@ -206,7 +206,7 @@
                 <a
                   [routerLink]="['/tasks']"
                   [queryParams]="{ plant: chip.plant.id }"
-                  class="flex items-center gap-3 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md px-4 py-2 hover:border-primary-500 dark:hover:border-primary-400 transition-colors w-full outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+                  class="flex items-center gap-3 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md px-4 py-2 hover:border-primary-500 dark:hover:border-primary-400 active:opacity-70 transition-all w-full outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
                   [attr.aria-label]="chipAriaLabel(chip)"
                 >
                   <!-- Species thumbnail or status-coloured leaf icon -->

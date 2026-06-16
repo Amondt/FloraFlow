@@ -1,5 +1,5 @@
 <main
-  class="p-6 pb-20 md:pb-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen"
+  class="px-4 py-6 md:p-6 pb-20 md:pb-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen"
   aria-labelledby="seeds-heading"
 >
   <div class="max-w-5xl mx-auto">
@@ -113,7 +113,10 @@
           }
         </div>
       } @else {
-        <ul class="flex flex-col gap-4" [attr.aria-label]="'seeds.empty.batchesAria' | transloco">
+        <ul
+          class="flex flex-col gap-4 touch-manipulation"
+          [attr.aria-label]="'seeds.empty.batchesAria' | transloco"
+        >
           @for (batch of filteredBatches(); track batch.id) {
             <li>
               <app-seed-batch-card

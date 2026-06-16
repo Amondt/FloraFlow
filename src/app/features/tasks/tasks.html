@@ -1,5 +1,5 @@
 <main
-  class="p-6 pb-20 md:pb-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen"
+  class="px-4 py-6 md:p-6 pb-20 md:pb-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen"
   aria-labelledby="tasks-heading"
 >
   <div class="max-w-5xl mx-auto">
@@ -136,12 +136,14 @@
                   >{{ g.overdue.length }}</span
                 >
               </div>
-              <p class="text-xs text-neutral-400 dark:text-neutral-500 font-display italic">
+              <p
+                class="text-xs text-neutral-400 dark:text-neutral-500 font-display italic max-md:hidden"
+              >
                 {{ 'tasks.overdue.hint' | transloco }}
               </p>
             </header>
             <ul
-              class="flex flex-col gap-4"
+              class="flex flex-col gap-4 touch-manipulation"
               [attr.aria-label]="'tasks.overdue.listAriaLabel' | transloco"
             >
               @for (plant of g.overdue; track plant.id) {
@@ -177,12 +179,14 @@
                   >{{ g.today.length }}</span
                 >
               </div>
-              <p class="text-xs text-neutral-400 dark:text-neutral-500 font-display italic">
+              <p
+                class="text-xs text-neutral-400 dark:text-neutral-500 font-display italic max-md:hidden"
+              >
                 {{ 'tasks.dueToday.hint' | transloco }}
               </p>
             </header>
             <ul
-              class="flex flex-col gap-4"
+              class="flex flex-col gap-4 touch-manipulation"
               [attr.aria-label]="'tasks.dueToday.listAriaLabel' | transloco"
             >
               @for (plant of g.today; track plant.id) {
@@ -221,12 +225,14 @@
                   >{{ g.soon.length }}</span
                 >
               </div>
-              <p class="text-xs text-neutral-400 dark:text-neutral-500 font-display italic">
+              <p
+                class="text-xs text-neutral-400 dark:text-neutral-500 font-display italic max-md:hidden"
+              >
                 {{ 'tasks.dueThisWeek.hint' | transloco }}
               </p>
             </header>
             <ul
-              class="flex flex-col gap-4"
+              class="flex flex-col gap-4 touch-manipulation"
               [attr.aria-label]="'tasks.dueThisWeek.listAriaLabel' | transloco"
             >
               @for (plant of g.soon; track plant.id) {
@@ -262,12 +268,14 @@
                   >{{ g.upcoming.length }}</span
                 >
               </div>
-              <p class="text-xs text-neutral-400 dark:text-neutral-500 font-display italic">
+              <p
+                class="text-xs text-neutral-400 dark:text-neutral-500 font-display italic max-md:hidden"
+              >
                 {{ 'tasks.upcoming.hint' | transloco }}
               </p>
             </header>
             <ul
-              class="flex flex-col gap-4"
+              class="flex flex-col gap-4 touch-manipulation"
               [attr.aria-label]="'tasks.upcoming.listAriaLabel' | transloco"
             >
               @for (plant of g.upcoming; track plant.id) {

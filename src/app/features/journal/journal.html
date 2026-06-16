@@ -1,5 +1,5 @@
 <main
-  class="p-6 pb-20 md:pb-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen"
+  class="px-4 py-6 md:p-6 pb-20 md:pb-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen"
   aria-labelledby="journal-heading"
 >
   <div class="max-w-5xl mx-auto">
@@ -183,7 +183,7 @@
 
               <!-- Entries for this day -->
               <ul
-                class="flex flex-col gap-3 flex-1 min-w-0"
+                class="flex flex-col gap-3 flex-1 min-w-0 touch-manipulation"
                 [attr.aria-label]="group.monthYear + ' ' + group.dayNumber + ' journal entries'"
               >
                 @for (entry of group.entries; track entry.id) {

@@ -1,0 +1,432 @@
+<!-- Placement -->
+@let placementTooltip = 'library.filter.placementTooltip' | transloco;
+<details class="group mb-4" open>
+  <summary
+    class="flex items-center justify-between py-0.5 mb-2 cursor-pointer list-none select-none outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
+  >
+    <div class="flex items-center gap-1">
+      <h2 class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display">
+        {{ 'library.filter.placement' | transloco }}
+      </h2>
+      <span
+        class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-help"
+        (mouseenter)="onShowTooltip($event, placementTooltip)"
+        (mouseleave)="onHideTooltip()"
+        tabindex="0"
+        [attr.aria-label]="'library.filter.placement' | transloco"
+      >
+        <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
+      </span>
+      @if (hasPlacementFilter()) {
+        <span class="w-1.5 h-1.5 rounded-full bg-primary-500 ml-0.5" aria-hidden="true"></span>
+      }
+    </div>
+    <i
+      class="pi pi-chevron-down text-xs text-neutral-300 transition-transform duration-200 group-open:rotate-180"
+      aria-hidden="true"
+    ></i>
+  </summary>
+  <div
+    class="flex flex-col gap-0.5"
+    role="group"
+    [attr.aria-label]="'library.filter.placementAriaLabel' | transloco"
+  >
+    @for (opt of PLACEMENT_OPTIONS; track opt) {
+      <button
+        type="button"
+        [class]="filterBtnClass(filters().placement === opt)"
+        [attr.aria-pressed]="filters().placement === opt"
+        (click)="onTogglePlacementFilter(opt)"
+      >
+        {{ filterLabels().placement[opt] }}
+      </button>
+    }
+  </div>
+</details>
+
+<!-- Sunlight -->
+@let sunlightTooltip = 'library.filter.sunlightTooltip' | transloco;
+<details class="group mb-4" open>
+  <summary
+    class="flex items-center justify-between py-0.5 mb-2 cursor-pointer list-none select-none outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
+  >
+    <div class="flex items-center gap-1">
+      <h2 class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display">
+        {{ 'library.filter.sunlight' | transloco }}
+      </h2>
+      <span
+        class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-help"
+        (mouseenter)="onShowTooltip($event, sunlightTooltip)"
+        (mouseleave)="onHideTooltip()"
+        tabindex="0"
+        [attr.aria-label]="'library.filter.sunlight' | transloco"
+      >
+        <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
+      </span>
+      @if (hasSunlightFilter()) {
+        <span class="w-1.5 h-1.5 rounded-full bg-primary-500 ml-0.5" aria-hidden="true"></span>
+      }
+    </div>
+    <i
+      class="pi pi-chevron-down text-xs text-neutral-300 transition-transform duration-200 group-open:rotate-180"
+      aria-hidden="true"
+    ></i>
+  </summary>
+  <div
+    class="flex flex-col gap-0.5"
+    role="group"
+    [attr.aria-label]="'library.filter.sunlightAriaLabel' | transloco"
+  >
+    @for (opt of SUNLIGHT_OPTIONS; track opt) {
+      <button
+        type="button"
+        [class]="filterBtnClass(isFilterActive('sunlight', opt))"
+        [attr.aria-pressed]="isFilterActive('sunlight', opt)"
+        (click)="onToggleFilter('sunlight', opt)"
+      >
+        {{ filterLabels().sunlight[opt] }}
+      </button>
+    }
+  </div>
+</details>
+
+<!-- Watering -->
+@let wateringTooltip = 'library.filter.wateringTooltip' | transloco;
+<details class="group mb-4" open>
+  <summary
+    class="flex items-center justify-between py-0.5 mb-2 cursor-pointer list-none select-none outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
+  >
+    <div class="flex items-center gap-1">
+      <h2 class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display">
+        {{ 'library.filter.watering' | transloco }}
+      </h2>
+      <span
+        class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-help"
+        (mouseenter)="onShowTooltip($event, wateringTooltip)"
+        (mouseleave)="onHideTooltip()"
+        tabindex="0"
+        [attr.aria-label]="'library.filter.watering' | transloco"
+      >
+        <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
+      </span>
+      @if (hasWateringFilter()) {
+        <span class="w-1.5 h-1.5 rounded-full bg-primary-500 ml-0.5" aria-hidden="true"></span>
+      }
+    </div>
+    <i
+      class="pi pi-chevron-down text-xs text-neutral-300 transition-transform duration-200 group-open:rotate-180"
+      aria-hidden="true"
+    ></i>
+  </summary>
+  <div
+    class="flex flex-col gap-0.5"
+    role="group"
+    [attr.aria-label]="'library.filter.wateringAriaLabel' | transloco"
+  >
+    @for (opt of WATERING_OPTIONS; track opt) {
+      <button
+        type="button"
+        [class]="filterBtnClass(isFilterActive('watering', opt))"
+        [attr.aria-pressed]="isFilterActive('watering', opt)"
+        (click)="onToggleFilter('watering', opt)"
+      >
+        {{ filterLabels().watering[opt] }}
+      </button>
+    }
+  </div>
+</details>
+
+<!-- Plant traits -->
+<details class="group mb-4">
+  <summary
+    class="flex items-center justify-between py-0.5 mb-2 cursor-pointer list-none select-none outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
+  >
+    <div class="flex items-center gap-1">
+      <h2 class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display">
+        {{ 'library.filter.traits' | transloco }}
+      </h2>
+      @if (hasTraitFilters()) {
+        <span class="w-1.5 h-1.5 rounded-full bg-primary-500 ml-0.5" aria-hidden="true"></span>
+      }
+    </div>
+    <i
+      class="pi pi-chevron-down text-xs text-neutral-300 transition-transform duration-200 group-open:rotate-180"
+      aria-hidden="true"
+    ></i>
+  </summary>
+  <div class="flex flex-col gap-2 pt-1">
+    <div class="flex items-center justify-between gap-2">
+      <label
+        class="text-sm font-display text-neutral-600 dark:text-neutral-400 cursor-pointer"
+        for="filter-tropical"
+      >
+        {{ 'library.filter.tropical' | transloco }}
+      </label>
+      <p-toggleswitch
+        inputId="filter-tropical"
+        [ngModel]="isTropicalFilter()"
+        (ngModelChange)="onToggleTropical($event)"
+        [pt]="FloraToggleSwitchPT"
+        [ariaLabel]="'library.filter.tropicalAriaLabel' | transloco"
+        class="flex-shrink-0"
+      />
+    </div>
+    <div class="flex items-center justify-between gap-2">
+      <label
+        class="text-sm font-display text-neutral-600 dark:text-neutral-400 cursor-pointer"
+        for="filter-air-purifying"
+      >
+        {{ 'library.filter.airPurifying' | transloco }}
+      </label>
+      <p-toggleswitch
+        inputId="filter-air-purifying"
+        [ngModel]="airPurifyingFilter()"
+        (ngModelChange)="onToggleAirPurifying($event)"
+        [pt]="FloraToggleSwitchPT"
+        [ariaLabel]="'library.filter.airPurifyingAriaLabel' | transloco"
+        class="flex-shrink-0"
+      />
+    </div>
+    <div class="flex items-center justify-between gap-2">
+      <label
+        class="text-sm font-display text-neutral-600 dark:text-neutral-400 cursor-pointer"
+        for="filter-safe-humans"
+      >
+        {{ 'library.filter.childSafe' | transloco }}
+      </label>
+      <p-toggleswitch
+        inputId="filter-safe-humans"
+        [ngModel]="isSafeForHumansFilter()"
+        (ngModelChange)="onToggleSafeForHumans($event)"
+        [pt]="FloraToggleSwitchPT"
+        [ariaLabel]="'library.filter.childSafeAriaLabel' | transloco"
+        class="flex-shrink-0"
+      />
+    </div>
+    <div class="flex items-center justify-between gap-2">
+      <label
+        class="text-sm font-display text-neutral-600 dark:text-neutral-400 cursor-pointer"
+        for="filter-pet-safe"
+      >
+        {{ 'library.filter.petSafe' | transloco }}
+      </label>
+      <p-toggleswitch
+        inputId="filter-pet-safe"
+        [ngModel]="isPetSafeFilter()"
+        (ngModelChange)="onTogglePetSafe($event)"
+        [pt]="FloraToggleSwitchPT"
+        [ariaLabel]="'library.filter.petSafeAriaLabel' | transloco"
+        class="flex-shrink-0"
+      />
+    </div>
+  </div>
+</details>
+
+<!-- Care Difficulty -->
+@let difficultyTooltip = 'library.filter.difficultyTooltip' | transloco;
+<details class="group mb-4">
+  <summary
+    class="flex items-center justify-between py-0.5 mb-2 cursor-pointer list-none select-none outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
+  >
+    <div class="flex items-center gap-1">
+      <h2 class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display">
+        {{ 'library.filter.difficulty' | transloco }}
+      </h2>
+      <span
+        class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-help"
+        (mouseenter)="onShowTooltip($event, difficultyTooltip)"
+        (mouseleave)="onHideTooltip()"
+        tabindex="0"
+        [attr.aria-label]="'library.filter.difficulty' | transloco"
+      >
+        <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
+      </span>
+      @if (hasDifficultyFilter()) {
+        <span class="w-1.5 h-1.5 rounded-full bg-primary-500 ml-0.5" aria-hidden="true"></span>
+      }
+    </div>
+    <i
+      class="pi pi-chevron-down text-xs text-neutral-300 transition-transform duration-200 group-open:rotate-180"
+      aria-hidden="true"
+    ></i>
+  </summary>
+  <div
+    class="flex flex-col gap-0.5"
+    role="group"
+    [attr.aria-label]="'library.filter.difficultyAriaLabel' | transloco"
+  >
+    @for (opt of CARE_DIFFICULTY_OPTIONS; track opt) {
+      <button
+        type="button"
+        [class]="multiSelectBtnClass(isMultiFilterActive('careDifficulty', opt))"
+        [attr.aria-pressed]="isMultiFilterActive('careDifficulty', opt)"
+        (click)="onToggleMultiFilter('careDifficulty', opt)"
+      >
+        <span
+          [class]="checkboxIndicatorClass(isMultiFilterActive('careDifficulty', opt))"
+          aria-hidden="true"
+        ></span>
+        {{ filterLabels().careDifficulty[opt] }}
+      </button>
+    }
+  </div>
+</details>
+
+<!-- Maintenance -->
+@let maintenanceTooltip = 'library.filter.maintenanceTooltip' | transloco;
+<details class="group mb-4">
+  <summary
+    class="flex items-center justify-between py-0.5 mb-2 cursor-pointer list-none select-none outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
+  >
+    <div class="flex items-center gap-1">
+      <h2 class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display">
+        {{ 'library.filter.maintenance' | transloco }}
+      </h2>
+      <span
+        class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-help"
+        (mouseenter)="onShowTooltip($event, maintenanceTooltip)"
+        (mouseleave)="onHideTooltip()"
+        tabindex="0"
+        [attr.aria-label]="'library.filter.maintenance' | transloco"
+      >
+        <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
+      </span>
+      @if (hasMaintenanceFilter()) {
+        <span class="w-1.5 h-1.5 rounded-full bg-primary-500 ml-0.5" aria-hidden="true"></span>
+      }
+    </div>
+    <i
+      class="pi pi-chevron-down text-xs text-neutral-300 transition-transform duration-200 group-open:rotate-180"
+      aria-hidden="true"
+    ></i>
+  </summary>
+  <div
+    class="flex flex-col gap-0.5"
+    role="group"
+    [attr.aria-label]="'library.filter.maintenanceAriaLabel' | transloco"
+  >
+    @for (opt of MAINTENANCE_OPTIONS; track opt) {
+      <button
+        type="button"
+        [class]="multiSelectBtnClass(isMultiFilterActive('maintenanceLevel', opt))"
+        [attr.aria-pressed]="isMultiFilterActive('maintenanceLevel', opt)"
+        (click)="onToggleMultiFilter('maintenanceLevel', opt)"
+      >
+        <span
+          [class]="checkboxIndicatorClass(isMultiFilterActive('maintenanceLevel', opt))"
+          aria-hidden="true"
+        ></span>
+        {{ filterLabels().maintenance[opt] }}
+      </button>
+    }
+  </div>
+</details>
+
+<!-- Lifecycle -->
+@let lifecycleTooltipText = 'library.filter.lifecycleTooltip' | transloco;
+<details class="group mb-4">
+  <summary
+    class="flex items-center justify-between py-0.5 mb-2 cursor-pointer list-none select-none outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
+  >
+    <div class="flex items-center gap-1">
+      <h2 class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display">
+        {{ 'library.filter.lifecycle' | transloco }}
+      </h2>
+      <span
+        class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-help"
+        (mouseenter)="onShowTooltip($event, lifecycleTooltipText)"
+        (mouseleave)="onHideTooltip()"
+        tabindex="0"
+        [attr.aria-label]="'library.filter.lifecycle' | transloco"
+      >
+        <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
+      </span>
+      @if (hasCycleFilter()) {
+        <span class="w-1.5 h-1.5 rounded-full bg-primary-500 ml-0.5" aria-hidden="true"></span>
+      }
+    </div>
+    <i
+      class="pi pi-chevron-down text-xs text-neutral-300 transition-transform duration-200 group-open:rotate-180"
+      aria-hidden="true"
+    ></i>
+  </summary>
+  <div
+    class="flex flex-col gap-0.5"
+    role="group"
+    [attr.aria-label]="'library.filter.lifecycleAriaLabel' | transloco"
+  >
+    @for (opt of CYCLE_OPTIONS; track opt) {
+      <button
+        type="button"
+        [class]="filterBtnClass(isFilterActive('cycle', opt))"
+        [attr.aria-pressed]="isFilterActive('cycle', opt)"
+        (click)="onToggleFilter('cycle', opt)"
+      >
+        {{ filterLabels().cycle[opt] }}
+      </button>
+    }
+  </div>
+</details>
+
+<!-- Soil pH -->
+@let soilPhTooltip = 'library.filter.soilPhTooltip' | transloco;
+<details class="group">
+  <summary
+    class="flex items-center justify-between py-0.5 mb-2 cursor-pointer list-none select-none outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
+  >
+    <div class="flex items-center gap-1">
+      <h2 class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display">
+        {{ 'library.filter.soilPh' | transloco }}
+      </h2>
+      <span
+        class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-help"
+        (mouseenter)="onShowTooltip($event, soilPhTooltip)"
+        (mouseleave)="onHideTooltip()"
+        tabindex="0"
+        [attr.aria-label]="'library.filter.soilPh' | transloco"
+      >
+        <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
+      </span>
+      @if (hasPhFilter()) {
+        <span class="w-1.5 h-1.5 rounded-full bg-primary-500 ml-0.5" aria-hidden="true"></span>
+      }
+    </div>
+    <i
+      class="pi pi-chevron-down text-xs text-neutral-300 transition-transform duration-200 group-open:rotate-180"
+      aria-hidden="true"
+    ></i>
+  </summary>
+  @if (hasPhFilter()) {
+    <div class="flex justify-end mb-1">
+      <button
+        type="button"
+        class="text-xs font-medium font-display text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded cursor-pointer"
+        [attr.aria-label]="'library.filter.resetPh' | transloco"
+        (click)="onClearPh()"
+      >
+        {{ 'library.filter.resetPh' | transloco }}
+      </button>
+    </div>
+  }
+  <div class="px-2 py-3" (mousedown)="onPhSliderMouseDown($event)">
+    <p-slider
+      [ngModel]="localPhRange()"
+      [range]="true"
+      [min]="0"
+      [max]="14"
+      [step]="0.5"
+      [pt]="FloraSliderPT"
+      (onChange)="onPhChange($event)"
+      (onSlideEnd)="onPhSlideEnd($event)"
+      [attr.aria-label]="'library.filter.soilPhAriaLabel' | transloco"
+    />
+  </div>
+  <div class="flex justify-between">
+    <span class="text-xs font-display text-neutral-500 dark:text-neutral-400">{{
+      localPhDisplay()[0]
+    }}</span>
+    <span class="text-xs font-display text-neutral-500 dark:text-neutral-400">{{
+      localPhDisplay()[1]
+    }}</span>
+  </div>
+</details>

@@ -824,7 +824,12 @@
       "rankVariety": "Variété",
       "rankForm": "Forme",
       "rankHybrid": "Hybride"
-    }
+    },
+    "filterPillAriaLabel": "Ouvrir le panneau de filtres",
+    "filterPillLabel": "Filtres",
+    "filterSheetAriaLabel": "Options de filtre",
+    "filterSheetDoneAriaLabel": "Terminé — fermer le panneau de filtres",
+    "filterSheetDone": "Terminé"
   },
   "tags": {
     "placementIndoor": "Intérieur",

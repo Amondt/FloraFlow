@@ -1,20 +1,20 @@
 import {
   Component,
   DestroyRef,
+  ElementRef,
   afterNextRender,
   computed,
   effect,
   inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ButtonModule } from 'primeng/button';
-import { SliderModule, SliderSlideEndEvent } from 'primeng/slider';
 import { ToastModule } from 'primeng/toast';
-import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { MessageService } from 'primeng/api';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { LocaleService } from '../../core/services/locale.service';
@@ -43,9 +43,7 @@ import {
   FloraButtonPT,
   FloraInputTextPT,
   FloraSkeletonPT,
-  FloraSliderPT,
   FloraToastPT,
-  FloraToggleSwitchPT,
 } from '../../shared/ui/pt/index';
 import { BotanicalRecordCardComponent } from './botanical-record-card/botanical-record-card';
 import { BotanicalDetailDialogComponent } from '../../shared/components/botanical-detail-dialog/botanical-detail-dialog';
@@ -54,6 +52,12 @@ import { SubstrateMixWizardDialogComponent } from '../../shared/components/subst
 import { PlantService } from '../tasks/plant.service';
 import { PlantFormData } from '../tasks/plant.model';
 import { plantAddedDetail } from '../../shared/utils/plant-message.util';
+import { EnrichmentPoll } from '../../shared/utils/enrichment-poll';
+import {
+  PlantIdentifierDialogComponent,
+  type PlantIdentifiedEvent,
+} from '../../shared/components/plant-identifier/plant-identifier-dialog';
+import { LibraryFiltersComponent, type FilterLabels } from './library-filters/library-filters';
 
 const PLACEMENT_KEY: Record<string, string> = {
   Indoor: 'library.filter.placementIndoor',
@@ -87,11 +91,6 @@ const MAINTENANCE_KEY: Record<string, string> = {
   Medium: 'library.filter.maintenanceMedium',
   High: 'library.filter.maintenanceHigh',
 };
-import { EnrichmentPoll } from '../../shared/utils/enrichment-poll';
-import {
-  PlantIdentifierDialogComponent,
-  type PlantIdentifiedEvent,
-} from '../../shared/components/plant-identifier/plant-identifier-dialog';
 
 @Component({
   selector: 'app-library',
@@ -101,15 +100,14 @@ import {
     InputTextModule,
     SkeletonModule,
     ButtonModule,
-    SliderModule,
     ToastModule,
-    ToggleSwitchModule,
     TranslocoPipe,
     BotanicalDetailDialogComponent,
     BotanicalRecordCardComponent,
     PlantFormDialogComponent,
     PlantIdentifierDialogComponent,
     SubstrateMixWizardDialogComponent,
+    LibraryFiltersComponent,
   ],
   providers: [MessageService],
   templateUrl: './library.html',
@@ -126,19 +124,11 @@ export class LibraryComponent {
   protected readonly FloraInputTextPT = FloraInputTextPT;
   protected readonly FloraSkeletonPT = FloraSkeletonPT;
   protected readonly FloraButtonPT = FloraButtonPT;
-  protected readonly FloraSliderPT = FloraSliderPT;
   protected readonly FloraToastPT = FloraToastPT;
-  protected readonly FloraToggleSwitchPT = FloraToggleSwitchPT;
 
-  protected readonly WATERING_OPTIONS = [...WATERING_OPTIONS];
-  protected readonly SUNLIGHT_OPTIONS = [...SUNLIGHT_OPTIONS];
-  protected readonly CYCLE_OPTIONS = [...CYCLE_OPTIONS];
-  protected readonly PLACEMENT_OPTIONS = [...PLACEMENT_OPTIONS];
-  protected readonly CARE_DIFFICULTY_OPTIONS = [...CARE_DIFFICULTY_OPTIONS];
-  protected readonly MAINTENANCE_OPTIONS = [...MAINTENANCE_OPTIONS];
   protected readonly loadingPlaceholders = [1, 2, 3, 4, 5, 6];
 
-  readonly filterLabels = computed(() => {
+  readonly filterLabels = computed((): FilterLabels => {
     const _lang = this.localeService.locale();
     const t = this.t;
     return {
@@ -171,7 +161,6 @@ export class LibraryComponent {
   readonly selectedGroupKey = signal<string[] | null>(null);
   readonly showAddDialog = signal(false);
   readonly phRange = signal<number[]>([0, 14]);
-  readonly phDisplay = signal<number[]>([0, 14]);
   readonly currentPage = signal(0);
   readonly totalCount = signal(0);
   readonly prefillRecord = signal<{
@@ -182,8 +171,13 @@ export class LibraryComponent {
   readonly wizardVisible = signal(false);
   readonly wizardFromBotanicalRecord = signal<CachedBotanicalRecord | null>(null);
   readonly identifierVisible = signal(false);
+  readonly isFilterSheetOpen = signal(false);
   private readonly _pendingAutoOpenName = signal<string | null>(null);
   private _savedGroupKey: string[] | null = null;
+  private _filterSheetEverOpened = false;
+
+  private readonly _filterSheetRef = viewChild<ElementRef>('filterSheet');
+  private readonly _filterPillRef = viewChild<ElementRef>('filterPill');
 
   readonly groupedResults = computed(() => groupBotanicalRecords(this.localizedResults()));
   readonly selectedKeySet = computed(() => new Set(this.selectedGroupKey() ?? []));
@@ -191,8 +185,6 @@ export class LibraryComponent {
     const keys = this.selectedGroupKey();
     if (!keys) return [];
     const keySet = new Set(keys);
-    // Use the group's sorted varieties (base species first) rather than filtering
-    // from raw results(), which has no guaranteed ordering.
     const group = this.groupedResults().find((g) =>
       g.varieties.some((v) => keySet.has(v.scientific_name)),
     );
@@ -210,26 +202,23 @@ export class LibraryComponent {
   readonly hasSearchCriteria = computed(
     () => this.searchQuery().length >= 2 || this.hasActiveFilters(),
   );
-  readonly hasPhFilter = computed(() => this.phRange()[0] !== 0 || this.phRange()[1] !== 14);
-  readonly hasWateringFilter = computed(() => !!this.filters().watering);
-  readonly hasSunlightFilter = computed(() => !!this.filters().sunlight);
-  readonly hasCycleFilter = computed(() => !!this.filters().cycle);
-  readonly hasPlacementFilter = computed(() => this.filters().placement != null);
-  readonly hasDifficultyFilter = computed(() => (this.filters().careDifficulty?.length ?? 0) > 0);
-  readonly hasMaintenanceFilter = computed(
-    () => (this.filters().maintenanceLevel?.length ?? 0) > 0,
-  );
-  readonly hasTraitFilters = computed(
-    () =>
-      this.filters().isTropical === true ||
-      this.filters().airPurifying === true ||
-      this.filters().isSafeForHumans === true ||
-      this.filters().isPetSafe === true,
-  );
-  readonly isTropicalFilter = computed(() => this.filters().isTropical === true);
-  readonly airPurifyingFilter = computed(() => this.filters().airPurifying === true);
-  readonly isSafeForHumansFilter = computed(() => this.filters().isSafeForHumans === true);
-  readonly isPetSafeFilter = computed(() => this.filters().isPetSafe === true);
+
+  readonly activeFilterCount = computed(() => {
+    const f = this.filters();
+    let count = 0;
+    if (f.placement != null) count++;
+    if (f.sunlight != null) count++;
+    if (f.watering != null) count++;
+    if (f.isTropical) count++;
+    if (f.airPurifying) count++;
+    if (f.isSafeForHumans) count++;
+    if (f.isPetSafe) count++;
+    count += f.careDifficulty?.length ?? 0;
+    count += f.maintenanceLevel?.length ?? 0;
+    if (f.cycle != null) count++;
+    if (this.phRange()[0] !== 0 || this.phRange()[1] !== 14) count++;
+    return count;
+  });
 
   readonly pagedGroupedResults = computed(() => {
     const groups = this.groupedResults();
@@ -242,8 +231,6 @@ export class LibraryComponent {
   readonly hasPrevPage = computed(() => this.currentPage() > 0);
   readonly hasNextPage = computed(() => this.currentPage() < this.totalPages() - 1);
 
-  // Windowed page list with ellipsis gaps — always shows first, last, and
-  // a 5-page window (±2) around the current page.
   readonly pageItems = computed((): Array<number | 'ellipsis'> => {
     const total = this.totalPages();
     const current = this.currentPage();
@@ -268,14 +255,8 @@ export class LibraryComponent {
     return result;
   });
 
-  // Tracks whether the most recent query has received a response (success or error).
-  // Starts false so skeletons appear as soon as criteria is met — no dependency on
-  // isLoading() timing, which eliminates the signal-write race on first search.
   protected readonly searchCompleted = signal(false);
 
-  // Shows skeleton loaders whenever a load is in flight with no results on screen yet.
-  // Driven by isLoading() — set synchronously in _syncLoadingState() — rather than
-  // !searchCompleted() which depends on the effect flush and can lag behind event handlers.
   readonly isInitialLoad = computed(
     () => this.hasSearchCriteria() && this.isLoading() && this.results().length === 0,
   );
@@ -360,43 +341,25 @@ export class LibraryComponent {
       this._pendingAutoOpenName.set(null);
       if (matchingGroup) this.openGroup(matchingGroup);
     });
-  }
 
-  protected showTooltip(event: MouseEvent, text: string): void {
-    const el = event.currentTarget as HTMLElement;
-    const rect = el.getBoundingClientRect();
-    this.tooltipText.set(text);
-    this.tooltipPos.set({ x: rect.right + 8, y: rect.top + rect.height / 2 });
-  }
-
-  protected hideTooltip(): void {
-    this.tooltipPos.set(null);
-  }
-
-  protected filterBtnClass(active: boolean): string {
-    const base =
-      'w-full text-left px-3 py-1.5 text-sm font-display rounded-garden-sm transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 border cursor-pointer';
-    if (active)
-      return `${base} bg-primary-50 text-primary-700 border-primary-200 font-medium dark:bg-primary-900/30 dark:text-primary-300 dark:border-primary-700`;
-    return `${base} text-neutral-600 dark:text-neutral-400 border-transparent hover:bg-neutral-50 dark:hover:bg-neutral-800`;
-  }
-
-  protected multiSelectBtnClass(active: boolean): string {
-    const base =
-      'w-full text-left px-3 py-1.5 text-sm font-display rounded-garden-sm transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 border cursor-pointer flex items-center gap-2';
-    if (active)
-      return `${base} bg-primary-50 text-primary-700 border-primary-200 font-medium dark:bg-primary-900/30 dark:text-primary-300 dark:border-primary-700`;
-    return `${base} text-neutral-600 dark:text-neutral-400 border-transparent hover:bg-neutral-50 dark:hover:bg-neutral-800`;
-  }
-
-  protected checkboxIndicatorClass(active: boolean): string {
-    if (active)
-      return 'w-3.5 h-3.5 rounded-sm flex-shrink-0 bg-primary-500 border border-primary-500';
-    return 'w-3.5 h-3.5 rounded-sm flex-shrink-0 border border-neutral-300 dark:border-neutral-600';
-  }
-
-  protected isFilterActive(key: 'watering' | 'sunlight' | 'cycle', value: string): boolean {
-    return this.filters()[key] === value;
+    // Focus management: move into sheet on open, restore to pill on close
+    effect(() => {
+      const isOpen = this.isFilterSheetOpen();
+      if (isOpen) {
+        this._filterSheetEverOpened = true;
+        setTimeout(() => {
+          const sheet = this._filterSheetRef()?.nativeElement as HTMLElement | undefined;
+          const firstFocusable = sheet?.querySelector<HTMLElement>(
+            'button:not([disabled]), input:not([disabled])',
+          );
+          firstFocusable?.focus();
+        });
+      } else if (this._filterSheetEverOpened) {
+        setTimeout(() => {
+          (this._filterPillRef()?.nativeElement as HTMLElement | undefined)?.focus();
+        });
+      }
+    });
   }
 
   protected onSearchQueryChange(value: string): void {
@@ -404,82 +367,31 @@ export class LibraryComponent {
     this._syncLoadingState();
   }
 
-  protected toggleFilter(key: 'watering' | 'sunlight' | 'cycle', value: string): void {
-    this.filters.update((f) => {
-      const next: LibraryFilters = { ...f };
-      if (f[key] === value) delete next[key];
-      else next[key] = value;
-      return next;
-    });
+  protected onFilterTooltipShow(pos: { x: number; y: number; text: string }): void {
+    this.tooltipText.set(pos.text);
+    this.tooltipPos.set({ x: pos.x, y: pos.y });
+  }
+
+  protected hideTooltip(): void {
+    this.tooltipPos.set(null);
+  }
+
+  protected onFiltersChange(newFilters: LibraryFilters): void {
+    this.filters.set(newFilters);
     this._syncLoadingState();
   }
 
-  protected togglePlacementFilter(value: string): void {
+  protected onPhSlideEndFromFilters(event: { min: number; max: number }): void {
+    this.phRange.set([event.min, event.max]);
     this.filters.update((f) => {
       const next: LibraryFilters = { ...f };
-      if (f.placement === value) delete next.placement;
-      else next.placement = value;
-      return next;
-    });
-    this._syncLoadingState();
-  }
-
-  protected toggleMultiFilter(key: 'careDifficulty' | 'maintenanceLevel', value: string): void {
-    this.filters.update((f) => {
-      const next: LibraryFilters = { ...f };
-      const current = next[key] ?? [];
-      const updated = current.includes(value)
-        ? current.filter((v) => v !== value)
-        : [...current, value];
-      if (updated.length === 0) delete next[key];
-      else next[key] = updated;
-      return next;
-    });
-    this._syncLoadingState();
-  }
-
-  protected isMultiFilterActive(
-    key: 'careDifficulty' | 'maintenanceLevel',
-    value: string,
-  ): boolean {
-    return this.filters()[key]?.includes(value) ?? false;
-  }
-
-  protected setTropicalFilter(v: boolean): void {
-    this.filters.update((f) => {
-      const next: LibraryFilters = { ...f };
-      if (!v) delete next.isTropical;
-      else next.isTropical = true;
-      return next;
-    });
-    this._syncLoadingState();
-  }
-
-  protected setAirPurifyingFilter(v: boolean): void {
-    this.filters.update((f) => {
-      const next: LibraryFilters = { ...f };
-      if (!v) delete next.airPurifying;
-      else next.airPurifying = true;
-      return next;
-    });
-    this._syncLoadingState();
-  }
-
-  protected setSafeForHumansFilter(v: boolean): void {
-    this.filters.update((f) => {
-      const next: LibraryFilters = { ...f };
-      if (!v) delete next.isSafeForHumans;
-      else next.isSafeForHumans = true;
-      return next;
-    });
-    this._syncLoadingState();
-  }
-
-  protected setPetSafeFilter(v: boolean): void {
-    this.filters.update((f) => {
-      const next: LibraryFilters = { ...f };
-      if (!v) delete next.isPetSafe;
-      else next.isPetSafe = true;
+      if (event.min === 0 && event.max === 14) {
+        delete next.phMin;
+        delete next.phMax;
+      } else {
+        next.phMin = event.min;
+        next.phMax = event.max;
+      }
       return next;
     });
     this._syncLoadingState();
@@ -495,63 +407,8 @@ export class LibraryComponent {
     this._translateCurrentPage();
   }
 
-  private _activeHandle: 0 | 1 | null = null;
-  private _isCrossed = false;
-
-  protected onPhSliderMouseDown(event: MouseEvent): void {
-    const target = event.target as Element;
-    if (target.closest('[data-pc-section="startHandler"]')) {
-      this._activeHandle = 0;
-      this._isCrossed = false;
-    } else if (target.closest('[data-pc-section="endHandler"]')) {
-      this._activeHandle = 1;
-      this._isCrossed = false;
-    }
-  }
-
-  protected onPhChange(event: { values?: number[] }): void {
-    if (!event.values) return;
-    const [rawA, rawB] = event.values as [number, number];
-
-    if (rawA <= rawB) {
-      this._isCrossed = false;
-      this.phRange.set([rawA, rawB]);
-      this.phDisplay.set([rawA, rawB]);
-    } else {
-      if (!this._isCrossed) this._isCrossed = true;
-      // pushed = position of the grabbed handle, which the other handle catches up to
-      const pushed = this._activeHandle === 0 ? rawA : rawB;
-      this.phRange.set([pushed, pushed]);
-      this.phDisplay.set([pushed, pushed]);
-    }
-  }
-
-  protected onPhSlideEnd(event: SliderSlideEndEvent): void {
-    this._activeHandle = null;
-    this._isCrossed = false;
-    if (!event.values) return;
-    const rawVals = event.values as number[];
-    const min = Math.min(...rawVals);
-    const max = Math.max(...rawVals);
-    this.filters.update((f) => {
-      const next: LibraryFilters = { ...f };
-      if (min === 0 && max === 14) {
-        delete next.phMin;
-        delete next.phMax;
-      } else {
-        next.phMin = min;
-        next.phMax = max;
-      }
-      return next;
-    });
-    this._syncLoadingState();
-  }
-
   private _syncLoadingState(): void {
     if (this.searchQuery().length >= 2 || Object.keys(this.filters()).length > 0) {
-      // Reset searchCompleted synchronously so isInitialLoad evaluates correctly before
-      // the effect flush. Without this, a completed previous search leaves searchCompleted
-      // true, which would hide the skeleton on the next load cycle.
       this.searchCompleted.set(false);
       this.isLoading.set(true);
     }
@@ -559,7 +416,6 @@ export class LibraryComponent {
 
   protected clearPhFilter(): void {
     this.phRange.set([0, 14]);
-    this.phDisplay.set([0, 14]);
     this.filters.update((f) => {
       const next: LibraryFilters = { ...f };
       delete next.phMin;
@@ -571,7 +427,6 @@ export class LibraryComponent {
   protected clearFilters(): void {
     this.filters.set({});
     this.phRange.set([0, 14]);
-    this.phDisplay.set([0, 14]);
   }
 
   protected onDetailClose(visible: boolean): void {
@@ -584,17 +439,14 @@ export class LibraryComponent {
     const record = await this.libraryService.fetchByScientificName(event.scientific_name);
 
     if (record) {
-      // Fast path: record is cached — open detail immediately without waiting for search
       this.results.set([record]);
       const group = this.groupedResults().find((g) =>
         g.varieties.some((v) => v.scientific_name === event.scientific_name),
       );
       if (group) this.openGroup(group);
-      // Background: run the full search so the library populates behind the open dialog
       this.searchQuery.set(event.common_name);
       this._syncLoadingState();
     } else {
-      // Slow path: record not in cache yet — search and auto-open when it lands
       this._pendingAutoOpenName.set(event.scientific_name);
       this.searchQuery.set(event.common_name);
       this._syncLoadingState();
@@ -703,8 +555,6 @@ export class LibraryComponent {
     this._triggerTranslation(this.dialogRecords());
   }
 
-  // Starts the enrichment poll and triggers enrichment for records on the current
-  // page only — avoids firing AI/iNat calls for all 1,000 loaded results at once.
   private _enrichCurrentPage(): void {
     const pageRecords = this.pagedGroupedResults().flatMap((g) => g.varieties);
     const needsGallery = (r: (typeof pageRecords)[0]) =>
@@ -743,8 +593,6 @@ export class LibraryComponent {
     this._translationPoll.stop();
     this.isLoading.set(true);
     try {
-      // Fetch all matching records in one shot — grouping and client-side pagination
-      // slice them via pagedGroupedResults(). 1000 covers any realistic botanical library.
       const result =
         query.length >= 2
           ? await this.libraryService.search(query, f, 0, 1000)

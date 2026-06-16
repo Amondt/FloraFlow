@@ -824,7 +824,12 @@
       "rankVariety": "Variëteit",
       "rankForm": "Vorm",
       "rankHybrid": "Hybride"
-    }
+    },
+    "filterPillAriaLabel": "Filterpaneel openen",
+    "filterPillLabel": "Filters",
+    "filterSheetAriaLabel": "Filteropties",
+    "filterSheetDoneAriaLabel": "Klaar — filterpaneel sluiten",
+    "filterSheetDone": "Klaar"
   },
   "tags": {
     "placementIndoor": "Binnen",

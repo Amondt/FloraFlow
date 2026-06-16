@@ -233,6 +233,11 @@ html:has(.flora-dialog-mask) {
   overflow: hidden;
 }
 
+/* Lock body scroll while the mobile library filter sheet is open. */
+html:has(.flora-filter-sheet) {
+  overflow: hidden;
+}
+
 /* Slide-up entry for the mobile bottom-sheet variant of the ghost select overlay
    (journal plant filter). Scoped to <md via the max-md: animate utility in select.pt.ts. */
 @keyframes flora-sheet-up {

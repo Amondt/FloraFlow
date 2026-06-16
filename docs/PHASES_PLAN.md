@@ -407,18 +407,18 @@
   - The `flex items-start justify-between` header (title + action cluster) overflows on `<md` across dashboard, tasks, journal (worst: plant filter + Diagnose + New entry), library, seeds, zone-detail. Let the action cluster wrap/stack below the title, keeping the §6.7 ghost-button style.
   - Plan: `docs/plans/phase-5/PHASE_5_4_PLAN.md`
 
-- [ ] **5.5 Page Padding & Overflow Sweep** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+- [x] **5.5 Page Padding & Overflow Sweep** | Agent: `/visualizer` · Model: Sonnet · Effort: low
   - `p-6` → `px-4 py-6 md:p-6` on every feature `<main>` (dashboard, tasks, journal, library, seeds, zone-detail).
   - Scheduler section-header italic hints hidden `<md` (`max-md:hidden`).
   - Zero horizontal overflow at 375 px on every route. **Journal/seeds tabs already responsive via `app-scroll-tabs` — no change.**
   - Plan: `docs/plans/phase-5/PHASE_5_5_PLAN.md`
 
-- [ ] **5.6 Touch Targets & Tap Feedback** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **5.6 Touch Targets & Tap Feedback** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - Audit against `DESIGN_SYSTEM.md §8`; apply Strategy A/B where the 44 px gap isn't already covered (e.g. `plant-alert-card` edit/delete icons, library pagination `w-8 h-8`). **Skip already-done `seed-batch-card` + substrate chips.**
   - `active:opacity-70 transition-opacity` on alert/zone/journal cards + dashboard task chips; `touch-action: manipulation` on card `<ul>` lists; pair `hover:` feedback with `active:`.
   - Plan: `docs/plans/phase-5/PHASE_5_6_PLAN.md`
 
-- [ ] **5.7 Library Filter Bottom Sheet** | Agent: `/visualizer` · Model: Opus · Effort: mid
+- [x] **5.7 Library Filter Bottom Sheet** | Agent: `/visualizer` · Model: Opus · Effort: mid
   - Extract a shared presentational `library-filters` component (the 9 `<details>` sections) so the desktop `<aside>` and the mobile sheet render the same markup (DRY/SRP); `library.ts` keeps `filters()`/`clearFilters()`.
   - `<md`: hide sidebar; "Filters" pill + active-count badge above results; tap → full-width bottom sheet (CSS transform slide-up), dismiss on outside tap / "Done"; safe-area pad. `md+`: sidebar unchanged.
   - Plan: `docs/plans/phase-5/PHASE_5_7_PLAN.md`

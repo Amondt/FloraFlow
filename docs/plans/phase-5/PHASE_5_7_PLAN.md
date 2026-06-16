@@ -8,18 +8,18 @@
 
 ---
 
-- [ ] **Block A — Extract `library-filters` presentational component** | Agent: `/visualizer` · Model: Opus · Effort: mid
+- [x] **Block A — Extract `library-filters` presentational component** | Agent: `/visualizer` · Model: Opus · Effort: mid
   - The nine `<details>` filter sections currently live inline in `library.html` (~470 lines). To render them in **both** the desktop `<aside>` and the mobile sheet without duplicating markup, extract them into a dumb presentational component `src/app/features/library/library-filters/library-filters.{ts,html}` (`CODE_RULES.md` DRY + Single Responsibility — the markup is repeated across two containers, well past the 3-line threshold).
   - Inputs/outputs mirror what `library.ts` already exposes: the `filters()` value + option lists + label maps in; toggle/clear events out. **No service calls in this component** — `library.ts` remains the smart container owning `filters()`, `clearFilters()`, and all query logic. This is purely lifting the template + its `@Input`/`@Output` surface.
   - The pH slider tooltip behaviour is touched in 5.10 — keep the markup intact here; 5.10 rebases onto the extracted component.
 
-- [ ] **Block B — Desktop sidebar uses the component** | Agent: `/visualizer` · Model: Opus · Effort: mid
+- [x] **Block B — Desktop sidebar uses the component** | Agent: `/visualizer` · Model: Opus · Effort: mid
   - In `library.html`, replace the inline `<details>` block inside `<aside>` with `<app-library-filters ... />`. The `<aside class="w-52 ... max-md:hidden">` wrapper stays; add `max-md:hidden` so it disappears on phones. Confirm desktop filtering is byte-for-byte unchanged.
 
-- [ ] **Block C — Filters pill + active count (`<md`)** | Agent: `/visualizer` · Model: Opus · Effort: mid
+- [x] **Block C — Filters pill + active count (`<md`)** | Agent: `/visualizer` · Model: Opus · Effort: mid
   - Above the results `<section>`, add a `md:hidden` "Filters" pill button. Show a badge with the active-filter count; hide the badge when zero. Reuse the existing `hasActiveFilters()` plus a small `activeFilterCount()` computed (count the set dimensions) in `library.ts`.
 
-- [ ] **Block D — Bottom sheet** | Agent: `/visualizer` · Model: Opus · Effort: mid
+- [x] **Block D — Bottom sheet** | Agent: `/visualizer` · Model: Opus · Effort: mid
   - A `md:hidden` overlay: a backdrop (`fixed inset-0 bg-neutral-900/50`) + a bottom panel (`fixed inset-x-0 bottom-0 max-h-[85vh] overflow-y-auto pb-safe rounded-t-garden-lg`) holding `<app-library-filters />` plus a sticky "Done" button. Slide-in via CSS `transform`/`transition` driven by an `isFilterSheetOpen` signal.
   - Dismiss on: backdrop tap, "Done" tap, and `Escape`. Trap nothing fancy — but move focus into the sheet on open and restore on close (`afterNextRender` focus, per `DESIGN_SYSTEM §7.1`).
   - `clearFilters()` and every toggle continue to drive the same `filters()` signal — results update live behind the sheet.

@@ -137,14 +137,10 @@ input[type='search']::-webkit-search-cancel-button:hover {
   }
 }
 
-/* Prevent touch "rubber-band" overscroll from revealing page background below the fixed
-   bottom-nav bar on mobile — scrolling past the bottom of the document briefly exposes
-   whatever's behind position:fixed elements until the bounce settles back. Vertical-only
-   so horizontal swipe gestures (carousels, scroll-tabs) are unaffected. */
-html,
-body {
-  overscroll-behavior-y: none;
-}
+/* `overscroll-behavior-y: none` on html/body was tried here to stop the rubber-band reveal
+   behind the fixed bottom-nav, but it breaks touch scrolling of the main document entirely
+   under Chrome's mobile device toolbar (confirmed: removing it restores scroll, scoping it
+   to `body`-only did not). Cosmetic fix isn't worth a core-scroll regression — removed. */
 
 /* pTooltip (appendTo="body") — renders in document.body, escapes overflow containers.
    PrimeNG unstyled mode produces no default visual; these rules provide the FloraFlow style.

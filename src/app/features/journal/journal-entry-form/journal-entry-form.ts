@@ -37,6 +37,7 @@ import { ImageCompressorService } from '../../../core/services/image-compressor.
 import { SupabaseService } from '../../../core/services/supabase.service';
 import { CATEGORY_OPTIONS, CATEGORY_KEY, type LogCategoryType } from '../journal-categories';
 import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-icon';
+import { PhotoCaptureInputComponent } from '../../../shared/components/photo-capture-input/photo-capture-input';
 
 interface PlantItemOption {
   label: string;
@@ -57,6 +58,7 @@ interface PlantItemOption {
     InputTextModule,
     TranslocoPipe,
     LeafIconComponent,
+    PhotoCaptureInputComponent,
   ],
   templateUrl: './journal-entry-form.html',
 })
@@ -233,11 +235,18 @@ export class JournalEntryFormComponent implements OnDestroy {
     this.existingPhotoRemoved.set(true);
   }
 
+  protected async onPhotoCaptured(file: File): Promise<void> {
+    await this._processPhotoFile(file);
+  }
+
   async onFileChange(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
+    await this._processPhotoFile(file);
+  }
 
+  private async _processPhotoFile(file: File): Promise<void> {
     this.compressedBlob.set(null);
     this.compressedLabel.set(null);
     const oldUrl = this.previewObjectUrl();

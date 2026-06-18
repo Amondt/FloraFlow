@@ -1,7 +1,6 @@
 import {
   Component,
   DestroyRef,
-  ElementRef,
   OnDestroy,
   computed,
   effect,
@@ -46,6 +45,7 @@ import {
   type PlantOptionGroup,
 } from '../../../shared/components/plant-select/plant-select';
 import { LeafDoctorBadgesComponent } from '../leaf-doctor-badges/leaf-doctor-badges';
+import { PhotoCaptureInputComponent } from '../../../shared/components/photo-capture-input/photo-capture-input';
 import type { Json } from '../../../../types/database.types';
 
 @Component({
@@ -60,6 +60,7 @@ import type { Json } from '../../../../types/database.types';
     TranslocoPipe,
     PlantSelectComponent,
     LeafDoctorBadgesComponent,
+    PhotoCaptureInputComponent,
   ],
   templateUrl: './leaf-doctor-dialog.html',
 })
@@ -87,7 +88,6 @@ export class LeafDoctorDialogComponent implements OnDestroy {
 
   readonly symptomNotesId = `flora-${crypto.randomUUID().slice(0, 8)}`;
 
-  protected readonly photoInputRef = viewChild<ElementRef<HTMLInputElement>>('photoInputRef');
   private readonly _plantSelect = viewChild<PlantSelectComponent>('plantSelectRef');
 
   readonly selectedPlantId = signal<string | null>(null);
@@ -251,16 +251,8 @@ export class LeafDoctorDialogComponent implements OnDestroy {
     }
   }
 
-  protected triggerPhotoInput(): void {
-    this.photoInputRef()?.nativeElement.click();
-  }
-
-  async onFileChange(event: Event): Promise<void> {
+  protected async onPhotoCaptured(file: File): Promise<void> {
     if (!this.canAddPhoto() || this.isCompressing()) return;
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-    input.value = '';
 
     this.diagnosisState.set('idle');
     this.diagnosisResult.set(null);
@@ -457,7 +449,5 @@ export class LeafDoctorDialogComponent implements OnDestroy {
     this.speciesMismatchName.set(null);
     this.identifiedPlant.set(null);
     this.symptomNotes.set('');
-    const photoEl = this.photoInputRef()?.nativeElement;
-    if (photoEl) photoEl.value = '';
   }
 }

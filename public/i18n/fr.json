@@ -1,4 +1,10 @@
 {
+  "photoCapture": {
+    "takePhoto": "Prendre une photo",
+    "takePhotoAriaLabel": "Prendre une photo avec la caméra arrière",
+    "chooseFromLibrary": "Choisir depuis la galerie",
+    "chooseFromLibraryAriaLabel": "Choisir une photo depuis la galerie de votre appareil"
+  },
   "common": {
     "cancel": "Annuler",
     "save": "Enregistrer",

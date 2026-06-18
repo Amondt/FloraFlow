@@ -1,4 +1,10 @@
 {
+  "photoCapture": {
+    "takePhoto": "Foto nemen",
+    "takePhotoAriaLabel": "Foto nemen met de achterste camera",
+    "chooseFromLibrary": "Kiezen uit bibliotheek",
+    "chooseFromLibraryAriaLabel": "Kies een foto uit de bibliotheek van uw apparaat"
+  },
   "common": {
     "cancel": "Annuleren",
     "save": "Opslaan",

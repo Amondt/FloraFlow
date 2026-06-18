@@ -349,19 +349,12 @@
           </div>
         </div>
       } @else {
-        <!-- No photo yet (create mode, or photo removed) — show trigger button -->
-        <button
-          type="button"
-          [class]="
-            FLORA_FOCUS +
-            ' flex w-full items-center gap-2 px-3 h-control text-sm font-medium font-display text-neutral-600 dark:text-neutral-200 bg-neutral-50 dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 rounded-garden-sm hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-150 cursor-pointer'
-          "
-          [attr.aria-label]="'journal.entryForm.photoChooseAriaLabel' | transloco"
-          (click)="triggerPhotoInput()"
-        >
-          <i class="pi pi-paperclip text-xs" aria-hidden="true"></i>
-          {{ 'journal.entryForm.photoChoose' | transloco }}
-        </button>
+        <!-- No photo yet (create mode, or photo removed) -->
+        <app-photo-capture-input
+          [triggerLabel]="'journal.entryForm.photoChoose' | transloco"
+          [triggerAriaLabel]="'journal.entryForm.photoChooseAriaLabel' | transloco"
+          (fileSelected)="onPhotoCaptured($event)"
+        />
       }
     </div>
   </form>

@@ -9,8 +9,16 @@
   [pt]="FloraFormDialogPT"
 >
   <div class="flex flex-col gap-5" [attr.aria-busy]="identState() === 'loading'">
-    <!-- Idle: drag-drop zone + hidden file input -->
+    <!-- Idle: photo input -->
     @if (identState() === 'idle') {
+      <!-- Mobile (<md): camera-aware two-button input -->
+      <app-photo-capture-input
+        class="md:hidden"
+        [triggerAriaLabel]="'botanical.identifier.uploadDropzoneAria' | transloco"
+        (fileSelected)="runIdentification($event)"
+      />
+
+      <!-- Desktop (md+): drag-drop zone + hidden file input -->
       <input
         type="file"
         #photoInputRef
@@ -23,7 +31,7 @@
         type="button"
         [class]="
           FLORA_FOCUS +
-          ' cursor-pointer w-full flex flex-col items-center justify-center gap-3 py-10 border-2 border-dashed rounded-garden-md transition-colors duration-150 ' +
+          ' max-md:hidden cursor-pointer w-full flex flex-col items-center justify-center gap-3 py-10 border-2 border-dashed rounded-garden-md transition-colors duration-150 ' +
           (isDragOver()
             ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/10'
             : 'border-neutral-200 dark:border-neutral-600 hover:border-primary-400 hover:bg-neutral-50 dark:hover:bg-neutral-800')

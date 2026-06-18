@@ -32,6 +32,7 @@ import {
 import { EnrichmentPoll } from '../../utils/enrichment-poll';
 import { LeafIconComponent } from '../leaf-icon/leaf-icon';
 import { BotanicalTagsComponent } from '../botanical-tags/botanical-tags';
+import { PhotoCaptureInputComponent } from '../photo-capture-input/photo-capture-input';
 
 export interface PlantIdentifiedEvent {
   common_name: string;
@@ -53,6 +54,7 @@ type IdentErrorKind = 'invalid-image' | 'api-error';
     TranslocoPipe,
     LeafIconComponent,
     BotanicalTagsComponent,
+    PhotoCaptureInputComponent,
   ],
   templateUrl: './plant-identifier-dialog.html',
 })
@@ -169,7 +171,7 @@ export class PlantIdentifierDialogComponent {
     await this.runIdentification(file);
   }
 
-  private async runIdentification(file: File): Promise<void> {
+  protected async runIdentification(file: File): Promise<void> {
     const prevUrl = this.uploadedPhotoUrl();
     if (prevUrl) URL.revokeObjectURL(prevUrl);
     this.uploadedPhotoUrl.set(URL.createObjectURL(file));

@@ -106,43 +106,23 @@
         <span class="sr-only">(required)</span>
       </span>
 
-      <!-- Hidden native file input — reused for each photo addition -->
-      <input
-        type="file"
-        #photoInputRef
-        accept="image/*"
-        class="sr-only"
-        [attr.aria-label]="'leafDoctor.photoUploadAriaLabel' | transloco"
-        (change)="onFileChange($event)"
-      />
-
-      <!-- "Add photo" button — hidden once 3 photos are loaded -->
+      <!-- "Add photo" — hidden once 3 photos are loaded -->
       @if (canAddPhoto()) {
-        <button
-          type="button"
-          [disabled]="isCompressing()"
-          [class]="
-            FLORA_FOCUS +
-            ' ' +
-            FLORA_DISABLED +
-            ' cursor-pointer flex w-full items-center gap-2 px-3 h-control text-sm font-medium font-display text-neutral-600 dark:text-neutral-200 bg-neutral-50 dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 rounded-garden-sm hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-150'
+        <app-photo-capture-input
+          [triggerLabel]="
+            isCompressing()
+              ? ('leafDoctor.processingLabel' | transloco)
+              : ('leafDoctor.addPhotoLabel' | transloco: { count: compressedBlobs().length })
           "
-          [attr.aria-label]="
+          [triggerAriaLabel]="
             isCompressing()
               ? ('leafDoctor.processingAriaLabel' | transloco)
               : ('leafDoctor.addPhotoAriaLabel' | transloco)
           "
-          [attr.aria-busy]="isCompressing()"
-          (click)="triggerPhotoInput()"
-        >
-          @if (isCompressing()) {
-            <i class="pi pi-spinner animate-spin text-xs" aria-hidden="true"></i>
-            {{ 'leafDoctor.processingLabel' | transloco }}
-          } @else {
-            <i class="pi pi-paperclip text-xs" aria-hidden="true"></i>
-            {{ 'leafDoctor.addPhotoLabel' | transloco: { count: compressedBlobs().length } }}
-          }
-        </button>
+          [disabled]="isCompressing()"
+          [loading]="isCompressing()"
+          (fileSelected)="onPhotoCaptured($event)"
+        />
       }
 
       <!-- Same-plant guidance: multi-image is one plant, many angles -->

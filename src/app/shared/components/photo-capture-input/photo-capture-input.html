@@ -1,0 +1,84 @@
+<!-- Mobile (<md): two labelled action buttons — camera + library -->
+<div class="flex flex-col gap-2 md:hidden">
+  <button
+    type="button"
+    [class]="
+      FLORA_FOCUS +
+      ' ' +
+      FLORA_DISABLED +
+      ' cursor-pointer flex w-full items-center gap-2 px-3 h-control pointer-coarse:min-h-11 text-sm font-medium font-display text-neutral-600 dark:text-neutral-200 bg-neutral-50 dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 rounded-garden-sm hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-150'
+    "
+    [attr.aria-label]="'photoCapture.takePhotoAriaLabel' | transloco"
+    [disabled]="disabled()"
+    (click)="triggerCameraInput()"
+  >
+    <i class="pi pi-camera text-xs" aria-hidden="true"></i>
+    {{ 'photoCapture.takePhoto' | transloco }}
+  </button>
+  <input
+    type="file"
+    #cameraInputRef
+    accept="image/*"
+    capture="environment"
+    class="sr-only"
+    tabindex="-1"
+    [disabled]="disabled()"
+    (change)="onInputChange($event)"
+  />
+
+  <button
+    type="button"
+    [class]="
+      FLORA_FOCUS +
+      ' ' +
+      FLORA_DISABLED +
+      ' cursor-pointer flex w-full items-center gap-2 px-3 h-control pointer-coarse:min-h-11 text-sm font-medium font-display text-neutral-600 dark:text-neutral-200 bg-neutral-50 dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 rounded-garden-sm hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-150'
+    "
+    [attr.aria-label]="'photoCapture.chooseFromLibraryAriaLabel' | transloco"
+    [disabled]="disabled()"
+    (click)="triggerLibraryInput()"
+  >
+    <i class="pi pi-image text-xs" aria-hidden="true"></i>
+    {{ 'photoCapture.chooseFromLibrary' | transloco }}
+  </button>
+  <input
+    type="file"
+    #libraryInputRef
+    accept="image/*"
+    class="sr-only"
+    tabindex="-1"
+    [disabled]="disabled()"
+    (change)="onInputChange($event)"
+  />
+</div>
+
+<!-- Desktop (md+): single trigger button matching existing UI -->
+<button
+  type="button"
+  [class]="
+    FLORA_FOCUS +
+    ' ' +
+    FLORA_DISABLED +
+    ' hidden md:flex cursor-pointer w-full items-center gap-2 px-3 h-control text-sm font-medium font-display text-neutral-600 dark:text-neutral-200 bg-neutral-50 dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 rounded-garden-sm hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors duration-150'
+  "
+  [attr.aria-label]="triggerAriaLabel() || null"
+  [attr.aria-busy]="loading() ? true : null"
+  [disabled]="disabled() || loading()"
+  (click)="triggerDesktopInput()"
+>
+  @if (loading()) {
+    <i class="pi pi-spinner animate-spin text-xs" aria-hidden="true"></i>
+  } @else {
+    <i class="pi pi-paperclip text-xs" aria-hidden="true"></i>
+  }
+  {{ triggerLabel() }}
+</button>
+<input
+  type="file"
+  #desktopInputRef
+  accept="image/*"
+  class="sr-only"
+  tabindex="-1"
+  [disabled]="disabled() || loading()"
+  (change)="onInputChange($event)"
+/>

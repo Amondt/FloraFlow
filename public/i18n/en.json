@@ -1,4 +1,10 @@
 {
+  "photoCapture": {
+    "takePhoto": "Take photo",
+    "takePhotoAriaLabel": "Take a photo using the rear camera",
+    "chooseFromLibrary": "Choose from library",
+    "chooseFromLibraryAriaLabel": "Choose a photo from your device library"
+  },
   "common": {
     "cancel": "Cancel",
     "save": "Save",

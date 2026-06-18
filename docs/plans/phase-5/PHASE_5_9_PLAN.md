@@ -11,7 +11,7 @@
 
 ---
 
-- [ ] **Block A — Shared `photo-capture-input` component** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **Block A — Shared `photo-capture-input` component** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - Three surfaces would otherwise each duplicate the "Take photo / Choose" markup → extract one dumb presentational component `src/app/shared/components/photo-capture-input/photo-capture-input.{ts,html}` (`CODE_RULES.md` DRY).
   - Behaviour:
     - `<md`: two labelled buttons — **Take photo** wrapping `<input type="file" accept="image/*" capture="environment">` (rear camera), and **Choose from library** wrapping `<input type="file" accept="image/*">` (media picker). Raw inputs visually hidden inside `<label>`s.
@@ -19,7 +19,7 @@
   - API: an `@Output() fileSelected = output<File>()` (or emit the change event) + inputs for the trigger label / aria-label / `disabled`. The component does **no** compression — it just surfaces the chosen `File`; the host runs its existing pipeline.
   - Confirm `capture="environment"` behaviour/attribute support via context7 (MDN/HTML spec) before finalising.
 
-- [ ] **Block B — Wire the three surfaces** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **Block B — Wire the three surfaces** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - **journal-entry-form**: replace the single `triggerPhotoInput()` button (the "no photo yet" branch) with `<app-photo-capture-input>`; keep the existing preview / replace / remove / leaf-doctor-locked branches unchanged; route the emitted file into the current `onFileChange` logic.
   - **plant-identifier-dialog**: on `<md`, replace the desktop drag-drop dropzone with `<app-photo-capture-input>` (drag-drop is meaningless on touch). Keep the dropzone on `md+` (`max-md:hidden`). Feed the file into `onFileChange`/`triggerPhotoInput`’s handler.
   - **leaf-doctor-dialog**: the "Add photo" button (shown while `canAddPhoto()`) becomes `<app-photo-capture-input>` so each of the up-to-3 additions can come from the camera; keep the thumbnail row + remove buttons + the 3-photo cap logic intact.

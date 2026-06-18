@@ -132,4 +132,73 @@ describe('PhotoLightboxDialogComponent', () => {
       expect(c['isImageLoading']()).toBe(false);
     });
   });
+
+  describe('swipe navigation', () => {
+    function ptr(clientX: number, pointerId = 1): PointerEvent {
+      return { clientX, pointerId } as unknown as PointerEvent;
+    }
+
+    it('navigates to next photo on a left swipe exceeding threshold', () => {
+      const c = create(THREE_PHOTOS);
+      c['onLightboxPointerDown'](ptr(100));
+      c['onLightboxPointerUp'](ptr(50)); // delta = -50
+      expect(c['activeIndex']()).toBe(1);
+    });
+
+    it('navigates to prev photo on a right swipe exceeding threshold', () => {
+      const c = create(THREE_PHOTOS);
+      c['activeIndex'].set(2);
+      c['onLightboxPointerDown'](ptr(100));
+      c['onLightboxPointerUp'](ptr(150)); // delta = +50
+      expect(c['activeIndex']()).toBe(1);
+    });
+
+    it('does not navigate when delta is below the 40 px threshold', () => {
+      const c = create(THREE_PHOTOS);
+      c['onLightboxPointerDown'](ptr(100));
+      c['onLightboxPointerUp'](ptr(70)); // delta = -30
+      expect(c['activeIndex']()).toBe(0);
+    });
+
+    it('ignores pointerup from a different pointer id', () => {
+      const c = create(THREE_PHOTOS);
+      c['onLightboxPointerDown'](ptr(100, 1));
+      c['onLightboxPointerUp'](ptr(50, 2));
+      expect(c['activeIndex']()).toBe(0);
+    });
+
+    it('resets hasSwiped on pointercancel so close() works afterwards', () => {
+      const c = create(THREE_PHOTOS);
+      c.visible.set(true);
+      c['onLightboxPointerDown'](ptr(100));
+      c['onLightboxPointerCancel']();
+      c['close']();
+      expect(c.visible()).toBe(false);
+    });
+  });
+
+  describe('close() swipe guard', () => {
+    function ptr(clientX: number, pointerId = 1): PointerEvent {
+      return { clientX, pointerId } as unknown as PointerEvent;
+    }
+
+    it('does not close after a swipe completes (guard consumes the click)', () => {
+      const c = create(THREE_PHOTOS);
+      c.visible.set(true);
+      c['onLightboxPointerDown'](ptr(100));
+      c['onLightboxPointerUp'](ptr(50)); // left swipe
+      c['close']();
+      expect(c.visible()).toBe(true);
+    });
+
+    it('clears the guard after firing so the next close() call succeeds', () => {
+      const c = create(THREE_PHOTOS);
+      c.visible.set(true);
+      c['onLightboxPointerDown'](ptr(100));
+      c['onLightboxPointerUp'](ptr(50)); // swipe — sets _hasSwiped
+      c['close'](); // guard fires, resets _hasSwiped
+      c['close'](); // now closes
+      expect(c.visible()).toBe(false);
+    });
+  });
 });

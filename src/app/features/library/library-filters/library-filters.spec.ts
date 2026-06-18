@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { Signal } from '@angular/core';
+import { Signal, WritableSignal } from '@angular/core';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { LibraryFiltersComponent, FilterLabels } from './library-filters';
 import { LibraryFilters } from '../library.service';
@@ -24,7 +24,11 @@ type LibraryFiltersInternals = {
   onToggleFilter(key: 'watering' | 'sunlight' | 'cycle', value: string): void;
   onToggleMultiFilter(key: 'careDifficulty' | 'maintenanceLevel', value: string): void;
   onPhChange(event: { values?: number[] }): void;
+  onToggleTooltip(event: Event, id: string, text: string): void;
+  onMouseLeaveTooltip(): void;
+  onEscapeTooltip(): void;
   _activeHandle: 0 | 1 | null;
+  openTooltipId: WritableSignal<string | null>;
   hasPlacementFilter: Signal<boolean>;
   hasSunlightFilter: Signal<boolean>;
   hasDifficultyFilter: Signal<boolean>;
@@ -272,6 +276,85 @@ describe('LibraryFiltersComponent', () => {
     it('hasPhFilter is false at default [0, 14]', () => {
       const fixture = create();
       expect(internals(fixture.componentInstance).hasPhFilter()).toBe(false);
+    });
+  });
+
+  describe('onToggleTooltip', () => {
+    function makeTooltipEvent(): Event {
+      const el = {
+        getBoundingClientRect: () => ({ right: 100, top: 50, height: 20 }),
+      } as unknown as HTMLElement;
+      return { stopPropagation: vi.fn(), currentTarget: el } as unknown as Event;
+    }
+
+    it('opens a tooltip and emits tooltipShow with position + text', () => {
+      const fixture = create();
+      const comp = fixture.componentInstance;
+      const showSpy = vi.spyOn(comp.tooltipShow, 'emit');
+      internals(comp).onToggleTooltip(makeTooltipEvent(), 'placement', 'tip text');
+      expect(internals(comp).openTooltipId()).toBe('placement');
+      expect(showSpy).toHaveBeenCalledWith(expect.objectContaining({ text: 'tip text' }));
+    });
+
+    it('closes the same tooltip and emits tooltipHide when toggled again', () => {
+      const fixture = create();
+      const comp = fixture.componentInstance;
+      const hideSpy = vi.spyOn(comp.tooltipHide, 'emit');
+      const event = makeTooltipEvent();
+      internals(comp).onToggleTooltip(event, 'placement', 'tip');
+      internals(comp).onToggleTooltip(event, 'placement', 'tip');
+      expect(internals(comp).openTooltipId()).toBeNull();
+      expect(hideSpy).toHaveBeenCalled();
+    });
+
+    it('switches to a different tooltip without leaving the first open', () => {
+      const fixture = create();
+      const comp = fixture.componentInstance;
+      const showSpy = vi.spyOn(comp.tooltipShow, 'emit');
+      const event = makeTooltipEvent();
+      internals(comp).onToggleTooltip(event, 'placement', 'text a');
+      internals(comp).onToggleTooltip(event, 'sunlight', 'text b');
+      expect(internals(comp).openTooltipId()).toBe('sunlight');
+      expect(showSpy).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('onMouseLeaveTooltip', () => {
+    it('emits tooltipHide when no tooltip is pinned', () => {
+      const fixture = create();
+      const comp = fixture.componentInstance;
+      const hideSpy = vi.spyOn(comp.tooltipHide, 'emit');
+      internals(comp).onMouseLeaveTooltip();
+      expect(hideSpy).toHaveBeenCalled();
+    });
+
+    it('does not emit tooltipHide when a tooltip is pinned open', () => {
+      const fixture = create();
+      const comp = fixture.componentInstance;
+      internals(comp).openTooltipId.set('placement');
+      const hideSpy = vi.spyOn(comp.tooltipHide, 'emit');
+      internals(comp).onMouseLeaveTooltip();
+      expect(hideSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('onEscapeTooltip', () => {
+    it('clears openTooltipId and emits tooltipHide when a tooltip is open', () => {
+      const fixture = create();
+      const comp = fixture.componentInstance;
+      internals(comp).openTooltipId.set('sunlight');
+      const hideSpy = vi.spyOn(comp.tooltipHide, 'emit');
+      internals(comp).onEscapeTooltip();
+      expect(internals(comp).openTooltipId()).toBeNull();
+      expect(hideSpy).toHaveBeenCalled();
+    });
+
+    it('does not emit tooltipHide when no tooltip is open', () => {
+      const fixture = create();
+      const comp = fixture.componentInstance;
+      const hideSpy = vi.spyOn(comp.tooltipHide, 'emit');
+      internals(comp).onEscapeTooltip();
+      expect(hideSpy).not.toHaveBeenCalled();
     });
   });
 });

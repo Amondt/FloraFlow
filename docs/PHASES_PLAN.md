@@ -427,12 +427,12 @@
   - The zone-detail plant-card footer packs **7 actions in a non-wrapping row** → overflow at 375 px. Restructure for `<md`: keep primary "Check soil" prominent; secondary actions wrap or group. Preserve `z-20` layering over the card-cover button and the care-tips accordion.
   - Plan: `docs/plans/phase-5/PHASE_5_8_PLAN.md`
 
-- [ ] **5.9 Camera-Aware Photo Capture (3 surfaces)** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **5.9 Camera-Aware Photo Capture (3 surfaces)** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - Extract a shared `photo-capture-input` component: `<md` shows **Take photo** (`capture="environment"`) + **Choose from library**; `md+` keeps the single styled trigger. Same `onFileChange` contract + canvas compression.
   - Wire into **all three** surfaces: `journal-entry-form`, `plant-identifier-dialog` (replaces desktop-only drag-drop on `<md`), `leaf-doctor-dialog`.
   - Plan: `docs/plans/phase-5/PHASE_5_9_PLAN.md`
 
-- [ ] **5.10 Pointer/Hover Fixes + Carousel Swipe** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **5.10 Pointer/Hover Fixes + Carousel Swipe** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - Library pH slider wrapper `(mousedown)` → `(pointerdown)`.
   - Library filter info tooltips: convert the current `(mouseenter)/(mouseleave)` popups (**not** `group-hover`) to a `signal<boolean>` tap-toggle; one open at a time; close on `(document:click)`.
   - `species-photo-carousel`: add touch swipe + 44 px arrows on coarse pointer.

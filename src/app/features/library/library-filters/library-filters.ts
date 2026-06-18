@@ -1,4 +1,15 @@
-import { Component, computed, effect, input, output, signal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  afterNextRender,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SliderModule, SliderSlideEndEvent } from 'primeng/slider';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
@@ -81,6 +92,10 @@ export class LibraryFiltersComponent {
 
   private _activeHandle: 0 | 1 | null = null;
   private _isCrossed = false;
+  private readonly _elRef = inject(ElementRef);
+  private readonly _destroyRef = inject(DestroyRef);
+
+  protected readonly openTooltipId = signal<string | null>(null);
 
   constructor() {
     // Sync local pH slider state when parent resets phRange (e.g. clearFilters)
@@ -88,6 +103,21 @@ export class LibraryFiltersComponent {
       const [min, max] = this.phRange();
       this.localPhRange.set([min, max]);
       this.localPhDisplay.set([min, max]);
+    });
+
+    // Close pinned tooltip when clicking outside the filter panel
+    afterNextRender(() => {
+      const handler = (e: MouseEvent) => {
+        if (
+          this.openTooltipId() !== null &&
+          !this._elRef.nativeElement.contains(e.target as Node)
+        ) {
+          this.openTooltipId.set(null);
+          this.tooltipHide.emit();
+        }
+      };
+      document.addEventListener('click', handler);
+      this._destroyRef.onDestroy(() => document.removeEventListener('click', handler));
     });
   }
 
@@ -158,7 +188,7 @@ export class LibraryFiltersComponent {
     this.filterChange.emit(next);
   }
 
-  protected onPhSliderMouseDown(event: MouseEvent): void {
+  protected onPhSliderPointerDown(event: PointerEvent): void {
     const target = event.target as Element;
     if (target.closest('[data-pc-section="startHandler"]')) {
       this._activeHandle = 0;
@@ -198,14 +228,37 @@ export class LibraryFiltersComponent {
     this.clearPh.emit();
   }
 
-  protected onShowTooltip(event: MouseEvent, text: string): void {
-    const el = event.currentTarget as HTMLElement;
-    const rect = el.getBoundingClientRect();
-    this.tooltipShow.emit({ x: rect.right + 8, y: rect.top + rect.height / 2, text });
+  protected onMouseEnterTooltip(event: MouseEvent, text: string): void {
+    this._emitTooltipShow(event.currentTarget as HTMLElement, text);
   }
 
-  protected onHideTooltip(): void {
-    this.tooltipHide.emit();
+  protected onMouseLeaveTooltip(): void {
+    if (this.openTooltipId() === null) {
+      this.tooltipHide.emit();
+    }
+  }
+
+  protected onToggleTooltip(event: Event, id: string, text: string): void {
+    event.stopPropagation();
+    if (this.openTooltipId() === id) {
+      this.openTooltipId.set(null);
+      this.tooltipHide.emit();
+    } else {
+      this.openTooltipId.set(id);
+      this._emitTooltipShow(event.currentTarget as HTMLElement, text);
+    }
+  }
+
+  protected onEscapeTooltip(): void {
+    if (this.openTooltipId() !== null) {
+      this.openTooltipId.set(null);
+      this.tooltipHide.emit();
+    }
+  }
+
+  private _emitTooltipShow(el: HTMLElement, text: string): void {
+    const rect = el.getBoundingClientRect();
+    this.tooltipShow.emit({ x: rect.right + 8, y: rect.top + rect.height / 2, text });
   }
 
   protected filterBtnClass(active: boolean): string {

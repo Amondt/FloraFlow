@@ -1,86 +1,146 @@
-<div
-  class="relative w-full h-80 rounded-garden-md overflow-hidden bg-neutral-900 dark:bg-neutral-900"
-  role="group"
-  [attr.aria-label]="altText() ? altText() + ' photos' : 'Species photos'"
->
-  @if (photos().length > 0) {
-    @if (isImageLoading()) {
-      <div
-        class="absolute inset-0 flex items-center justify-center"
-        role="status"
-        [attr.aria-label]="'botanical.photo.loadingPhotoAria' | transloco"
+<div class="flex flex-col">
+  <!-- Image container — clips overflow, holds image + fine-pointer overlaid controls -->
+  <div
+    class="relative w-full h-80 rounded-garden-md max-md:rounded-none overflow-hidden bg-neutral-900 dark:bg-neutral-900 touch-pan-y"
+    role="group"
+    [attr.aria-label]="altText() ? altText() + ' photos' : 'Species photos'"
+    (pointerdown)="onCarouselPointerDown($event)"
+    (pointerup)="onCarouselPointerUp($event)"
+    (pointercancel)="onCarouselPointerCancel()"
+  >
+    @if (photos().length > 0) {
+      @if (isImageLoading()) {
+        <div
+          class="absolute inset-0 flex items-center justify-center"
+          role="status"
+          [attr.aria-label]="'botanical.photo.loadingPhotoAria' | transloco"
+        >
+          <span
+            class="block w-8 h-8 rounded-full border-2 border-neutral-600/30 border-t-primary-500 animate-spin"
+            aria-hidden="true"
+          ></span>
+        </div>
+      }
+      <button
+        type="button"
+        class="cursor-zoom-in absolute inset-0 w-full h-full outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
+        [attr.aria-label]="'View full-size ' + (altText() || 'photo')"
+        (click)="photoClick.emit(activeIndex())"
       >
-        <span
-          class="block w-8 h-8 rounded-full border-2 border-neutral-600/30 border-t-primary-500 animate-spin"
-          aria-hidden="true"
-        ></span>
+        <img
+          [src]="photos()[activeIndex()]"
+          [alt]="altText()"
+          loading="lazy"
+          class="w-full h-full object-contain pointer-events-none transition-opacity duration-300"
+          [class.opacity-0]="isImageLoading()"
+          (load)="onImageLoad()"
+          (error)="onImageLoad()"
+        />
+      </button>
+    } @else {
+      <div
+        class="flex h-full w-full items-center justify-center text-primary-400 dark:text-primary-400"
+        aria-hidden="true"
+      >
+        <app-leaf-icon size="lg" />
       </div>
     }
-    <button
-      type="button"
-      class="cursor-zoom-in absolute inset-0 w-full h-full outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
-      [attr.aria-label]="'View full-size ' + (altText() || 'photo')"
-      (click)="photoClick.emit(activeIndex())"
-    >
-      <img
-        [src]="photos()[activeIndex()]"
-        [alt]="altText()"
-        loading="lazy"
-        class="w-full h-full object-contain pointer-events-none transition-opacity duration-300"
-        [class.opacity-0]="isImageLoading()"
-        (load)="onImageLoad()"
-        (error)="onImageLoad()"
-      />
-    </button>
-  } @else {
-    <div
-      class="flex h-full w-full items-center justify-center text-primary-400 dark:text-primary-400"
-      aria-hidden="true"
-    >
-      <app-leaf-icon size="lg" />
-    </div>
-  }
+
+    @if (hasMultiple()) {
+      <!-- Overlaid prev/next arrows — mouse + keyboard only (hidden on touch) -->
+      <button
+        type="button"
+        class="cursor-pointer pointer-coarse:hidden absolute left-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-10 h-10 rounded-full bg-black/65 text-white ring-1 ring-white/25 shadow-lg outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-150"
+        [attr.aria-label]="'botanical.photo.previousAria' | transloco"
+        [disabled]="!hasPrev()"
+        (click)="$event.stopPropagation(); prev()"
+      >
+        <i class="pi pi-chevron-left text-sm" aria-hidden="true"></i>
+      </button>
+
+      <button
+        type="button"
+        class="cursor-pointer pointer-coarse:hidden absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-10 h-10 rounded-full bg-black/65 text-white ring-1 ring-white/25 shadow-lg outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-150"
+        [attr.aria-label]="'botanical.photo.nextAria' | transloco"
+        [disabled]="!hasNext()"
+        (click)="$event.stopPropagation(); next()"
+      >
+        <i class="pi pi-chevron-right text-sm" aria-hidden="true"></i>
+      </button>
+
+      <!-- Overlaid gradient + dots — mouse + keyboard only -->
+      <div
+        class="pointer-coarse:hidden absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-black/50 to-transparent pointer-events-none rounded-b-garden-md"
+        aria-hidden="true"
+      ></div>
+
+      <div
+        class="pointer-coarse:hidden absolute bottom-2.5 left-0 right-0 flex items-center justify-center gap-1.5 pointer-events-none"
+        aria-hidden="true"
+      >
+        @for (photo of photos(); track $index) {
+          <span
+            class="w-2 h-2 rounded-full transition-all duration-150 shadow-sm"
+            [class]="$index === activeIndex() ? 'bg-white' : 'bg-white/45'"
+          ></span>
+        }
+        <span class="text-xs text-white font-medium ml-2"
+          >{{ activeIndex() + 1 }} / {{ photos().length }}</span
+        >
+      </div>
+    }
+  </div>
 
   @if (hasMultiple()) {
-    <button
-      type="button"
-      class="cursor-pointer absolute left-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-10 h-10 rounded-full bg-black/65 text-white ring-1 ring-white/25 shadow-lg outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-150"
-      [attr.aria-label]="'botanical.photo.previousAria' | transloco"
-      [disabled]="!hasPrev()"
-      (click)="$event.stopPropagation(); prev()"
-    >
-      <i class="pi pi-chevron-left text-sm" aria-hidden="true"></i>
-    </button>
-
-    <button
-      type="button"
-      class="cursor-pointer absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-10 h-10 rounded-full bg-black/65 text-white ring-1 ring-white/25 shadow-lg outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-150"
-      [attr.aria-label]="'botanical.photo.nextAria' | transloco"
-      [disabled]="!hasNext()"
-      (click)="$event.stopPropagation(); next()"
-    >
-      <i class="pi pi-chevron-right text-sm" aria-hidden="true"></i>
-    </button>
-
-    <!-- Gradient strip improves dot/counter legibility on bright images -->
+    <!-- Below-image nav bar — touch only (hidden on mouse/keyboard) -->
     <div
-      class="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-black/50 to-transparent pointer-events-none rounded-b-garden-md"
-      aria-hidden="true"
-    ></div>
-
-    <div
-      class="absolute bottom-2.5 left-0 right-0 flex items-center justify-center gap-1.5 pointer-events-none"
-      aria-hidden="true"
+      class="pointer-fine:hidden flex items-center gap-2 pt-2"
+      [attr.aria-label]="'botanical.photo.navigationAria' | transloco"
     >
-      @for (photo of photos(); track $index) {
-        <span
-          class="w-2 h-2 rounded-full transition-all duration-150 shadow-sm"
-          [class]="$index === activeIndex() ? 'bg-white' : 'bg-white/45'"
-        ></span>
-      }
-      <span class="text-xs text-white font-medium ml-2"
-        >{{ activeIndex() + 1 }} / {{ photos().length }}</span
+      <button
+        type="button"
+        class="cursor-pointer flex items-center justify-center w-11 h-11 rounded-full text-neutral-500 dark:text-neutral-400 disabled:opacity-30 disabled:cursor-not-allowed transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+        [attr.aria-label]="'botanical.photo.previousAria' | transloco"
+        [disabled]="!hasPrev()"
+        (click)="prev()"
       >
+        <i class="pi pi-chevron-left text-base" aria-hidden="true"></i>
+      </button>
+
+      <div
+        class="flex-1 flex items-center justify-center gap-1.5 overflow-hidden"
+        aria-hidden="true"
+      >
+        @for (photo of photos(); track $index) {
+          <span
+            class="h-1.5 rounded-full flex-shrink-0 transition-all duration-200"
+            [class]="
+              $index === activeIndex()
+                ? 'w-4 bg-primary-500'
+                : 'w-1.5 bg-neutral-300 dark:bg-neutral-600'
+            "
+          ></span>
+        }
+      </div>
+
+      <span
+        class="text-xs font-display text-neutral-400 dark:text-neutral-500 whitespace-nowrap tabular-nums"
+        aria-live="polite"
+        aria-atomic="true"
+        [attr.aria-label]="'Photo ' + (activeIndex() + 1) + ' of ' + photos().length"
+      >
+        {{ activeIndex() + 1 }} / {{ photos().length }}
+      </span>
+
+      <button
+        type="button"
+        class="cursor-pointer flex items-center justify-center w-11 h-11 rounded-full text-neutral-500 dark:text-neutral-400 disabled:opacity-30 disabled:cursor-not-allowed transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+        [attr.aria-label]="'botanical.photo.nextAria' | transloco"
+        [disabled]="!hasNext()"
+        (click)="next()"
+      >
+        <i class="pi pi-chevron-right text-base" aria-hidden="true"></i>
+      </button>
     </div>
   }
 </div>

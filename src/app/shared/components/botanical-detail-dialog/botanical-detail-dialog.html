@@ -17,7 +17,7 @@
       <app-species-photo-carousel
         [photos]="galleryPhotos()"
         [altText]="rec.common_name"
-        class="mb-3 block"
+        class="mb-3 block max-md:-mx-6"
         (photoClick)="openLightbox($event)"
       />
       @if (galleryPhotos().length > 0) {

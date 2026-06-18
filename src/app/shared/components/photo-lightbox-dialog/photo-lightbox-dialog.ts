@@ -1,5 +1,6 @@
 import { Component, computed, effect, input, model, signal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { SwipeTracker } from '../../utils/swipe-tracker';
 
 @Component({
   selector: 'app-photo-lightbox-dialog',
@@ -21,6 +22,9 @@ export class PhotoLightboxDialogComponent {
   protected readonly hasPrev = computed(() => this.activeIndex() > 0);
   protected readonly hasNext = computed(() => this.activeIndex() < this.photos().length - 1);
   protected readonly isImageLoading = signal(false);
+
+  private readonly _swipeTracker = new SwipeTracker();
+  private _hasSwiped = false;
 
   constructor() {
     // Reset index and trigger loading when the photo array is replaced (new species opened).
@@ -61,7 +65,29 @@ export class PhotoLightboxDialogComponent {
   }
 
   protected close(): void {
+    if (this._hasSwiped) {
+      this._hasSwiped = false;
+      return;
+    }
     this.visible.set(false);
+  }
+
+  protected onLightboxPointerDown(event: PointerEvent): void {
+    this._swipeTracker.onPointerDown(event);
+    this._hasSwiped = false;
+  }
+
+  protected onLightboxPointerUp(event: PointerEvent): void {
+    this._hasSwiped = this._swipeTracker.onPointerUp(
+      event,
+      () => this.prev(),
+      () => this.next(),
+    );
+  }
+
+  protected onLightboxPointerCancel(): void {
+    this._swipeTracker.onPointerCancel();
+    this._hasSwiped = false;
   }
 
   protected onImageLoad(): void {

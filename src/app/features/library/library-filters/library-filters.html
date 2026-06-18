@@ -8,15 +8,19 @@
       <h2 class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display">
         {{ 'library.filter.placement' | transloco }}
       </h2>
-      <span
-        class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-help"
-        (mouseenter)="onShowTooltip($event, placementTooltip)"
-        (mouseleave)="onHideTooltip()"
-        tabindex="0"
-        [attr.aria-label]="'library.filter.placement' | transloco"
+      <button
+        type="button"
+        class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-sm"
+        (click)="onToggleTooltip($event, 'placement', placementTooltip)"
+        (mouseenter)="onMouseEnterTooltip($event, placementTooltip)"
+        (mouseleave)="onMouseLeaveTooltip()"
+        (keydown.escape)="onEscapeTooltip()"
+        [attr.aria-expanded]="openTooltipId() === 'placement'"
+        aria-haspopup="true"
+        [attr.aria-label]="('library.filter.placement' | transloco) + ' info'"
       >
         <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
-      </span>
+      </button>
       @if (hasPlacementFilter()) {
         <span class="w-1.5 h-1.5 rounded-full bg-primary-500 ml-0.5" aria-hidden="true"></span>
       }
@@ -54,15 +58,19 @@
       <h2 class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display">
         {{ 'library.filter.sunlight' | transloco }}
       </h2>
-      <span
-        class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-help"
-        (mouseenter)="onShowTooltip($event, sunlightTooltip)"
-        (mouseleave)="onHideTooltip()"
-        tabindex="0"
-        [attr.aria-label]="'library.filter.sunlight' | transloco"
+      <button
+        type="button"
+        class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-sm"
+        (click)="onToggleTooltip($event, 'sunlight', sunlightTooltip)"
+        (mouseenter)="onMouseEnterTooltip($event, sunlightTooltip)"
+        (mouseleave)="onMouseLeaveTooltip()"
+        (keydown.escape)="onEscapeTooltip()"
+        [attr.aria-expanded]="openTooltipId() === 'sunlight'"
+        aria-haspopup="true"
+        [attr.aria-label]="('library.filter.sunlight' | transloco) + ' info'"
       >
         <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
-      </span>
+      </button>
       @if (hasSunlightFilter()) {
         <span class="w-1.5 h-1.5 rounded-full bg-primary-500 ml-0.5" aria-hidden="true"></span>
       }
@@ -100,15 +108,19 @@
       <h2 class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display">
         {{ 'library.filter.watering' | transloco }}
       </h2>
-      <span
-        class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-help"
-        (mouseenter)="onShowTooltip($event, wateringTooltip)"
-        (mouseleave)="onHideTooltip()"
-        tabindex="0"
-        [attr.aria-label]="'library.filter.watering' | transloco"
+      <button
+        type="button"
+        class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-sm"
+        (click)="onToggleTooltip($event, 'watering', wateringTooltip)"
+        (mouseenter)="onMouseEnterTooltip($event, wateringTooltip)"
+        (mouseleave)="onMouseLeaveTooltip()"
+        (keydown.escape)="onEscapeTooltip()"
+        [attr.aria-expanded]="openTooltipId() === 'watering'"
+        aria-haspopup="true"
+        [attr.aria-label]="('library.filter.watering' | transloco) + ' info'"
       >
         <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
-      </span>
+      </button>
       @if (hasWateringFilter()) {
         <span class="w-1.5 h-1.5 rounded-full bg-primary-500 ml-0.5" aria-hidden="true"></span>
       }
@@ -232,15 +244,19 @@
       <h2 class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display">
         {{ 'library.filter.difficulty' | transloco }}
       </h2>
-      <span
-        class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-help"
-        (mouseenter)="onShowTooltip($event, difficultyTooltip)"
-        (mouseleave)="onHideTooltip()"
-        tabindex="0"
-        [attr.aria-label]="'library.filter.difficulty' | transloco"
+      <button
+        type="button"
+        class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-sm"
+        (click)="onToggleTooltip($event, 'difficulty', difficultyTooltip)"
+        (mouseenter)="onMouseEnterTooltip($event, difficultyTooltip)"
+        (mouseleave)="onMouseLeaveTooltip()"
+        (keydown.escape)="onEscapeTooltip()"
+        [attr.aria-expanded]="openTooltipId() === 'difficulty'"
+        aria-haspopup="true"
+        [attr.aria-label]="('library.filter.difficulty' | transloco) + ' info'"
       >
         <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
-      </span>
+      </button>
       @if (hasDifficultyFilter()) {
         <span class="w-1.5 h-1.5 rounded-full bg-primary-500 ml-0.5" aria-hidden="true"></span>
       }
@@ -282,15 +298,19 @@
       <h2 class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display">
         {{ 'library.filter.maintenance' | transloco }}
       </h2>
-      <span
-        class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-help"
-        (mouseenter)="onShowTooltip($event, maintenanceTooltip)"
-        (mouseleave)="onHideTooltip()"
-        tabindex="0"
-        [attr.aria-label]="'library.filter.maintenance' | transloco"
+      <button
+        type="button"
+        class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-sm"
+        (click)="onToggleTooltip($event, 'maintenance', maintenanceTooltip)"
+        (mouseenter)="onMouseEnterTooltip($event, maintenanceTooltip)"
+        (mouseleave)="onMouseLeaveTooltip()"
+        (keydown.escape)="onEscapeTooltip()"
+        [attr.aria-expanded]="openTooltipId() === 'maintenance'"
+        aria-haspopup="true"
+        [attr.aria-label]="('library.filter.maintenance' | transloco) + ' info'"
       >
         <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
-      </span>
+      </button>
       @if (hasMaintenanceFilter()) {
         <span class="w-1.5 h-1.5 rounded-full bg-primary-500 ml-0.5" aria-hidden="true"></span>
       }
@@ -332,15 +352,19 @@
       <h2 class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display">
         {{ 'library.filter.lifecycle' | transloco }}
       </h2>
-      <span
-        class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-help"
-        (mouseenter)="onShowTooltip($event, lifecycleTooltipText)"
-        (mouseleave)="onHideTooltip()"
-        tabindex="0"
-        [attr.aria-label]="'library.filter.lifecycle' | transloco"
+      <button
+        type="button"
+        class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-sm"
+        (click)="onToggleTooltip($event, 'lifecycle', lifecycleTooltipText)"
+        (mouseenter)="onMouseEnterTooltip($event, lifecycleTooltipText)"
+        (mouseleave)="onMouseLeaveTooltip()"
+        (keydown.escape)="onEscapeTooltip()"
+        [attr.aria-expanded]="openTooltipId() === 'lifecycle'"
+        aria-haspopup="true"
+        [attr.aria-label]="('library.filter.lifecycle' | transloco) + ' info'"
       >
         <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
-      </span>
+      </button>
       @if (hasCycleFilter()) {
         <span class="w-1.5 h-1.5 rounded-full bg-primary-500 ml-0.5" aria-hidden="true"></span>
       }
@@ -378,15 +402,19 @@
       <h2 class="text-xs font-semibold uppercase tracking-widest text-neutral-400 font-display">
         {{ 'library.filter.soilPh' | transloco }}
       </h2>
-      <span
-        class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-help"
-        (mouseenter)="onShowTooltip($event, soilPhTooltip)"
-        (mouseleave)="onHideTooltip()"
-        tabindex="0"
-        [attr.aria-label]="'library.filter.soilPh' | transloco"
+      <button
+        type="button"
+        class="inline-flex items-center justify-center text-neutral-300 dark:text-neutral-500 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-sm"
+        (click)="onToggleTooltip($event, 'soilPh', soilPhTooltip)"
+        (mouseenter)="onMouseEnterTooltip($event, soilPhTooltip)"
+        (mouseleave)="onMouseLeaveTooltip()"
+        (keydown.escape)="onEscapeTooltip()"
+        [attr.aria-expanded]="openTooltipId() === 'soilPh'"
+        aria-haspopup="true"
+        [attr.aria-label]="('library.filter.soilPh' | transloco) + ' info'"
       >
         <i class="pi pi-info-circle text-xs" aria-hidden="true"></i>
-      </span>
+      </button>
       @if (hasPhFilter()) {
         <span class="w-1.5 h-1.5 rounded-full bg-primary-500 ml-0.5" aria-hidden="true"></span>
       }
@@ -408,7 +436,7 @@
       </button>
     </div>
   }
-  <div class="px-2 py-3" (mousedown)="onPhSliderMouseDown($event)">
+  <div class="px-2 py-3" (pointerdown)="onPhSliderPointerDown($event)">
     <p-slider
       [ngModel]="localPhRange()"
       [range]="true"

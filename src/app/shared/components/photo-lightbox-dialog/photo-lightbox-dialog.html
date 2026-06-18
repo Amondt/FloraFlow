@@ -3,8 +3,11 @@
     role="dialog"
     aria-modal="true"
     [attr.aria-label]="altText() ? altText() + ' gallery' : 'Species gallery'"
-    class="fixed inset-0 z-[9999]"
+    class="fixed inset-0 z-[9999] touch-pan-y"
     (click)="$event.stopPropagation()"
+    (pointerdown)="onLightboxPointerDown($event)"
+    (pointerup)="onLightboxPointerUp($event)"
+    (pointercancel)="onLightboxPointerCancel()"
   >
     <!-- Backdrop — click to close -->
     <button
@@ -47,7 +50,7 @@
         @if (hasMultiple()) {
           <button
             type="button"
-            class="cursor-pointer pointer-events-auto absolute left-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-12 h-12 rounded-full bg-black/70 text-white ring-1 ring-white/30 hover:bg-black/90 shadow-lg transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-white disabled:opacity-30 disabled:cursor-not-allowed"
+            class="cursor-pointer pointer-events-auto pointer-coarse:hidden absolute left-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-12 h-12 rounded-full bg-black/70 text-white ring-1 ring-white/30 hover:bg-black/90 shadow-lg transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-white disabled:opacity-30 disabled:cursor-not-allowed"
             [attr.aria-label]="'botanical.photo.previousAria' | transloco"
             [disabled]="!hasPrev()"
             (click)="prev()"
@@ -57,7 +60,7 @@
 
           <button
             type="button"
-            class="cursor-pointer pointer-events-auto absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-12 h-12 rounded-full bg-black/70 text-white ring-1 ring-white/30 hover:bg-black/90 shadow-lg transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-white disabled:opacity-30 disabled:cursor-not-allowed"
+            class="cursor-pointer pointer-events-auto pointer-coarse:hidden absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-12 h-12 rounded-full bg-black/70 text-white ring-1 ring-white/30 hover:bg-black/90 shadow-lg transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-white disabled:opacity-30 disabled:cursor-not-allowed"
             [attr.aria-label]="'botanical.photo.nextAria' | transloco"
             [disabled]="!hasNext()"
             (click)="next()"
@@ -76,12 +79,17 @@
           @for (photo of photos(); track $index) {
             <button
               type="button"
-              class="cursor-pointer pointer-events-auto w-2.5 h-2.5 rounded-full transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1 focus-visible:ring-offset-black/50"
+              class="cursor-pointer pointer-events-auto relative w-2.5 h-2.5 rounded-full transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1 focus-visible:ring-offset-black/50"
               [class]="$index === activeIndex() ? 'bg-white' : 'bg-white/35 hover:bg-white/60'"
               [attr.aria-label]="'botanical.photo.goToPhotoAria' | transloco: { index: $index + 1 }"
               [attr.aria-current]="$index === activeIndex() ? 'true' : null"
               (click)="goToIndex($index)"
-            ></button>
+            >
+              <span
+                aria-hidden="true"
+                class="absolute top-1/2 left-1/2 size-11 -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"
+              ></span>
+            </button>
           }
           <span class="text-sm text-white/80 font-medium ml-2" aria-live="polite" aria-atomic="true"
             >{{ activeIndex() + 1 }} / {{ photos().length }}</span
@@ -93,7 +101,7 @@
     <!-- Close button (sits above backdrop and content) -->
     <button
       type="button"
-      class="cursor-pointer absolute top-4 right-4 z-20 flex items-center justify-center w-10 h-10 rounded-full bg-neutral-800/80 text-white ring-1 ring-white/20 hover:bg-neutral-700/90 shadow-lg transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-white"
+      class="cursor-pointer absolute top-4 right-4 z-20 flex items-center justify-center w-10 h-10 pointer-coarse:w-11 pointer-coarse:h-11 rounded-full bg-neutral-800/80 text-white ring-1 ring-white/20 hover:bg-neutral-700/90 shadow-lg transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-white"
       [attr.aria-label]="'botanical.photo.closeGalleryAria' | transloco"
       (click)="close()"
     >

@@ -562,6 +562,7 @@
     "subtitle": "Journal botanique",
     "heading": "Carnet de soins",
     "entryCount": "{count, plural, =1 {1 entrée} other {# entrées}} pour toutes les plantes",
+    "descriptionNoEntries": "Commencez à enregistrer des soins pour vos plantes.",
     "diagnosePlant": "Diagnostiquer",
     "diagnosePlantAriaLabel": "Diagnostiquer une plante avec l'IA Leaf Doctor",
     "logCareEvent": "Ajouter un soin",
@@ -735,7 +736,7 @@
   "library": {
     "subtitle": "Registre botanique",
     "heading": "Catalogue de plantes",
-    "description": "Une base de données d'espèces partagée. Recherchez ou filtrez pour trouver une plante, puis ajoutez-la à votre jardin.",
+    "description": "Trouvez n’importe quelle espèce et ajoutez-la à votre jardin.",
     "identifyPlantAriaLabel": "Identifier une plante à partir d'une photo",
     "identifyPlant": "Identifier une plante",
     "mixSubstrateAriaLabel": "Ouvrir le guide de substrat",

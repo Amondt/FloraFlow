@@ -17,13 +17,17 @@
         >
           {{ 'journal.heading' | transloco }}
         </h1>
-        @if (journalService.entries().length > 0) {
+        @if (!loading()) {
           <p
             class="text-sm text-neutral-500 dark:text-neutral-400 font-display mt-1"
             aria-live="polite"
             aria-atomic="true"
           >
-            {{ 'journal.entryCount' | transloco: { count: journalService.entries().length } }}
+            @if (journalService.entries().length > 0) {
+              {{ 'journal.entryCount' | transloco: { count: journalService.entries().length } }}
+            } @else {
+              {{ 'journal.descriptionNoEntries' | transloco }}
+            }
           </p>
         }
       </div>

@@ -562,6 +562,7 @@
     "subtitle": "Botanical journal",
     "heading": "Care log",
     "entryCount": "{count, plural, =1 {1 entry} other {# entries}} across all plants",
+    "descriptionNoEntries": "Start logging care events for your plants.",
     "diagnosePlant": "Diagnose plant",
     "diagnosePlantAriaLabel": "Diagnose a plant with Leaf Doctor AI",
     "logCareEvent": "Log care event",
@@ -735,7 +736,7 @@
   "library": {
     "subtitle": "Botanical Registry",
     "heading": "Plant browser",
-    "description": "A shared species database. Search or filter to find a plant, then add it to your garden.",
+    "description": "Find any plant species and add it to your garden.",
     "identifyPlantAriaLabel": "Identify a plant from a photo",
     "identifyPlant": "Identify plant",
     "mixSubstrateAriaLabel": "Open substrate mix guide",

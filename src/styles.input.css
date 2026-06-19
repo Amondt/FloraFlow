@@ -2,38 +2,57 @@
 
 @theme {
   /* --- Semantic Palette --- */
-  --color-primary-50: #f0fdf4;
-  --color-primary-100: #dcfce7;
-  --color-primary-200: #bbf7d0;
-  --color-primary-300: #6ee7b7; /* dark-mode hover accent */
-  --color-primary-400: #34d399; /* dark-mode primary accent — ~9:1 on neutral-900 */
-  --color-primary-500: #10b981;
-  --color-primary-600: #059669;
-  --color-primary-700: #047857;
-  --color-primary-800: #065f46; /* dark-mode tinted backgrounds */
-  --color-primary-900: #064e3b;
+  /* Primary — forest green. Dark end (600–900) = light-mode CTAs & text; the light
+     end (300/400) stays bright on purpose: those are the dark-mode accents that ride
+     on the warm-black neutral-900 background — do not darken them. */
+  --color-primary-50: #eef4ee;
+  --color-primary-100: #d8e8d0; /* sage tint */
+  --color-primary-200: #bcd6b0;
+  --color-primary-300: #9ed4a4; /* dark-mode hover accent */
+  --color-primary-400: #74c482; /* dark-mode primary accent */
+  --color-primary-500: #3d7a4f;
+  --color-primary-600: #2f5f43;
+  --color-primary-700: #294f3a;
+  --color-primary-800: #243d2c; /* solid CTA pill */
+  --color-primary-900: #1a2c1f;
+
+  /* Coral — decorative secondary "pop" only. True destructive stays danger-*;
+     true warnings stay warning-*. Reference the token from PT, never the hex. */
+  --color-coral-400: #ed9c7c;
+  --color-coral-500: #e08760;
+  --color-coral-600: #c97350;
 
   --color-success-500: #22c55e;
   --color-warning-500: #d97706;
   --color-danger-500: #ef4444;
   --color-danger-700: #b91c1c;
 
-  --color-neutral-50: #f8fafc;
-  --color-neutral-100: #f1f5f9;
-  --color-neutral-200: #e2e8f0;
-  --color-neutral-300: #cbd5e1;
-  --color-neutral-400: #94a3b8;
-  --color-neutral-500: #64748b;
-  --color-neutral-600: #475569;
-  --color-neutral-700: #334155;
-  --color-neutral-800: #1e293b;
-  --color-neutral-900: #0f172a;
+  /* Neutrals — warm green-gray. Same light→dark structure as before, hue warmed;
+     serves the cream light surfaces and the dark-mode backgrounds alike. */
+  --color-neutral-50: #f3efe4;
+  --color-neutral-100: #ede8d8;
+  --color-neutral-200: #d4d9c8;
+  --color-neutral-300: #b3baa6;
+  --color-neutral-400: #828c79;
+  --color-neutral-500: #59644f;
+  --color-neutral-600: #46523c;
+  --color-neutral-700: #2d3a2b;
+  --color-neutral-800: #222e22;
+  --color-neutral-900: #1a2418;
 
   --font-display: 'Inter', system-ui, sans-serif;
+  --font-mono:
+    'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
 
-  --radius-garden-sm: 0.375rem;
-  --radius-garden-md: 0.75rem;
-  --radius-garden-lg: 1.25rem;
+  --radius-garden-sm: 0.625rem;
+  --radius-garden-md: 1.125rem;
+  --radius-garden-lg: 1.75rem;
+
+  /* Soft, warm-tinted elevation. Overrides Tailwind's own --shadow-sm / --shadow-md so
+     every shadow-sm / shadow-md consumer softens app-wide with no template edits. */
+  --shadow-sm: 0 1px 3px rgba(28, 36, 24, 0.06), 0 2px 0 rgba(28, 36, 24, 0.04);
+  --shadow-md: 0 8px 24px rgba(28, 36, 24, 0.1);
 
   /* Standard interactive control height — matches p-select's natural height
      (PrimeNG injects font-size: 1rem on .p-select-label, making selects ~37.78px).
@@ -50,6 +69,17 @@
 html,
 body {
   overflow-x: clip;
+}
+
+/* Light-mode page canvas — warm cream base with soft pastel radial washes (coral + sage).
+   Scoped to :not(.dark) so dark mode is untouched. Feature <main>s paint an opaque
+   bg-neutral-50 over the content area, so this mainly surfaces on overscroll / rubber-band
+   and behind any translucent overlay. */
+html:not(.dark) body {
+  background-color: var(--color-neutral-50);
+  background-image:
+    radial-gradient(48rem 36rem at 100% 0%, rgba(237, 156, 124, 0.13), transparent 62%),
+    radial-gradient(44rem 40rem at 0% 100%, rgba(158, 212, 164, 0.2), transparent 62%);
 }
 
 /* Dark mode */

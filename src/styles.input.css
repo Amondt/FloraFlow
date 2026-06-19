@@ -18,41 +18,41 @@
 
   /* Coral — decorative secondary "pop" only. True destructive stays danger-*;
      true warnings stay warning-*. Reference the token from PT, never the hex. */
-  --color-coral-400: #ed9c7c;
-  --color-coral-500: #e08760;
-  --color-coral-600: #c97350;
+  --color-coral-400: #e88a5f;
+  --color-coral-500: #cf6a40;
+  --color-coral-600: #b85733;
 
   --color-success-500: #22c55e;
   --color-warning-500: #d97706;
   --color-danger-500: #ef4444;
   --color-danger-700: #b91c1c;
 
-  /* Neutrals — warm green-gray. Same light→dark structure as before, hue warmed;
-     serves the cream light surfaces and the dark-mode backgrounds alike. */
-  --color-neutral-50: #f3efe4;
-  --color-neutral-100: #ede8d8;
-  --color-neutral-200: #d4d9c8;
-  --color-neutral-300: #b3baa6;
-  --color-neutral-400: #828c79;
-  --color-neutral-500: #59644f;
-  --color-neutral-600: #46523c;
-  --color-neutral-700: #2d3a2b;
-  --color-neutral-800: #222e22;
-  --color-neutral-900: #101a0f;
+  /* Neutrals — aged-paper / deep-archive ramp (V5 Herbarium).
+     50 = warm paper desk; 900 = darkest archive bg; 700 = body text (wins over dark raised surface). */
+  --color-neutral-50: #ece6d6;
+  --color-neutral-100: #e3dccb;
+  --color-neutral-200: #d6cdba;
+  --color-neutral-300: #b3aa92;
+  --color-neutral-400: #8a8f79;
+  --color-neutral-500: #5d6b4f;
+  --color-neutral-600: #515a48;
+  --color-neutral-700: #353f30;
+  --color-neutral-800: #181d12;
+  --color-neutral-900: #10140d;
 
   --font-display: 'Inter', system-ui, sans-serif;
+  --font-serif: 'Newsreader', Georgia, 'Times New Roman', serif;
   --font-mono:
     'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
     'Courier New', monospace;
 
   --radius-garden-sm: 0.625rem;
-  --radius-garden-md: 1.125rem;
-  --radius-garden-lg: 1.75rem;
+  --radius-garden-md: 1rem;
+  --radius-garden-lg: 1.375rem;
 
-  /* Soft, warm-tinted elevation. Overrides Tailwind's own --shadow-sm / --shadow-md so
-     every shadow-sm / shadow-md consumer softens app-wide with no template edits. */
-  --shadow-sm: 0 1px 3px rgba(28, 36, 24, 0.06), 0 2px 0 rgba(28, 36, 24, 0.04);
-  --shadow-md: 0 8px 24px rgba(28, 36, 24, 0.1);
+  /* Softer, larger-spread elevation (V5 Herbarium — editorial card feel). */
+  --shadow-sm: 0 1px 2px rgba(27, 36, 24, 0.05), 0 10px 30px rgba(27, 36, 24, 0.05);
+  --shadow-md: 0 14px 44px rgba(27, 36, 24, 0.13);
 
   /* Standard interactive control height — matches p-select's natural height
      (PrimeNG injects font-size: 1rem on .p-select-label, making selects ~37.78px).
@@ -71,15 +71,34 @@ body {
   overflow-x: clip;
 }
 
-/* Light-mode page canvas — warm cream base with soft pastel radial washes (coral + sage).
-   Scoped to :not(.dark) so dark mode is untouched. Feature <main>s paint an opaque
-   bg-neutral-50 over the content area, so this mainly surfaces on overscroll / rubber-band
-   and behind any translucent overlay. */
+/* Light-mode page canvas — warm aged-paper base with fine dot grain (V5 Herbarium).
+   Replaces the V4 coral/sage radial washes. Grain surfaces mainly on overscroll / rubber-band
+   and behind translucent overlays; feature <main>s paint bg-neutral-50 over the content area. */
 html:not(.dark) body {
   background-color: var(--color-neutral-50);
-  background-image:
-    radial-gradient(48rem 36rem at 100% 0%, rgba(237, 156, 124, 0.13), transparent 62%),
-    radial-gradient(44rem 40rem at 0% 100%, rgba(158, 212, 164, 0.2), transparent 62%);
+  background-image: radial-gradient(rgba(28, 36, 24, 0.022) 1px, transparent 1px);
+  background-size: 4px 4px;
+}
+
+/* Dark-mode canvas — deep archive base with the same dot grain at dark opacity. */
+:where(.dark, .dark *) body {
+  background-color: var(--color-neutral-900);
+  background-image: radial-gradient(rgba(236, 233, 216, 0.018) 1px, transparent 1px);
+  background-size: 4px 4px;
+}
+
+/* Dot-grid pattern on <main> — body grain is covered by the solid bg-neutral-50/900
+   that every feature page's <main> paints. This re-applies a visible dot grid
+   directly on the content layer so it shows through the whole scrollable area.
+   Tailwind's bg-neutral-* sets only background-color; background-image here is additive. */
+html:not(.dark) main {
+  background-image: radial-gradient(circle, rgba(28, 36, 24, 0.03) 1px, transparent 1px);
+  background-size: 4px 4px;
+}
+
+:where(.dark, .dark *) main {
+  background-image: radial-gradient(circle, rgba(236, 233, 216, 0.03) 1px, transparent 1px);
+  background-size: 4px 4px;
 }
 
 /* Dark mode */

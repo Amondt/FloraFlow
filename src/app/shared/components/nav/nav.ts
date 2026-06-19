@@ -26,7 +26,7 @@ export class NavComponent {
   // cluster competing for the same row, and longer translations (French) overflow it first.
   // lg: regains the roomier px-4 once the viewport has space to spare.
   protected readonly linkBase = [
-    'inline-flex items-center h-14 px-2 lg:px-4 -mb-px whitespace-nowrap',
+    'inline-flex items-center gap-1.5 h-14 px-2 lg:px-4 -mb-px whitespace-nowrap',
     'text-sm font-medium font-display',
     'text-neutral-600 dark:text-neutral-300',
     'border-b-2 border-transparent',

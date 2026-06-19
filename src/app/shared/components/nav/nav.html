@@ -10,7 +10,7 @@
       <!-- Wordmark shows on mobile (own row) and on wide desktop (≥lg, plenty of room);
            hidden between md and lg where it would otherwise squeeze the nav links + utility
            cluster (icon mark alone still carries the brand at that width). -->
-      <app-logo wordmarkClass="hidden max-md:inline lg:inline text-lg" />
+      <app-logo class="flex items-center" wordmarkClass="hidden max-md:inline lg:inline text-lg" />
     </a>
     <!-- Scrollable links: overflow-x-auto is scoped here so it never clips
          the absolutely-positioned language-switcher dropdown outside this div. -->
@@ -23,6 +23,7 @@
         [routerLinkActive]="linkActive"
         ariaCurrentWhenActive="page"
       >
+        <i class="pi pi-home text-sm" aria-hidden="true"></i>
         {{ 'nav.dashboard' | transloco }}
       </a>
 
@@ -32,6 +33,7 @@
         [routerLinkActive]="linkActive"
         ariaCurrentWhenActive="page"
       >
+        <i class="pi pi-check-square text-sm" aria-hidden="true"></i>
         {{ 'nav.tasks' | transloco }}
       </a>
 
@@ -41,6 +43,7 @@
         [routerLinkActive]="linkActive"
         ariaCurrentWhenActive="page"
       >
+        <i class="pi pi-book text-sm" aria-hidden="true"></i>
         {{ 'nav.journal' | transloco }}
       </a>
 
@@ -50,6 +53,7 @@
         [routerLinkActive]="linkActive"
         ariaCurrentWhenActive="page"
       >
+        <i class="pi pi-th-large text-sm" aria-hidden="true"></i>
         {{ 'nav.library' | transloco }}
       </a>
 
@@ -59,6 +63,7 @@
         [routerLinkActive]="linkActive"
         ariaCurrentWhenActive="page"
       >
+        <i class="pi pi-inbox text-sm" aria-hidden="true"></i>
         {{ 'nav.seeds' | transloco }}
       </a>
     </div>

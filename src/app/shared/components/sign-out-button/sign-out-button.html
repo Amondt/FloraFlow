@@ -2,10 +2,11 @@
   type="button"
   [class]="buttonClass"
   [attr.aria-label]="'nav.signOutAriaLabel' | transloco"
+  [pTooltip]="'nav.signOut' | transloco"
+  tooltipPosition="bottom"
   [attr.aria-busy]="loggingOut()"
   [disabled]="loggingOut()"
   (click)="signOut()"
 >
   <i [class]="loggingOut() ? 'pi pi-spinner pi-spin' : 'pi pi-power-off'" aria-hidden="true"></i>
-  <span class="max-md:hidden">{{ 'nav.signOut' | transloco }}</span>
 </button>

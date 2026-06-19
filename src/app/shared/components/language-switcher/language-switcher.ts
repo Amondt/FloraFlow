@@ -1,13 +1,14 @@
 import { Component, inject, signal } from '@angular/core';
 import { UpperCasePipe } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { Tooltip } from 'primeng/tooltip';
 import { Locale, LocaleService } from '../../../core/services/locale.service';
 import { FLORA_FOCUS, FLORA_HOVER } from '../../ui/pt/states.pt';
 
 @Component({
   selector: 'app-language-switcher',
   standalone: true,
-  imports: [TranslocoPipe, UpperCasePipe],
+  imports: [TranslocoPipe, UpperCasePipe, Tooltip],
   templateUrl: './language-switcher.html',
 })
 export class LanguageSwitcherComponent {

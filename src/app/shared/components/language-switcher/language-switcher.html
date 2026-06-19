@@ -3,6 +3,8 @@
     type="button"
     [class]="buttonClass"
     [attr.aria-label]="'language.switcher' | transloco"
+    [pTooltip]="'language.switcher' | transloco"
+    tooltipPosition="bottom"
     [attr.aria-expanded]="isOpen()"
     aria-haspopup="listbox"
     (click)="toggle()"

@@ -9,7 +9,7 @@ export const FloraMessagePT = {
           !instance?.severity || instance.severity === 'info',
         'bg-green-50 border-success-500 text-green-900 dark:bg-green-900/20 dark:text-green-200':
           instance?.severity === 'success',
-        'bg-yellow-50 border-warning-500 text-yellow-900 dark:bg-yellow-900/20 dark:text-yellow-200':
+        'bg-amber-50 border-warning-500 text-amber-900 dark:bg-amber-900/20 dark:text-amber-200':
           instance?.severity === 'warn',
         'bg-red-50 border-danger-500 text-red-900 dark:bg-red-900/20 dark:text-red-200':
           instance?.severity === 'error',

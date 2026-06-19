@@ -1,5 +1,5 @@
 import type { ButtonPassThroughOptions } from 'primeng/button';
-import { FLORA_DISABLED, FLORA_HOVER } from './states.pt';
+import { FLORA_DISABLED, FLORA_FOCUS, FLORA_HOVER } from './states.pt';
 
 export const FloraButtonPT = {
   root: ({
@@ -24,32 +24,34 @@ export const FloraButtonPT = {
     return {
       class: [
         'inline-flex items-center justify-center gap-2 cursor-pointer h-control',
-        'px-4 text-sm font-semibold font-display rounded-garden-sm',
-        'outline-none',
+        // Forest pill — rounded-full is the V4 button signature; focus ring composed
+        // from FLORA_FOCUS (which carries outline-none) so no variant hardcodes a ring.
+        'px-4 text-sm font-semibold font-display rounded-full',
+        FLORA_FOCUS,
         FLORA_DISABLED,
         FLORA_HOVER,
         {
-          // Solid primary — primary-500 ring matches the app's standard focus ring
-          'bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2':
+          // Solid primary — deep forest fill, white label (~14:1 on primary-800)
+          'bg-primary-800 text-white hover:bg-primary-900 active:bg-primary-900':
             isSolid && (!instance?.severity || instance.severity === 'primary'),
 
           // Solid danger
-          'bg-danger-500 text-white hover:bg-danger-700 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2':
+          'bg-danger-500 text-white hover:bg-danger-700':
             isSolid && instance?.severity === 'danger',
 
           // Solid secondary
-          'bg-neutral-600 text-white hover:bg-neutral-700 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2':
+          'bg-neutral-600 text-white hover:bg-neutral-700':
             isSolid && instance?.severity === 'secondary',
 
-          // Outlined — standard green ring (transparent bg, green border)
-          'bg-transparent border border-primary-500 text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2':
+          // Outlined — forest border + label (darkened for AA on the warm cream surface)
+          'bg-transparent border border-primary-600 text-primary-700 hover:bg-primary-50 dark:border-primary-500 dark:text-primary-400 dark:hover:bg-primary-900/20':
             isOutlined,
 
-          // Text — standard green ring (no background)
-          'bg-transparent text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 px-2 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2':
+          // Text — neutral label, no background
+          'bg-transparent text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 px-2':
             isText && instance?.severity !== 'danger',
 
-          'bg-transparent text-danger-500 hover:bg-red-50 dark:hover:bg-red-900/20 px-2 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2':
+          'bg-transparent text-danger-500 hover:bg-red-50 dark:hover:bg-red-900/20 px-2':
             isText && instance?.severity === 'danger',
         },
       ],

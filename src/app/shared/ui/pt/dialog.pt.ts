@@ -6,7 +6,7 @@ import type { ConfirmDialogPassThroughOptions } from 'primeng/confirmdialog';
 // stripped in unstyled mode, so we cannot rely on it for the `html:has(...)` selector.
 const MOBILE_MASK = 'flora-dialog-mask bg-neutral-900/50 backdrop-blur-sm max-md:!items-end';
 const MOBILE_DIALOG_ROOT = 'max-md:max-w-none max-md:rounded-t-garden-lg max-md:max-h-[92vh]';
-const MOBILE_FOOTER = 'max-md:flex-col max-md:items-stretch max-md:pb-safe-4';
+const MOBILE_FOOTER = 'max-md:flex-col max-md:pb-safe-4 max-md:[&_button]:w-full';
 
 export const FloraDialogPT = {
   root: {

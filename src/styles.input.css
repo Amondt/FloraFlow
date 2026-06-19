@@ -43,10 +43,13 @@
 }
 
 /* Prevent horizontal scroll on all viewports — PWA shell requirement.
-   The body must never scroll horizontally; any overflow is clipped. */
+   The body must never scroll horizontally; any overflow is clipped.
+   Use `clip`, not `hidden`: `overflow-x: hidden` forces `overflow-y` to compute
+   to `auto`, which turns html/body into a scroll container and breaks every
+   `position: sticky` descendant. `clip` clips without creating that container. */
 html,
 body {
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* Dark mode */

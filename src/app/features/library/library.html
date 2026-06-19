@@ -43,9 +43,14 @@
       </div>
     </header>
 
-    <!-- Search bar -->
-    <div id="library-search-area" class="mb-6">
-      <label for="library-search" class="sr-only">{{ 'library.searchLabel' | transloco }}</label>
+    <!-- Search bar — desktop only (hidden on mobile; mobile version is in the combined sticky bar below) -->
+    <div
+      id="library-search-area"
+      class="hidden md:block mb-3 bg-neutral-50 dark:bg-neutral-900 sticky top-0 z-20 pt-6 pb-3"
+    >
+      <label for="library-search-desktop" class="sr-only">{{
+        'library.searchLabel' | transloco
+      }}</label>
       <div class="relative">
         <i
           class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 text-sm pointer-events-none"
@@ -53,7 +58,7 @@
         ></i>
         <input
           pInputText
-          id="library-search"
+          id="library-search-desktop"
           type="search"
           [pt]="FloraInputTextPT"
           class="pl-10"
@@ -62,25 +67,52 @@
           [placeholder]="'library.searchPlaceholder' | transloco"
           autocomplete="off"
           [attr.aria-label]="'library.searchLabel' | transloco"
-          aria-describedby="search-hint"
+          aria-describedby="search-hint-desktop"
         />
       </div>
-      <p id="search-hint" class="text-xs text-neutral-400 font-display mt-1.5" role="note">
+      <p id="search-hint-desktop" class="text-xs text-neutral-400 font-display mt-1.5" role="note">
         {{ 'library.searchHint' | transloco }}
       </p>
     </div>
 
-    <!-- Mobile filters pill — hidden on md+ -->
-    <div class="md:hidden mb-4">
+    <!-- Mobile sticky bar: search input + filter pill in one row -->
+    <div
+      class="md:hidden sticky -top-px z-20 bg-neutral-50 dark:bg-neutral-900 pt-[17px] pb-3 flex items-center gap-3"
+    >
+      <div class="flex-1 min-w-0">
+        <label for="library-search" class="sr-only">{{ 'library.searchLabel' | transloco }}</label>
+        <div class="relative">
+          <i
+            class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 text-sm pointer-events-none"
+            aria-hidden="true"
+          ></i>
+          <input
+            pInputText
+            id="library-search"
+            type="search"
+            [pt]="FloraInputTextPT"
+            class="pl-10"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="onSearchQueryChange($event)"
+            [placeholder]="'library.searchPlaceholder' | transloco"
+            autocomplete="off"
+            [attr.aria-label]="'library.searchLabel' | transloco"
+          />
+        </div>
+      </div>
       <button
         #filterPill
         type="button"
-        class="cursor-pointer inline-flex items-center gap-2 px-4 h-10 rounded-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-sm font-medium font-display text-neutral-700 dark:text-neutral-200 shadow-sm hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+        class="relative cursor-pointer shrink-0 inline-flex items-center gap-1.5 px-3 h-control rounded-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-sm font-medium font-display text-neutral-700 dark:text-neutral-200 shadow-sm hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
         [attr.aria-label]="'library.filterPillAriaLabel' | transloco"
         aria-haspopup="dialog"
         [attr.aria-expanded]="isFilterSheetOpen()"
         (click)="isFilterSheetOpen.set(true)"
       >
+        <span
+          aria-hidden="true"
+          class="absolute top-1/2 left-1/2 size-11 -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"
+        ></span>
         <i class="pi pi-sliders-h text-sm" aria-hidden="true"></i>
         {{ 'library.filterPillLabel' | transloco }}
         @if (activeFilterCount() > 0) {
@@ -96,13 +128,14 @@
 
     <!-- Two-column layout: filter sidebar + results -->
     <div class="flex gap-6 items-start">
-      <!-- Filter sidebar — desktop only -->
+      <!-- Filter sidebar — desktop only; sticks just under the search bar, scrolls internally -->
       <aside
-        class="w-52 shrink-0 self-start sticky top-6 z-10 max-md:hidden"
+        class="w-52 shrink-0 max-md:hidden sticky top-[6rem] z-10 h-[calc(100vh-7.5rem)]"
         [attr.aria-label]="'library.filterPanelAriaLabel' | transloco"
       >
+        <!-- Filter panel — fixed height, scrolls internally -->
         <div
-          class="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md p-4 max-h-[calc(100vh-3rem)] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          class="h-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md p-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           <div class="flex items-center justify-between mb-3">
             <span

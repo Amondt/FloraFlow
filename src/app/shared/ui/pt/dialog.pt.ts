@@ -14,7 +14,7 @@ export const FloraDialogPT = {
   },
   header: {
     class:
-      'shrink-0 bg-primary-900 p-4 flex items-center justify-between text-white font-semibold font-display',
+      'shrink-0 bg-primary-900 p-4 flex items-center justify-between text-white font-medium font-display',
   },
   title: { class: 'text-base' },
   pcCloseButton: {
@@ -39,7 +39,7 @@ export const FloraFormDialogPT = {
   },
   header: {
     class:
-      'shrink-0 bg-primary-900 p-4 flex items-center justify-between text-white font-semibold font-display',
+      'shrink-0 bg-primary-900 p-4 flex items-center justify-between text-white font-medium font-display',
   },
   title: { class: 'text-base' },
   pcCloseButton: {
@@ -64,7 +64,7 @@ export const FloraDetailDialogPT = {
   },
   header: {
     class:
-      'shrink-0 bg-primary-900 p-4 flex items-center justify-between text-white font-semibold font-display',
+      'shrink-0 bg-primary-900 p-4 flex items-center justify-between text-white font-medium font-display',
   },
   title: { class: 'text-base' },
   pcCloseButton: {
@@ -93,7 +93,7 @@ export const FloraConfirmDialogPT = {
   },
   header: {
     class:
-      'bg-danger-500 p-4 flex items-center justify-between text-white font-semibold font-display',
+      'bg-danger-500 p-4 flex items-center justify-between text-white font-medium font-display',
   },
   title: { class: 'text-base' },
   content: {
@@ -105,13 +105,13 @@ export const FloraConfirmDialogPT = {
   pcAcceptButton: {
     root: {
       class:
-        'inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-garden-sm bg-danger-500 text-white hover:bg-danger-700 transition-colors duration-150',
+        'inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-garden-sm bg-danger-500 text-white hover:bg-danger-700 transition-colors duration-150',
     },
   },
   pcRejectButton: {
     root: {
       class:
-        'inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-garden-sm bg-transparent text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors duration-150',
+        'inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-garden-sm bg-transparent text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors duration-150',
     },
   },
   mask: { class: MOBILE_MASK },

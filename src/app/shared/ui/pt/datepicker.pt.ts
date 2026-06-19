@@ -19,7 +19,7 @@ export const FloraDatePickerPT = {
   },
   header: {
     class:
-      'flex items-center justify-between mb-3 text-sm font-semibold text-neutral-700 dark:text-neutral-200',
+      'flex items-center justify-between mb-3 text-sm font-medium text-neutral-700 dark:text-neutral-200',
   },
   pcPrevButton: {
     root: { class: 'p-1 rounded hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors' },
@@ -27,7 +27,7 @@ export const FloraDatePickerPT = {
   pcNextButton: {
     root: { class: 'p-1 rounded hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors' },
   },
-  title: { class: 'font-semibold text-neutral-800 dark:text-neutral-100' },
+  title: { class: 'font-medium text-neutral-800 dark:text-neutral-100' },
   table: { class: 'w-full text-sm' },
   tableHeaderCell: { class: 'text-center text-xs text-neutral-400 pb-1' },
   dayCell: { class: 'text-center p-0.5' },
@@ -37,7 +37,7 @@ export const FloraDatePickerPT = {
     class: [
       'w-8 h-8 flex items-center justify-center rounded-full text-sm cursor-pointer transition-colors duration-100',
       {
-        'bg-primary-500 text-white font-semibold': context.selected,
+        'bg-primary-500 text-white font-medium': context.selected,
         'ring-1 ring-primary-500 text-primary-600 font-medium': context.today && !context.selected,
         'text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700':
           !context.selected && !context.disabled,

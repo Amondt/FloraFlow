@@ -14,8 +14,8 @@ export const FloraFileUploadPT = {
   pcChooseButton: {
     root: {
       class: [
-        'inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold font-display rounded-garden-sm',
-        'bg-primary-500 text-white hover:bg-primary-600 transition-colors duration-150',
+        'inline-flex items-center gap-2 px-4 py-2 text-sm font-medium font-display rounded-garden-sm',
+        'bg-primary-800 text-white hover:bg-primary-900 transition-colors duration-150',
         FLORA_FOCUS,
       ].join(' '),
     },
@@ -23,13 +23,13 @@ export const FloraFileUploadPT = {
   pcUploadButton: {
     root: {
       class:
-        'inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold font-display rounded-garden-sm bg-neutral-600 text-white hover:bg-neutral-700 transition-colors duration-150',
+        'inline-flex items-center gap-2 px-4 py-2 text-sm font-medium font-display rounded-garden-sm bg-neutral-600 text-white hover:bg-neutral-700 transition-colors duration-150',
     },
   },
   pcCancelButton: {
     root: {
       class:
-        'inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold font-display rounded-garden-sm bg-transparent text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors duration-150',
+        'inline-flex items-center gap-2 px-4 py-2 text-sm font-medium font-display rounded-garden-sm bg-transparent text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors duration-150',
     },
   },
 } satisfies FileUploadPassThroughOptions;

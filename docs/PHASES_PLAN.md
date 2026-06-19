@@ -299,6 +299,13 @@
   - One component (`leaf-doctor-dialog`) → both the Journal and Zone-detail surfaces.
   - Independent of in-progress 3.16 and of 3.18; both 3.18 and 3.19 touch `buildUserText()` — whichever lands second rebases that signature.
   - Plan: `docs/plans/phase-3/PHASE_3_19_PLAN.md`
+- [ ] **3.20 Heat-Stress Soil Advisory** | Agent: `/plumber` → `/visualizer` → `/gatekeeper`
+  - DB migration: `max_temp_next_24h NUMERIC(5,2)` on `weather_cache`; `weather-proxy` extended to fetch and cache the daily temperature maximum from the same free Open-Meteo call (no new API dependency, same 30-min TTL).
+  - `WeatherService`: `HEAT_THRESHOLD_CELSIUS = 30`, `hasHeatRisk` computed signal (parallel to `hasFrostRisk`); `WeatherData` extended with `max_temp_next_24h`.
+  - `soil-check-dialog.ts`: `recommendedDays` gains a `HEAT_MULTIPLIER = 0.65` when `hasHeatRisk()` is true — applies to all plants, no zone scoping. A one-line transparency note shown in the schedule step when the multiplier is active.
+  - Dashboard: extract a shared presentational `WeatherAdvisoryBannerComponent`; refactor the existing frost banner to use it; add a heat banner (`hasHeatRisk() && plants.length > 0`).
+  - Graceful degradation: no location set → `hasHeatRisk()` is `false` → multiplier is `1.0`, banner hidden. Identical to frost.
+  - Plan: `docs/plans/phase-3/PHASE_3_20_PLAN.md`
 
 ### 🔒 Phase 3 QA Criteria
 
@@ -462,25 +469,25 @@
 
 ### 📋 Design Refactor Tasks
 
-- [ ] **Block A — Warm token foundation** | Agent: `/visualizer` · Model: Opus · Effort: mid
+- [x] **Block A — Warm token foundation** | Agent: `/visualizer` · Model: Opus · Effort: mid
   - `src/styles.input.css` `@theme`: forest-green `--color-primary-*` ramp (light end 300/400 stays bright for dark-mode accents); new coral accent tokens; warm green-gray `--color-neutral-*` ramp (cream → warm-black, serving both light surfaces and dark backgrounds); rounder `--radius-garden-*`; soft warm `--shadow-sm/md`; `--font-mono` = JetBrains Mono.
   - `src/index.html`: load Inter + JetBrains Mono (currently no font link — app falls back to system-ui).
   - Light-mode body background: warm cream + soft pastel radial gradients; dark mode unchanged.
   - Plan: `docs/plans/design-refactor/V4_BENTO_PLAN.md`
 
-- [ ] **Block B — High-visibility PT polish** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **Block B — High-visibility PT polish** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - `button.pt.ts` (solid CTA → forest pill), `badge.pt.ts` (tag/chip → sage / peach / coral), `card.pt.ts` (paper surface + soft shadow), `toast.pt.ts`, `message.pt.ts`. All slots keep `FLORA_FOCUS` + `FLORA_DISABLED`.
   - Plan: `docs/plans/design-refactor/V4_BENTO_PLAN.md`
 
-- [ ] **Block C — Remaining PT sweep** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+- [x] **Block C — Remaining PT sweep** | Agent: `/visualizer` · Model: Sonnet · Effort: low
   - Low-touch long tail (mostly inherit Block A automatically): `input`, `select`, `checkbox`, `datepicker`, `slider`, `fileupload`, `dialog`, `panel`, `tabs`, `menu`, `popover`, `progress`, `skeleton`, `autocomplete`.
   - Plan: `docs/plans/design-refactor/V4_BENTO_PLAN.md`
 
-- [ ] **Block D — Sync `DESIGN_SYSTEM.md`** | Agent: `/mind` · Model: Sonnet · Effort: low
+- [x] **Block D — Sync `DESIGN_SYSTEM.md`** | Agent: `/mind` · Model: Sonnet · Effort: low
   - Update §1 token table to final values + coral / JetBrains Mono note; recompute §4 contrast ratios for the new palette. Depends only on Block A.
   - Plan: `docs/plans/design-refactor/V4_BENTO_PLAN.md`
 
-- [ ] **Block E — QA gate** | Agent: `/gatekeeper` · Model: Sonnet · Effort: mid
+- [x] **Block E — QA gate** | Agent: `/gatekeeper` · Model: Sonnet · Effort: mid
   - WCAG AA contrast re-verification (§4) for forest / cream / coral in **both** themes; zero-overflow, no-structure-change visual regression across every route, light + dark; `bun run check`.
   - Plan: `docs/plans/design-refactor/V4_BENTO_PLAN.md`
 

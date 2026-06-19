@@ -50,7 +50,7 @@
     --color-neutral-600: #46523c;
     --color-neutral-700: #2d3a2b;
     --color-neutral-800: #222e22;
-    --color-neutral-900: #1a2418;
+    --color-neutral-900: #101a0f;
     --color-neutral-950: oklch(14.5% 0 0);
     --color-black: #000;
     --color-white: #fff;
@@ -1156,12 +1156,6 @@
   .border-neutral-200 {
     border-color: var(--color-neutral-200);
   }
-  .border-neutral-200\/50 {
-    border-color: color-mix(in srgb, #d4d9c8 50%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
-      border-color: color-mix(in oklab, var(--color-neutral-200) 50%, transparent);
-    }
-  }
   .border-neutral-200\/60 {
     border-color: color-mix(in srgb, #d4d9c8 60%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
@@ -1316,25 +1310,25 @@
     background-color: var(--color-neutral-900);
   }
   .bg-neutral-900\/30 {
-    background-color: color-mix(in srgb, #1a2418 30%, transparent);
+    background-color: color-mix(in srgb, #101a0f 30%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
       background-color: color-mix(in oklab, var(--color-neutral-900) 30%, transparent);
     }
   }
   .bg-neutral-900\/40 {
-    background-color: color-mix(in srgb, #1a2418 40%, transparent);
+    background-color: color-mix(in srgb, #101a0f 40%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
       background-color: color-mix(in oklab, var(--color-neutral-900) 40%, transparent);
     }
   }
   .bg-neutral-900\/50 {
-    background-color: color-mix(in srgb, #1a2418 50%, transparent);
+    background-color: color-mix(in srgb, #101a0f 50%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
       background-color: color-mix(in oklab, var(--color-neutral-900) 50%, transparent);
     }
   }
   .bg-neutral-900\/90 {
-    background-color: color-mix(in srgb, #1a2418 90%, transparent);
+    background-color: color-mix(in srgb, #101a0f 90%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
       background-color: color-mix(in oklab, var(--color-neutral-900) 90%, transparent);
     }
@@ -1858,9 +1852,6 @@
   }
   .text-yellow-700 {
     color: var(--color-yellow-700);
-  }
-  .text-yellow-900 {
-    color: var(--color-yellow-900);
   }
   .lowercase {
     text-transform: lowercase;
@@ -3023,7 +3014,7 @@
   }
   .dark\:bg-neutral-900\/50 {
     &:where(.dark, .dark *) {
-      background-color: color-mix(in srgb, #1a2418 50%, transparent);
+      background-color: color-mix(in srgb, #101a0f 50%, transparent);
       @supports (color: color-mix(in lab, red, red)) {
         background-color: color-mix(in oklab, var(--color-neutral-900) 50%, transparent);
       }
@@ -3031,7 +3022,7 @@
   }
   .dark\:bg-neutral-900\/60 {
     &:where(.dark, .dark *) {
-      background-color: color-mix(in srgb, #1a2418 60%, transparent);
+      background-color: color-mix(in srgb, #101a0f 60%, transparent);
       @supports (color: color-mix(in lab, red, red)) {
         background-color: color-mix(in oklab, var(--color-neutral-900) 60%, transparent);
       }
@@ -3039,7 +3030,7 @@
   }
   .dark\:bg-neutral-900\/70 {
     &:where(.dark, .dark *) {
-      background-color: color-mix(in srgb, #1a2418 70%, transparent);
+      background-color: color-mix(in srgb, #101a0f 70%, transparent);
       @supports (color: color-mix(in lab, red, red)) {
         background-color: color-mix(in oklab, var(--color-neutral-900) 70%, transparent);
       }
@@ -3261,11 +3252,6 @@
   .dark\:text-white {
     &:where(.dark, .dark *) {
       color: var(--color-white);
-    }
-  }
-  .dark\:text-yellow-200 {
-    &:where(.dark, .dark *) {
-      color: var(--color-yellow-200);
     }
   }
   .dark\:text-yellow-300 {
@@ -3493,6 +3479,13 @@
   .pointer-fine\:hidden {
     @media (pointer: fine) {
       display: none;
+    }
+  }
+  .max-md\:\[\&_button\]\:w-full {
+    @media (width < 48rem) {
+      & button {
+        width: 100%;
+      }
     }
   }
   .\[\&\:\:-webkit-scrollbar\]\:hidden {

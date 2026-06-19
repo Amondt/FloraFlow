@@ -1223,6 +1223,22 @@ SELECT
     'min_temp_next_24h is NULL by default on weather_cache rows'
   );
 
+-- ── TEST 45a: max_temp_next_24h defaults to NULL on weather_cache ────────────
+SELECT
+  IS (
+    (
+      SELECT
+        max_temp_next_24h
+      FROM
+        public.weather_cache
+      WHERE
+        latitude = 50.85
+        AND longitude = 4.35
+    ),
+    NULL::numeric,
+    'max_temp_next_24h is NULL by default on weather_cache rows'
+  );
+
 -- ── TEST 46: Authenticated SELECT on frost_date_cache succeeds ──────────────
 -- Seed a test row as superuser; frost_date_cache is a public climate cache
 -- (no user_id) so any authenticated user may read it.

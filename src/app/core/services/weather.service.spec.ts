@@ -7,12 +7,13 @@ const mockSupabase = {
   getAuthToken: vi.fn().mockResolvedValue('test-token'),
 };
 
-function makeWeatherPayload(minTemp: number | null) {
+function makeWeatherPayload(minTemp: number | null, maxTemp: number | null = null) {
   return {
     temperature_celsius: 10,
     relative_humidity_percent: 80,
     precipitation_probability_percent: null,
     min_temp_next_24h: minTemp,
+    max_temp_next_24h: maxTemp,
     latitude: 50.85,
     longitude: 4.35,
     fetched_at: new Date().toISOString(),
@@ -51,6 +52,7 @@ describe('WeatherService', () => {
         relative_humidity_percent: 80,
         precipitation_probability_percent: null,
         min_temp_next_24h: 4,
+        max_temp_next_24h: null,
       });
       expect(service.hasFrostRisk()).toBe(true);
     });
@@ -61,6 +63,7 @@ describe('WeatherService', () => {
         relative_humidity_percent: 90,
         precipitation_probability_percent: null,
         min_temp_next_24h: -2,
+        max_temp_next_24h: null,
       });
       expect(service.hasFrostRisk()).toBe(true);
     });
@@ -71,6 +74,7 @@ describe('WeatherService', () => {
         relative_humidity_percent: 60,
         precipitation_probability_percent: null,
         min_temp_next_24h: 12,
+        max_temp_next_24h: null,
       });
       expect(service.hasFrostRisk()).toBe(false);
     });
@@ -81,8 +85,62 @@ describe('WeatherService', () => {
         relative_humidity_percent: 95,
         precipitation_probability_percent: null,
         min_temp_next_24h: null,
+        max_temp_next_24h: null,
       });
       expect(service.hasFrostRisk()).toBe(false);
+    });
+  });
+
+  // ── hasHeatRisk ───────────────────────────────────────────────────────────
+
+  describe('hasHeatRisk', () => {
+    it('returns false when weather is null', () => {
+      service.weather.set(null);
+      expect(service.hasHeatRisk()).toBe(false);
+    });
+
+    it('returns true when max_temp_next_24h is exactly at threshold (30°C)', () => {
+      service.weather.set({
+        temperature_celsius: 25,
+        relative_humidity_percent: 40,
+        precipitation_probability_percent: null,
+        min_temp_next_24h: 18,
+        max_temp_next_24h: 30,
+      });
+      expect(service.hasHeatRisk()).toBe(true);
+    });
+
+    it('returns true when max_temp_next_24h is above threshold', () => {
+      service.weather.set({
+        temperature_celsius: 28,
+        relative_humidity_percent: 35,
+        precipitation_probability_percent: null,
+        min_temp_next_24h: 20,
+        max_temp_next_24h: 36,
+      });
+      expect(service.hasHeatRisk()).toBe(true);
+    });
+
+    it('returns false when max_temp_next_24h is below threshold', () => {
+      service.weather.set({
+        temperature_celsius: 18,
+        relative_humidity_percent: 60,
+        precipitation_probability_percent: null,
+        min_temp_next_24h: 10,
+        max_temp_next_24h: 22,
+      });
+      expect(service.hasHeatRisk()).toBe(false);
+    });
+
+    it('returns false when max_temp_next_24h is null', () => {
+      service.weather.set({
+        temperature_celsius: 20,
+        relative_humidity_percent: 55,
+        precipitation_probability_percent: null,
+        min_temp_next_24h: 12,
+        max_temp_next_24h: null,
+      });
+      expect(service.hasHeatRisk()).toBe(false);
     });
   });
 

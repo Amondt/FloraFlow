@@ -200,6 +200,12 @@
       </div>
     }
 
+    @if (isHeatActive()) {
+      <p class="text-xs text-warning-500 font-display mb-3">
+        {{ 'tasks.soilCheck.heatAdjustment' | transloco }}
+      </p>
+    }
+
     <div
       class="grid grid-cols-5 gap-2 mb-4"
       role="radiogroup"

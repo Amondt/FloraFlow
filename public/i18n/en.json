@@ -127,6 +127,9 @@
     "frostRiskHeading": "Frost risk — next 24 hours",
     "frostRiskAriaLabel": "Frost risk warning",
     "frostRiskBody": "Low of {minTemp}°C near {locationName}. Protect plants in {zones}.",
+    "heatRiskAriaLabel": "Heat advisory",
+    "heatRiskHeading": "Heat advisory — next 24 hours",
+    "heatRiskBody": "Soil dries faster in the heat — consider checking your plants sooner than usual.",
     "yourLocation": "your location",
     "setLocation": "Set your location",
     "setLocationSuffix": "to enable frost alerts for your outdoor zones.",
@@ -486,6 +489,7 @@
       "lastCheckedToday": "last checked today",
       "lastCheckedYesterday": "last checked yesterday",
       "lastCheckedDaysAgo": "last checked {days} days ago",
+      "heatAdjustment": "Hot weather forecast — checking sooner than usual.",
       "substrate": {
         "highDrainageAroid": "This mix drains quickly — water when the top 3 cm are dry.",
         "standardPotting": "Water when the top 3 cm of soil are dry.",

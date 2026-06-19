@@ -138,6 +138,32 @@ Historical logs, tracking notes, and compressed photo records mapped per plant c
     --                    "immediate_remedial_actions": ["...", ...] }, "nl": { ... } }
     --   Written client-side under existing owner RLS. User-authored notes are never translated.
 
+### 🌤️ 2.6 Table: `weather_cache`
+
+Short-lived Open-Meteo responses (TTL: 30 min). Written by the `weather-proxy` Edge Function via `service_role` only; clients read via RLS SELECT policy.
+
+    CREATE TABLE public.weather_cache (
+        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+        latitude NUMERIC(8,5) NOT NULL,
+        longitude NUMERIC(8,5) NOT NULL,
+        temperature_celsius NUMERIC(5,2),
+        relative_humidity_percent INT,
+        precipitation_probability_percent INT,
+        min_temp_next_24h NUMERIC(5,2),   -- lowest daily min across today + tomorrow
+        max_temp_next_24h NUMERIC(5,2),   -- highest daily max across today + tomorrow
+        fetched_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+        UNIQUE (latitude, longitude)
+    );
+
+    ALTER TABLE public.weather_cache ENABLE ROW LEVEL SECURITY;
+
+    CREATE POLICY "Any authenticated user can read weather cache"
+        ON public.weather_cache FOR SELECT USING (auth.role() = 'authenticated');
+
+    -- Client writes are blocked; Edge Function uses service_role which bypasses RLS.
+    CREATE POLICY "Client writes to weather cache are blocked"
+        ON public.weather_cache FOR ALL USING (false) WITH CHECK (false);
+
 ---
 
 ## 3. Database Indexes (Free Tier Protection)

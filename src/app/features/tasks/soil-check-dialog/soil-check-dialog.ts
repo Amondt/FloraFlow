@@ -11,6 +11,7 @@ import { blurActiveElement } from '../../../shared/utils/dom';
 import { daysSince } from '../../../shared/utils/date.util';
 import { LibraryService, CachedBotanicalRecord } from '../../library/library.service';
 import { buildGalleryPhotos } from '../../../shared/utils/botanical-photo.util';
+import { WeatherService } from '../../../core/services/weather.service';
 
 const SUBSTRATE_DEPTH_RULES: Record<SubstrateFactor, { depth: string; descriptionKey: string }> = {
   'High-Drainage Aroid': {
@@ -108,7 +109,10 @@ type CheckStep = 'ask' | 'schedule';
 })
 export class SoilCheckDialogComponent {
   private readonly libraryService = inject(LibraryService);
+  private readonly weatherService = inject(WeatherService);
   private readonly t = inject(TranslocoService);
+
+  private readonly HEAT_MULTIPLIER = 0.65;
 
   readonly plant = input.required<Plant>();
   readonly zoneName = input<string | null>(null);
@@ -124,6 +128,8 @@ export class SoilCheckDialogComponent {
   readonly snoozeDays = signal(5);
   readonly note = signal('');
   readonly snoozePresets = [2, 5, 7, 10, 14] as const;
+
+  readonly isHeatActive = computed(() => this.weatherService.hasHeatRisk());
 
   protected readonly showLightbox = signal(false);
 
@@ -188,9 +194,10 @@ export class SoilCheckDialogComponent {
     const baseDays = SNOOZE_MATRIX[plant.container_vector][plant.substrate_factor];
     const wateringMultiplier = WATERING_MULTIPLIER[record?.watering?.toLowerCase() ?? ''] ?? 1.0;
     const growthMultiplier = GROWTH_MULTIPLIER[plant.growth_stage];
+    const heatMultiplier = this.isHeatActive() ? this.HEAT_MULTIPLIER : 1;
     const raw = Math.max(
       1,
-      Math.min(14, Math.round(baseDays * wateringMultiplier * growthMultiplier)),
+      Math.min(14, Math.round(baseDays * wateringMultiplier * growthMultiplier * heatMultiplier)),
     );
 
     const presets = [2, 5, 7, 10, 14] as const;

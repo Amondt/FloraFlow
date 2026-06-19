@@ -7,6 +7,7 @@ export interface WeatherData {
   relative_humidity_percent: number;
   precipitation_probability_percent: number | null;
   min_temp_next_24h: number | null;
+  max_temp_next_24h: number | null;
 }
 
 type WeatherProxySuccess = WeatherData & {
@@ -21,6 +22,7 @@ export class WeatherService {
   private readonly supabase = inject(SupabaseService);
 
   readonly FROST_THRESHOLD_CELSIUS = 4;
+  readonly HEAT_THRESHOLD_CELSIUS = 30;
 
   readonly weather = signal<WeatherData | null>(null);
   readonly weatherLoading = signal(false);
@@ -28,6 +30,10 @@ export class WeatherService {
 
   readonly hasFrostRisk = computed(
     () => (this.weather()?.min_temp_next_24h ?? Infinity) <= this.FROST_THRESHOLD_CELSIUS,
+  );
+
+  readonly hasHeatRisk = computed(
+    () => (this.weather()?.max_temp_next_24h ?? -Infinity) >= this.HEAT_THRESHOLD_CELSIUS,
   );
 
   async loadWeather(lat: number, lon: number): Promise<void> {
@@ -58,6 +64,7 @@ export class WeatherService {
         relative_humidity_percent: result.relative_humidity_percent,
         precipitation_probability_percent: result.precipitation_probability_percent,
         min_temp_next_24h: result.min_temp_next_24h,
+        max_temp_next_24h: result.max_temp_next_24h,
       });
     } catch {
       this.weatherError.set('Could not load weather data — frost alerts may be unavailable.');

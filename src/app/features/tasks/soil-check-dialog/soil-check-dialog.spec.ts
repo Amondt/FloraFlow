@@ -1,9 +1,14 @@
 import { TestBed } from '@angular/core/testing';
 import { RouterModule } from '@angular/router';
+import { signal } from '@angular/core';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { SoilCheckDialogComponent } from './soil-check-dialog';
+import { WeatherService } from '../../../core/services/weather.service';
 import { provideTranslocoTesting } from '../../../testing/transloco-testing';
 import type { Plant } from '../plant.model';
+
+const mockHeatRisk = signal(false);
+const mockWeatherService = { hasHeatRisk: mockHeatRisk };
 
 // Fixed reference: June 15 2024 at 14:00 local time
 const FIXED_NOW = new Date(2024, 5, 15, 14, 0, 0);
@@ -37,7 +42,10 @@ describe('SoilCheckDialogComponent', () => {
     vi.useFakeTimers({ now: FIXED_NOW.getTime() });
     await TestBed.configureTestingModule({
       imports: [SoilCheckDialogComponent, RouterModule.forRoot([])],
-      providers: [...provideTranslocoTesting()],
+      providers: [
+        ...provideTranslocoTesting(),
+        { provide: WeatherService, useValue: mockWeatherService },
+      ],
     })
       .overrideTemplate(SoilCheckDialogComponent, '')
       .compileComponents();
@@ -45,6 +53,7 @@ describe('SoilCheckDialogComponent', () => {
 
   afterEach(() => {
     vi.useRealTimers();
+    mockHeatRisk.set(false);
   });
 
   function setup(plant: Plant): SoilCheckDialogComponent {
@@ -163,6 +172,41 @@ describe('SoilCheckDialogComponent', () => {
         }),
       );
       expect(c.recommendedDays()).toBe(14);
+    });
+  });
+
+  // ── heat multiplier ────────────────────────────────────────────────────────
+
+  describe('recommendedDays() with heat active', () => {
+    it('is strictly lower than without heat for the same plant (Plastic + Heavy Peat + Mature)', () => {
+      const plant = makePlant({
+        container_vector: 'Plastic',
+        substrate_factor: 'Heavy Peat',
+        growth_stage: 'Mature',
+      });
+
+      // heat inactive: base=7 × 1.0 × 1.0 = 7 → snap to 7
+      mockHeatRisk.set(false);
+      const cold = setup(plant);
+      expect(cold.recommendedDays()).toBe(7);
+
+      // heat active: 7 × 0.65 = 4.55 → rounds to 5 → snap to 5
+      mockHeatRisk.set(true);
+      const hot = setup(plant);
+      expect(hot.recommendedDays()).toBe(5);
+    });
+
+    it('heat active — Self-Watering + Heavy Peat + Dormant → 10 days (14 × 0.65 = 9.1 → snap to 10)', () => {
+      mockHeatRisk.set(true);
+      const c = setup(
+        makePlant({
+          container_vector: 'Self-Watering',
+          substrate_factor: 'Heavy Peat',
+          growth_stage: 'Dormant',
+        }),
+      );
+      // base=7 × growth=2.0 × heat=0.65 = 9.1 → rounds to 9 → snap to 10
+      expect(c.recommendedDays()).toBe(10);
     });
   });
 

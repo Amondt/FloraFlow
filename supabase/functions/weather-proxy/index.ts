@@ -15,6 +15,7 @@ type OpenMeteoResponse = {
   daily: {
     time: string[];
     temperature_2m_min: number[];
+    temperature_2m_max: number[];
   };
 };
 
@@ -67,12 +68,13 @@ Deno.serve(async (req: Request) => {
     const { data: cached } = await supabase
       .from('weather_cache')
       .select(
-        'latitude, longitude, temperature_celsius, relative_humidity_percent, precipitation_probability_percent, min_temp_next_24h, fetched_at',
+        'latitude, longitude, temperature_celsius, relative_humidity_percent, precipitation_probability_percent, min_temp_next_24h, max_temp_next_24h, fetched_at',
       )
       .eq('latitude', lat)
       .eq('longitude', lon)
       .gte('fetched_at', new Date(Date.now() - 30 * 60 * 1000).toISOString())
       .not('min_temp_next_24h', 'is', null)
+      .not('max_temp_next_24h', 'is', null)
       .maybeSingle();
 
     if (cached) return json(cached);
@@ -84,7 +86,7 @@ Deno.serve(async (req: Request) => {
         `?latitude=${lat}&longitude=${lon}` +
         `&current=temperature_2m,relative_humidity_2m` +
         `&hourly=precipitation_probability` +
-        `&daily=temperature_2m_min` +
+        `&daily=temperature_2m_min,temperature_2m_max` +
         `&forecast_days=2&timezone=UTC`;
 
       const resp = await fetch(meteoUrl);
@@ -104,6 +106,10 @@ Deno.serve(async (req: Request) => {
       const min1 = meteo.daily.temperature_2m_min[1] ?? Infinity;
       const rawMin = Math.min(min0, min1);
 
+      const max0 = meteo.daily.temperature_2m_max[0] ?? -Infinity;
+      const max1 = meteo.daily.temperature_2m_max[1] ?? -Infinity;
+      const rawMax = Math.max(max0, max1);
+
       const record = {
         latitude: lat,
         longitude: lon,
@@ -111,6 +117,7 @@ Deno.serve(async (req: Request) => {
         relative_humidity_percent: meteo.current.relative_humidity_2m,
         precipitation_probability_percent: precipProbability,
         min_temp_next_24h: Number.isFinite(rawMin) ? rawMin : null,
+        max_temp_next_24h: Number.isFinite(rawMax) ? rawMax : null,
         fetched_at: new Date().toISOString(),
       };
 

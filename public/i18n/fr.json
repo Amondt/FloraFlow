@@ -127,6 +127,9 @@
     "frostRiskHeading": "Risque de gel — prochaines 24 heures",
     "frostRiskAriaLabel": "Avertissement de risque de gel",
     "frostRiskBody": "Minimum de {minTemp}°C près de {locationName}. Protégez les plantes dans {zones}.",
+    "heatRiskAriaLabel": "Avertissement de chaleur",
+    "heatRiskHeading": "Chaleur — prochaines 24 heures",
+    "heatRiskBody": "Le sol sèche plus vite par temps chaud — pensez à vérifier vos plantes plus tôt que d'habitude.",
     "yourLocation": "votre emplacement",
     "setLocation": "Définir votre emplacement",
     "setLocationSuffix": "pour activer les alertes gel pour vos zones extérieures.",
@@ -486,6 +489,7 @@
       "lastCheckedToday": "vérifié aujourd'hui",
       "lastCheckedYesterday": "vérifié hier",
       "lastCheckedDaysAgo": "vérifié il y a {days} jours",
+      "heatAdjustment": "Météo chaude prévue — vérification plus tôt que d'habitude.",
       "substrate": {
         "highDrainageAroid": "Ce mélange draine rapidement — arrosez quand les 3 cm supérieurs sont secs.",
         "standardPotting": "Arrosez quand les 3 cm supérieurs du substrat sont secs.",

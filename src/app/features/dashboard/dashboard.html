@@ -92,37 +92,32 @@
       </div>
     </header>
 
-    <!-- ── Frost alert / Location prompt ────────────────────────────── -->
+    <!-- ── Weather advisories / Location prompt ─────────────────────── -->
     @if (outdoorZones().length > 0 && weatherService.hasFrostRisk()) {
       @let frostLocName =
         profileService.profile()?.location_name ?? ('dashboard.yourLocation' | transloco);
-      <section
-        role="alert"
-        aria-live="assertive"
-        [attr.aria-label]="'dashboard.frostRiskAriaLabel' | transloco"
-        class="flex items-start gap-3 bg-amber-50 dark:bg-yellow-900/20 border border-warning-500 dark:border-yellow-700/50 rounded-garden-md p-4 mb-6"
-      >
-        <i
-          class="pi pi-exclamation-triangle text-warning-500 mt-0.5 flex-shrink-0"
-          aria-hidden="true"
-        ></i>
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-semibold font-display text-warning-500">
-            {{ 'dashboard.frostRiskHeading' | transloco }}
-          </p>
-          <p class="text-sm font-display text-neutral-600 dark:text-neutral-300 mt-0.5">
-            {{
-              'dashboard.frostRiskBody'
-                | transloco
-                  : {
-                      minTemp: weatherService.weather()?.min_temp_next_24h,
-                      locationName: frostLocName,
-                      zones: outdoorZoneNames(),
-                    }
-            }}
-          </p>
-        </div>
-      </section>
+      <app-weather-advisory-banner
+        icon="pi-exclamation-triangle"
+        [ariaLabel]="'dashboard.frostRiskAriaLabel' | transloco"
+        [heading]="'dashboard.frostRiskHeading' | transloco"
+        [body]="
+          'dashboard.frostRiskBody'
+            | transloco
+              : {
+                  minTemp: weatherService.weather()?.min_temp_next_24h,
+                  locationName: frostLocName,
+                  zones: outdoorZoneNames(),
+                }
+        "
+      />
+    }
+    @if (weatherService.hasHeatRisk() && plantService.plants().length > 0) {
+      <app-weather-advisory-banner
+        icon="pi-sun"
+        [ariaLabel]="'dashboard.heatRiskAriaLabel' | transloco"
+        [heading]="'dashboard.heatRiskHeading' | transloco"
+        [body]="'dashboard.heatRiskBody' | transloco"
+      />
     }
 
     @if (outdoorZones().length > 0 && !hasLocation()) {

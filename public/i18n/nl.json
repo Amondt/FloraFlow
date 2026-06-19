@@ -127,6 +127,9 @@
     "frostRiskHeading": "Vorstrisico — komende 24 uur",
     "frostRiskAriaLabel": "Vorstrisico waarschuwing",
     "frostRiskBody": "Minimum van {minTemp}°C in de buurt van {locationName}. Bescherm planten in {zones}.",
+    "heatRiskAriaLabel": "Hittewaarschuwing",
+    "heatRiskHeading": "Hitte — komende 24 uur",
+    "heatRiskBody": "De grond droogt sneller uit bij hitte — overweeg uw planten eerder te controleren dan normaal.",
     "yourLocation": "uw locatie",
     "setLocation": "Stel uw locatie in",
     "setLocationSuffix": "om vorstalarmen voor uw buitenzones te activeren.",
@@ -486,6 +489,7 @@
       "lastCheckedToday": "vandaag gecontroleerd",
       "lastCheckedYesterday": "gisteren gecontroleerd",
       "lastCheckedDaysAgo": "voor het laatste gecontroleerd {days} dagen geleden",
+      "heatAdjustment": "Warm weer verwacht — eerder controleren dan normaal.",
       "substrate": {
         "highDrainageAroid": "Dit mengsel draint snel — water geven als de bovenste 3 cm droog zijn.",
         "standardPotting": "Water geven als de bovenste 3 cm substraat droog zijn.",

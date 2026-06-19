@@ -37,6 +37,7 @@ import {
 import { BotanicalDetailDialogComponent } from '../../shared/components/botanical-detail-dialog/botanical-detail-dialog';
 import { SubstrateMixWizardDialogComponent } from '../../shared/components/substrate-mix-wizard/substrate-mix-wizard-dialog';
 import { LibraryService, type CachedBotanicalRecord } from '../library/library.service';
+import { WeatherAdvisoryBannerComponent } from '../../shared/components/weather-advisory-banner/weather-advisory-banner';
 
 interface AttentionChip {
   plant: Plant;
@@ -62,6 +63,7 @@ interface AttentionChip {
     PlantIdentifierDialogComponent,
     BotanicalDetailDialogComponent,
     SubstrateMixWizardDialogComponent,
+    WeatherAdvisoryBannerComponent,
     TranslocoPipe,
   ],
   providers: [ConfirmationService, MessageService],

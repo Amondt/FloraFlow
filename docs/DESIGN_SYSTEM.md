@@ -25,51 +25,53 @@ All tokens live in `src/styles.input.css` under `@theme` and compile into `src/s
 @import "tailwindcss";
 
 @theme {
-  /* Primary — forest green (V4). 600–900 = light-mode CTAs/text;
-     300/400 stay bright as dark-mode accents on the warm-black bg. */
+  /* Primary — forest green. 600–900 = light-mode CTAs & text;
+     300/400 stay bright as dark-mode accents on the archive background. */
   --color-primary-50:  #eef4ee;
   --color-primary-100: #d8e8d0; /* sage tint */
-  --color-primary-300: #9ed4a4; /* dark-mode hover accent — ~9.5:1 on neutral-900 */
-  --color-primary-400: #74c482; /* dark-mode primary accent — ~7.6:1 on neutral-900 */
+  --color-primary-300: #9ed4a4; /* dark-mode hover accent */
+  --color-primary-400: #74c482; /* dark-mode primary accent — ~9:1 on neutral-900 */
   --color-primary-500: #3d7a4f;
   --color-primary-600: #2f5f43;
   --color-primary-700: #294f3a;
   --color-primary-800: #243d2c; /* solid CTA pill — white label ~11.8:1 */
-  --color-primary-900: #1a2c1f; /* dialog headers — white ~14.7:1 */
+  --color-primary-900: #1a2c1f; /* dialog headers — white ~14.8:1 */
 
-  /* Coral — decorative "pop" only (urgency/frost flourishes). NOT an AA text colour
-     with this ramp; true destructive stays danger-*, true warnings stay warning-*. */
-  --color-coral-400:   #ed9c7c;
-  --color-coral-500:   #e08760;
-  --color-coral-600:   #c97350;
+  /* Coral — decorative "pop" only (overdue / frost flourishes). NOT an AA text colour;
+     true destructive stays danger-*, true warnings stay warning-*. */
+  --color-coral-400:   #e88a5f;
+  --color-coral-500:   #cf6a40;
+  --color-coral-600:   #b85733;
 
   --color-success-500: #22c55e;
   --color-warning-500: #d97706;
   --color-danger-500:  #ef4444;
   --color-danger-700:  #b91c1c;
 
-  /* Neutrals — warm green-gray; serves cream light surfaces + dark backgrounds. */
-  --color-neutral-50:  #f3efe4; /* cream page bg */
-  --color-neutral-100: #ede8d8;
-  --color-neutral-200: #d4d9c8;
-  --color-neutral-300: #b3baa6;
-  --color-neutral-400: #828c79; /* UI borders — 3.5:1 on white */
-  --color-neutral-500: #59644f; /* secondary text — 6.2:1 on white (min) */
-  --color-neutral-600: #46523c;
-  --color-neutral-700: #2d3a2b; /* body text */
-  --color-neutral-800: #222e22;
-  --color-neutral-900: #101a0f; /* darkest text / dark page bg */
+  /* Neutrals — V5 Herbarium aged-paper / deep-archive ramp.
+     50 = warm paper desk; 700 = body text (wins over dark raised surface); 900 = archive bg. */
+  --color-neutral-50:  #ece6d6; /* warm paper desk */
+  --color-neutral-100: #e3dccb;
+  --color-neutral-200: #d6cdba; /* hairline rule */
+  --color-neutral-300: #b3aa92; /* strong border (rule-strong) */
+  --color-neutral-400: #8a8f79; /* hints / decorative */
+  --color-neutral-500: #5d6b4f; /* secondary text — 4.7:1 on paper, 5.7:1 on white (min) */
+  --color-neutral-600: #515a48;
+  --color-neutral-700: #353f30; /* body text — 9.1:1 on paper */
+  --color-neutral-800: #181d12; /* dark card surface */
+  --color-neutral-900: #10140d; /* archive page bg */
 
   --font-display: "Inter", system-ui, sans-serif;
-  --font-mono:    "JetBrains Mono", ui-monospace, …, monospace; /* font-mono consumers */
+  --font-serif:   "Newsreader", Georgia, "Times New Roman", serif; /* headings + scientific names */
+  --font-mono:    "JetBrains Mono", ui-monospace, …, monospace;    /* eyebrow labels + catalog IDs */
 
   --radius-garden-sm: 0.625rem;  /* 10px */
-  --radius-garden-md: 1.125rem;  /* 18px */
-  --radius-garden-lg: 1.75rem;   /* 28px */
+  --radius-garden-md: 1rem;      /* 16px */
+  --radius-garden-lg: 1.375rem;  /* 22px */
 
-  /* Soft warm-tinted elevation — overrides Tailwind's own --shadow-sm / --shadow-md. */
-  --shadow-sm: 0 1px 3px rgba(28,36,24,.06), 0 2px 0 rgba(28,36,24,.04);
-  --shadow-md: 0 8px 24px rgba(28,36,24,.10);
+  /* Editorial elevation — organic warm shadow (V5 Herbarium). */
+  --shadow-sm: 0 1px 2px rgba(27,36,24,.05), 0 10px 30px rgba(27,36,24,.05);
+  --shadow-md: 0 14px 44px rgba(27,36,24,.13);
 
   --height-control: 2.375rem;  /* h-control — standard interactive control height */
 }
@@ -87,6 +89,16 @@ All tokens live in `src/styles.input.css` under `@theme` and compile into `src/s
   50%       { opacity: 0.4; }
 }
 ```
+
+### 1.1 Typography identities
+
+| Role | Utility | Face |
+|---|---|---|
+| Page titles, section headings, plant/zone names, scientific names | `font-serif` | Newsreader |
+| Body copy, UI labels, form text, buttons, nav | `font-display` | Inter |
+| Eyebrow labels (`uppercase tracking-widest text-xs`), unit micro-labels, catalog IDs | `font-mono` | JetBrains Mono |
+
+Scientific names always carry both `font-serif` and `italic`. Eyebrow labels always carry `uppercase tracking-widest text-xs font-semibold`.
 
 ---
 
@@ -249,14 +261,15 @@ FloraFlow targets **WCAG 2.1 Level AA**. Validate every template before marking 
 
 | Token pair | Ratio | OK for |
 |---|---|---|
-| `neutral-900` on `white` | 16:1 ✅ | Body text |
-| `neutral-700` on `neutral-100` | 9.8:1 ✅ | Content on warm surface |
-| `primary-700` on `neutral-50` (cream) | 8:1 ✅ | Outlined button text on cream |
-| `neutral-500` on `white` | 6.2:1 ✅ | Secondary text / placeholder (minimum — do not go lighter) |
-| `white` on `primary-500` | 5.1:1 ✅ | Mid-fill labels (meters, selected) |
+| `neutral-900` on `neutral-50` (paper desk) | 15.4:1 ✅ | Body text on page background |
+| `neutral-700` on `neutral-50` (paper desk) | 9.1:1 ✅ | Content text on warm paper surface |
+| `neutral-500` on `neutral-50` (paper desk) | 4.7:1 ✅ | Secondary text on paper (minimum — do not go lighter) |
+| `neutral-500` on `white` | 5.7:1 ✅ | Secondary text on white card surface |
+| `primary-700` on `neutral-50` (paper desk) | 7.6:1 ✅ | Ghost button text on paper |
+| `white` on `primary-500` | 5.1:1 ✅ | Mid-fill labels (meters, selected states) |
 | `white` on `primary-800` | 11.8:1 ✅ | Solid CTA pill label |
-| `white` on `primary-900` | 14.7:1 ✅ | Dialog headers |
-| `primary-400` on `neutral-900` | 7.6:1 ✅ | Dark-mode accent (text/icons) |
+| `white` on `primary-900` | 14.8:1 ✅ | Dialog headers |
+| `primary-400` on `neutral-900` | 9:1 ✅ | Dark-mode accent (text/icons) |
 
 - **1.4.4** Font sizes in `rem` only — never `px`.
 - **1.4.11** Input/checkbox/radio borders: `neutral-400` minimum (3.5:1 on white).
@@ -468,8 +481,8 @@ Empty-state CTAs (`<p-button>`) are exempt — a new user who has not learned th
 **Eyebrow header** (feature/engine pages with live stats — tasks, seeds, journal):
 ```html
 <header class="mb-8">
-  <p class="text-xs font-semibold uppercase tracking-widest text-primary-600 font-display mb-1">Anti-Root-Rot Engine</p>
-  <h1 class="text-3xl font-semibold font-display text-neutral-900 dark:text-white">Care tasks</h1>
+  <p class="text-xs font-semibold uppercase tracking-widest text-primary-600 font-mono mb-1">Anti-Root-Rot Engine</p>
+  <h1 class="text-3xl font-semibold font-serif text-neutral-900 dark:text-white">Care tasks</h1>
   <p class="text-sm text-neutral-500 font-display mt-1">3 need attention now · 7 due in the next 3 days</p>
 </header>
 ```

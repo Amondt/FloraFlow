@@ -9,13 +9,13 @@ export const FloraToastPT = {
     class: [
       'flex items-start gap-3 p-4 rounded-garden-md shadow-lg border font-display text-sm',
       {
-        'bg-white dark:bg-neutral-800 border-success-500 text-neutral-800 dark:text-neutral-100':
+        'bg-neutral-50 dark:bg-neutral-800 border-success-500 text-neutral-800 dark:text-neutral-100':
           instance?.message?.severity === 'success',
-        'bg-white dark:bg-neutral-800 border-danger-500 text-neutral-800 dark:text-neutral-100':
+        'bg-neutral-50 dark:bg-neutral-800 border-danger-500 text-neutral-800 dark:text-neutral-100':
           instance?.message?.severity === 'error',
-        'bg-white dark:bg-neutral-800 border-warning-500 text-neutral-800 dark:text-neutral-100':
+        'bg-neutral-50 dark:bg-neutral-800 border-warning-500 text-neutral-800 dark:text-neutral-100':
           instance?.message?.severity === 'warn',
-        'bg-white dark:bg-neutral-800 border-neutral-300 dark:border-neutral-600 text-neutral-800 dark:text-neutral-100':
+        'bg-neutral-50 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-600 text-neutral-800 dark:text-neutral-100':
           !instance?.message?.severity || instance.message.severity === 'info',
       },
     ],
@@ -23,7 +23,7 @@ export const FloraToastPT = {
   messageContent: { class: 'flex items-start gap-3 flex-1' },
   messageIcon: { class: 'mt-0.5 text-base flex-shrink-0' },
   messageText: { class: 'flex flex-col gap-0.5 flex-1' },
-  summary: { class: 'font-semibold text-sm' },
+  summary: { class: 'font-medium text-sm' },
   detail: { class: 'text-xs text-neutral-500 dark:text-neutral-400' },
   closeButton: {
     class:

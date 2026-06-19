@@ -26,7 +26,7 @@ export const FloraButtonPT = {
         'inline-flex items-center justify-center gap-2 cursor-pointer h-control',
         // Forest pill — rounded-full is the V4 button signature; focus ring composed
         // from FLORA_FOCUS (which carries outline-none) so no variant hardcodes a ring.
-        'px-4 text-sm font-semibold font-display rounded-full',
+        'px-4 text-sm font-medium font-display rounded-full',
         FLORA_FOCUS,
         FLORA_DISABLED,
         FLORA_HOVER,
@@ -43,8 +43,8 @@ export const FloraButtonPT = {
           'bg-neutral-600 text-white hover:bg-neutral-700':
             isSolid && instance?.severity === 'secondary',
 
-          // Outlined — forest border + label (darkened for AA on the warm cream surface)
-          'bg-transparent border border-primary-600 text-primary-700 hover:bg-primary-50 dark:border-primary-500 dark:text-primary-400 dark:hover:bg-primary-900/20':
+          // Ghost — hairline rule-strong border, neutral label; CTA forest pill stays solid
+          'bg-transparent border border-neutral-300 text-neutral-700 hover:bg-neutral-100 dark:border-neutral-600 dark:text-neutral-300 dark:hover:bg-neutral-800':
             isOutlined,
 
           // Text — neutral label, no background

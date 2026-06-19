@@ -15,8 +15,8 @@ export const FloraTagPT = {
         // warn → warm amber — caution signal preserved, matches --color-warning-500
         'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800/40':
           instance?.severity === 'warn',
-        // danger → red — true destructive / toxicity, stays semantic
-        'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800/40':
+        // danger → coral — overdue/flagged pop (true destructive stays in button.pt.ts)
+        'bg-coral-400/10 text-neutral-800 border-coral-500/30 dark:bg-coral-400/20 dark:text-coral-400 dark:border-coral-400/30':
           instance?.severity === 'danger',
         // secondary → warm neutral
         'bg-neutral-100 text-neutral-600 border-neutral-200 dark:bg-neutral-700 dark:text-neutral-300 dark:border-neutral-600':

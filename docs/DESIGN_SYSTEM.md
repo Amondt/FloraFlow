@@ -25,36 +25,51 @@ All tokens live in `src/styles.input.css` under `@theme` and compile into `src/s
 @import "tailwindcss";
 
 @theme {
-  --color-primary-50:  #f0fdf4;
-  --color-primary-300: #6ee7b7; /* dark-mode hover accent */
-  --color-primary-400: #34d399; /* dark-mode primary accent — ~9:1 on neutral-900 */
-  --color-primary-500: #10b981;
-  --color-primary-600: #059669;
-  --color-primary-700: #047857;
-  --color-primary-800: #065f46; /* dark-mode tinted backgrounds */
-  --color-primary-900: #064e3b;
+  /* Primary — forest green (V4). 600–900 = light-mode CTAs/text;
+     300/400 stay bright as dark-mode accents on the warm-black bg. */
+  --color-primary-50:  #eef4ee;
+  --color-primary-100: #d8e8d0; /* sage tint */
+  --color-primary-300: #9ed4a4; /* dark-mode hover accent — ~9.5:1 on neutral-900 */
+  --color-primary-400: #74c482; /* dark-mode primary accent — ~7.6:1 on neutral-900 */
+  --color-primary-500: #3d7a4f;
+  --color-primary-600: #2f5f43;
+  --color-primary-700: #294f3a;
+  --color-primary-800: #243d2c; /* solid CTA pill — white label ~11.8:1 */
+  --color-primary-900: #1a2c1f; /* dialog headers — white ~14.7:1 */
+
+  /* Coral — decorative "pop" only (urgency/frost flourishes). NOT an AA text colour
+     with this ramp; true destructive stays danger-*, true warnings stay warning-*. */
+  --color-coral-400:   #ed9c7c;
+  --color-coral-500:   #e08760;
+  --color-coral-600:   #c97350;
 
   --color-success-500: #22c55e;
   --color-warning-500: #d97706;
   --color-danger-500:  #ef4444;
   --color-danger-700:  #b91c1c;
 
-  --color-neutral-50:  #f8fafc;
-  --color-neutral-100: #f1f5f9;
-  --color-neutral-200: #e2e8f0;
-  --color-neutral-300: #cbd5e1;
-  --color-neutral-400: #94a3b8;
-  --color-neutral-500: #64748b;
-  --color-neutral-600: #475569;
-  --color-neutral-700: #334155;
-  --color-neutral-800: #1e293b;
-  --color-neutral-900: #0f172a;
+  /* Neutrals — warm green-gray; serves cream light surfaces + dark backgrounds. */
+  --color-neutral-50:  #f3efe4; /* cream page bg */
+  --color-neutral-100: #ede8d8;
+  --color-neutral-200: #d4d9c8;
+  --color-neutral-300: #b3baa6;
+  --color-neutral-400: #828c79; /* UI borders — 3.5:1 on white */
+  --color-neutral-500: #59644f; /* secondary text — 6.2:1 on white (min) */
+  --color-neutral-600: #46523c;
+  --color-neutral-700: #2d3a2b; /* body text */
+  --color-neutral-800: #222e22;
+  --color-neutral-900: #1a2418; /* darkest text / dark page bg */
 
   --font-display: "Inter", system-ui, sans-serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, …, monospace; /* font-mono consumers */
 
-  --radius-garden-sm: 0.375rem;
-  --radius-garden-md: 0.75rem;
-  --radius-garden-lg: 1.25rem;
+  --radius-garden-sm: 0.625rem;  /* 10px */
+  --radius-garden-md: 1.125rem;  /* 18px */
+  --radius-garden-lg: 1.75rem;   /* 28px */
+
+  /* Soft warm-tinted elevation — overrides Tailwind's own --shadow-sm / --shadow-md. */
+  --shadow-sm: 0 1px 3px rgba(28,36,24,.06), 0 2px 0 rgba(28,36,24,.04);
+  --shadow-md: 0 8px 24px rgba(28,36,24,.10);
 
   --height-control: 2.375rem;  /* h-control — standard interactive control height */
 }
@@ -234,15 +249,17 @@ FloraFlow targets **WCAG 2.1 Level AA**. Validate every template before marking 
 
 | Token pair | Ratio | OK for |
 |---|---|---|
-| `neutral-900` on `white` | 19.5:1 ✅ | Body text |
-| `neutral-700` on `neutral-100` | 7.5:1 ✅ | Card content |
-| `primary-600` on `white` | 4.6:1 ✅ | Outlined button text |
-| `neutral-500` on `white` | 4.5:1 ✅ | Placeholder (minimum — do not go lighter) |
-| `white` on `primary-500` | 3.1:1 ⚠️ | Large/bold button labels only |
-| `white` on `primary-900` | 15.8:1 ✅ | Dialog headers |
+| `neutral-900` on `white` | 16:1 ✅ | Body text |
+| `neutral-700` on `neutral-100` | 9.8:1 ✅ | Content on warm surface |
+| `primary-700` on `neutral-50` (cream) | 8:1 ✅ | Outlined button text on cream |
+| `neutral-500` on `white` | 6.2:1 ✅ | Secondary text / placeholder (minimum — do not go lighter) |
+| `white` on `primary-500` | 5.1:1 ✅ | Mid-fill labels (meters, selected) |
+| `white` on `primary-800` | 11.8:1 ✅ | Solid CTA pill label |
+| `white` on `primary-900` | 14.7:1 ✅ | Dialog headers |
+| `primary-400` on `neutral-900` | 7.6:1 ✅ | Dark-mode accent (text/icons) |
 
 - **1.4.4** Font sizes in `rem` only — never `px`.
-- **1.4.11** Input/checkbox/radio borders: `neutral-400` minimum (2.9:1 on white).
+- **1.4.11** Input/checkbox/radio borders: `neutral-400` minimum (3.5:1 on white).
 - **1.4.13** Popover panels must not disappear when pointer moves from trigger to panel.
 
 ### Operable

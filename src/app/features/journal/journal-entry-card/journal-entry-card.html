@@ -63,14 +63,14 @@
       </div>
 
       @if (isHealthyEntry()) {
-        <p
-          class="text-sm text-neutral-600 dark:text-neutral-300 font-display leading-snug flex items-center gap-1.5"
-        >
-          <i class="pi pi-check-circle text-success-500 text-sm shrink-0" aria-hidden="true"></i>
-          {{ 'journal.entryCard.healthyCheckup' | transloco }}
+        <div class="flex flex-col gap-0.5 font-display leading-snug">
+          <p class="text-sm text-neutral-600 dark:text-neutral-300 flex items-center gap-1.5">
+            <i class="pi pi-check-circle text-success-500 text-sm shrink-0" aria-hidden="true"></i>
+            {{ 'journal.entryCard.healthyCheckup' | transloco }}
+          </p>
           @if (localizedHealthyIdentifiedPlant()) {
-            <span class="text-neutral-400 dark:text-neutral-500">
-              · {{ localizedHealthyIdentifiedPlant() }}
+            <p class="text-xs text-neutral-400 dark:text-neutral-500 pl-0.5">
+              {{ localizedHealthyIdentifiedPlant() }}
               @if (isTranslating()) {
                 <span
                   class="inline-block w-2 h-2 rounded-full bg-neutral-300 dark:bg-neutral-600 animate-pulse align-middle ml-0.5"
@@ -78,9 +78,9 @@
                   [attr.aria-label]="'journal.entryCard.translating' | transloco"
                 ></span>
               }
-            </span>
+            </p>
           }
-        </p>
+        </div>
       } @else if (sickDiagnostics(); as diag) {
         <p class="text-sm text-neutral-600 dark:text-neutral-300 font-display leading-snug">
           {{ localizedSickDiagnostics()?.primary_condition }}

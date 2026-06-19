@@ -3,9 +3,12 @@
   [ngClass]="articleNgClass()"
   [attr.aria-labelledby]="headingId()"
 >
+  <!-- Left urgency stripe — primary visual signal -->
+  <div class="w-1 shrink-0" [ngClass]="stripeColor()" aria-hidden="true"></div>
+
   <button
     type="button"
-    class="flex items-center gap-3 flex-1 min-w-0 px-4 py-2 text-left cursor-pointer outline-none"
+    class="flex items-center gap-3 flex-1 min-w-0 px-4 py-2.5 text-left cursor-pointer outline-none"
     [attr.aria-label]="'tasks.alertCard.checkAriaLabel' | transloco: { name: plant().common_name }"
     (click)="checkNow.emit(plant())"
   >
@@ -29,30 +32,37 @@
     <div class="flex-1 min-w-0">
       <p
         [id]="headingId()"
-        class="text-sm font-semibold font-display text-neutral-900 dark:text-white leading-snug"
+        class="text-sm font-semibold font-display text-neutral-900 dark:text-white leading-snug truncate"
       >
         {{ plant().common_name }}
-        @if (plant().scientific_name) {
-          <span class="font-normal italic text-neutral-400 dark:text-neutral-500">
-            · {{ plant().scientific_name }}</span
-          >
-        }
       </p>
-      @if (zoneName()) {
-        <p class="text-xs text-neutral-400 dark:text-neutral-500 font-display mt-0.5 truncate">
-          {{ zoneName() }}
+      @if (plant().scientific_name) {
+        <p
+          class="text-xs font-normal italic font-display text-neutral-400 dark:text-neutral-500 leading-snug truncate"
+        >
+          {{ plant().scientific_name }}
         </p>
       }
+      <!-- Zone + urgency status on one line -->
+      <div class="flex items-center gap-1.5 mt-1 min-w-0">
+        @if (zoneName()) {
+          <span
+            class="text-xs font-display text-neutral-400 dark:text-neutral-500 truncate min-w-0 shrink"
+          >
+            {{ zoneName() }}
+          </span>
+          <span class="text-neutral-300 dark:text-neutral-600 shrink-0 text-xs" aria-hidden="true"
+            >·</span
+          >
+        }
+        <span
+          class="text-xs font-medium font-display shrink-0 whitespace-nowrap"
+          [ngClass]="urgencyTextColor()"
+        >
+          {{ overdueLabel() }}
+        </span>
+      </div>
     </div>
-
-    <span [class]="badgeColor()">
-      <span
-        class="w-1.5 h-1.5 rounded-full flex-shrink-0"
-        [class]="dotColor()"
-        aria-hidden="true"
-      ></span>
-      {{ overdueLabel() }}
-    </span>
   </button>
 
   <button

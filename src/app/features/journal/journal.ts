@@ -286,7 +286,7 @@ export class JournalComponent {
   }
 
   protected getDayGroupClass(first: boolean): string {
-    const base = 'flex gap-4 py-4';
+    const base = 'flex flex-col gap-3 md:flex-row md:gap-4 py-4';
     return first ? base : `${base} border-t border-neutral-200 dark:border-neutral-700`;
   }
 }

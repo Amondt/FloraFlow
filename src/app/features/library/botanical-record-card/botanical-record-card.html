@@ -3,7 +3,7 @@
   tabindex="0"
   [attr.aria-selected]="selected()"
   [attr.aria-label]="ariaLabel()"
-  class="relative p-5 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md cursor-pointer transition-all duration-150 hover:border-primary-500 dark:hover:border-primary-700 hover:shadow-md outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 flex gap-4 items-start"
+  class="relative p-5 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-garden-md cursor-pointer transition-all duration-150 hover:border-primary-500 dark:hover:border-primary-700 hover:shadow-md outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 grid grid-cols-[5rem_1fr] sm:grid-cols-[7rem_1fr] gap-x-4 gap-y-3 items-start"
   [class.ring-2]="selected()"
   [class.ring-primary-500]="selected()"
   (click)="cardSelect.emit()"
@@ -21,7 +21,7 @@
   @if (galleryPhotos().length > 0) {
     <button
       type="button"
-      class="cursor-zoom-in flex-shrink-0 w-28 h-28 rounded-garden-sm overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+      class="cursor-zoom-in row-start-1 col-start-1 sm:row-span-2 w-20 h-20 sm:w-28 sm:h-28 rounded-garden-sm overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
       [attr.aria-label]="
         galleryPhotos().length > 1
           ? ('library.card.viewGalleryAriaLabel' | transloco: { name: record().common_name })
@@ -43,15 +43,15 @@
     />
   } @else {
     <div
-      class="flex-shrink-0 w-28 h-28 rounded-garden-sm bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center"
+      class="row-start-1 col-start-1 sm:row-span-2 w-20 h-20 sm:w-28 sm:h-28 rounded-garden-sm bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center"
       aria-hidden="true"
     >
       <app-leaf-icon size="lg" class="text-neutral-300 dark:text-neutral-500" />
     </div>
   }
 
-  <!-- Content -->
-  <div class="flex-1 min-w-0 flex flex-col">
+  <!-- Text block: scientific + common names + description -->
+  <div class="col-start-2 row-start-1 min-w-0 flex flex-col">
     @if (record().scientific_name) {
       <h2
         class="text-base font-semibold italic font-display text-neutral-900 dark:text-neutral-100 leading-snug"
@@ -84,19 +84,24 @@
         ></span>
       </div>
     }
-    <div class="flex flex-wrap gap-1.5 mt-auto" [attr.aria-busy]="isEnriching()">
-      <app-botanical-tags
-        [placement]="record().placement"
-        [isTropical]="record().is_tropical"
-        [isToxicToPets]="record().is_toxic_to_pets"
-        [isToxicToHumans]="record().is_toxic_to_humans"
-        [careDifficulty]="record().care_difficulty"
-        [maintenanceLevel]="record().maintenance_level"
-        [isEnriching]="isEnriching()"
-      />
-      @if (rankBadge(); as rank) {
-        <p-tag [value]="rank" severity="secondary" [pt]="FloraTagPT" />
-      }
-    </div>
+  </div>
+
+  <!-- Characteristic chips: full-width row below on mobile, right column on desktop -->
+  <div
+    class="col-span-2 row-start-2 sm:col-span-1 sm:col-start-2 flex flex-wrap gap-1.5"
+    [attr.aria-busy]="isEnriching()"
+  >
+    <app-botanical-tags
+      [placement]="record().placement"
+      [isTropical]="record().is_tropical"
+      [isToxicToPets]="record().is_toxic_to_pets"
+      [isToxicToHumans]="record().is_toxic_to_humans"
+      [careDifficulty]="record().care_difficulty"
+      [maintenanceLevel]="record().maintenance_level"
+      [isEnriching]="isEnriching()"
+    />
+    @if (rankBadge(); as rank) {
+      <p-tag [value]="rank" severity="secondary" [pt]="FloraTagPT" />
+    }
   </div>
 </article>

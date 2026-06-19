@@ -4,14 +4,6 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { Plant } from '../plant.model';
 import { LeafIconComponent } from '../../../shared/components/leaf-icon/leaf-icon';
 
-const BASE_BADGE = [
-  'inline-flex items-center gap-1.5',
-  'whitespace-nowrap flex-shrink-0',
-  'px-2.5 py-1 rounded-full',
-  'text-xs font-medium font-display',
-  'border',
-].join(' ');
-
 @Component({
   selector: 'app-plant-alert-card',
   standalone: true,
@@ -49,17 +41,17 @@ export class PlantAlertCardComponent {
     return this.t.translate('tasks.alertCard.inDaysLabel', { count: d });
   });
 
-  readonly dotColor = computed(() =>
-    this.daysFromNow() <= 0 ? 'bg-warning-500' : 'bg-primary-500',
+  // Left accent stripe color — the primary urgency signal
+  readonly stripeColor = computed(() =>
+    this.daysFromNow() <= 0 ? 'bg-warning-500' : 'bg-primary-400',
   );
 
-  readonly badgeColor = computed(() => {
-    const d = this.daysFromNow();
-    if (d <= 0) {
-      return `${BASE_BADGE} bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800/40`;
-    }
-    return `${BASE_BADGE} bg-primary-50 text-primary-700 border-primary-200 dark:bg-primary-900/20 dark:text-primary-400 dark:border-primary-800/40`;
-  });
+  // Inline urgency text color on the zone/status line
+  readonly urgencyTextColor = computed(() =>
+    this.daysFromNow() <= 0
+      ? 'text-warning-500 dark:text-yellow-400'
+      : 'text-primary-600 dark:text-primary-400',
+  );
 
   readonly articleNgClass = computed(() =>
     this.isOverdue()

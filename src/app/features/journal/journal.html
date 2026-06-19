@@ -171,15 +171,18 @@
         <div [attr.aria-label]="'journal.timelineAriaLabel' | transloco">
           @for (group of entriesByDay(); track group.dateKey; let first = $first) {
             <div [class]="getDayGroupClass(first)">
-              <!-- Date column -->
-              <div class="w-20 shrink-0 pt-1" aria-hidden="true">
+              <!-- Date: inline header on mobile, left column on desktop -->
+              <div
+                class="shrink-0 pt-1 flex items-baseline gap-2 md:block md:w-20"
+                aria-hidden="true"
+              >
                 <span
                   class="block text-2xl font-bold font-display text-neutral-900 dark:text-white leading-none"
                 >
                   {{ group.dayNumber }}
                 </span>
                 <span
-                  class="block text-[0.6875rem] font-mono font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wide leading-tight mt-0.5"
+                  class="block text-[0.6875rem] font-mono font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wide leading-tight md:mt-0.5"
                 >
                   {{ group.monthYear }}
                 </span>

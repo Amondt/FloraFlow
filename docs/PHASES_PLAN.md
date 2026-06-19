@@ -497,3 +497,48 @@
 2. Dark mode still works on every route — no unreadable text, no broken surfaces.
 3. WCAG AA contrast holds across the new palette (`DESIGN_SYSTEM.md §4` re-verified).
 4. `bun run check` — zero errors.
+
+---
+
+## 7. Design Refactor: V5 "Herbarium"
+
+- **Objective:** Shift the app's visual language toward the **V5 "Herbarium"** design draft (aged-paper light mode / deep-archive dark mode, serif `Newsreader` display headings + italic scientific names, mono catalog labels, fine hairline rules, tighter radii) **without changing any layout, component structure, route, or feature** — restyle on top of what exists. Supersedes V4 "Bento Garden" (§6) as the active visual language.
+
+> **Scope is tokens + PT + class-only typography.** Almost every color / radius / shadow / font is a Tailwind class bound to a `@theme` token in `src/styles.input.css`, so the bulk of the restyle is value swaps that cascade app-wide. The user chose the _faithful_ identity: cosmetic `font-serif` / `font-mono` class swaps on existing headings, names, and eyebrow labels are in scope (no structure/layout change). Dark mode keeps its existing `.dark`-class mechanism — token _values_ are remapped per mode; the demo's `[data-theme]` attribute is **not** adopted. The palette barely moves (V5 forest `#2f5f43` / `#243d2c` already equal `primary-600` / `primary-800`); the real deltas are warm-paper neutrals, hotter coral, serif/mono type. Source of truth: `FloraFlow v5.html` + `app-v5.jsx` + `herbarium.jsx` + `styles-v5.css`. **Never edit `src/styles.css`** — compiled output; edit `src/styles.input.css`.
+
+> **Deliberately deferred (would require structure/layout edits):** the demo's bespoke specimen-plate / status-ledger / forecast-strip dashboard, decorative corner ticks & catalog stamps, and the top-bar search / `⌘K` chrome — opt-in follow-up only.
+
+### 📋 Design Refactor Tasks
+
+- [ ] **Block A — Herbarium token foundation** | Agent: `/visualizer` · Model: Opus · Effort: mid
+  - `src/styles.input.css` `@theme`: warm-paper `--color-neutral-*` ramp (aged-paper light → deep-archive dark, serving both modes); hotter `--color-coral-*`; tighter `--radius-garden-*`; softer `--shadow-sm/md`; add `--font-serif` = Newsreader. Primary barely moves (already forest).
+  - `src/index.html`: add Newsreader to the existing Inter + JetBrains Mono font `<link>`.
+  - Light-mode canvas: warm paper tone + optional grain; dark canvas unchanged.
+  - Plan: `docs/plans/design-refactor/V5_HERBARIUM_PLAN.md`
+
+- [ ] **Block B — Serif / mono typographic sweep** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+  - Class-only swaps: `font-serif` on display headings, plant/scientific names, large numerals; `font-mono` on eyebrow & catalog labels. Body/UI stays `font-display`. No structure/layout change. Depends on Block A.
+  - Plan: `docs/plans/design-refactor/V5_HERBARIUM_PLAN.md`
+
+- [ ] **Block C — High-visibility PT polish** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+  - `card.pt.ts` (paper surface + firmer hairline rule + softer shadow), `button.pt.ts` (forest pill + hairline ghost), `badge.pt.ts` (sage / amber / coral chip + hairline), `toast.pt.ts`, `message.pt.ts`. All slots keep `FLORA_FOCUS` + `FLORA_DISABLED`.
+  - Plan: `docs/plans/design-refactor/V5_HERBARIUM_PLAN.md`
+
+- [ ] **Block D — Remaining PT sweep** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+  - Low-touch long tail (mostly inherit Block A): `input`, `select`, `checkbox`, `datepicker`, `slider`, `fileupload`, `dialog`, `panel`, `tabs`, `menu`, `popover`, `progress`, `skeleton`, `autocomplete`.
+  - Plan: `docs/plans/design-refactor/V5_HERBARIUM_PLAN.md`
+
+- [ ] **Block E — Sync `DESIGN_SYSTEM.md`** | Agent: `/mind` · Model: Sonnet · Effort: low
+  - Update §1 token table to final values + Newsreader / typography note; recompute §4 contrast ratios for the paper neutrals. Depends on Block A (+ B for the type note).
+  - Plan: `docs/plans/design-refactor/V5_HERBARIUM_PLAN.md`
+
+- [ ] **Block F — QA gate** | Agent: `/gatekeeper` · Model: Sonnet · Effort: mid
+  - WCAG AA contrast re-verification (§4) for paper / forest / coral + serif headings in **both** themes; zero-overflow, no-structure-change visual regression across every route, light + dark; `bun run check`.
+  - Plan: `docs/plans/design-refactor/V5_HERBARIUM_PLAN.md`
+
+### 🔒 Design Refactor QA Acceptance Criteria
+
+1. Every route renders the Herbarium palette + serif headings in light mode with **no layout/structure change** vs. before.
+2. Dark mode still works on every route — deep-archive surfaces, no unreadable text, no broken surfaces.
+3. WCAG AA contrast holds across the new palette (`DESIGN_SYSTEM.md §4` re-verified) in both themes.
+4. `bun run check` — zero errors.

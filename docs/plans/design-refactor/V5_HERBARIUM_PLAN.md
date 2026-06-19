@@ -17,10 +17,10 @@ Restyle FloraFlow toward the **V5 "Herbarium"** design — editorial / archival:
 
 Almost every color / radius / shadow / font is a Tailwind utility bound to a `@theme` token in `src/styles.input.css`. Changing a token **value** re-skins every consumer with **zero template edits**. V5 adds one presentational layer beyond V4 — class-only font swaps — which the user has explicitly authorized.
 
-| Layer | Mechanism | Touches templates? |
-| --- | --- | --- |
-| 1 · Tokens | `@theme` value swaps in `styles.input.css` | ❌ cascades app-wide |
-| 2 · PT objects | tune `src/app/shared/ui/pt/*.ts` | ❌ presentational config only |
+| Layer                  | Mechanism                                                                     | Touches templates?                                       |
+| ---------------------- | ----------------------------------------------------------------------------- | -------------------------------------------------------- |
+| 1 · Tokens             | `@theme` value swaps in `styles.input.css`                                    | ❌ cascades app-wide                                     |
+| 2 · PT objects         | tune `src/app/shared/ui/pt/*.ts`                                              | ❌ presentational config only                            |
 | 3 · Typography classes | swap `font-display` → `font-serif` / `font-mono` on headings, names, eyebrows | ⚠️ class-only — **no** structure/layout change (Block B) |
 
 > ⚠️ **Never edit `src/styles.css`** — it is compiled output (overwritten on every Tailwind CLI run). All token edits go in **`src/styles.input.css`**, then `bun run tw:watch` / build.
@@ -39,38 +39,38 @@ V5's accent/CTA equal our current `primary-600` / `primary-800`. The dark-mode a
 
 Same light → dark structure; hue shifted to the Herbarium paper tone. Two known ramp tensions Block A must resolve holistically (flagged ⚠️).
 
-| Token | Today | V5 target | Main role |
-| --- | --- | --- | --- |
-| neutral-50 | #f3efe4 | #ece6d6 | light page "paper desk" (V5 `--bg`) |
-| neutral-100 | #ede8d8 | #e3dccb | ⚠️ sunken/input/hover — must stay a step **darker** than 50 |
-| neutral-200 | #d4d9c8 | #d6cdba | hairline rule (V5 `--rule` family) |
-| neutral-300 | #b3baa6 | #b3aa92 | strong border |
-| neutral-400 | #828c79 | #8a8f79 | hints / decorative (V5 `--faint`) |
-| neutral-500 | #59644f | #6a7360 | ⚠️ secondary text — must hold ≥ 4.5:1 on `#ece6d6` paper (V5 `--muted`; darken slightly if it fails on the desk tone) |
-| neutral-600 | #46523c | #515a48 | — |
-| neutral-700 | #2d3a2b | #353f30 | ⚠️ body text (light) **and** raised surface (dark) — single value, body-text contrast wins |
-| neutral-800 | #222e22 | #181d12 | dark card surface (V5 dark `--surface`) |
-| neutral-900 | #101a0f | #10140d | darkest text / dark page (V5 dark `--bg`) |
+| Token       | Today   | V5 target | Main role                                                                                                             |
+| ----------- | ------- | --------- | --------------------------------------------------------------------------------------------------------------------- |
+| neutral-50  | #f3efe4 | #ece6d6   | light page "paper desk" (V5 `--bg`)                                                                                   |
+| neutral-100 | #ede8d8 | #e3dccb   | ⚠️ sunken/input/hover — must stay a step **darker** than 50                                                           |
+| neutral-200 | #d4d9c8 | #d6cdba   | hairline rule (V5 `--rule` family)                                                                                    |
+| neutral-300 | #b3baa6 | #b3aa92   | strong border                                                                                                         |
+| neutral-400 | #828c79 | #8a8f79   | hints / decorative (V5 `--faint`)                                                                                     |
+| neutral-500 | #59644f | #6a7360   | ⚠️ secondary text — must hold ≥ 4.5:1 on `#ece6d6` paper (V5 `--muted`; darken slightly if it fails on the desk tone) |
+| neutral-600 | #46523c | #515a48   | —                                                                                                                     |
+| neutral-700 | #2d3a2b | #353f30   | ⚠️ body text (light) **and** raised surface (dark) — single value, body-text contrast wins                            |
+| neutral-800 | #222e22 | #181d12   | dark card surface (V5 dark `--surface`)                                                                               |
+| neutral-900 | #101a0f | #10140d   | darkest text / dark page (V5 dark `--bg`)                                                                             |
 
 > **Surface relationship:** cards stay `bg-white dark:bg-neutral-800` (the bright "sheet"); the page `<main>` stays `bg-neutral-50 dark:bg-neutral-900` (the "desk"). Retuning neutral-50 to `#ece6d6` gives the sheet-on-desk separation in light mode with **zero** template edits; dark mode maps 1:1 (`#10140d` desk, `#181d12` sheet). The card's warm-paper tint vs pure white is a deliberate, accepted micro-tradeoff (we do not redefine `--color-white`).
 
 ### Coral pop — hotter
 
-| Token | Today | V5 target | Source |
-| --- | --- | --- | --- |
-| coral-400 | #ed9c7c | #e88a5f | V5 dark `--pop` |
-| coral-500 | #e08760 | #cf6a40 | V5 light `--pop` |
-| coral-600 | #c97350 | #b85733 | hover |
+| Token     | Today   | V5 target | Source           |
+| --------- | ------- | --------- | ---------------- |
+| coral-400 | #ed9c7c | #e88a5f   | V5 dark `--pop`  |
+| coral-500 | #e08760 | #cf6a40   | V5 light `--pop` |
+| coral-600 | #c97350 | #b85733   | hover            |
 
 Decorative "pop" only (overdue/frost flourishes). True destructive stays `danger-*`; true warnings stay `warning-*`. Reference the token from PT — never the hex.
 
 ### Radii — tighter, more editorial
 
-| Token | Today | V5 target |
-| --- | --- | --- |
+| Token            | Today           | V5 target              |
+| ---------------- | --------------- | ---------------------- |
 | radius-garden-sm | 0.625rem (10px) | 0.625rem (10px) — keep |
-| radius-garden-md | 1.125rem (18px) | 1rem (16px) |
-| radius-garden-lg | 1.75rem (28px) | 1.375rem (22px) |
+| radius-garden-md | 1.125rem (18px) | 1rem (16px)            |
+| radius-garden-lg | 1.75rem (28px)  | 1.375rem (22px)        |
 
 ### Shadows — softer, larger spread
 
@@ -104,7 +104,7 @@ Surfaces in scope: every feature page header (dashboard/tasks, zones, zone-detai
 
 ## Blocks
 
-### `[ ]` Block A — Herbarium token foundation | Agent: `/visualizer` · Model: Opus · Effort: mid
+### `[x]` Block A — Herbarium token foundation | Agent: `/visualizer` · Model: Opus · Effort: mid
 
 _The one judgment-heavy block (Opus spent here only): a coherent paper/archive palette that works in **both** modes while preserving WCAG AA, resolving the two ⚠️ ramp tensions above._
 
@@ -114,13 +114,13 @@ _The one judgment-heavy block (Opus spent here only): a coherent paper/archive p
 - Keep dark-mode accents bright (do not darken `primary-300/400`).
 - One block: the palette only reads as correct holistically — splitting neutrals from canvas would leave a half-warmed app.
 
-### `[ ]` Block B — Serif / mono typographic sweep | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+### `[x]` Block B — Serif / mono typographic sweep | Agent: `/visualizer` · Model: Sonnet · Effort: mid
 
 - Apply the `font-serif` / `font-mono` rule above across all in-scope surfaces. Depends on Block A (needs the `--font-serif` token / generated utility).
 - **Class-only:** swap font utility classes on existing elements. No structural, layout, route, or feature change. Keep all `dark:` text-color variants intact.
 - Verify each heading still reads AA in both modes (serif weight/size unchanged — only family swaps).
 
-### `[ ]` Block C — High-visibility PT polish | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+### `[x]` Block C — High-visibility PT polish | Agent: `/visualizer` · Model: Sonnet · Effort: mid
 
 - `card.pt.ts`: paper surface + the Herbarium hairline rule (firm up the existing `border-neutral-200/60`) + softer shadow + tighter radius (inherits Block A).
 - `button.pt.ts`: keep the forest CTA pill; ghost = hairline border (`rule-strong`). Keep `FLORA_FOCUS` / `FLORA_DISABLED`.
@@ -128,18 +128,18 @@ _The one judgment-heavy block (Opus spent here only): a coherent paper/archive p
 - `toast.pt.ts`, `message.pt.ts`: warm paper surfaces; keep severity branching.
 - **Constraint:** only PT class strings change. No new PT objects outside `shared/ui/pt/`; all interactive slots keep the state constants.
 
-### `[ ]` Block D — Remaining PT sweep | Agent: `/visualizer` · Model: Sonnet · Effort: low
+### `[x]` Block D — Remaining PT sweep | Agent: `/visualizer` · Model: Sonnet · Effort: low
 
 - Low-touch long tail — most inherit Block A automatically; 0–2 line tweaks where a literal radius/shadow/color was set: `input`, `select`, `checkbox`, `datepicker`, `slider`, `fileupload`, `dialog`, `panel`, `tabs`, `menu`, `popover`, `progress`, `skeleton`, `autocomplete`.
 - Verify each still composes the state constants and respects the v21 `{ instance }` / `{ context }` PT signatures.
 
-### `[ ]` Block E — Sync `DESIGN_SYSTEM.md` | Agent: `/mind` · Model: Sonnet · Effort: low
+### `[x]` Block E — Sync `DESIGN_SYSTEM.md` | Agent: `/mind` · Model: Sonnet · Effort: low
 
 - Update §1 token table to final Block A values; add the `--font-serif` / Newsreader note and a short **Typography** note (serif = display headings + scientific names; sans = body/UI; mono = eyebrow/catalog labels).
 - Recompute the §4 contrast ratios for the new paper neutrals (deterministic here; **verified independently in Block F**).
 - Keep it lean. Depends on Block A (+ B for the typography note).
 
-### `[ ]` Block F — QA gate | Agent: `/gatekeeper` · Model: Sonnet · Effort: mid
+### `[x]` Block F — QA gate | Agent: `/gatekeeper` · Model: Sonnet · Effort: mid
 
 - WCAG AA contrast re-verification in **both** themes — esp. serif headings, warm `neutral-500` secondary text on `#ece6d6` paper (≥ 4.5:1), and dark-mode `primary-400` on `neutral-900` archive (≈ 7–9:1).
 - Zero-overflow / no-structure-change visual regression across **every** route, light + dark (user runs the manual browser checklist).

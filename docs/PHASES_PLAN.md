@@ -510,29 +510,29 @@
 
 ### 📋 Design Refactor Tasks
 
-- [ ] **Block A — Herbarium token foundation** | Agent: `/visualizer` · Model: Opus · Effort: mid
+- [x] **Block A — Herbarium token foundation** | Agent: `/visualizer` · Model: Opus · Effort: mid
   - `src/styles.input.css` `@theme`: warm-paper `--color-neutral-*` ramp (aged-paper light → deep-archive dark, serving both modes); hotter `--color-coral-*`; tighter `--radius-garden-*`; softer `--shadow-sm/md`; add `--font-serif` = Newsreader. Primary barely moves (already forest).
   - `src/index.html`: add Newsreader to the existing Inter + JetBrains Mono font `<link>`.
   - Light-mode canvas: warm paper tone + optional grain; dark canvas unchanged.
   - Plan: `docs/plans/design-refactor/V5_HERBARIUM_PLAN.md`
 
-- [ ] **Block B — Serif / mono typographic sweep** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **Block B — Serif / mono typographic sweep** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - Class-only swaps: `font-serif` on display headings, plant/scientific names, large numerals; `font-mono` on eyebrow & catalog labels. Body/UI stays `font-display`. No structure/layout change. Depends on Block A.
   - Plan: `docs/plans/design-refactor/V5_HERBARIUM_PLAN.md`
 
-- [ ] **Block C — High-visibility PT polish** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
+- [x] **Block C — High-visibility PT polish** | Agent: `/visualizer` · Model: Sonnet · Effort: mid
   - `card.pt.ts` (paper surface + firmer hairline rule + softer shadow), `button.pt.ts` (forest pill + hairline ghost), `badge.pt.ts` (sage / amber / coral chip + hairline), `toast.pt.ts`, `message.pt.ts`. All slots keep `FLORA_FOCUS` + `FLORA_DISABLED`.
   - Plan: `docs/plans/design-refactor/V5_HERBARIUM_PLAN.md`
 
-- [ ] **Block D — Remaining PT sweep** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+- [x] **Block D — Remaining PT sweep** | Agent: `/visualizer` · Model: Sonnet · Effort: low
   - Low-touch long tail (mostly inherit Block A): `input`, `select`, `checkbox`, `datepicker`, `slider`, `fileupload`, `dialog`, `panel`, `tabs`, `menu`, `popover`, `progress`, `skeleton`, `autocomplete`.
   - Plan: `docs/plans/design-refactor/V5_HERBARIUM_PLAN.md`
 
-- [ ] **Block E — Sync `DESIGN_SYSTEM.md`** | Agent: `/mind` · Model: Sonnet · Effort: low
+- [x] **Block E — Sync `DESIGN_SYSTEM.md`** | Agent: `/mind` · Model: Sonnet · Effort: low
   - Update §1 token table to final values + Newsreader / typography note; recompute §4 contrast ratios for the paper neutrals. Depends on Block A (+ B for the type note).
   - Plan: `docs/plans/design-refactor/V5_HERBARIUM_PLAN.md`
 
-- [ ] **Block F — QA gate** | Agent: `/gatekeeper` · Model: Sonnet · Effort: mid
+- [x] **Block F — QA gate** | Agent: `/gatekeeper` · Model: Sonnet · Effort: mid
   - WCAG AA contrast re-verification (§4) for paper / forest / coral + serif headings in **both** themes; zero-overflow, no-structure-change visual regression across every route, light + dark; `bun run check`.
   - Plan: `docs/plans/design-refactor/V5_HERBARIUM_PLAN.md`
 

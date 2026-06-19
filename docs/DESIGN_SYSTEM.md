@@ -58,7 +58,7 @@ All tokens live in `src/styles.input.css` under `@theme` and compile into `src/s
   --color-neutral-600: #46523c;
   --color-neutral-700: #2d3a2b; /* body text */
   --color-neutral-800: #222e22;
-  --color-neutral-900: #1a2418; /* darkest text / dark page bg */
+  --color-neutral-900: #101a0f; /* darkest text / dark page bg */
 
   --font-display: "Inter", system-ui, sans-serif;
   --font-mono:    "JetBrains Mono", ui-monospace, …, monospace; /* font-mono consumers */

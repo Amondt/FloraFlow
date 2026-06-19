@@ -1,5 +1,5 @@
 <section [attr.aria-label]="'botanical.care.title' | transloco">
-  <p class="font-display mb-3 text-xs font-semibold uppercase tracking-widest text-neutral-400">
+  <p class="font-mono mb-3 text-xs font-medium uppercase tracking-widest text-neutral-400">
     {{ 'botanical.care.title' | transloco }}
   </p>
 
@@ -12,13 +12,13 @@
             class="flex flex-col gap-1.5 rounded-garden-sm bg-neutral-50 p-2.5 dark:bg-neutral-800/60"
           >
             <p
-              class="flex items-center gap-1 font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
+              class="flex items-center gap-1 font-mono text-xs font-medium uppercase tracking-widest text-neutral-400"
             >
               <i class="pi pi-star text-[9px]" aria-hidden="true"></i>
               {{ 'botanical.care.difficulty' | transloco }}
             </p>
             <span
-              class="font-display inline-flex self-start items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
+              class="font-display inline-flex self-start items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
               [class]="difficultyClass()"
             >
               {{ difficultyLabel() }}
@@ -31,7 +31,7 @@
             class="flex flex-col gap-1.5 rounded-garden-sm bg-neutral-50 p-2.5 dark:bg-neutral-800/60"
           >
             <p
-              class="flex items-center gap-1 font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
+              class="flex items-center gap-1 font-mono text-xs font-medium uppercase tracking-widest text-neutral-400"
             >
               <svg
                 class="h-2.5 w-2.5 shrink-0"
@@ -54,13 +54,13 @@
             class="flex flex-col gap-1.5 rounded-garden-sm bg-neutral-50 p-2.5 dark:bg-neutral-800/60"
           >
             <p
-              class="flex items-center gap-1 font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
+              class="flex items-center gap-1 font-mono text-xs font-medium uppercase tracking-widest text-neutral-400"
             >
               <i class="pi pi-clock text-[9px]" aria-hidden="true"></i>
               {{ 'botanical.care.maintenance' | transloco }}
             </p>
             <span
-              class="font-display inline-flex self-start items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
+              class="font-display inline-flex self-start items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
               [class]="maintenanceLevelClass()"
             >
               {{ maintenanceLevelLabel() }}
@@ -76,7 +76,7 @@
         class="flex flex-col gap-1.5 rounded-garden-sm bg-neutral-50 p-2.5 dark:bg-neutral-800/60"
       >
         <p
-          class="flex items-center gap-1 font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
+          class="flex items-center gap-1 font-display text-xs font-medium uppercase tracking-widest text-neutral-400"
         >
           <i class="pi pi-sun text-[9px]" aria-hidden="true"></i>
           {{ 'botanical.care.sunlight' | transloco }}
@@ -102,7 +102,7 @@
         class="flex flex-col gap-1.5 rounded-garden-sm bg-neutral-50 p-2.5 dark:bg-neutral-800/60"
       >
         <p
-          class="flex items-center gap-1 font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
+          class="flex items-center gap-1 font-display text-xs font-medium uppercase tracking-widest text-neutral-400"
         >
           <i class="pi pi-sort-alt text-[9px]" aria-hidden="true"></i>
           {{ 'botanical.care.preferredSoil' | transloco }}
@@ -128,7 +128,7 @@
         class="flex flex-col gap-1.5 rounded-garden-sm bg-neutral-50 p-2.5 dark:bg-neutral-800/60"
       >
         <p
-          class="flex items-center gap-1 font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
+          class="flex items-center gap-1 font-display text-xs font-medium uppercase tracking-widest text-neutral-400"
         >
           <i class="pi pi-info-circle text-[9px]" aria-hidden="true"></i>
           {{ 'botanical.care.soilMoisture' | transloco }}
@@ -147,7 +147,7 @@
       >
         <div class="flex items-center justify-between gap-2">
           <p
-            class="flex items-center gap-1 font-display text-xs font-semibold uppercase tracking-widest text-neutral-400"
+            class="flex items-center gap-1 font-mono text-xs font-medium uppercase tracking-widest text-neutral-400"
           >
             <i class="pi pi-cloud text-[9px]" aria-hidden="true"></i>
             {{ 'botanical.care.humidity' | transloco }}

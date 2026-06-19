@@ -121,7 +121,7 @@ export class BotanicalDetailDialogComponent {
   protected readonly cultivarChips = computed(() => {
     const activeIdx = this.selectedVarietyIndex();
     const base =
-      'cursor-pointer inline-flex items-center rounded-full px-3 py-1 font-display text-xs font-semibold border transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1';
+      'cursor-pointer inline-flex items-center rounded-full px-3 py-1 font-display text-xs font-medium border transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1';
     const activeClass =
       'bg-primary-100 text-primary-700 border-primary-300 dark:bg-primary-900/40 dark:text-primary-300 dark:border-primary-600';
     const inactiveClass =

@@ -12,7 +12,7 @@
     >
       <li class="flex items-center" [attr.aria-current]="currentStep() === 1 ? 'step' : null">
         <span
-          class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold font-display transition-colors duration-200"
+          class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium font-display transition-colors duration-200"
           [class]="
             currentStep() >= 1
               ? 'bg-primary-500 text-white'
@@ -39,7 +39,7 @@
 
       <li class="flex items-center" [attr.aria-current]="currentStep() === 2 ? 'step' : null">
         <span
-          class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold font-display transition-colors duration-200"
+          class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium font-display transition-colors duration-200"
           [class]="
             currentStep() >= 2
               ? 'bg-primary-500 text-white'
@@ -66,7 +66,7 @@
 
       <li class="flex items-center" [attr.aria-current]="currentStep() === 3 ? 'step' : null">
         <span
-          class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold font-display transition-colors duration-200"
+          class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium font-display transition-colors duration-200"
           [class]="
             currentStep() >= 3
               ? 'bg-primary-500 text-white'
@@ -90,7 +90,7 @@
           <header class="mb-6">
             <h1
               id="onboarding-heading"
-              class="text-2xl font-semibold font-display text-neutral-900 dark:text-white"
+              class="text-2xl font-normal font-serif text-neutral-900 dark:text-white"
             >
               {{ 'onboarding.step1.title' | transloco }}
             </h1>
@@ -117,7 +117,7 @@
           <header class="mb-6">
             <h1
               id="onboarding-heading"
-              class="text-2xl font-semibold font-display text-neutral-900 dark:text-white"
+              class="text-2xl font-normal font-serif text-neutral-900 dark:text-white"
             >
               {{ 'onboarding.step2.title' | transloco }}
             </h1>
@@ -165,7 +165,7 @@
           <header class="mb-6">
             <h1
               id="onboarding-heading"
-              class="text-2xl font-semibold font-display text-neutral-900 dark:text-white"
+              class="text-2xl font-normal font-serif text-neutral-900 dark:text-white"
             >
               {{ 'onboarding.step3.title' | transloco }}
             </h1>

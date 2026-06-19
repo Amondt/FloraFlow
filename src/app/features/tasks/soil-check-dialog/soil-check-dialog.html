@@ -42,13 +42,11 @@
       </div>
     }
     <div class="flex-1 min-w-0">
-      <h2
-        class="text-base font-semibold font-display text-neutral-900 dark:text-white leading-snug"
-      >
+      <h2 class="text-base font-normal font-serif text-neutral-900 dark:text-white leading-snug">
         {{ plant().common_name }}
       </h2>
       @if (plant().scientific_name) {
-        <p class="text-xs italic text-neutral-400 dark:text-neutral-500 font-display">
+        <p class="text-xs italic text-neutral-400 dark:text-neutral-500 font-serif">
           {{ plant().scientific_name }}
         </p>
       }
@@ -91,7 +89,7 @@
           {{ 'tasks.soilCheck.fingerDepth' | transloco: { depth: checkDepth() } }}
         </p>
       }
-      <p class="text-sm font-semibold font-display text-primary-700 dark:text-primary-400">
+      <p class="text-sm font-medium font-display text-primary-700 dark:text-primary-400">
         {{ 'tasks.soilCheck.soilDryQuestion' | transloco }}
       </p>
     </div>
@@ -120,7 +118,7 @@
           class="text-xs font-bold uppercase tracking-wide text-primary-600 dark:text-primary-400 font-display"
           >{{ 'tasks.soilCheck.dryYes' | transloco }}</span
         >
-        <span class="text-sm font-semibold font-display text-neutral-900 dark:text-white">{{
+        <span class="text-sm font-medium font-display text-neutral-900 dark:text-white">{{
           'tasks.soilCheck.dryLabel' | transloco
         }}</span>
         <span class="text-xs text-neutral-500 dark:text-neutral-400 font-display">{{
@@ -140,7 +138,7 @@
           class="text-xs font-bold uppercase tracking-wide text-warning-500 dark:text-yellow-400 font-display"
           >{{ 'tasks.soilCheck.moistNotYet' | transloco }}</span
         >
-        <span class="text-sm font-semibold font-display text-neutral-900 dark:text-white">{{
+        <span class="text-sm font-medium font-display text-neutral-900 dark:text-white">{{
           'tasks.soilCheck.moistLabel' | transloco
         }}</span>
         <span class="text-xs text-neutral-500 dark:text-neutral-400 font-display">{{
@@ -156,7 +154,7 @@
       <div
         class="p-3 bg-neutral-50 dark:bg-neutral-900/60 border-l-4 border-l-primary-500 rounded-garden-sm mb-4 text-xs font-display text-neutral-600 dark:text-neutral-300 leading-relaxed"
       >
-        <p class="font-semibold text-neutral-800 dark:text-neutral-100 mb-0.5">
+        <p class="font-medium text-neutral-800 dark:text-neutral-100 mb-0.5">
           {{ 'tasks.soilCheck.wateringLoggedBanner' | transloco: { date: todayLabel() } }}
         </p>
         <p>
@@ -179,7 +177,7 @@
       <div
         class="p-3 bg-neutral-50 dark:bg-neutral-900/60 border-l-4 border-l-warning-500 rounded-garden-sm mb-4 text-xs font-display text-neutral-600 dark:text-neutral-300 leading-relaxed"
       >
-        <p class="font-semibold text-neutral-800 dark:text-neutral-100 mb-0.5">
+        <p class="font-medium text-neutral-800 dark:text-neutral-100 mb-0.5">
           {{ 'tasks.soilCheck.snoozeHeader' | transloco: { name: plant().common_name } }}
         </p>
         <p>
@@ -255,7 +253,7 @@
       <div class="flex flex-col gap-1.5">
         <label
           for="check-note"
-          class="text-xs font-semibold uppercase tracking-wide font-display text-neutral-500 dark:text-neutral-400"
+          class="text-xs font-medium uppercase tracking-wide font-display text-neutral-500 dark:text-neutral-400"
         >
           {{ 'tasks.soilCheck.notesLabel' | transloco }}
           <span class="normal-case tracking-normal font-normal text-neutral-400">{{

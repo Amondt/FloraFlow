@@ -42,14 +42,14 @@
         <span [class]="badgeClasses()">{{ categoryLabel() }}</span>
         <a
           [routerLink]="'/tasks'"
-          class="text-sm font-semibold font-display text-neutral-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
+          class="text-sm font-normal font-serif text-neutral-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 rounded-garden-sm"
           [attr.aria-label]="
             'journal.entryCard.openSoilCheckAria' | transloco: { name: entry().plants.common_name }
           "
           >{{ entry().plants.common_name }}</a
         >
         @if (entry().plants.scientific_name) {
-          <span class="text-xs font-display text-neutral-400 dark:text-neutral-500 italic">
+          <span class="text-xs font-serif text-neutral-400 dark:text-neutral-500 italic">
             {{ entry().plants.scientific_name }}
           </span>
         }
@@ -159,7 +159,7 @@
     @if (sickDiagnostics()) {
       <button
         type="button"
-        class="inline-flex items-center gap-2 text-xs font-semibold font-display text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500 pointer-coarse:min-h-11"
+        class="inline-flex items-center gap-2 text-xs font-medium font-display text-neutral-500 dark:text-neutral-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer px-2 py-1 rounded outline-none focus-visible:ring-2 focus-visible:ring-primary-500 pointer-coarse:min-h-11"
         [attr.aria-label]="
           'journal.entryCard.actionPointsAriaLabel'
             | transloco: { plant: entry().plants.common_name }

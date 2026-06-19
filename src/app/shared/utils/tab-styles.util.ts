@@ -1,5 +1,5 @@
 export const TAB_BASE =
-  'inline-flex items-center leading-none gap-1.5 px-3.5 py-2.5 text-[0.8125rem] font-semibold font-display border-b-2 -mb-px shrink-0 whitespace-nowrap cursor-pointer transition-colors duration-150 outline-none focus-visible:!border-primary-500 dark:focus-visible:!border-primary-400';
+  'inline-flex items-center leading-none gap-1.5 px-3.5 py-2.5 text-[0.8125rem] font-medium font-display border-b-2 -mb-px shrink-0 whitespace-nowrap cursor-pointer transition-colors duration-150 outline-none focus-visible:!border-primary-500 dark:focus-visible:!border-primary-400';
 export const TAB_ACTIVE = 'border-primary-500 text-primary-700 dark:text-primary-400';
 export const TAB_INACTIVE =
   'border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200';

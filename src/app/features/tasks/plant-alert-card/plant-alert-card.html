@@ -32,13 +32,13 @@
     <div class="flex-1 min-w-0">
       <p
         [id]="headingId()"
-        class="text-sm font-semibold font-display text-neutral-900 dark:text-white leading-snug truncate"
+        class="text-sm font-normal font-serif text-neutral-900 dark:text-white leading-snug truncate"
       >
         {{ plant().common_name }}
       </p>
       @if (plant().scientific_name) {
         <p
-          class="text-xs font-normal italic font-display text-neutral-400 dark:text-neutral-500 leading-snug truncate"
+          class="text-xs font-normal italic font-serif text-neutral-400 dark:text-neutral-500 leading-snug truncate"
         >
           {{ plant().scientific_name }}
         </p>

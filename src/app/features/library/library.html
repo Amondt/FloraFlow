@@ -7,13 +7,13 @@
     <header class="mb-10 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
       <div class="min-w-0">
         <p
-          class="text-xs font-semibold uppercase tracking-widest text-primary-600 dark:text-primary-400 font-display mb-1"
+          class="text-xs font-medium uppercase tracking-widest text-primary-600 dark:text-primary-400 font-mono mb-1"
         >
           {{ 'library.subtitle' | transloco }}
         </p>
         <h1
           id="library-heading"
-          class="text-3xl font-semibold font-display text-neutral-900 dark:text-white"
+          class="text-3xl font-normal font-serif text-neutral-900 dark:text-white"
         >
           {{ 'library.heading' | transloco }}
         </h1>
@@ -139,7 +139,7 @@
         >
           <div class="flex items-center justify-between mb-3">
             <span
-              class="text-xs font-semibold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 font-display"
+              class="text-xs font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-400 font-display"
             >
               {{ 'library.filtersHeading' | transloco }}
             </span>
@@ -328,7 +328,7 @@
                       class="relative w-8 h-8 inline-flex items-center justify-center rounded-garden-sm text-sm font-display transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 cursor-pointer"
                       [class]="
                         item === currentPage()
-                          ? 'bg-primary-500 text-white font-semibold'
+                          ? 'bg-primary-500 text-white font-medium'
                           : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800'
                       "
                       [attr.aria-label]="'library.pageAriaLabel' | transloco: { page: item + 1 }"
@@ -465,7 +465,7 @@
     <div
       class="shrink-0 flex items-center justify-between px-4 py-3 border-b border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 rounded-t-garden-lg"
     >
-      <span class="text-sm font-semibold font-display text-neutral-900 dark:text-white">
+      <span class="text-sm font-medium font-display text-neutral-900 dark:text-white">
         {{ 'library.filtersHeading' | transloco }}
       </span>
       <div class="flex items-center gap-3">

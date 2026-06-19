@@ -36,9 +36,7 @@
           aria-hidden="true"
         ></i>
         <p class="text-xs font-display text-primary-700 dark:text-primary-300 leading-snug">
-          <span class="font-semibold">{{
-            'journal.entryForm.leafDoctorLockTitle' | transloco
-          }}</span>
+          <span class="font-medium">{{ 'journal.entryForm.leafDoctorLockTitle' | transloco }}</span>
           — {{ 'journal.entryForm.leafDoctorLockDetail' | transloco }}
         </p>
       </div>
@@ -92,7 +90,7 @@
                 aria-hidden="true"
               ></i>
               <span
-                class="text-xs font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500 font-display"
+                class="text-xs font-medium uppercase tracking-wider text-neutral-400 dark:text-neutral-500 font-display"
               >
                 {{ group.label }}
               </span>
@@ -119,7 +117,7 @@
                 <span class="font-display leading-snug truncate">{{ opt.label }}</span>
                 @if (opt.scientificName) {
                   <span
-                    class="text-xs font-display italic text-neutral-400 dark:text-neutral-500 leading-snug truncate"
+                    class="text-xs font-serif italic text-neutral-400 dark:text-neutral-500 leading-snug truncate"
                   >
                     {{ opt.scientificName }}
                   </span>

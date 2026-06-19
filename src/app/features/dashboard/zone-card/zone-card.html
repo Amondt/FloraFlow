@@ -13,7 +13,7 @@
   <header class="px-4 pt-4 pb-0 flex items-start justify-between gap-2">
     <h2
       [id]="headingId()"
-      class="flex-1 min-w-0 text-base font-semibold font-display text-neutral-900 dark:text-white truncate"
+      class="flex-1 min-w-0 text-base font-normal font-serif text-neutral-900 dark:text-white truncate"
     >
       {{ zone().name }}
     </h2>
@@ -110,12 +110,12 @@
       <!-- Light -->
       <div class="flex items-baseline justify-between gap-2">
         <p
-          class="text-xs uppercase tracking-widest font-display text-neutral-400 dark:text-neutral-500 flex-shrink-0"
+          class="text-xs uppercase tracking-widest font-mono text-neutral-400 dark:text-neutral-500 flex-shrink-0"
         >
           {{ 'zones.card.lightLabel' | transloco }}
         </p>
         <p
-          class="text-sm font-semibold font-display text-neutral-800 dark:text-neutral-100 truncate text-right"
+          class="text-sm font-medium font-display text-neutral-800 dark:text-neutral-100 truncate text-right"
         >
           {{ lightLabel() }}
         </p>
@@ -130,7 +130,7 @@
         <!-- Humidity — inline: label | bar | % -->
         <div class="flex items-center gap-2">
           <p
-            class="text-xs uppercase tracking-widest font-display text-neutral-400 dark:text-neutral-500 flex-shrink-0"
+            class="text-xs uppercase tracking-widest font-mono text-neutral-400 dark:text-neutral-500 flex-shrink-0"
           >
             {{ 'zones.card.humidityLabel' | transloco }}
           </p>
@@ -150,7 +150,7 @@
             ></div>
           </div>
           <p
-            class="text-xs font-semibold font-display text-neutral-600 dark:text-neutral-300 flex-shrink-0 w-8 text-right"
+            class="text-xs font-medium font-display text-neutral-600 dark:text-neutral-300 flex-shrink-0 w-8 text-right"
           >
             {{ zone().humidity_baseline }}%
           </p>

@@ -12,7 +12,7 @@
 >
   @if (varietyCount() > 1) {
     <span
-      class="absolute top-3 right-3 text-xs font-semibold font-display px-2 py-0.5 rounded-full bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300 border border-primary-200 dark:border-primary-700 pointer-events-none"
+      class="absolute top-3 right-3 text-xs font-medium font-display px-2 py-0.5 rounded-full bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300 border border-primary-200 dark:border-primary-700 pointer-events-none"
       aria-hidden="true"
     >
       {{ 'library.card.varieties' | transloco: { count: varietyCount() } }}
@@ -54,7 +54,7 @@
   <div class="col-start-2 row-start-1 min-w-0 flex flex-col">
     @if (record().scientific_name) {
       <h2
-        class="text-base font-semibold italic font-display text-neutral-900 dark:text-neutral-100 leading-snug"
+        class="text-base font-normal italic font-serif text-neutral-900 dark:text-neutral-100 leading-snug"
       >
         {{ record().scientific_name }}
       </h2>

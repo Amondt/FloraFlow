@@ -7,13 +7,13 @@
     <header class="mb-8 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
       <div>
         <p
-          class="text-xs font-semibold uppercase tracking-widest text-primary-600 dark:text-primary-400 font-display mb-1"
+          class="text-xs font-medium uppercase tracking-widest text-primary-600 dark:text-primary-400 font-mono mb-1"
         >
           {{ 'journal.subtitle' | transloco }}
         </p>
         <h1
           id="journal-heading"
-          class="text-3xl font-semibold font-display text-neutral-900 dark:text-white"
+          class="text-3xl font-normal font-serif text-neutral-900 dark:text-white"
         >
           {{ 'journal.heading' | transloco }}
         </h1>
@@ -177,12 +177,12 @@
                 aria-hidden="true"
               >
                 <span
-                  class="block text-2xl font-bold font-display text-neutral-900 dark:text-white leading-none"
+                  class="block text-2xl font-normal font-serif text-neutral-900 dark:text-white leading-none"
                 >
                   {{ group.dayNumber }}
                 </span>
                 <span
-                  class="block text-[0.6875rem] font-mono font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wide leading-tight md:mt-0.5"
+                  class="block text-[0.6875rem] font-mono font-medium text-neutral-400 dark:text-neutral-500 uppercase tracking-wide leading-tight md:mt-0.5"
                 >
                   {{ group.monthYear }}
                 </span>

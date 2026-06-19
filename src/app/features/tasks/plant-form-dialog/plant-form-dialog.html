@@ -9,7 +9,7 @@
   (onHide)="onHide()"
 >
   <ng-template #header>
-    <span class="font-display text-base font-semibold">{{ dialogTitle() }}</span>
+    <span class="font-display text-base font-medium">{{ dialogTitle() }}</span>
   </ng-template>
   <form
     [formGroup]="form"
@@ -70,7 +70,7 @@
                     <span class="font-display leading-snug truncate">{{ s.common_name }}</span>
                     @if (s.scientific_name) {
                       <span
-                        class="text-xs font-display italic text-neutral-400 dark:text-neutral-500 leading-snug truncate"
+                        class="text-xs font-serif italic text-neutral-400 dark:text-neutral-500 leading-snug truncate"
                         >{{ s.scientific_name }}</span
                       >
                     }
@@ -122,11 +122,11 @@
             class="flex-1 min-h-36 rounded-garden-md border border-neutral-200 dark:border-neutral-700 p-4 flex flex-col justify-between"
           >
             <div class="flex flex-col gap-1">
-              <p class="text-base font-semibold font-display text-neutral-900 dark:text-white">
+              <p class="text-base font-normal font-serif text-neutral-900 dark:text-white">
                 {{ lockedSpeciesCommonName() }}
               </p>
               @if (lockedScientificName()) {
-                <em class="text-sm italic font-display text-neutral-500 dark:text-neutral-400">
+                <em class="text-sm italic font-serif text-neutral-500 dark:text-neutral-400">
                   {{ lockedScientificName() }}
                 </em>
               }

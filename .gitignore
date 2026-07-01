@@ -54,7 +54,6 @@ Thumbs.db
 
 # Supabase local state
 supabase/.temp/
-supabase/config.toml
 
 # Supabase auto-saved query snippets
 supabase/snippets/[Uu]ntitled*

@@ -299,7 +299,7 @@
   - One component (`leaf-doctor-dialog`) → both the Journal and Zone-detail surfaces.
   - Independent of in-progress 3.16 and of 3.18; both 3.18 and 3.19 touch `buildUserText()` — whichever lands second rebases that signature.
   - Plan: `docs/plans/phase-3/PHASE_3_19_PLAN.md`
-- [ ] **3.20 Heat-Stress Soil Advisory** | Agent: `/plumber` → `/visualizer` → `/gatekeeper`
+- [x] **3.20 Heat-Stress Soil Advisory** | Agent: `/plumber` → `/visualizer` → `/gatekeeper`
   - DB migration: `max_temp_next_24h NUMERIC(5,2)` on `weather_cache`; `weather-proxy` extended to fetch and cache the daily temperature maximum from the same free Open-Meteo call (no new API dependency, same 30-min TTL).
   - `WeatherService`: `HEAT_THRESHOLD_CELSIUS = 30`, `hasHeatRisk` computed signal (parallel to `hasFrostRisk`); `WeatherData` extended with `max_temp_next_24h`.
   - `soil-check-dialog.ts`: `recommendedDays` gains a `HEAT_MULTIPLIER = 0.65` when `hasHeatRisk()` is true — applies to all plants, no zone scoping. A one-line transparency note shown in the schedule step when the multiplier is active.

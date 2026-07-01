@@ -8,9 +8,20 @@ Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
 
   try {
-    // Auth
+    // Auth — user-facing function; requires a valid user JWT
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) return json({ error: 'Unauthorized' }, 401);
+
+    const supabase = createClient<Database>(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+    );
+
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
+    if (authError || !user) return json({ error: 'Unauthorized' }, 401);
 
     // Input validation
     const body = (await req.json()) as { scientificName?: string; commonName?: string };
@@ -18,10 +29,6 @@ Deno.serve(async (req: Request) => {
     if (!scientificName || !commonName) return json({ error: 'Missing fields' }, 400);
 
     // Clients
-    const supabase = createClient<Database>(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-    );
     const anthropic = new Anthropic({ apiKey: Deno.env.get('ANTHROPIC_API_KEY')! });
 
     // Enrich — throws EnrichmentError (503) on AI/iNat failure, plain Error (500) on DB errors

@@ -542,3 +542,30 @@
 2. Dark mode still works on every route — deep-archive surfaces, no unreadable text, no broken surfaces.
 3. WCAG AA contrast holds across the new palette (`DESIGN_SYSTEM.md §4` re-verified) in both themes.
 4. `bun run check` — zero errors.
+
+---
+
+## 8. Phase 6: Production Deployment
+
+- **Objective:** Take FloraFlow live — Angular SPA/PWA on Vercel (free), the full backend on hosted Supabase free tier (Postgres + Auth + Storage + Edge Functions + pg_cron). No feature or schema change; this phase stands up the remote and re-points everything currently localhost-bound.
+
+> **Locked decisions (user, 2026-07-01):** frontend on the Vercel `*.vercel.app` default domain (custom domain deferred); botanical cache seeded from the local export with `cache-enrichment-worker` throttled to hourly; Google-OAuth-only auth with email confirmation off (no custom SMTP).
+
+### 📋 Phase 6 Tasks
+
+- [ ] **6.A Provision + link the hosted project** | Agent: `/plumber` · Model: Sonnet · Effort: low
+- [ ] **6.B Push schema + import botanical seed** | Agent: `/plumber` · Model: Sonnet · Effort: low
+- [ ] **6.C Set Edge Function secrets** | Agent: `/plumber` · Model: Sonnet · Effort: low
+- [ ] **6.D Deploy Edge Functions** | Agent: `/plumber` · Model: Sonnet · Effort: low
+- [ ] **6.E Production cron re-point migration** (localhost → prod URL, `net.http_post`, worker hourly) | Agent: `/plumber` · Model: Sonnet · Effort: mid
+- [ ] **6.F Frontend production config + `vercel.json`** | Agent: `/visualizer` · Model: Sonnet · Effort: low
+- [ ] **6.G Deploy to Vercel + wire Auth & Google OAuth URLs** | Agent: `/visualizer` → `/plumber` · Model: Sonnet · Effort: mid
+- [ ] **6.H Production QA smoke gate** | Agent: `/gatekeeper` · Model: Sonnet · Effort: mid
+- Plan: `docs/plans/phase-6/PHASE_6_DEPLOYMENT_PLAN.md`
+
+### 🔒 Phase 6 QA Acceptance Criteria
+
+1. Live URL: Google login → onboarding → zone + plant → soil check → Library search → Leaf Doctor → journal image upload all succeed end-to-end.
+2. No `service_role` key or third-party API secret present in the client bundle; RLS still blocks cross-user reads on the remote.
+3. At least one pg_cron job fires successfully against the production function URL (verified in `cron.job_run_details`).
+4. `bun run check` — zero errors.
